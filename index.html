@@ -1262,28 +1262,14 @@ function showScreen(screenId) {
 }
 
 // Función para cambiar el archivo del visor PDF
-function loadPDF(pdfName) {
-  const viewer = document.getElementById('pdf-fullscreen-viewer');
 
   // 1. primero limpia
-  viewer.data = "";
-
-  // 2. fuerza recarga (truco importante)
-  setTimeout(() => {
-    viewer.data = pdfName + "#toolbar=1";
-  }, 50);
-
-  document.getElementById('pdf-fullscreen').style.display = 'block';
+function loadPDF(pdfName) {
+  window.open(pdfName, "_blank");
 }
 
 function cerrarPDF() {
-  const viewer = document.getElementById('pdf-fullscreen-viewer');
-
   document.getElementById('pdf-fullscreen').style.display = 'none';
-
-  // IMPORTANTE: limpiar completamente
-  viewer.data = "";
-  viewer.src = "";
 }
 
 
