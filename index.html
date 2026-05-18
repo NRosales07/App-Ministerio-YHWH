@@ -121,6 +121,14 @@ flex-wrap: wrap;}
   .song-content{font-size:0.75rem;}
 }
 
+ /* 3. El área de la letra se acopla justo abajo de la lista */
+  .main, #mainArea {
+    height: auto !important;
+    overflow-y: visible !important; /* Deja que la letra se estire libremente hacia abajo */
+    flex: 1;
+  }
+
+
 /* ---> PEGA ESTO JUSTO AQUÍ DEBAJO <--- */
 @media(max-width:580px){
   header {
@@ -132,6 +140,8 @@ flex-wrap: wrap;}
     margin-top: 8px; /* Le da un espacio libre arriba para que no se pegue */
   }
 }
+
+
 
 /* --- NUEVOS ESTILOS PARA LAS PANTALLAS --- */
 .app-screen {
