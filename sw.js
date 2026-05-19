@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alabanzas-v2';
+const CACHE_NAME = 'alabanzas-v3';
 // Lista de archivos que la app guardará en el teléfono para usarse sin internet
 const ASSETS = [
   'index.html',
@@ -36,10 +36,21 @@ self.addEventListener('activate', (e) => {
 });
 
 // Intercepta las peticiones para cargar todo desde el teléfono si no hay internet
+// Intercepta las peticiones de forma segura para evitar el error "Load failed" en iOS
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
+      // Si el archivo está en la memoria del teléfono, lo entrega de inmediato
+      if (response) {
+        return response;
+      }
+      
+      // Si no está en la memoria, intenta buscarlo en internet
+      return fetch(e.request).catch(() => {
+        // Si internet falla (modo avión), este bloque evita que Safari muera.
+        // Opcional: podrías retornar una página de error, o simplemente dejar que falle limpio.
+        console.log("Archivo no encontrado en caché ni en red.");
+      });
     })
   );
 });
