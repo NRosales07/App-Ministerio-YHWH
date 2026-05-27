@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alabanzas-v4';
+const CACHE_NAME = 'alabanzas-v5';
 // Lista de archivos que la app guardará en el teléfono para usarse sin internet
 const ASSETS = [
   'index.html',
