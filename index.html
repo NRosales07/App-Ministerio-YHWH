@@ -202,14 +202,14 @@ flex-wrap: wrap;}
 
 <!-- PANTALLA 1: MENÚ PRINCIPAL -->
 
-<!--<div id="screen-menu" class="app-screen active">
+<div id="screen-menu" class="app-screen active">
   <div class="menu-container">
     <h2 style="color: var(--gold); margin-bottom: 10px;">Ministerio YHWH</h2>
     <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
     <button class="menu-btn" onclick="showScreen('screen-chords')">🎵 Letras y Transpositor</button>
     <button class="menu-btn" onclick="showScreen('screen-pdfs')">📄 Cancioneros en PDF</button>
   </div>
-</div>-->
+</div>
 
 <!-- PANTALLA 2: TU REPERTORIO CON TRANSPOSITOR (INICIO) -->
 <div id="screen-chords" class="app-screen active">
@@ -1468,20 +1468,20 @@ buildList(SONGS);
 
 // 2. EL CONTROL MÁS SIMPLE DEL MUNDO: 
 // Pon aquí directamente el ID de la alabanza que quieres abrir (0, 1, 2, 3...)
-var id_alabanza = 138; 
+//var id_alabanza = 138; 
 
 // Abre la canción directamente sin dar rodeos
-loadSong(id_alabanza);
+//loadSong(id_alabanza);
 
 
 // REGISTRO DEL SERVICE WORKER (Para funcionamiento sin internet)
-//if ('serviceWorker' in navigator) {
-  // window.addEventListener('load', () => {
-    //navigator.serviceWorker.register('sw.js')
-     //.then((reg) => console.log('¡App lista para funcionar sin internet!', reg))
-      //.catch((err) => console.log('Error al activar el modo sin internet', err));
-  //});
-//}
+if ('serviceWorker' in navigator) {
+   window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+     .then((reg) => console.log('¡App lista para funcionar sin internet!', reg))
+      .catch((err) => console.log('Error al activar el modo sin internet', err));
+  });
+}
 
 </script>
 </body>
