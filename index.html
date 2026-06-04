@@ -263,11 +263,19 @@ flex-wrap: wrap;}
           </button>
 
           <div class="semitone-ctrl">
-          <button id="btnDown">&#9837;</button>
-          <div class="sem-display" id="semDisplay">Original</div>
-          <button id="btnUp">&#9839;</button>
+            <button id="btnDown">&#9837;</button>
+            <div class="sem-display" id="semDisplay">Original</div>
+            <button id="btnUp">&#9839;</button>
+          </div>
+
+      <div style="flex: 0 0 100%; display: flex; justify-content: center; margin-top: 14px; width: 100%;">
+            <button id="btnCifrado" onclick="alternarCifrado()" style="background: var(--bg3); color: var(--text); padding: 0 16px; width: auto; font-size: 0.75rem; font-weight: bold; border-radius: 5px; height: 32px; cursor: pointer; border: 1px solid var(--border);">
+              Cifrado: Americano (C D E)
+            </button>
+          </div>
+
           
-        </div>
+          
         </div>
 
 
@@ -1111,6 +1119,22 @@ var currentSong = null;
 var currentSemitones = 0;
 var currentKey = null;
 
+// --- NUEVO: Control de cifrado latino ---
+var cifradoLatino = false;
+var DICCIONARIO_LATINO = {
+  'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si'
+};
+
+function lineToLatino(line) {
+  var regexAcordes = /\b([A-G])(m|[0-9]|sus|aug|dim|b|#)*/g;
+  return line.replace(regexAcordes, function(acordeCompleto, notaBase) {
+    var notaLatina = DICCIONARIO_LATINO[notaBase];
+    var sufijo = acordeCompleto.slice(notaBase.length);
+    return notaLatina + sufijo;
+  });
+}
+// ----------------------------------------
+
 var KEYS = ['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B',
             'Cm','C#m','Dm','Ebm','Em','Fm','F#m','Gm','G#m','Am','Bbm','Bm'];
 
@@ -1193,10 +1217,8 @@ function renderContent(){
     var s=raw.trim();
     if(!s){out+='<span class="lb"></span>';continue;}
     
-    // 1. SI EMPIEZA CON CORCHETE [ (CLASE .LS)
     if(s[0]==='['){
       var textoEscapado = escH(s);
-      // Buscamos la palabra dentro del corchete y le metemos el span rojo
       var textoProcesado = textoEscapado.replace(/(MELODIA|MELODÍA|melodia|melodía)/gi, '<span class="word-red">$1</span>');
       out+='<span class="ls">'+textoProcesado+'</span>';
       continue;
@@ -1205,17 +1227,38 @@ function renderContent(){
     if(/^[0-9]+\.\s/.test(s)||/^(COMPOSITOR|VERS|ALBU|TONO)/.test(s)){
       out+='<span class="lm">'+escH(s)+'</span>';continue;
     }
+    
     if(isChordLine(raw)){
       var tl=st===0?raw:transposeChordLine(raw,st);
+      
+      // CAMBIO NUEVO: Traduce a Latino si la opción está activada
+      if (cifradoLatino) {
+        tl = lineToLatino(tl);
+      }
+      
       out+='<span class="lc">'+escH(tl)+'</span>';
     } else {
-      // 2. EN LAS LÍNEAS DE TEXTO NORMAL (CLASE .LL)
       var textoEscapado = escH(raw);
       var textoProcesado = textoEscapado.replace(/(MELODIA|MELODÍA|melodia|melodía)/gi, '<span class="word-red">$1</span>');
       out+='<span class="ll">'+textoProcesado+'</span>';
     }
   }
   document.getElementById('viewContent').innerHTML=out;
+  
+  // CAMBIO NUEVO: Traduce el tono de la barra gris también
+  var tonoMuestreo = currentKey || getOrigKey(currentSong);
+  if (cifradoLatino) {
+     tonoMuestreo = lineToLatino(tonoMuestreo);
+  }
+  
+  var elMeta = document.getElementById('viewMeta');
+  if (elMeta) {
+    elMeta.innerHTML=
+      '<strong>Compositor:</strong> '+escH(currentSong.compositor)+
+      ' &nbsp;|&nbsp; <strong>Tono actual:</strong> '+escH(tonoMuestreo) + '<br>' +
+      '<strong>Álbum:</strong> '+escH(currentSong.album||'-')+
+      (currentSong.version ? ' &nbsp;|&nbsp; <strong>Versión:</strong> '+escH(currentSong.version) : '');
+  }
 }
 
 function setActiveKey(key){
@@ -1436,7 +1479,15 @@ if (nextBtnEl) {
   nextBtnEl.addEventListener('click', siguienteAlabanza);
 }
 
-
+// --- NUEVO: Función para que funcione el botón de cambiar cifrado ---
+function alternarCifrado() {
+  cifradoLatino = !cifradoLatino;
+  var btn = document.getElementById('btnCifrado');
+  if (btn) {
+    btn.textContent = cifradoLatino ? 'Cifrado: Latino (Do Re Mi)' : 'Cifrado: Americano (C D E)';
+  }
+  renderContent();
+}
 
 
 
