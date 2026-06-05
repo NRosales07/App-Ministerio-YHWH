@@ -15,8 +15,40 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;}
-header{background:linear-gradient(135deg,#f1824b,#1d2677,#101038);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(0,0,0,0.5);
-flex-wrap: wrap;}
+header {
+  background: linear-gradient(135deg, #f1824b, #1d2677, #101038);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  flex-wrap: wrap; /* Permite que el buscador baje ordenadamente */
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media(max-width: 600px) {
+  .search-wrap {
+    flex: 1 0 100%;    /* Forza al buscador a ocupar todo el ancho disponible abajo */
+    order: 3;          /* Se posiciona visualmente en la fila de abajo */
+    margin-top: 6px;   /* Separa la barra para que no pegue con los botones de arriba */
+  }
+}
 .logo{font-family:'Inter',Arial,serif;font-size:0.8rem;color:var(--gold);letter-spacing:1px;white-space:nowrap;}
 .logo span{color:var(--gold2);font-weight:700;}
 .search-wrap{flex:1;position:relative; min-width: 150px;}
@@ -146,8 +178,10 @@ flex-wrap: wrap;}
 .app-screen {
   display: none;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   flex-direction: column;
+  background: #0f0f29;
+  color: #e8e6f0;
 }
 .app-screen.active {
   display: flex;
@@ -194,6 +228,178 @@ flex-wrap: wrap;}
   color: #ff4a4a !important; /* Un rojo llamativo que combina con tu fondo oscuro */
   font-weight: bold;         /* Opcional: la hace resaltar un poco más */
 }
+/* --- ESTILOS PARA EL MODO CLARO REAL --- */
+body.light-theme {
+  background-color: #f4f6f9 !important;
+  color: #1a1a1a !important;
+}
+body.light-theme .app-screen {
+  background-color: #f4f6f9 !important;
+}
+body.light-theme .main {
+  background: #ffffff !important;
+}
+body.light-theme .ll {
+  color: #111111 !important;
+}
+body.light-theme .ls {
+  color: #1a365d !important;
+}
+body.light-theme .lc {
+  color: #b22222 !important; /* Acordes en color rojo oscuro en fondo blanco */
+}
+body.light-theme .song-view, 
+body.light-theme .controls {
+  background: #e9ecef !important;
+  border: 1px solid #ced4da !important;
+  color: #212529 !important;
+}
+body.light-theme .controls label,
+body.light-theme .sem-display {
+  color: #212529 !important;
+}
+
+/* 🌟 CORRECCIÓN AQUÍ: Forzar colores oscuros para el título y la metadata 🌟 */
+body.light-theme .song-title {
+  color: #1a365d !important; /* Un azul marino elegante y fuerte para el título */
+}
+body.light-theme .song-meta,
+body.light-theme .song-meta strong {
+  color: #4a5568 !important; /* Gris oscuro muy legible para el compositor, álbum, etc. */
+}
+
+
+/* === TAMAÑO DE FUENTE === */
+.font-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  background: #1b2152;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.font-controls span {
+  font-size: 0.75rem;
+  color: var(--text2);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+.font-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.font-btn:hover { border-color: var(--gold); color: var(--gold); }
+.font-size-display {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: var(--gold);
+  min-width: 36px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* === NOTAS POR CANCIÓN === */
+.notas-container {
+  margin-top: 24px;
+  padding: 14px;
+  background: #1b2152;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.notas-label {
+  font-size: 0.72rem;
+  color: var(--text2);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+.notas-textarea {
+  width: 100%;
+  min-height: 90px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 0.82rem;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.notas-textarea:focus { border-color: var(--gold); }
+.notas-guardado {
+  font-size: 0.7rem;
+  color: var(--gold);
+  margin-top: 5px;
+  display: none;
+}
+body.light-theme .notas-container { background: #e9ecef; border-color: #ced4da; }
+body.light-theme .notas-textarea { background: #fff; color: #111; border-color: #ced4da; }
+body.light-theme .notas-label { color: #4a5568; }
+
+/* === FAVORITOS === */
+.fav-star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 4px;
+  line-height: 1;
+  color: #888;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+.fav-star.activo { color: #f1c40f; }
+.song-item-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+.song-item-texto { flex: 1; }
+.fav-section-title {
+  padding: 8px 16px 4px;
+  font-size: 0.68rem;
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+.fav-toggle-btn {
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: auto;
+  white-space: nowrap;
+  transition: border-color 0.15s;
+}
+.fav-toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
 
 </style>
 </head>
@@ -207,28 +413,44 @@ flex-wrap: wrap;}
     <h2 style="color: var(--gold); margin-bottom: 10px;">Ministerio YHWH</h2>
     <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
     <button class="menu-btn" onclick="showScreen('screen-chords')">🎵 Letras y Transpositor</button>
-    <button class="menu-btn" onclick="showScreen('screen-pdfs')">📄 Cancioneros en PDF</button>
+    <button class="menu-btn" onclick="showScreen('screen-pdfs')">📄 Cancioneros en PDF</button> 
+    <button class="menu-btn" onclick="showScreen('screen-setlist')">📋 Repertorio del Domingo</button>
+
+
+
+
+
   </div>
 </div>
 
 <!-- PANTALLA 2: TU REPERTORIO CON TRANSPOSITOR (INICIO) -->
-<div id="screen-chords" class="app-screen active">
+<div id="screen-chords" class="app-screen">
 
 
 
 <header>
+  <!-- Fila Superior Izquierda: Menú y Título juntos -->
+  <div class="header-brand">
+    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+    <div class="logo">&#10022; <span>Ministerio</span> YHWH</div>
+  </div>
 
+  <!-- Fila Superior Derecha: Botón Favoritos y Contador juntos -->
+  <div class="header-actions">
+    <button class="fav-toggle-btn" id="btnFavToggle" onclick="toggleModoFav()">⭐ Favoritos</button>
+    <div class="song-count" id="songCount"></div>
+  </div>
 
-<button class="back-btn" style="margin-left: 15px;" onclick="showScreen('screen-menu')">⬅ Menú</button>
-
-
-  <div class="logo">&#10022; <span>Ministerio</span> YHWH</div>
+  <!-- Fila Inferior Automática: Buscador centrado y amplio -->
   <div class="search-wrap">
     <span class="si">&#128269;</span>
     <input type="text" id="searchInput" placeholder="Buscar cancion o compositor...">
   </div>
-  <div class="song-count" id="songCount"></div>
 </header>
+
+
+
+
 <div class="layout">
   <div class="sidebar"><div id="songList"></div></div>
   <div class="main" id="mainArea">
@@ -237,10 +459,18 @@ flex-wrap: wrap;}
       <p>Selecciona una cancion para ver su letra con acordes. Usa el transpositor para cambiar la tonalidad.</p>
     </div>
     <div class="song-view" id="songView">
-      <div class="song-header">
-        <div class="song-title" id="viewTitle"></div>
-        <div class="song-meta" id="viewMeta"></div>
-    <div style="text-align: center; margin-top: 12px; min-height: 40px;" id="mediaContainer"></div>
+         <div class="song-header">
+  <div class="song-title" id="viewTitle"></div>
+  <div class="song-meta" id="viewMeta"></div>
+  <div style="text-align: center; margin-top: 12px; min-height: 40px;" id="mediaContainer"></div>
+</div>
+
+<!-- CONTROLES DE TAMAÑO DE FUENTE -->
+<div class="font-controls" style="justify-content: center;">
+  <span>Tamaño</span>
+  <button class="font-btn" onclick="cambiarFuente(-1)" title="Reducir">A−</button>
+  <div class="font-size-display" id="fontSizeDisplay">12px</div>
+  <button class="font-btn" onclick="cambiarFuente(1)" title="Aumentar">A+</button>
 </div>
      
      
@@ -268,10 +498,38 @@ flex-wrap: wrap;}
             <button id="btnUp">&#9839;</button>
           </div>
 
-      <div style="flex: 0 0 100%; display: flex; justify-content: center; margin-top: 14px; width: 100%;">
-            <button id="btnCifrado" onclick="alternarCifrado()" style="background: var(--bg3); color: var(--text); padding: 0 16px; width: auto; font-size: 0.75rem; font-weight: bold; border-radius: 5px; height: 32px; cursor: pointer; border: 1px solid var(--border);">
+<div style="flex: 0 0 100%; display: flex; justify-content: center; gap: 6px; margin-top: 14px; width: 100%; flex-wrap: wrap;">
+            
+            <button id="btnCifrado" onclick="alternarCifrado()" style="background: var(--bg3); color: var(--text); padding: 0 12px; width: auto; font-size: 0.75rem; font-weight: bold; border-radius: 5px; height: 32px; cursor: pointer; border: 1px solid var(--border);">
               Cifrado: Americano (C D E)
             </button>
+
+            <button id="btnOcultarAcordes" onclick="alternarAcordes()" style="background: var(--bg3); color: var(--text); padding: 0 12px; width: auto; font-size: 0.75rem; font-weight: bold; border-radius: 5px; height: 32px; cursor: pointer; border: 1px solid var(--border);">
+              Solo Letra 🎤
+            </button>
+
+
+
+
+
+
+            <button id="btnAddSetlist"
+  onclick="agregarAlRepertorio()"
+  style="background: #f1824b; color: #000; padding: 0 12px; width: auto;
+         font-size: 0.75rem; font-weight: bold; border-radius: 5px;
+         height: 32px; cursor: pointer; border: 1px solid var(--border);">
+  ➕ Repertorio
+</button>
+
+
+
+
+
+
+            <button id="btnClaro" onclick="alternarModoClaro()" style="background: var(--bg3); color: var(--text); padding: 0 12px; width: auto; font-size: 0.75rem; font-weight: bold; border-radius: 5px; height: 32px; cursor: pointer; border: 1px solid var(--border);">
+              Tema: Oscuro 🌙
+            </button>
+
           </div>
 
           
@@ -283,12 +541,39 @@ flex-wrap: wrap;}
 
       </div>
       <div class="song-content" id="viewContent"></div>
+      <!-- NOTAS POR CANCIÓN -->
+<div class="notas-container" id="notasContainer" style="display:none;">
+  <span class="notas-label">📝 Notas del director</span>
+  <textarea class="notas-textarea" id="notasTextarea" 
+    placeholder="Escribe indicaciones aquí... Ej: Entrar suave, repetir coro 2 veces, pausa antes del puente...">
+  </textarea>
+  <div class="notas-guardado" id="notasGuardado">✓ Guardado</div>
+</div>
     </div>
   </div>
 </div>
 </div>
 
 
+ <div id="screen-setlist" class="app-screen">
+  <header style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);
+    border-bottom:1px solid #2a2a45; padding:12px 16px;
+    display:flex; align-items:center; gap:15px; flex-shrink:0;">
+    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+    <div class="logo">&#10022; <span>Repertorio</span> del Domingo</div>
+  </header>
+  <div style="flex:1; padding:16px; overflow-y:auto;">
+    <div id="setlistContent"></div>
+    <div style="text-align:center; margin-top:20px;">
+      <button onclick="vaciarRepertorio()"
+        style="background:#c0392b; color:#fff; border:none; padding:10px 18px;
+               border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">
+        🗑️ Vaciar Repertorio
+      </button>
+    </div>
+  </div>
+    </div>
+    
 <!-- PANTALLA 3: VISOR DE PDFS -->
 <div id="screen-pdfs" class="app-screen">
   <header style="background: linear-gradient(135deg,#f1824b,#1d2677,#101038); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
@@ -317,9 +602,21 @@ flex-wrap: wrap;}
        <div class="song-item" onclick="loadPDF('Alabanzas_Jub_Acordes.pdf')">
         <div class="snum">#4</div><div class="stitle">Repertorio Alabanzas de Júbilo - Acordes</div>
       </div>
+   <!-- PANTALLA 4: REPERTORIO DEL DOMINGO -->
+
    
-   
+
+
+
+
+
+
+
     </div>
+    
+   
+
+
     
     <!-- Contenedor donde se dibuja el PDF -->
     <div class="main" style="padding: 0; background: #111126;">
@@ -1119,11 +1416,14 @@ var currentSong = null;
 var currentSemitones = 0;
 var currentKey = null;
 
-// --- NUEVO: Control de cifrado latino ---
+// --- NUEVO: Control de cifrado latino y Ocultar Acordes ---
 var cifradoLatino = false;
+var ocultarAcordes = false; // Variable de control nueva
+
 var DICCIONARIO_LATINO = {
   'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si'
 };
+
 
 function lineToLatino(line) {
   var regexAcordes = /\b([A-G])(m|[0-9]|sus|aug|dim|b|#)*/g;
@@ -1229,9 +1529,13 @@ function renderContent(){
     }
     
     if(isChordLine(raw)){
+      // ✨ CAMBIO AQUÍ: Si la opción de ocultar acordes está activa, saltamos la línea
+      if (ocultarAcordes) {
+        continue; 
+      }
+      
       var tl=st===0?raw:transposeChordLine(raw,st);
       
-      // CAMBIO NUEVO: Traduce a Latino si la opción está activada
       if (cifradoLatino) {
         tl = lineToLatino(tl);
       }
@@ -1245,7 +1549,6 @@ function renderContent(){
   }
   document.getElementById('viewContent').innerHTML=out;
   
-  // CAMBIO NUEVO: Traduce el tono de la barra gris también
   var tonoMuestreo = currentKey || getOrigKey(currentSong);
   if (cifradoLatino) {
      tonoMuestreo = lineToLatino(tonoMuestreo);
@@ -1294,32 +1597,37 @@ function shiftSemitone(delta){
 function buildKeySelector(song){
   var orig = getOrigKey(song);
   var sel = document.getElementById('keySelector');
+  if (!sel) return;
   sel.innerHTML = ''; // Limpiamos el contenedor
   
-  // Creamos los dos contenedores para separar las filas
   var rowMayores = document.createElement('div');
   rowMayores.style.display = 'flex';
   rowMayores.style.gap = '4px';
   rowMayores.style.flexWrap = 'wrap';
   rowMayores.style.width = '100%';
-  rowMayores.style.marginBottom = '8px'; // Espacio entre filas
+  rowMayores.style.marginBottom = '8px'; 
   
   var rowMenores = document.createElement('div');
   rowMenores.style.display = 'flex';
-  rowMenores.style.gap = '4px';
+  rowMayores.style.gap = '4px';
   rowMenores.style.flexWrap = 'wrap';
   rowMenores.style.width = '100%';
 
-  // Recorremos tu lista de KEYS existente
   for(var i = 0; i < KEYS.length; i++){
     var k = KEYS[i];
     var btn = document.createElement('button');
     btn.className = 'key-btn' + (k === orig ? ' original' : '');
     btn.setAttribute('data-key', k);
-    btn.textContent = k;
+    
+    // ✨ CAMBIO AQUÍ: Si el cifrado latino está activo, traduce el texto que se muestra en el botón
+    if (cifradoLatino) {
+      btn.textContent = lineToLatino(k);
+    } else {
+      btn.textContent = k;
+    }
+    
     btn.onclick = (function(key){ return function(){ selectKey(key); }; })(k);
     
-    // Clasificamos: si termina en 'm' minúscula es menor, si no, es mayor
     if (k.endsWith('m')) {
       rowMenores.appendChild(btn);
     } else {
@@ -1327,11 +1635,10 @@ function buildKeySelector(song){
     }
   }
   
-  // Agregamos las dos filas ordenadas al selector principal
   sel.appendChild(rowMayores);
   sel.appendChild(rowMenores);
   
-  setActiveKey(orig);
+  setActiveKey(currentKey || orig);
 }
 
 function loadSong(id){
@@ -1361,7 +1668,8 @@ function loadSong(id){
     '<strong>Álbum:</strong> '+escH(song.album||'-')+
     (song.version ? ' &nbsp;|&nbsp; <strong>Versión:</strong> '+escH(song.version) : '');
 
-  buildKeySelector(song);
+
+    buildKeySelector(song);
   updateSemDisplay();
   renderContent();
   var items=document.querySelectorAll('.song-item');
@@ -1486,19 +1794,54 @@ function alternarCifrado() {
   if (btn) {
     btn.textContent = cifradoLatino ? 'Cifrado: Latino (Do Re Mi)' : 'Cifrado: Americano (C D E)';
   }
+  
+  // ✨ AGREGA ESTA LÍNEA AQUÍ: Redibuja el panel de tonos con el cifrado correcto
+  if (currentSong) {
+    buildKeySelector(currentSong);
+  }
+  
+  renderContent();
+}
+// --- NUEVO: Función para ocultar o mostrar acordes ---
+function alternarAcordes() {
+  ocultarAcordes = !ocultarAcordes;
+  var btn = document.getElementById('btnOcultarAcordes');
+  if (btn) {
+    btn.textContent = ocultarAcordes ? 'Mostrar Acordes 👁️' : 'Solo Letra 🎤';
+  }
   renderContent();
 }
 
+// --- NUEVO: Variable y función para el Modo Claro ---
+var modoClaro = false;
 
+function alternarModoClaro() {
+  modoClaro = !modoClaro;
+  
+  // Añade o quita la clase del tema claro al body
+  document.body.classList.toggle('light-theme', modoClaro);
+  
+  // Actualizamos el texto del botón
+  var btn = document.getElementById('btnClaro');
+  if (btn) {
+    btn.textContent = modoClaro ? 'Tema: Claro ☀️' : 'Tema: Oscuro 🌙';
+  }
+}
 
 
 // Función para ocultar pantallas y mostrar la seleccionada
 function showScreen(screenId) {
   var screens = document.querySelectorAll('.app-screen');
-  for(var i = 0; i < screens.length; i++) {
+  for (var i = 0; i < screens.length; i++) {
     screens[i].classList.remove('active');
   }
-  document.getElementById(screenId).classList.add('active');
+  var target = document.getElementById(screenId);
+  if (target) {
+    target.classList.add('active');
+  }
+  if (screenId === 'screen-setlist') {
+    renderSetlist();
+  }
 }
 
 // Función para cambiar el archivo del visor PDF
@@ -1512,6 +1855,67 @@ function cerrarPDF() {
   document.getElementById('pdf-fullscreen').style.display = 'none';
 }
 
+// ── REPERTORIO DEL DOMINGO ──────────────────────────────
+// ── REPERTORIO DEL DOMINGO ──────────────────────────────
+var setlistDOM = [];
+
+function agregarAlRepertorio() {
+  if (!currentSong) {
+    alert('Primero abre una canción.');
+    return;
+  }
+  for (var i = 0; i < setlistDOM.length; i++) {
+    if (setlistDOM[i].id === currentSong.id) {
+      alert('Esta canción ya está en el repertorio.');
+      return;
+    }
+  }
+  setlistDOM.push({
+    id: currentSong.id,
+    title: currentSong.title,
+    tono: currentSong.tono
+  });
+  alert('✅ "' + currentSong.title + '" añadida al repertorio.');
+}
+
+
+function renderSetlist() {
+  var cont = document.getElementById('setlistContent');
+  if (!cont) return;
+  if (setlistDOM.length === 0) {
+    cont.innerHTML = 
+      '<div style="text-align:center; margin-top: 60px;">' +
+        '<div style="font-size: 3rem;">🎵</div>' +
+        '<p style="color: #e0946a; font-size: 1rem; margin-top: 16px; font-weight: bold;">No hay alabanzas en el repertorio</p>' +
+        '<p style="color: #8888aa; font-size: 0.8rem; margin-top: 8px;">Abre una canción y presiona<br><strong style="color:#f1824b;">➕ Repertorio</strong> para agregarla aquí.</p>' +
+      '</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < setlistDOM.length; i++) {
+    var s = setlistDOM[i];
+    html += '<div class="song-item" onclick="abrirDesdeRepertorio(\'' + s.id + '\')"' +
+            ' style="border-radius:8px;margin-bottom:6px;">' +
+            '<div class="snum">' + (i + 1) + '</div>' +
+            '<div class="stitle">' + escH(s.title) + '</div>' +
+            '<div class="skey">&#9836; ' + escH(s.tono || '') + '</div>' +
+            '</div>';
+  }
+  cont.innerHTML = html;
+}
+
+function abrirDesdeRepertorio(id) {
+  showScreen('screen-chords');
+  loadSong(id);
+}
+
+function vaciarRepertorio() {
+  if (confirm('¿Vaciar el repertorio del domingo?')) {
+    setlistDOM = [];
+    renderSetlist();
+  }
+}
+// ────────────────────────────────────────────────────────
 
 
 // 1. Dibuja la lista a la izquierda automáticamente
@@ -1532,6 +1936,198 @@ if ('serviceWorker' in navigator) {
      .then((reg) => console.log('¡App lista para funcionar sin internet!', reg))
       .catch((err) => console.log('Error al activar el modo sin internet', err));
   });
+}
+
+// ============================================================
+// === TAMAÑO DE FUENTE ========================================
+// ============================================================
+var FONT_MIN = 9;
+var FONT_MAX = 22;
+var FONT_DEFAULT = 12;
+var fontSizeCurrent = parseInt(localStorage.getItem('yhwh_fontsize')) || FONT_DEFAULT;
+
+function aplicarFuente() {
+  var el = document.getElementById('viewContent');
+  if (!el) return;
+  el.querySelectorAll('.lc, .ll, .ls, .lm').forEach(function(span) {
+    span.style.fontSize = fontSizeCurrent + 'px';
+  });
+  var disp = document.getElementById('fontSizeDisplay');
+  if (disp) disp.textContent = fontSizeCurrent + 'px';
+}
+
+function cambiarFuente(delta) {
+  fontSizeCurrent = Math.min(FONT_MAX, Math.max(FONT_MIN, fontSizeCurrent + delta));
+  localStorage.setItem('yhwh_fontsize', fontSizeCurrent);
+  aplicarFuente();
+}
+
+// Aplicar fuente después de renderContent — parchamos la función
+var _renderContentOrig = renderContent;
+renderContent = function() {
+  _renderContentOrig();
+  aplicarFuente();
+};
+
+// Mostrar tamaño inicial en el display
+document.addEventListener('DOMContentLoaded', function() {
+  var disp = document.getElementById('fontSizeDisplay');
+  if (disp) disp.textContent = fontSizeCurrent + 'px';
+});
+
+// ============================================================
+// === NOTAS POR CANCIÓN =======================================
+// ============================================================
+var notasTimer = null;
+
+function claveNota(songId) {
+  return 'yhwh_nota_' + songId;
+}
+
+function cargarNotas(songId) {
+  var cont = document.getElementById('notasContainer');
+  var ta = document.getElementById('notasTextarea');
+  var guardado = document.getElementById('notasGuardado');
+  if (!cont || !ta) return;
+  cont.style.display = 'block';
+  ta.value = localStorage.getItem(claveNota(songId)) || '';
+  if (guardado) guardado.style.display = 'none';
+}
+
+function guardarNotas() {
+  if (!currentSong) return;
+  var ta = document.getElementById('notasTextarea');
+  var guardado = document.getElementById('notasGuardado');
+  if (!ta) return;
+  localStorage.setItem(claveNota(currentSong.id), ta.value);
+  if (guardado) {
+    guardado.style.display = 'block';
+    setTimeout(function() { guardado.style.display = 'none'; }, 1500);
+  }
+}
+
+// Escuchar cambios en el textarea con debounce
+document.addEventListener('DOMContentLoaded', function() {
+  var ta = document.getElementById('notasTextarea');
+  if (ta) {
+    ta.addEventListener('input', function() {
+      clearTimeout(notasTimer);
+      notasTimer = setTimeout(guardarNotas, 800);
+    });
+  }
+});
+
+// Parchamos loadSong para que cargue las notas automáticamente
+var _loadSongOrig = loadSong;
+loadSong = function(id) {
+  _loadSongOrig(id);
+  if (currentSong) cargarNotas(currentSong.id);
+};
+
+// ============================================================
+// === FAVORITOS ===============================================
+// ============================================================
+var favs = JSON.parse(localStorage.getItem('yhwh_favs') || '[]');
+var modoFav = false;
+
+function esFavorito(id) {
+  return favs.indexOf(String(id)) !== -1;
+}
+
+function toggleFav(id, event) {
+  if (event) event.stopPropagation();
+  var sid = String(id);
+  var idx = favs.indexOf(sid);
+  if (idx === -1) {
+    favs.push(sid);
+  } else {
+    favs.splice(idx, 1);
+  }
+  localStorage.setItem('yhwh_favs', JSON.stringify(favs));
+  // Si estamos en modo favoritos, actualizar lista
+  if (modoFav) {
+    buildList(SONGS.filter(function(s) { return esFavorito(s.id); }));
+  } else {
+    filterSongs();
+  }
+}
+
+function toggleModoFav() {
+  modoFav = !modoFav;
+  var btn = document.getElementById('btnFavToggle');
+  if (btn) {
+    btn.textContent = modoFav ? '📋 Ver todos' : '⭐ Favoritos';
+    btn.style.borderColor = modoFav ? 'var(--gold)' : 'var(--border)';
+    btn.style.color = modoFav ? 'var(--gold)' : 'var(--text)';
+  }
+  if (modoFav) {
+    var sols = SONGS.filter(function(s) { return esFavorito(s.id); });
+    buildList(sols);
+  } else {
+    filterSongs();
+  }
+}
+
+// Parchamos buildList para incluir estrellas
+var _buildListOrig = buildList;
+buildList = function(songs) {
+  var list = document.getElementById('songList');
+  var count = document.getElementById('songCount');
+  if (!songs.length) {
+    list.innerHTML = modoFav
+      ? '<div class="no-results">No tienes canciones favoritas aún.<br>Toca ★ en cualquier canción.</div>'
+      : '<div class="no-results">No se encontraron canciones</div>';
+    if (count) count.textContent = '';
+    return;
+  }
+
+  // Separar favoritos y no favoritos
+  var favSongs = songs.filter(function(s) { return esFavorito(s.id); });
+  var otrosSongs = songs.filter(function(s) { return !esFavorito(s.id); });
+
+  if (count) count.textContent = songs.length + ' canciones';
+
+  var html = '';
+
+  // Sección favoritos
+  if (favSongs.length > 0) {
+    html += '<div class="fav-section-title">⭐ Favoritos</div>';
+    for (var i = 0; i < favSongs.length; i++) {
+      html += crearItemHtml(favSongs[i], i + 1);
+    }
+  }
+
+  // Sección todas
+  if (otrosSongs.length > 0 && !modoFav) {
+    if (favSongs.length > 0) {
+      html += '<div class="fav-section-title" style="margin-top:8px;">Todas las canciones</div>';
+    }
+    for (var j = 0; j < otrosSongs.length; j++) {
+      html += crearItemHtml(otrosSongs[j], j + 1);
+    }
+  } else if (modoFav && otrosSongs.length === 0 && favSongs.length === 0) {
+    html = '<div class="no-results">No tienes canciones favoritas aún.</div>';
+  }
+
+  list.innerHTML = html;
+};
+
+function crearItemHtml(s, num) {
+  var esFav = esFavorito(s.id);
+  return '<div class="song-item" data-id="' + s.id + '" onclick="loadSong(\'' + s.id + '\')">' +
+    '<div class="song-item-inner">' +
+      '<div class="song-item-texto">' +
+        '<div class="snum">#' + num + '</div>' +
+        '<div class="stitle">' + escH(s.title) + '</div>' +
+        '<div class="skey">' + (s.tono ? '&#9836; ' + escH(s.tono) : '') + '</div>' +
+      '</div>' +
+      '<button class="fav-star ' + (esFav ? 'activo' : '') + '" ' +
+        'onclick="toggleFav(\'' + s.id + '\', event)" ' +
+        'title="' + (esFav ? 'Quitar de favoritos' : 'Añadir a favoritos') + '">' +
+        (esFav ? '★' : '☆') +
+      '</button>' +
+    '</div>' +
+  '</div>';
 }
 
 </script>
