@@ -1,14 +1,15 @@
 const CACHE_NAME = 'alabanzas-v10';
+
 // Lista de archivos que la app guardará en el teléfono para usarse sin internet
 const ASSETS = [
   'index.html',
   'manifest.json',
- 'icon-192.png',
+  'icon-192.png',
   'icon-512.png',
   'Alabanzas_Acordes.pdf',
   'Alabanzas_Jub_Acordes.pdf',
   'Alabanzas_Jub_Letra.pdf',
-    'Alabanzas_Letra.pdf'
+  'Alabanzas_Letra.pdf'
 ];
 
 // Instala el Service Worker y guarda los archivos en caché
@@ -18,6 +19,8 @@ self.addEventListener('install', (e) => {
       return cache.addAll(ASSETS);
     })
   );
+  // Fuerza al Service Worker nuevo a tomar el control de inmediato sin quedarse en espera
+  self.skipWaiting();
 });
 
 // Activa el Service Worker y limpia cachés viejos si actualizas la app
@@ -33,6 +36,8 @@ self.addEventListener('activate', (e) => {
       );
     })
   );
+  // Hace que el nuevo Service Worker controle la página de forma inmediata
+  self.clients.claim();
 });
 
 // Intercepta las peticiones para cargar todo desde el teléfono si no hay internet
@@ -48,7 +53,6 @@ self.addEventListener('fetch', (e) => {
       // Si no está en la memoria, intenta buscarlo en internet
       return fetch(e.request).catch(() => {
         // Si internet falla (modo avión), este bloque evita que Safari muera.
-        // Opcional: podrías retornar una página de error, o simplemente dejar que falle limpio.
         console.log("Archivo no encontrado en caché ni en red.");
       });
     })
