@@ -46,13 +46,7 @@
   });
 
   // Escuchar repertorio en tiempo real
-// Escuchar repertorio en tiempo real
-  window.fbIgnorarSiguienteUpdate = false;
   onValue(ref(db, 'repertorio'), function(snapshot) {
-    if (window.fbIgnorarSiguienteUpdate) {
-      window.fbIgnorarSiguienteUpdate = false;
-      return;
-    }
     var data = snapshot.val();
     if (data) {
       window.repertorios = data;
@@ -1346,13 +1340,14 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
   <!-- Fila Superior Derecha: Contador -->
   <div class="header-actions">
-    <button id="btnAdminLogin" onclick="toggleAdminLogin()"
+
+<button id="btnAdminLogin" onclick="toggleAdminLogin()"
   style="background:var(--bg3);border:1px solid var(--border);color:var(--text);
          padding:5px 10px;border-radius:6px;font-size:0.72rem;cursor:pointer;">
   🔑 Admin
 </button>
-    <div class="song-count" id="songCount"></div>
 
+    <div class="song-count" id="songCount"></div>
   </div>
 
   <!-- Fila Inferior Automática: Buscador centrado y amplio -->
@@ -4301,12 +4296,7 @@ function guardarRepertorios() {
   localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
   localStorage.setItem('yhwh_repertorio_dia', repertorioDiaActivo);
   localStorage.setItem('yhwh_repertorio', JSON.stringify(getRepertorioDia('domingo')));
- if (window.fbDb) {
-    pedirLoginYEjecutar(function() {
-       window.fbIgnorarSiguienteUpdate = true;
-      window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios);
-    });
- }}
+}
 
 function getRepertorioDia(dia) {
   dia = dia === 'viernes' ? 'viernes' : 'domingo';
@@ -5064,15 +5054,12 @@ function setDificultad(nivel) {
     mostrarToast(nombres[nivel] + ' — ' + currentSong.title);
   }
   actualizarBotonesDificultad();
-
-  // ⬇️ AGREGAR al final de setDificultad, antes del cierre }
-if (window.fbDb) {
-    pedirLoginYEjecutar(function() {
-      var difData = {};
-      try { difData = JSON.parse(localStorage.getItem('yhwh_dificultad') || '{}'); } catch(e){}
-      window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData);
-    });
-  }}
+    if (window.esAdmin && window.fbDb) {
+    var difData = {};
+    try { difData = JSON.parse(localStorage.getItem('yhwh_dificultad') || '{}'); } catch(e){}
+    window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData);
+  }
+}
 
 function actualizarBotonesDificultad() {
   if (!currentSong) return;
@@ -5127,12 +5114,10 @@ function toggleEtiqueta(etiquetaId) {
   }
   localStorage.setItem('yhwh_etiq_' + currentSong.id, JSON.stringify(etiquetas));
   renderEtiquetas();
-if (window.fbDb) {
-    pedirLoginYEjecutar(function() {
-      var etData = {};
-      try { etData = JSON.parse(localStorage.getItem('yhwh_etiquetas') || '{}'); } catch(e){}
-      window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData);
-    });
+ if (window.esAdmin && window.fbDb) {
+    var etData = {};
+    try { etData = JSON.parse(localStorage.getItem('yhwh_etiquetas') || '{}'); } catch(e){}
+    window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData);
   }
   // Actualizar la lista para que aparezca el chip
   filterSongs();
@@ -6271,6 +6256,9 @@ verificarTemaDispositivo(mqLight);
 
 // 3. Se queda escuchando por si el usuario cambia el tema desde los ajustes del celular
 mqLight.addEventListener('change', verificarTemaDispositivo);
+
+
+
 
 
 function toggleAdminLogin() {
