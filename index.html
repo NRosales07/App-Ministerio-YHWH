@@ -6137,7 +6137,29 @@ document.addEventListener('keydown', function(e){
 
 
 
+// 1. Preguntamos al celular o compu si prefiere el modo claro
+var mqLight = window.matchMedia('(prefers-color-scheme: light)');
 
+function verificarTemaDispositivo(e) {
+  // e.matches es TRUE si el celular está en modo claro
+  if (e.matches) {
+    // Si el dispositivo está en CLARO pero tu app sigue en OSCURO, lo activamos
+    if (!modoClaro) {
+      alternarModoClaroGlobal();
+    }
+  } else {
+    // Si el dispositivo está en OSCURO pero tu app se quedó en CLARO, lo desactivamos
+    if (modoClaro) {
+      alternarModoClaroGlobal();
+    }
+  }
+}
+
+// 2. Se ejecuta en el instante en que abre la aplicación
+verificarTemaDispositivo(mqLight);
+
+// 3. Se queda escuchando por si el usuario cambia el tema desde los ajustes del celular
+mqLight.addEventListener('change', verificarTemaDispositivo);
 </script>
 
 
