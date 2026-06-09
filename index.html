@@ -7,6 +7,85 @@
 <title>Repertorio de Alabanzas</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB6JmsE_hV2WUGysjIavaVA-h6gmR3F8q4",
+    authDomain: "ministerio-yhwh.firebaseapp.com",
+    databaseURL: "https://ministerio-yhwh-default-rtdb.firebaseio.com",
+    projectId: "ministerio-yhwh",
+    storageBucket: "ministerio-yhwh.firebasestorage.app",
+    messagingSenderId: "791956376967",
+    appId: "1:791956376967:web:b2b0a30fb5e302213f9722"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  // Exponer globalmente para que el resto del código los use
+  window.fbDb = db;
+  window.fbRef = ref;
+  window.fbSet = set;
+  window.fbOnValue = onValue;
+  window.fbAuth = auth;
+  window.fbSignIn = signInWithEmailAndPassword;
+  window.fbSignOut = signOut;
+  window.fbOnAuthChanged = onAuthStateChanged;
+
+  // Detectar si eres admin
+  onAuthStateChanged(auth, function(user) {
+    window.esAdmin = !!(user && user.email === 'rosalesjrnain07@gmail.com');
+    var btnAdmin = document.getElementById('btnAdminLogin');
+    if (btnAdmin) btnAdmin.textContent = window.esAdmin ? '🔓 Admin' : '🔑 Admin';
+  });
+
+  // Escuchar repertorio en tiempo real
+  onValue(ref(db, 'repertorio'), function(snapshot) {
+    var data = snapshot.val();
+    if (data) {
+      window.repertorios = data;
+      window.setlistDOM = window.getRepertorioDia ? window.getRepertorioDia(window.repertorioDiaActivo || 'domingo') : [];
+      if (window.renderSetlist) window.renderSetlist();
+      if (window.actualizarContadorRepertorio) window.actualizarContadorRepertorio();
+    }
+  });
+
+  // Escuchar etiquetas en tiempo real
+  onValue(ref(db, 'etiquetas'), function(snapshot) {
+    var data = snapshot.val();
+    if (data) {
+      window.etiquetasDB = data;
+      if (window.renderEtiquetas) window.renderEtiquetas();
+      if (window.filterSongs) window.filterSongs();
+    }
+  });
+
+  // Escuchar dificultad en tiempo real
+  onValue(ref(db, 'dificultad'), function(snapshot) {
+    var data = snapshot.val();
+    if (data) {
+      window.dificultadDB = data;
+      if (window.actualizarBotonesDificultad) window.actualizarBotonesDificultad();
+      if (window.filterSongs) window.filterSongs();
+    }
+  });
+
+  // Escuchar jubilo en tiempo real
+  onValue(ref(db, 'jubilo'), function(snapshot) {
+    var data = snapshot.val();
+    if (data) {
+      window.jubiloDataDB = data;
+      if (window.renderJubiloSidebar) window.renderJubiloSidebar();
+    }
+  });
+</script>
+
 <style>
 :root{
   --bg:#0d0d14;--bg2:#1c1c3f;--bg3:#42426e;
@@ -1261,7 +1340,13 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
   <!-- Fila Superior Derecha: Contador -->
   <div class="header-actions">
+    <button id="btnAdminLogin" onclick="toggleAdminLogin()"
+  style="background:var(--bg3);border:1px solid var(--border);color:var(--text);
+         padding:5px 10px;border-radius:6px;font-size:0.72rem;cursor:pointer;">
+  🔑 Admin
+</button>
     <div class="song-count" id="songCount"></div>
+
   </div>
 
   <!-- Fila Inferior Automática: Buscador centrado y amplio -->
@@ -4210,6 +4295,9 @@ function guardarRepertorios() {
   localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
   localStorage.setItem('yhwh_repertorio_dia', repertorioDiaActivo);
   localStorage.setItem('yhwh_repertorio', JSON.stringify(getRepertorioDia('domingo')));
+ if (window.esAdmin && window.fbDb) {
+    window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios);
+  }
 }
 
 function getRepertorioDia(dia) {
@@ -4968,6 +5056,13 @@ function setDificultad(nivel) {
     mostrarToast(nombres[nivel] + ' — ' + currentSong.title);
   }
   actualizarBotonesDificultad();
+
+  // ⬇️ AGREGAR al final de setDificultad, antes del cierre }
+  if (window.esAdmin && window.fbDb) {
+    var difData = {};
+    try { difData = JSON.parse(localStorage.getItem('yhwh_dificultad') || '{}'); } catch(e){}
+    window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData);
+  }
 }
 
 function actualizarBotonesDificultad() {
@@ -5023,6 +5118,11 @@ function toggleEtiqueta(etiquetaId) {
   }
   localStorage.setItem('yhwh_etiq_' + currentSong.id, JSON.stringify(etiquetas));
   renderEtiquetas();
+  if (window.esAdmin && window.fbDb) {
+    var etData = {};
+    try { etData = JSON.parse(localStorage.getItem('yhwh_etiquetas') || '{}'); } catch(e){}
+    window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData);
+  }
   // Actualizar la lista para que aparezca el chip
   filterSongs();
 }
@@ -6160,6 +6260,20 @@ verificarTemaDispositivo(mqLight);
 
 // 3. Se queda escuchando por si el usuario cambia el tema desde los ajustes del celular
 mqLight.addEventListener('change', verificarTemaDispositivo);
+
+
+function toggleAdminLogin() {
+  if (window.esAdmin) {
+    window.fbSignOut(window.fbAuth);
+    mostrarToast('Sesión cerrada.');
+  } else {
+    var pass = prompt('Contraseña admin:');
+    if (!pass) return;
+    window.fbSignIn(window.fbAuth, 'rosalesjrnain07@gmail.com', pass)
+      .then(function() { mostrarToast('✅ Modo admin activado.'); })
+      .catch(function() { mostrarToast('❌ Contraseña incorrecta.'); });
+  }
+}
 </script>
 
 
