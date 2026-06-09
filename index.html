@@ -46,7 +46,13 @@
   });
 
   // Escuchar repertorio en tiempo real
+// Escuchar repertorio en tiempo real
+  window.fbIgnorarSiguienteUpdate = false;
   onValue(ref(db, 'repertorio'), function(snapshot) {
+    if (window.fbIgnorarSiguienteUpdate) {
+      window.fbIgnorarSiguienteUpdate = false;
+      return;
+    }
     var data = snapshot.val();
     if (data) {
       window.repertorios = data;
@@ -4297,6 +4303,7 @@ function guardarRepertorios() {
   localStorage.setItem('yhwh_repertorio', JSON.stringify(getRepertorioDia('domingo')));
  if (window.fbDb) {
     pedirLoginYEjecutar(function() {
+       window.fbIgnorarSiguienteUpdate = true;
       window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios);
     });
  }}
