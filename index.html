@@ -1335,7 +1335,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <!-- Fila Superior Izquierda: Menú y Título juntos -->
   <div class="header-brand">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
-    <div class="logo">&#10022; <span>Ministerio</span> YHWH</div>
+    <div class="logo">&#10022; <span>Ministerio -</span> - YHWH</div>
   </div>
 
   <!-- Fila Superior Derecha: Contador -->
@@ -4296,10 +4296,10 @@ function guardarRepertorios() {
   localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
   localStorage.setItem('yhwh_repertorio_dia', repertorioDiaActivo);
   localStorage.setItem('yhwh_repertorio', JSON.stringify(getRepertorioDia('domingo')));
-
-   if (window.esAdmin && window.fbDb) {
-    window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloData);
-  }}
+  if (window.esAdmin && window.fbDb) {
+    window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios);
+  }
+}
 
 function getRepertorioDia(dia) {
   dia = dia === 'viernes' ? 'viernes' : 'domingo';
