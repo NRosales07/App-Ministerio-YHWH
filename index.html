@@ -1,8 +1,9 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Repertorio de Alabanzas</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -103,6 +104,9 @@ header {
   background: linear-gradient(135deg, #f1824b, #1d2677, #101038);
   border-bottom: 1px solid var(--border);
   padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  padding-left: calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1341,7 +1345,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <!-- Fila Superior Izquierda: Menú y Título juntos -->
   <div class="header-brand">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
-    <div class="logo">&#10022; <span>Ministerio</span>YHWH</div>
+    <div class="logo">&#10022; <span>Ministerio </span>YHWH</div>
   </div>
 
   <!-- Fila Superior Derecha: Contador -->
