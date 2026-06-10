@@ -1,4 +1,4 @@
-﻿
+﻿﻿
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1118,6 +1118,7 @@ body.musician-view #screen-chords .song-header { border-bottom: none; margin-bot
 body.musician-view #screen-chords .song-title { font-size: 1.15rem; margin-top: 6px; }
 body.musician-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 12px; border-radius: 0; }
 body.musician-view #screen-chords .song-content { padding: 0 10px 60px; }
+body.musician-view #screen-chords .musician-cifrado-bar { display: flex !important; }
 body.light-theme .more-actions { border-top-color: rgba(0,0,0,0.12); }
 
 @media(max-width:580px) {
@@ -1152,6 +1153,7 @@ body.jubilo-musician-view #screen-jubilo .jubilo-semitone-ctrl,
 body.jubilo-musician-view #screen-jubilo .jubilo-notes,
 body.jubilo-musician-view #screen-jubilo #jubiloAddBox,
 body.jubilo-musician-view #screen-jubilo .jubilo-add-btn { display: none !important; }
+body.jubilo-musician-view #screen-jubilo #jubiloCifradoBar { display: flex !important; }
 
 body.jubilo-singer-view #screen-jubilo .jubilo-layout,
 body.jubilo-musician-view #screen-jubilo .jubilo-layout { grid-template-columns: 1fr !important; overflow: visible; }
@@ -1335,7 +1337,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <!-- Fila Superior Izquierda: Menú y Título juntos -->
   <div class="header-brand">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
-    <div class="logo">&#10022; <span>Ministerio -</span> - YHWH</div>
+    <div class="logo">&#10022; <span>Ministerio</span>YHWH</div>
   </div>
 
   <!-- Fila Superior Derecha: Contador -->
@@ -1432,6 +1434,11 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   </div>
   <button class="font-btn singer-exit" id="btnSalirVistaCantante" onclick="toggleVistaCantante()" title="Salir">Salir</button>
   <button class="font-btn musician-exit" id="btnSalirVistaMusico" onclick="toggleVistaMusico()" title="Salir">Salir</button>
+  </div>
+  <div class="musician-cifrado-bar" style="display:none; width:100%; justify-content:center; align-items:center; gap:8px; padding:6px 14px; background:#1b2152; border-radius:0; border-top:1px solid var(--border); flex-wrap:wrap;">
+    <button class="font-btn" onclick="navegarCancion(-1)" title="Anterior">⬅ Ant.</button>
+    <button class="font-btn" onclick="navegarCancion(1)" title="Siguiente">Sig. ➡</button>
+    <button id="btnCifradoMusico" class="action-btn" onclick="alternarCifrado(); document.getElementById('btnCifrado').textContent = document.getElementById('btnCifradoMusico').textContent" style="height:30px; font-size:0.75rem;">Cifrado: Americano</button>
 </div>
      
      
@@ -1651,7 +1658,11 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
         🎭 Presentación
       </button>
     </div>
-
+<div id="jubiloCifradoBar" style="display:none; width:100%; justify-content:center; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;">
+  <button class="jubilo-small-btn" onclick="navegarCancionJubiloMusico(-1)">⬅ Ant.</button>
+  <button class="jubilo-small-btn" onclick="navegarCancionJubiloMusico(1)">Sig. ➡</button>
+  <button id="btnJubiloCifradoMusico" class="jubilo-small-btn" onclick="toggleJubiloLatinoGlobal(); this.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano'">Cifrado: Americano</button>
+</div>
   </div>
 
   <div class="jubilo-layout">
@@ -3849,47 +3860,47 @@ function buildKeySelector(song){
   var orig = getOrigKey(song);
   var sel = document.getElementById('keySelector');
   if (!sel) return;
-  sel.innerHTML = ''; // Limpiamos el contenedor
-  
-  var rowMayores = document.createElement('div');
-  rowMayores.style.display = 'flex';
-  rowMayores.style.gap = '4px';
-  rowMayores.style.flexWrap = 'wrap';
-  rowMayores.style.width = '100%';
-  rowMayores.style.marginBottom = '8px'; 
-  
-  var rowMenores = document.createElement('div');
-  rowMenores.style.display = 'flex';
-  rowMayores.style.gap = '4px';
-  rowMenores.style.flexWrap = 'wrap';
-  rowMenores.style.width = '100%';
+  sel.innerHTML = '';
 
-  for(var i = 0; i < KEYS.length; i++){
-    var k = KEYS[i];
+  var tonoActivo = currentKey || orig;
+  var esMenor = tonoActivo.endsWith('m');
+
+  // Solo mostrar la fila del tipo activo; botón para cambiar al otro tipo
+  var keysAMostrar = KEYS.filter(function(k){
+    return esMenor ? k.endsWith('m') : !k.endsWith('m');
+  });
+
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:2px;flex-wrap:wrap;width:100%;margin-bottom:6px;';
+
+  for(var i = 0; i < keysAMostrar.length; i++){
+    var k = keysAMostrar[i];
     var btn = document.createElement('button');
     btn.className = 'key-btn' + (k === orig ? ' original' : '');
     btn.setAttribute('data-key', k);
-    
-    // ✨ CAMBIO AQUÍ: Si el cifrado latino está activo, traduce el texto que se muestra en el botón
-    if (cifradoLatino) {
-      btn.textContent = lineToLatino(k);
-    } else {
-      btn.textContent = k;
-    }
-    
+    btn.textContent = cifradoLatino ? lineToLatino(k) : k;
     btn.onclick = (function(key){ return function(){ selectKey(key); }; })(k);
-    
-    if (k.endsWith('m')) {
-      rowMenores.appendChild(btn);
-    } else {
-      rowMayores.appendChild(btn);
-    }
+    row.appendChild(btn);
   }
-  
-  sel.appendChild(rowMayores);
-  sel.appendChild(rowMenores);
-  
-  setActiveKey(currentKey || orig);
+  sel.appendChild(row);
+
+  // Botón para cambiar entre mayor/menor
+  var btnToggle = document.createElement('button');
+  btnToggle.className = 'key-btn';
+  btnToggle.style.cssText = 'width:100%;border-color:var(--gold);color:var(--gold);margin-top:4px;';
+  btnToggle.textContent = esMenor ? '▶ Ver tonos Mayores' : '▶ Ver tonos Menores';
+  btnToggle.onclick = function(){
+    // Cambiar al equivalente relativo sin perder el semitono
+    var nuevoTono = esMenor
+      ? (tonoActivo.replace('m','') || 'C')
+      : (tonoActivo + 'm');
+    if(KEYS.indexOf(nuevoTono) === -1) nuevoTono = esMenor ? 'C' : 'Am';
+    selectKey(nuevoTono);
+    buildKeySelector(song);
+  };
+  sel.appendChild(btnToggle);
+
+  setActiveKey(tonoActivo);
 }
 
 function loadSong(id){
@@ -5045,23 +5056,48 @@ function cambiarVelocidadTp(delta) {
 
 function setDificultad(nivel) {
   if (!currentSong) return;
+
   var clave = 'yhwh_dif_' + currentSong.id;
   var actual = localStorage.getItem(clave);
-  // Si tocas el mismo nivel dos veces, lo quita
+
   if (actual === nivel) {
     localStorage.removeItem(clave);
     mostrarToast('Dificultad eliminada');
   } else {
     localStorage.setItem(clave, nivel);
-    var nombres = { facil: '🟢 Fácil', media: '🟡 Media', dificil: '🔴 Difícil' };
+    var nombres = {
+      facil: '🟢 Fácil',
+      media: '🟡 Media',
+      dificil: '🔴 Difícil'
+    };
     mostrarToast(nombres[nivel] + ' — ' + currentSong.title);
   }
+
   actualizarBotonesDificultad();
-if (window.esAdmin && window.fbDb) {
-    var difData = {};
-    try { difData = JSON.parse(localStorage.getItem('yhwh_dificultad') || '{}'); } catch(e){}
-    window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData);
-  }}
+
+  if (window.esAdmin && window.fbDb) {
+
+      var difData = {};
+
+      for (var i = 0; i < SONGS.length; i++) {
+
+          var songId = SONGS[i].id;
+
+          var nivelGuardado =
+              localStorage.getItem('yhwh_dif_' + songId);
+
+          if (nivelGuardado) {
+              difData[songId] = nivelGuardado;
+          }
+      }
+
+      window.fbSet(
+          window.fbRef(window.fbDb, 'dificultad'),
+          difData
+      );
+  }
+}
+
 
 function actualizarBotonesDificultad() {
   if (!currentSong) return;
@@ -5116,11 +5152,41 @@ function toggleEtiqueta(etiquetaId) {
   }
   localStorage.setItem('yhwh_etiq_' + currentSong.id, JSON.stringify(etiquetas));
   renderEtiquetas();
-  if (window.esAdmin && window.fbDb) {
-    var etData = {};
-    try { etData = JSON.parse(localStorage.getItem('yhwh_etiquetas') || '{}'); } catch(e){}
-    window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData);
+
+
+
+
+ if (window.esAdmin && window.fbDb) {
+
+  var etData = {};
+
+  for (var i = 0; i < SONGS.length; i++) {
+
+    var songId = SONGS[i].id;
+
+    try {
+
+      var etiquetasCancion =
+        JSON.parse(
+          localStorage.getItem('yhwh_etiq_' + songId) || '[]'
+        );
+
+      if (etiquetasCancion.length > 0) {
+        etData[songId] = etiquetasCancion;
+      }
+
+    } catch(e) {}
   }
+
+  window.fbSet(
+    window.fbRef(window.fbDb, 'etiquetas'),
+    etData
+  );
+}
+
+
+
+
   // Actualizar la lista para que aparezca el chip
   filterSongs();
 }
@@ -5753,7 +5819,7 @@ function activarEditorJubilo(key, songId) {
   contenido.innerHTML = 
     '<textarea id="editorJubilo_' + key + '" ' +
       'style="width:100%;min-height:320px;background:' + editorBg + ';border:1px solid ' + editorBorder + ';' +
-      'border-radius:7px;color:' + editorText + ';font-family:monospace;font-size:0.78rem;' +
+      'border-radius:7px;color:' + editorText + ';font-family:Arial;font-size:11px;' +
       'padding:10px;resize:vertical;outline:none;line-height:1.5;box-sizing:border-box;">' +
       escH(textoActual) +
     '</textarea>' +
