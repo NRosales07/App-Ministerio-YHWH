@@ -3,8 +3,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>Repertorio de Alabanzas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><title>Repertorio de Alabanzas</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -122,16 +121,27 @@ body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;m
 header {
   background: linear-gradient(135deg, #f1824b, #1d2677, #101038);
   border-bottom: 1px solid var(--border);
-  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  position: sticky;
-  top: 0;
   z-index: 100;
   box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-  flex-wrap: wrap; /* Permite que el buscador baje ordenadamente */
+  flex-wrap: wrap;
+
+  /* 1. Posicionamiento fijo para evitar el hueco al bajar */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+
+  /* 2. El truco de la Zona Segura */
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-bottom: 12px;
+  /* Suma el tamaño de la cámara + tus 12px de padding original */
+  padding-top: calc(env(safe-area-inset-top) + 12px); 
 }
 
 .header-brand {
