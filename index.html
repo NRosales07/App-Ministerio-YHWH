@@ -1378,7 +1378,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 <button onclick="subirTodoAFirebase()" 
   style="background:#c0392b;color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer;margin:10px;">
-  🔄 Sincronizar TODO a Firebase
+  🔄 Sincronizar TODO
 </button>
 
 
@@ -6485,16 +6485,6 @@ function subirTodoAFirebase() {
   mostrarToast('⏳ Subiendo...');
 
   // Subir grupos de Júbilo
-  console.log('Jubilo grupos a subir:', jubiloGrupos);
-  window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloGrupos)
-    .then(function(){ 
-      console.log('✅ Jubilo OK');
-      mostrarToast('✅ Júbilo subido'); 
-    })
-    .catch(function(e){ 
-      console.error('❌ Jubilo error:', e);
-      mostrarToast('❌ Error jubilo: ' + e.message); 
-    });
 
   // Subir dificultades
   var difData = {};
