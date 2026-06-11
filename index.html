@@ -1,10 +1,9 @@
-﻿﻿
+﻿﻿﻿
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta name="theme-color" content="#0d0d14">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Repertorio de Alabanzas</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -51,7 +50,6 @@
     if (btnAdmin) btnAdmin.textContent = window.esAdmin ? '🔓 Admin' : '🔑 Admin';
   });
 
-
   // Escuchar repertorio en tiempo real
   onValue(ref(db, 'repertorio'), function(snapshot) {
     var data = snapshot.val();
@@ -91,24 +89,6 @@
       if (window.renderJubiloSidebar) window.renderJubiloSidebar();
     }
   });
-
-  onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
-  var data = snapshot.val();
-  if (data) {
-    Object.keys(data).forEach(function(id) {
-      localStorage.setItem('yhwh_jubilo_edit_' + id, data[id]);
-    });
-  }
-});
-
-onValue(ref(db, 'notas_director'), function(snapshot) {
-  var data = snapshot.val();
-  if (data) {
-    Object.keys(data).forEach(function(id) {
-      localStorage.setItem('yhwh_nota_' + id, data[id]);
-    });
-  }
-});
 </script>
 
 <style>
@@ -124,12 +104,16 @@ header {
   background: linear-gradient(135deg, #f1824b, #1d2677, #101038);
   border-bottom: 1px solid var(--border);
   padding: 12px 16px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  padding-left: calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
- position: relative;
-z-index: 100;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   box-shadow: 0 4px 24px rgba(0,0,0,0.5);
   flex-wrap: wrap; /* Permite que el buscador baje ordenadamente */
 }
@@ -1452,15 +1436,16 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <button class="font-btn" onclick="cambiarFuente(-1)" title="Reducir">A −</button>
   <div class="font-size-display" id="fontSizeDisplay">11px</div>
   <button class="font-btn" onclick="cambiarFuente(1)" title="Aumentar">A +</button>
-
-  
-
+  <div class="musician-nav">
+    <button class="font-btn" onclick="navegarCancion(-1)" title="Cancion anterior">Ant.</button>
+    <button class="font-btn" onclick="navegarCancion(1)" title="Siguiente cancion">Sig.</button>
+  </div>
   <button class="font-btn singer-exit" id="btnSalirVistaCantante" onclick="toggleVistaCantante()" title="Salir">Salir</button>
   <button class="font-btn musician-exit" id="btnSalirVistaMusico" onclick="toggleVistaMusico()" title="Salir">Salir</button>
   </div>
   <div class="musician-cifrado-bar" style="display:none; width:100%; justify-content:center; align-items:center; gap:8px; padding:6px 14px; background:#1b2152; border-radius:0; border-top:1px solid var(--border); flex-wrap:wrap;">
-<button class="font-btn" onclick="navegarCancion(-1)" title="Anterior">Ant.</button>
-<button class="font-btn" onclick="navegarCancion(1)" title="Siguiente">Sig.</button>
+    <button class="font-btn" onclick="navegarCancion(-1)" title="Anterior">⬅ Ant.</button>
+    <button class="font-btn" onclick="navegarCancion(1)" title="Siguiente">Sig. ➡</button>
     <button id="btnCifradoMusico" class="action-btn" onclick="alternarCifrado(); document.getElementById('btnCifrado').textContent = document.getElementById('btnCifradoMusico').textContent" style="height:30px; font-size:0.75rem;">Cifrado: Americano</button>
 </div>
      
@@ -3617,7 +3602,7 @@ var currentSemitones = 0;
 var currentKey = null;
 
 // --- NUEVO: Control de cifrado latino y Ocultar Acordes ---
-var cifradoLatino = localStorage.getItem('yhwh_cifrado_latino') === '1';
+var cifradoLatino = false;
 var ocultarAcordes = false; // Variable de control nueva
 var singerViewPrevOcultarAcordes = null;
 var LATINO_SHIFT_DEFAULT = -7;
@@ -3757,14 +3742,6 @@ function resaltarTextoCantante(raw){
     .replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
 }
 
-function resaltarTextoConMelodia(raw){
-  return escH(raw)
-    .replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>')
-    .replace(/\b([A-ZÁÉÍÓÚÑÜ]{2,}(?:\s+[A-ZÁÉÍÓÚÑÜ]{2,})*)\b/g, function(match){
-      return '<span class="word-red">' + match + '</span>';
-    });
-}
-
 function resaltarMarcadores(raw){
   var html = escH(raw);
   if (/\bINTRO\b/i.test(raw)) {
@@ -3834,7 +3811,7 @@ out += '<span class="lc' + (cifradoLatino ? ' latino-shift' : '') + '">' + tlCli
       for (var j = 0; j < partesCantante.length; j++) {
         var parte = partesCantante[j];
         var clase = vistaCantanteActiva && esLineaSeccionCantante(parte) ? 'ls' : 'll';
-    out+='<span class="' + clase + '">'+(clase === 'ls' ? resaltarMarcadores(parte) : resaltarTextoConMelodia(parte))+'</span>';
+        out+='<span class="' + clase + '">'+(clase === 'ls' ? resaltarMarcadores(parte) : resaltarTextoCantante(parte))+'</span>';
       }
     }
   }
@@ -4130,17 +4107,18 @@ aplicarAjusteLatino();
 // --- NUEVO: Función para que funcione el botón de cambiar cifrado ---
 function alternarCifrado() {
   cifradoLatino = !cifradoLatino;
-  localStorage.setItem('yhwh_cifrado_latino', cifradoLatino ? '1' : '0');
   var btn = document.getElementById('btnCifrado');
-  if (btn) btn.textContent = cifradoLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
-  var btnMusico = document.getElementById('btnCifradoMusico');
-  if (btnMusico) btnMusico.textContent = cifradoLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
-  if (currentSong) buildKeySelector(currentSong);
+  if (btn) {
+    btn.textContent = cifradoLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
+  }
+  
+  // ✨ AGREGA ESTA LÍNEA AQUÍ: Redibuja el panel de tonos con el cifrado correcto
+  if (currentSong) {
+    buildKeySelector(currentSong);
+  }
+  
   renderContent();
 }
-
-
-
 // --- NUEVO: Función para ocultar o mostrar acordes ---
 function alternarAcordes() {
   ocultarAcordes = !ocultarAcordes;
@@ -4193,9 +4171,6 @@ function toggleVistaCantante() {
   }
   renderContent();
 }
-
-
-
 
 function toggleVistaMusico() {
   var activa = !document.body.classList.contains('musician-view');
@@ -4337,7 +4312,6 @@ function cargarRepertorios() {
 }
 
 function guardarRepertorios() {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
   localStorage.setItem('yhwh_repertorio_dia', repertorioDiaActivo);
   localStorage.setItem('yhwh_repertorio', JSON.stringify(getRepertorioDia('domingo')));
@@ -4376,7 +4350,6 @@ function cambiarDiaRepertorio(dia) {
 
 
 function agregarAlRepertorio() {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!currentSong) {
     alert('Primero abre una canción.');
     return;
@@ -4568,10 +4541,10 @@ document.addEventListener('touchend', function(e) {
 
 // REGISTRO DEL SERVICE WORKER (Para funcionamiento sin internet)
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/App-Ministerio-YHWH/sw.js', {
-  scope: '/App-Ministerio-YHWH/'
-});
+   window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+     .then((reg) => console.log('¡App lista para funcionar sin internet!', reg))
+      .catch((err) => console.log('Error al activar el modo sin internet', err));
   });
 }
 
@@ -4637,16 +4610,6 @@ function guardarNotas() {
   var guardado = document.getElementById('notasGuardado');
   if (!ta) return;
   localStorage.setItem(claveNota(currentSong.id), ta.value);
-
-  if (window.esAdmin && window.fbDb) {
-    var notasData = {};
-    SONGS.forEach(function(s) {
-      var nota = localStorage.getItem(claveNota(s.id));
-      if (nota && nota.trim()) notasData[s.id] = nota;
-    });
-    window.fbSet(window.fbRef(window.fbDb, 'notas_director'), notasData);
-  }
-
   if (guardado) {
     guardado.style.display = 'block';
     setTimeout(function() { guardado.style.display = 'none'; }, 1500);
@@ -4657,15 +4620,10 @@ function guardarNotas() {
 document.addEventListener('DOMContentLoaded', function() {
   var ta = document.getElementById('notasTextarea');
   if (ta) {
-   ta.addEventListener('input', function() {
-  if (!window.esAdmin) {
-    mostrarToast('🔒 Debes iniciar sesión como admin para editar notas.');
-    ta.value = localStorage.getItem(claveNota(currentSong ? currentSong.id : '')) || '';
-    return;
-  }
-  clearTimeout(notasTimer);
-  notasTimer = setTimeout(guardarNotas, 800);
-});
+    ta.addEventListener('input', function() {
+      clearTimeout(notasTimer);
+      notasTimer = setTimeout(guardarNotas, 800);
+    });
   }
 });
 
@@ -5105,7 +5063,6 @@ function cambiarVelocidadTp(delta) {
 
 
 function setDificultad(nivel) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!currentSong) return;
 
   var clave = 'yhwh_dif_' + currentSong.id;
@@ -5193,7 +5150,6 @@ function getEtiquetasCancion(id) {
 }
 
 function toggleEtiqueta(etiquetaId) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!currentSong) return;
   var etiquetas = getEtiquetasCancion(currentSong.id);
   var idx = etiquetas.indexOf(etiquetaId);
@@ -5423,7 +5379,6 @@ function activarWakeLockJubilo(){
 }
 
 function crearGrupoJubilo(){
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var nombre = prompt('Nombre del grupo');
   if (!nombre || !nombre.trim()) return;
   jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre.trim(), cadenas: [] });
@@ -5432,7 +5387,6 @@ function crearGrupoJubilo(){
 }
 
 function renombrarGrupo(id) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var g = jubiloGrupos.find(function(x){ return x.id === id; });
   if (!g) return;
   var n = prompt('Nuevo nombre del grupo', g.nombre);
@@ -5445,14 +5399,12 @@ function eliminarGrupo(id) {
   guardarJubiloGrupos(); renderJubiloSidebar();
 }
 function renombrarCadena(grupoId, cadenaId) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var found = buscarGrupoCadena(grupoId, cadenaId);
   if (!found) return;
   var n = prompt('Nuevo nombre de la cadena', found.cadena.nombre);
   if (n && n.trim()) { found.cadena.nombre = n.trim(); guardarJubiloGrupos(); renderJubiloSidebar(); if (jubiloCadenaActiva === cadenaId) renderJubiloCadena(grupoId, cadenaId); }
 }
 function eliminarCadena(grupoId, cadenaId) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var found = buscarGrupoCadena(grupoId, cadenaId);
   if (!found || !confirm('¿Eliminar la cadena "' + found.cadena.nombre + '"?')) return;
   found.grupo.cadenas = found.grupo.cadenas.filter(function(c){ return c.id !== cadenaId; });
@@ -5461,7 +5413,6 @@ function eliminarCadena(grupoId, cadenaId) {
 }
 
 function crearCadenaJubilo(){
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!jubiloGrupos.length) { mostrarToast('Primero crea un grupo.'); return; }
   var nombre = prompt('Nombre de la cadena');
   if (!nombre || !nombre.trim()) return;
@@ -5857,14 +5808,12 @@ function moverAlabanzaJubilo(index, dir){
   guardarJubiloGrupos(); renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
 }
 function quitarAlabanzaJubilo(index){
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva); if(!found) return;
   found.cadena.alabanzas.splice(index,1);
   guardarJubiloGrupos(); renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
 }
 
 function activarEditorJubilo(key, songId) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }  
   var song = getJubiloSong(songId);
   if (!song) return;
   var contenido = document.getElementById('jubiloContent_' + key);
@@ -5896,20 +5845,10 @@ function activarEditorJubilo(key, songId) {
 }
 
 function guardarEdicionJubilo(key, songId) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var ta = document.getElementById('editorJubilo_' + key);
   if (!ta) return;
   var nuevoContenido = ta.value;
   localStorage.setItem(getJubiloEditKey(songId), nuevoContenido);
-
-  if (window.esAdmin && window.fbDb) {
-    var editData = {};
-    SONGS_JUBILO.forEach(function(s) {
-      var guardado = localStorage.getItem(getJubiloEditKey(s.id));
-      if (guardado !== null) editData[s.id] = guardado;
-    });
-    window.fbSet(window.fbRef(window.fbDb, 'jubilo_ediciones'), editData);
-  }
 
   var song = getJubiloSong(songId);
   var st = jubiloState[key];
@@ -6017,7 +5956,6 @@ function filtrarSidebarJubilo(q) {
 }
 
 function agregarAlabanzaJubilo(id){
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var found=buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva); if(!found) return;
   found.cadena.alabanzas.push(id);
   guardarJubiloGrupos(); renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);

@@ -1,23 +1,42 @@
 {
   "name": "YHWH Alabanzas",
   "short_name": "YHWH Alabanzas",
-  "start_url": "/App-Ministerio-YHWH/",
-  "scope": "/App-Ministerio-YHWH/",
+  "description": "App oficial del Ministerio de Alabanza",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0d0d14",
   "theme_color": "#0d0d14",
-  "icons": [
+  "orientation": "portrait",
+ "icons": [
     {
-      "src": "/App-Ministerio-YHWH/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/App-Ministerio-YHWH/icon-512.png",
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ,
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ]
 }
