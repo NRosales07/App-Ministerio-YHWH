@@ -6482,13 +6482,19 @@ function subirTodoAFirebase() {
   if (!window.esAdmin) { mostrarToast('🔒 Solo admin.'); return; }
   if (!window.fbDb) { mostrarToast('❌ No hay conexión Firebase.'); return; }
 
-  // Subir grupos de Júbilo
-  window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloGrupos)
-    .then(function(){ mostrarToast('✅ Júbilo subido'); });
+  mostrarToast('⏳ Subiendo...');
 
-  // Subir repertorio
-  window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios)
-    .then(function(){ mostrarToast('✅ Repertorio subido'); });
+  // Subir grupos de Júbilo
+  console.log('Jubilo grupos a subir:', jubiloGrupos);
+  window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloGrupos)
+    .then(function(){ 
+      console.log('✅ Jubilo OK');
+      mostrarToast('✅ Júbilo subido'); 
+    })
+    .catch(function(e){ 
+      console.error('❌ Jubilo error:', e);
+      mostrarToast('❌ Error jubilo: ' + e.message); 
+    });
 
   // Subir dificultades
   var difData = {};
@@ -6496,8 +6502,16 @@ function subirTodoAFirebase() {
     var nivel = localStorage.getItem('yhwh_dif_' + s.id);
     if (nivel) difData[s.id] = nivel;
   });
+  console.log('Dificultades a subir:', difData);
   window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData)
-    .then(function(){ mostrarToast('✅ Dificultades subidas'); });
+    .then(function(){ 
+      console.log('✅ Dificultad OK');
+      mostrarToast('✅ Dificultades subidas'); 
+    })
+    .catch(function(e){ 
+      console.error('❌ Dificultad error:', e);
+      mostrarToast('❌ Error dificultad: ' + e.message); 
+    });
 
   // Subir etiquetas
   var etData = {};
@@ -6507,8 +6521,16 @@ function subirTodoAFirebase() {
       if (etiquetas.length > 0) etData[s.id] = etiquetas;
     } catch(e) {}
   });
+  console.log('Etiquetas a subir:', etData);
   window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData)
-    .then(function(){ mostrarToast('✅ Etiquetas subidas'); });
+    .then(function(){ 
+      console.log('✅ Etiquetas OK');
+      mostrarToast('✅ Etiquetas subidas'); 
+    })
+    .catch(function(e){ 
+      console.error('❌ Etiquetas error:', e);
+      mostrarToast('❌ Error etiquetas: ' + e.message); 
+    });
 
   // Subir notas
   var notasData = {};
@@ -6516,8 +6538,16 @@ function subirTodoAFirebase() {
     var nota = localStorage.getItem('yhwh_nota_' + s.id);
     if (nota && nota.trim()) notasData[s.id] = nota;
   });
+  console.log('Notas a subir:', notasData);
   window.fbSet(window.fbRef(window.fbDb, 'notas_director'), notasData)
-    .then(function(){ mostrarToast('✅ Notas subidas'); });
+    .then(function(){ 
+      console.log('✅ Notas OK');
+      mostrarToast('✅ Notas subidas'); 
+    })
+    .catch(function(e){ 
+      console.error('❌ Notas error:', e);
+      mostrarToast('❌ Error notas: ' + e.message); 
+    });
 
   // Subir ediciones de júbilo
   var editData = {};
@@ -6525,12 +6555,16 @@ function subirTodoAFirebase() {
     var guardado = localStorage.getItem('yhwh_jubilo_edit_' + s.id);
     if (guardado !== null) editData[s.id] = guardado;
   });
+  console.log('Ediciones jubilo a subir:', editData);
   window.fbSet(window.fbRef(window.fbDb, 'jubilo_ediciones'), editData)
-    .then(function(){ mostrarToast('✅ Ediciones júbilo subidas'); });
-
-  setTimeout(function(){
-    mostrarToast('🎉 Todo sincronizado. Ya puedes quitar el botón.');
-  }, 3000);
+    .then(function(){ 
+      console.log('✅ Ediciones jubilo OK');
+      mostrarToast('✅ Ediciones júbilo subidas'); 
+    })
+    .catch(function(e){ 
+      console.error('❌ Ediciones jubilo error:', e);
+      mostrarToast('❌ Error ediciones: ' + e.message); 
+    });
 }
 
 
