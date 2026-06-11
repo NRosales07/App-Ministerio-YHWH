@@ -1378,7 +1378,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 <button onclick="subirTodoAFirebase()" 
   style="background:#c0392b;color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer;margin:10px;">
-  🔄 Sincronizar TODO
+  🔄 Sincronizar firebase
 </button>
 
 
@@ -5166,28 +5166,19 @@ function setDificultad(nivel) {
 
   actualizarBotonesDificultad();
 
-  if (window.esAdmin && window.fbDb) {
-
-      var difData = {};
-
-      for (var i = 0; i < SONGS.length; i++) {
-
-          var songId = SONGS[i].id;
-
-          var nivelGuardado =
-              localStorage.getItem('yhwh_dif_' + songId);
-
-          if (nivelGuardado) {
-              difData[songId] = nivelGuardado;
-          }
-      }
-
-      window.fbSet(
-          window.fbRef(window.fbDb, 'dificultad'),
-          difData
-      );
-  }
+if (window.esAdmin && window.fbDb) {
+  var difData = {};
+  SONGS.forEach(function(s) {
+    var nivelGuardado = localStorage.getItem('yhwh_dif_' + s.id);
+    if (nivelGuardado) {
+      var claveSegura = String(s.id).replace(/\./g, '_');
+      difData[claveSegura] = nivelGuardado;
+    }
+  });
+  window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData);
 }
+  }
+
 
 function actualizarBotonesDificultad() {
   if (!currentSong) return;
@@ -5203,7 +5194,7 @@ function actualizarBotonesDificultad() {
 }
 
 function obtenerBadgeDificultad(id) {
-  var nivel = getDificultadCancion(id);
+var nivel = getDificultadCancion(id);
   if (!nivel) return '';
   var clases = { facil: 'dif-facil', media: 'dif-media', dificil: 'dif-dificil' };
   var textos = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' };
@@ -5227,19 +5218,27 @@ var ETIQUETAS_DISPONIBLES = [
 ];
 
 function getEtiquetasCancion(id) {
+  var claveSegura = String(id).replace(/\./g, '_');
+  if (window.etiquetasDB && window.etiquetasDB[claveSegura]) {
+    return window.etiquetasDB[claveSegura];
+  }
   if (window.etiquetasDB && window.etiquetasDB[id]) {
     return window.etiquetasDB[id];
   }
   return JSON.parse(localStorage.getItem('yhwh_etiq_' + id) || '[]');
 }
 
+
 function getDificultadCancion(id) {
+  var claveSegura = String(id).replace(/\./g, '_');
+  if (window.dificultadDB && window.dificultadDB[claveSegura]) {
+    return window.dificultadDB[claveSegura];
+  }
   if (window.dificultadDB && window.dificultadDB[id]) {
     return window.dificultadDB[id];
   }
   return localStorage.getItem('yhwh_dif_' + id);
 }
-
 
 function toggleEtiqueta(etiquetaId) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
@@ -5257,32 +5256,18 @@ function toggleEtiqueta(etiquetaId) {
 
 
 
- if (window.esAdmin && window.fbDb) {
-
+if (window.esAdmin && window.fbDb) {
   var etData = {};
-
-  for (var i = 0; i < SONGS.length; i++) {
-
-    var songId = SONGS[i].id;
-
+  SONGS.forEach(function(s) {
     try {
-
-      var etiquetasCancion =
-        JSON.parse(
-          localStorage.getItem('yhwh_etiq_' + songId) || '[]'
-        );
-
-      if (etiquetasCancion.length > 0) {
-        etData[songId] = etiquetasCancion;
+      var etiquetas = JSON.parse(localStorage.getItem('yhwh_etiq_' + s.id) || '[]');
+      if (etiquetas.length > 0) {
+        var claveSegura = String(s.id).replace(/\./g, '_');
+        etData[claveSegura] = etiquetas;
       }
-
     } catch(e) {}
-  }
-
-  window.fbSet(
-    window.fbRef(window.fbDb, 'etiquetas'),
-    etData
-  );
+  });
+  window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData);
 }
 
 
@@ -6477,84 +6462,62 @@ function toggleAdminLogin() {
 
 
 
-
 function subirTodoAFirebase() {
   if (!window.esAdmin) { mostrarToast('🔒 Solo admin.'); return; }
   if (!window.fbDb) { mostrarToast('❌ No hay conexión Firebase.'); return; }
 
   mostrarToast('⏳ Subiendo...');
 
-  // Subir grupos de Júbilo
-
-  // Subir dificultades
+  // Subir dificultades (puntos reemplazados por _ en las claves)
   var difData = {};
   SONGS.forEach(function(s) {
     var nivel = localStorage.getItem('yhwh_dif_' + s.id);
-    if (nivel) difData[s.id] = nivel;
+    if (nivel) {
+      var claveSegura = String(s.id).replace(/\./g, '_');
+      difData[claveSegura] = nivel;
+    }
   });
-  console.log('Dificultades a subir:', difData);
   window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData)
-    .then(function(){ 
-      console.log('✅ Dificultad OK');
-      mostrarToast('✅ Dificultades subidas'); 
-    })
-    .catch(function(e){ 
-      console.error('❌ Dificultad error:', e);
-      mostrarToast('❌ Error dificultad: ' + e.message); 
-    });
+    .then(function(){ mostrarToast('✅ Dificultades subidas'); })
+    .catch(function(e){ mostrarToast('❌ Error dificultad: ' + e.message); });
 
-  // Subir etiquetas
+  // Subir etiquetas (puntos reemplazados por _ en las claves)
   var etData = {};
   SONGS.forEach(function(s) {
     try {
       var etiquetas = JSON.parse(localStorage.getItem('yhwh_etiq_' + s.id) || '[]');
-      if (etiquetas.length > 0) etData[s.id] = etiquetas;
+      if (etiquetas.length > 0) {
+        var claveSegura = String(s.id).replace(/\./g, '_');
+        etData[claveSegura] = etiquetas;
+      }
     } catch(e) {}
   });
-  console.log('Etiquetas a subir:', etData);
   window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData)
-    .then(function(){ 
-      console.log('✅ Etiquetas OK');
-      mostrarToast('✅ Etiquetas subidas'); 
-    })
-    .catch(function(e){ 
-      console.error('❌ Etiquetas error:', e);
-      mostrarToast('❌ Error etiquetas: ' + e.message); 
-    });
+    .then(function(){ mostrarToast('✅ Etiquetas subidas'); })
+    .catch(function(e){ mostrarToast('❌ Error etiquetas: ' + e.message); });
 
-  // Subir notas
+  // Subir notas (puntos reemplazados por _ en las claves)
   var notasData = {};
   SONGS.forEach(function(s) {
     var nota = localStorage.getItem('yhwh_nota_' + s.id);
-    if (nota && nota.trim()) notasData[s.id] = nota;
+    if (nota && nota.trim()) {
+      var claveSegura = String(s.id).replace(/\./g, '_');
+      notasData[claveSegura] = nota;
+    }
   });
-  console.log('Notas a subir:', notasData);
   window.fbSet(window.fbRef(window.fbDb, 'notas_director'), notasData)
-    .then(function(){ 
-      console.log('✅ Notas OK');
-      mostrarToast('✅ Notas subidas'); 
-    })
-    .catch(function(e){ 
-      console.error('❌ Notas error:', e);
-      mostrarToast('❌ Error notas: ' + e.message); 
-    });
+    .then(function(){ mostrarToast('✅ Notas subidas'); })
+    .catch(function(e){ mostrarToast('❌ Error notas: ' + e.message); });
 
-  // Subir ediciones de júbilo
+  // Subir ediciones de júbilo (IDs de jubilo son números enteros, sin puntos, sin problema)
   var editData = {};
   SONGS_JUBILO.forEach(function(s) {
     var guardado = localStorage.getItem('yhwh_jubilo_edit_' + s.id);
     if (guardado !== null) editData[s.id] = guardado;
   });
-  console.log('Ediciones jubilo a subir:', editData);
   window.fbSet(window.fbRef(window.fbDb, 'jubilo_ediciones'), editData)
-    .then(function(){ 
-      console.log('✅ Ediciones jubilo OK');
-      mostrarToast('✅ Ediciones júbilo subidas'); 
-    })
-    .catch(function(e){ 
-      console.error('❌ Ediciones jubilo error:', e);
-      mostrarToast('❌ Error ediciones: ' + e.message); 
-    });
+    .then(function(){ mostrarToast('✅ Ediciones júbilo subidas'); })
+    .catch(function(e){ mostrarToast('❌ Error ediciones: ' + e.message); });
 }
 
 
