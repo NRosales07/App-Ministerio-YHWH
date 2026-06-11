@@ -4569,9 +4569,9 @@ document.addEventListener('touchend', function(e) {
 // REGISTRO DEL SERVICE WORKER (Para funcionamiento sin internet)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js', {
-      scope: './'
-    });
+    navigator.serviceWorker.register('/App-Ministerio-YHWH/sw.js', {
+  scope: '/App-Ministerio-YHWH/'
+});
   });
 }
 
