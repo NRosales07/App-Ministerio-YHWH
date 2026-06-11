@@ -1,60 +1,56 @@
 const CACHE_NAME = 'alabanzas-v29';
 
-// Lista de archivos que la app guardará en el teléfono para usarse sin internet
-const ASSETS = [
-  'index.html',
-  'manifest.json',
-  'icon-192.png',
-  'icon-512.png',
-  'Alabanzas_Acordes.pdf',
-  'Alabanzas_Jub_Acordes.pdf',
-  'Alabanzas_Jub_Letra.pdf',
-  'Alabanzas_Letra.pdf'
-];
-
-// Instala el Service Worker y guarda los archivos en caché
+// ✅ UN solo evento install, con críticos y opcionales
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
+      // Archivos críticos — si fallan, el SW no se instala
+      const criticos = [
+        'index.html',
+        'manifest.json',
+        'icon-192.png',
+        'icon-512.png'
+      ];
+
+      // Archivos opcionales — si fallan, no bloquean la instalación
+      const opcionales = [
+        'Alabanzas_Acordes.pdf',
+        'Alabanzas_Jub_Acordes.pdf',
+        'Alabanzas_Jub_Letra.pdf',
+        'Alabanzas_Letra.pdf'
+      ];
+
+      return cache.addAll(criticos).then(() => {
+        opcionales.forEach(url => {
+          cache.add(url).catch(() => {
+            console.log('No se pudo cachear (opcional):', url);
+          });
+        });
+      });
     })
   );
-  // Fuerza al Service Worker nuevo a tomar el control de inmediato sin quedarse en espera
   self.skipWaiting();
 });
 
-// Activa el Service Worker y limpia cachés viejos si actualizas la app
+// Toma control inmediato de todas las pestañas abiertas
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
+        keys
+          .filter(key => key !== CACHE_NAME) // borra cachés viejos
+          .map(key => caches.delete(key))
       );
     })
   );
-  // Hace que el nuevo Service Worker controle la página de forma inmediata
   self.clients.claim();
 });
 
-// Intercepta las peticiones para cargar todo desde el teléfono si no hay internet
-// Intercepta las peticiones de forma segura para evitar el error "Load failed" en iOS
+// Responde con caché primero, red como respaldo
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((response) => {
-      // Si el archivo está en la memoria del teléfono, lo entrega de inmediato
-      if (response) {
-        return response;
-      }
-      
-      // Si no está en la memoria, intenta buscarlo en internet
-      return fetch(e.request).catch(() => {
-        // Si internet falla (modo avión), este bloque evita que Safari muera.
-        console.log("Archivo no encontrado en caché ni en red.");
-      });
+    caches.match(e.request).then((cached) => {
+      return cached || fetch(e.request);
     })
   );
 });
