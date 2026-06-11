@@ -1,10 +1,11 @@
-﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>Repertorio de Alabanzas</title>
-<link rel="manifest" href="./manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="YHWH Alabanzas">
@@ -4566,12 +4567,12 @@ document.addEventListener('touchend', function(e) {
 
 // REGISTRO DEL SERVICE WORKER (Para funcionamiento sin internet)
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js') // Cambia 'sw.js' por el nombre real de tu archivo
-        .then(reg => console.log('Service Worker registrado con éxito', reg))
-        .catch(err => console.error('Error al registrar el Service Worker', err));
-    });
-  }
+   window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+     .then((reg) => console.log('¡App lista para funcionar sin internet!', reg))
+      .catch((err) => console.log('Error al activar el modo sin internet', err));
+  });
+}
 
 // ============================================================
 // === TAMAÑO DE FUENTE ========================================

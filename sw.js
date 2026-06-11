@@ -1,16 +1,15 @@
-const CACHE_NAME = 'alabanzas-v37';
+const CACHE_NAME = 'alabanzas-v40';
 
 // Lista de archivos que la app guardará en el teléfono para usarse sin internet
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  './Alabanzas_Acordes.pdf',
-  './Alabanzas_Jub_Acordes.pdf',
-  './Alabanzas_Jub_Letra.pdf',
-  './Alabanzas_Letra.pdf'
+  'index.html',
+  'manifest.json',
+  'icon-192.png',
+  'icon-512.png',
+  'Alabanzas_Acordes.pdf',
+  'Alabanzas_Jub_Acordes.pdf',
+  'Alabanzas_Jub_Letra.pdf',
+  'Alabanzas_Letra.pdf'
 ];
 
 // Instala el Service Worker y guarda los archivos en caché
