@@ -1,55 +1,59 @@
-const CACHE_NAME = 'alabanzas-v28';
+const CACHE_NAME = 'alabanzas-v26';
 
+// Lista de archivos que la app guardará en el teléfono para usarse sin internet
 const ASSETS = [
-  './',
   'index.html',
   'manifest.json',
   'icon-192.png',
-  'icon-512.png'
+  'icon-512.png',
+  'Alabanzas_Acordes.pdf',
+  'Alabanzas_Jub_Acordes.pdf',
+  'Alabanzas_Jub_Letra.pdf',
+  'Alabanzas_Letra.pdf'
 ];
 
+// Instala el Service Worker y guarda los archivos en caché
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS);
     })
   );
+  // Fuerza al Service Worker nuevo a tomar el control de inmediato sin quedarse en espera
   self.skipWaiting();
 });
 
+// Activa el Service Worker y limpia cachés viejos si actualizas la app
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
       );
     })
   );
+  // Hace que el nuevo Service Worker controle la página de forma inmediata
   self.clients.claim();
 });
 
+// Intercepta las peticiones para cargar todo desde el teléfono si no hay internet
+// Intercepta las peticiones de forma segura para evitar el error "Load failed" en iOS
 self.addEventListener('fetch', (e) => {
-  // Ignorar peticiones que no sean GET (evita error en iOS con Firebase)
-  if (e.request.method !== 'GET') return;
-
-  // Ignorar peticiones externas (Firebase, YouTube, Google Fonts)
-  if (!e.request.url.startsWith(self.location.origin)) return;
-
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(e.request).then((response) => {
-        // Guardar en caché solo respuestas válidas
-        if (response && response.status === 200) {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, copy));
-        }
+    caches.match(e.request).then((response) => {
+      // Si el archivo está en la memoria del teléfono, lo entrega de inmediato
+      if (response) {
         return response;
-      }).catch(() => {
-        // Fallback: si es navegación, devolver index.html guardado
-        if (e.request.mode === 'navigate') {
-          return caches.match('index.html');
-        }
+      }
+      
+      // Si no está en la memoria, intenta buscarlo en internet
+      return fetch(e.request).catch(() => {
+        // Si internet falla (modo avión), este bloque evita que Safari muera.
+        console.log("Archivo no encontrado en caché ni en red.");
       });
     })
   );
