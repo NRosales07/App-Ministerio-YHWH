@@ -51,15 +51,20 @@
 
 
   // Escuchar repertorio en tiempo real
-  onValue(ref(db, 'repertorio'), function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      window.repertorios = data;
-      window.setlistDOM = window.getRepertorioDia ? window.getRepertorioDia(window.repertorioDiaActivo || 'domingo') : [];
-      if (window.renderSetlist) window.renderSetlist();
-      if (window.actualizarContadorRepertorio) window.actualizarContadorRepertorio();
-    }
-  });
+onValue(ref(db, 'repertorio'), function(snapshot) {
+  var data = snapshot.val();
+  if (data) {
+    // Aplicar a la variable local y localStorage
+    repertorios = {
+      viernes: Array.isArray(data.viernes) ? data.viernes : [],
+      domingo: Array.isArray(data.domingo) ? data.domingo : []
+    };
+    localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
+    setlistDOM = getRepertorioDia(repertorioDiaActivo || 'domingo');
+    if (window.renderSetlist) window.renderSetlist();
+    if (window.actualizarContadorRepertorio) window.actualizarContadorRepertorio();
+  }
+});
 
   // Escuchar etiquetas en tiempo real
   onValue(ref(db, 'etiquetas'), function(snapshot) {
@@ -82,13 +87,29 @@
   });
 
   // Escuchar jubilo en tiempo real
-  onValue(ref(db, 'jubilo'), function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
-      window.jubiloDataDB = data;
-      if (window.renderJubiloSidebar) window.renderJubiloSidebar();
+ onValue(ref(db, 'jubilo'), function(snapshot) {
+  var data = snapshot.val();
+  if (data) {
+    window.jubiloDataDB = data;
+    // Aplicar los grupos al array local
+    if (Array.isArray(data)) {
+      jubiloGrupos = data;
+    } else if (data && typeof data === 'object') {
+      // Firebase a veces convierte arrays a objetos con índices numéricos
+      var keys = Object.keys(data);
+      var esArray = keys.every(function(k) { return !isNaN(k); });
+      if (esArray) {
+        jubiloGrupos = keys.sort(function(a,b){return a-b;}).map(function(k){ return data[k]; });
+      }
     }
-  });
+    localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
+    if (window.renderJubiloSidebar) window.renderJubiloSidebar();
+    // Si había una cadena activa, rerenderizarla
+    if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
+      window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
+    }
+  }
+});
 
   onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
   var data = snapshot.val();
@@ -1347,6 +1368,27 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
          
 <button class="menu-btn" onclick="showScreen('screen-setlist')" id="btnMenuSetlist">📋 Repertorio</button>
 <button id="btnClaroMenu" class="menu-btn" onclick="alternarModoClaroGlobal()" style="background:linear-gradient(135deg,#2a2a45,#1b2152);margin-top:8px;">🌙 Tema: Oscuro</button>
+
+
+
+
+
+
+
+
+<button onclick="subirTodoAFirebase()" 
+  style="background:#c0392b;color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer;margin:10px;">
+  🔄 Sincronizar TODO a Firebase
+</button>
+
+
+
+
+
+
+
+
+
 </div>
     </div>
 
@@ -5147,11 +5189,9 @@ function setDificultad(nivel) {
   }
 }
 
-
 function actualizarBotonesDificultad() {
   if (!currentSong) return;
-  var clave = 'yhwh_dif_' + currentSong.id;
-  var nivel = localStorage.getItem(clave);
+  var nivel = getDificultadCancion(currentSong.id);
   var ids = ['difFacil', 'difMedia', 'difDificil'];
   var niveles = ['facil', 'media', 'dificil'];
   for (var i = 0; i < ids.length; i++) {
@@ -5163,7 +5203,7 @@ function actualizarBotonesDificultad() {
 }
 
 function obtenerBadgeDificultad(id) {
-  var nivel = localStorage.getItem('yhwh_dif_' + id);
+  var nivel = getDificultadCancion(id);
   if (!nivel) return '';
   var clases = { facil: 'dif-facil', media: 'dif-media', dificil: 'dif-dificil' };
   var textos = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' };
@@ -5187,8 +5227,19 @@ var ETIQUETAS_DISPONIBLES = [
 ];
 
 function getEtiquetasCancion(id) {
+  if (window.etiquetasDB && window.etiquetasDB[id]) {
+    return window.etiquetasDB[id];
+  }
   return JSON.parse(localStorage.getItem('yhwh_etiq_' + id) || '[]');
 }
+
+function getDificultadCancion(id) {
+  if (window.dificultadDB && window.dificultadDB[id]) {
+    return window.dificultadDB[id];
+  }
+  return localStorage.getItem('yhwh_dif_' + id);
+}
+
 
 function toggleEtiqueta(etiquetaId) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
@@ -5269,8 +5320,10 @@ function renderEtiquetas() {
 // ============================================================
 // === ALABANZAS DE JUBILO ====================================
 // ============================================================
+window.REPERTORIOS_KEY = 'yhwh_repertorios_v2';
 var JUBILO_GRUPOS_KEY = 'yhwh_jubilo_grupos';
 var jubiloGrupos = JSON.parse(localStorage.getItem(JUBILO_GRUPOS_KEY) || '[]');
+window.jubiloGrupos = jubiloGrupos; // exponer globalmente
 var jubiloGrupoActivo = null;
 var jubiloCadenaActiva = null;
 var jubiloState = {};
@@ -5396,7 +5449,12 @@ function abrirTeleprompterJubilo() {
 }
 var jubiloFontSize = parseInt(localStorage.getItem('yhwh_jubilo_fontsize')) || 11;
 
-function guardarJubiloGrupos(){ localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos)); }
+function guardarJubiloGrupos(){ 
+  localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
+  if (window.esAdmin && window.fbDb) {
+    window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloGrupos);
+  }
+}
 function getJubiloSong(id){ return SONGS_JUBILO.find(function(s){ return String(s.id) === String(id); }); }
 function getJubiloEditKey(id){ return 'yhwh_jubilo_edit_' + id; }
 
@@ -6409,6 +6467,87 @@ function toggleAdminLogin() {
       .catch(function() { mostrarToast('❌ Contraseña incorrecta.'); });
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+function subirTodoAFirebase() {
+  if (!window.esAdmin) { mostrarToast('🔒 Solo admin.'); return; }
+  if (!window.fbDb) { mostrarToast('❌ No hay conexión Firebase.'); return; }
+
+  // Subir grupos de Júbilo
+  window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloGrupos)
+    .then(function(){ mostrarToast('✅ Júbilo subido'); });
+
+  // Subir repertorio
+  window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios)
+    .then(function(){ mostrarToast('✅ Repertorio subido'); });
+
+  // Subir dificultades
+  var difData = {};
+  SONGS.forEach(function(s) {
+    var nivel = localStorage.getItem('yhwh_dif_' + s.id);
+    if (nivel) difData[s.id] = nivel;
+  });
+  window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData)
+    .then(function(){ mostrarToast('✅ Dificultades subidas'); });
+
+  // Subir etiquetas
+  var etData = {};
+  SONGS.forEach(function(s) {
+    try {
+      var etiquetas = JSON.parse(localStorage.getItem('yhwh_etiq_' + s.id) || '[]');
+      if (etiquetas.length > 0) etData[s.id] = etiquetas;
+    } catch(e) {}
+  });
+  window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData)
+    .then(function(){ mostrarToast('✅ Etiquetas subidas'); });
+
+  // Subir notas
+  var notasData = {};
+  SONGS.forEach(function(s) {
+    var nota = localStorage.getItem('yhwh_nota_' + s.id);
+    if (nota && nota.trim()) notasData[s.id] = nota;
+  });
+  window.fbSet(window.fbRef(window.fbDb, 'notas_director'), notasData)
+    .then(function(){ mostrarToast('✅ Notas subidas'); });
+
+  // Subir ediciones de júbilo
+  var editData = {};
+  SONGS_JUBILO.forEach(function(s) {
+    var guardado = localStorage.getItem('yhwh_jubilo_edit_' + s.id);
+    if (guardado !== null) editData[s.id] = guardado;
+  });
+  window.fbSet(window.fbRef(window.fbDb, 'jubilo_ediciones'), editData)
+    .then(function(){ mostrarToast('✅ Ediciones júbilo subidas'); });
+
+  setTimeout(function(){
+    mostrarToast('🎉 Todo sincronizado. Ya puedes quitar el botón.');
+  }, 3000);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
 
