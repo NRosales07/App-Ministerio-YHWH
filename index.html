@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -51,20 +51,15 @@
 
 
   // Escuchar repertorio en tiempo real
-onValue(ref(db, 'repertorio'), function(snapshot) {
-  var data = snapshot.val();
-  if (data) {
-    // Aplicar a la variable local y localStorage
-    repertorios = {
-      viernes: Array.isArray(data.viernes) ? data.viernes : [],
-      domingo: Array.isArray(data.domingo) ? data.domingo : []
-    };
-    localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
-    setlistDOM = getRepertorioDia(repertorioDiaActivo || 'domingo');
-    if (window.renderSetlist) window.renderSetlist();
-    if (window.actualizarContadorRepertorio) window.actualizarContadorRepertorio();
-  }
-});
+  onValue(ref(db, 'repertorio'), function(snapshot) {
+    var data = snapshot.val();
+    if (data) {
+      window.repertorios = data;
+      window.setlistDOM = window.getRepertorioDia ? window.getRepertorioDia(window.repertorioDiaActivo || 'domingo') : [];
+      if (window.renderSetlist) window.renderSetlist();
+      if (window.actualizarContadorRepertorio) window.actualizarContadorRepertorio();
+    }
+  });
 
   // Escuchar etiquetas en tiempo real
   onValue(ref(db, 'etiquetas'), function(snapshot) {
@@ -87,29 +82,13 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
   });
 
   // Escuchar jubilo en tiempo real
- onValue(ref(db, 'jubilo'), function(snapshot) {
-  var data = snapshot.val();
-  if (data) {
-    window.jubiloDataDB = data;
-    // Aplicar los grupos al array local
-    if (Array.isArray(data)) {
-      jubiloGrupos = data;
-    } else if (data && typeof data === 'object') {
-      // Firebase a veces convierte arrays a objetos con índices numéricos
-      var keys = Object.keys(data);
-      var esArray = keys.every(function(k) { return !isNaN(k); });
-      if (esArray) {
-        jubiloGrupos = keys.sort(function(a,b){return a-b;}).map(function(k){ return data[k]; });
-      }
+  onValue(ref(db, 'jubilo'), function(snapshot) {
+    var data = snapshot.val();
+    if (data) {
+      window.jubiloDataDB = data;
+      if (window.renderJubiloSidebar) window.renderJubiloSidebar();
     }
-    localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
-    if (window.renderJubiloSidebar) window.renderJubiloSidebar();
-    // Si había una cadena activa, rerenderizarla
-    if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
-      window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
-    }
-  }
-});
+  });
 
   onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
   var data = snapshot.val();
@@ -1368,27 +1347,6 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
          
 <button class="menu-btn" onclick="showScreen('screen-setlist')" id="btnMenuSetlist">📋 Repertorio</button>
 <button id="btnClaroMenu" class="menu-btn" onclick="alternarModoClaroGlobal()" style="background:linear-gradient(135deg,#2a2a45,#1b2152);margin-top:8px;">🌙 Tema: Oscuro</button>
-
-
-
-
-
-
-
-<!--
-<button onclick="subirTodoAFirebase()" 
-  style="background:#c0392b;color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer;margin:10px;">
-  🔄 Sincronizar firebase por segunda vez
-</button>
--->
-
-
-
-
-
-
-
-
 </div>
     </div>
 
@@ -5166,23 +5124,34 @@ function setDificultad(nivel) {
 
   actualizarBotonesDificultad();
 
-if (window.esAdmin && window.fbDb) {
-  var difData = {};
-  SONGS.forEach(function(s) {
-    var nivelGuardado = localStorage.getItem('yhwh_dif_' + s.id);
-    if (nivelGuardado) {
-      var claveSegura = String(s.id).replace(/\./g, '_');
-      difData[claveSegura] = nivelGuardado;
-    }
-  });
-  window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData);
-}
+  if (window.esAdmin && window.fbDb) {
+
+      var difData = {};
+
+      for (var i = 0; i < SONGS.length; i++) {
+
+          var songId = SONGS[i].id;
+
+          var nivelGuardado =
+              localStorage.getItem('yhwh_dif_' + songId);
+
+          if (nivelGuardado) {
+              difData[songId] = nivelGuardado;
+          }
+      }
+
+      window.fbSet(
+          window.fbRef(window.fbDb, 'dificultad'),
+          difData
+      );
   }
+}
 
 
 function actualizarBotonesDificultad() {
   if (!currentSong) return;
-  var nivel = getDificultadCancion(currentSong.id);
+  var clave = 'yhwh_dif_' + currentSong.id;
+  var nivel = localStorage.getItem(clave);
   var ids = ['difFacil', 'difMedia', 'difDificil'];
   var niveles = ['facil', 'media', 'dificil'];
   for (var i = 0; i < ids.length; i++) {
@@ -5194,7 +5163,7 @@ function actualizarBotonesDificultad() {
 }
 
 function obtenerBadgeDificultad(id) {
-var nivel = getDificultadCancion(id);
+  var nivel = localStorage.getItem('yhwh_dif_' + id);
   if (!nivel) return '';
   var clases = { facil: 'dif-facil', media: 'dif-media', dificil: 'dif-dificil' };
   var textos = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' };
@@ -5218,26 +5187,7 @@ var ETIQUETAS_DISPONIBLES = [
 ];
 
 function getEtiquetasCancion(id) {
-  var claveSegura = String(id).replace(/\./g, '_');
-  if (window.etiquetasDB && window.etiquetasDB[claveSegura]) {
-    return window.etiquetasDB[claveSegura];
-  }
-  if (window.etiquetasDB && window.etiquetasDB[id]) {
-    return window.etiquetasDB[id];
-  }
   return JSON.parse(localStorage.getItem('yhwh_etiq_' + id) || '[]');
-}
-
-
-function getDificultadCancion(id) {
-  var claveSegura = String(id).replace(/\./g, '_');
-  if (window.dificultadDB && window.dificultadDB[claveSegura]) {
-    return window.dificultadDB[claveSegura];
-  }
-  if (window.dificultadDB && window.dificultadDB[id]) {
-    return window.dificultadDB[id];
-  }
-  return localStorage.getItem('yhwh_dif_' + id);
 }
 
 function toggleEtiqueta(etiquetaId) {
@@ -5256,18 +5206,32 @@ function toggleEtiqueta(etiquetaId) {
 
 
 
-if (window.esAdmin && window.fbDb) {
+ if (window.esAdmin && window.fbDb) {
+
   var etData = {};
-  SONGS.forEach(function(s) {
+
+  for (var i = 0; i < SONGS.length; i++) {
+
+    var songId = SONGS[i].id;
+
     try {
-      var etiquetas = JSON.parse(localStorage.getItem('yhwh_etiq_' + s.id) || '[]');
-      if (etiquetas.length > 0) {
-        var claveSegura = String(s.id).replace(/\./g, '_');
-        etData[claveSegura] = etiquetas;
+
+      var etiquetasCancion =
+        JSON.parse(
+          localStorage.getItem('yhwh_etiq_' + songId) || '[]'
+        );
+
+      if (etiquetasCancion.length > 0) {
+        etData[songId] = etiquetasCancion;
       }
+
     } catch(e) {}
-  });
-  window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData);
+  }
+
+  window.fbSet(
+    window.fbRef(window.fbDb, 'etiquetas'),
+    etData
+  );
 }
 
 
@@ -5305,10 +5269,8 @@ function renderEtiquetas() {
 // ============================================================
 // === ALABANZAS DE JUBILO ====================================
 // ============================================================
-window.REPERTORIOS_KEY = 'yhwh_repertorios_v2';
 var JUBILO_GRUPOS_KEY = 'yhwh_jubilo_grupos';
 var jubiloGrupos = JSON.parse(localStorage.getItem(JUBILO_GRUPOS_KEY) || '[]');
-window.jubiloGrupos = jubiloGrupos; // exponer globalmente
 var jubiloGrupoActivo = null;
 var jubiloCadenaActiva = null;
 var jubiloState = {};
@@ -5434,14 +5396,7 @@ function abrirTeleprompterJubilo() {
 }
 var jubiloFontSize = parseInt(localStorage.getItem('yhwh_jubilo_fontsize')) || 11;
 
-function guardarJubiloGrupos() {
-  localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
-  window.jubiloGrupos = jubiloGrupos;
-  if (window.esAdmin && window.fbDb) {
-    window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloGrupos);
-  }
-}
-
+function guardarJubiloGrupos(){ localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos)); }
 function getJubiloSong(id){ return SONGS_JUBILO.find(function(s){ return String(s.id) === String(id); }); }
 function getJubiloEditKey(id){ return 'yhwh_jubilo_edit_' + id; }
 
@@ -5467,39 +5422,11 @@ function activarWakeLockJubilo(){
 
 function crearGrupoJubilo(){
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
-  
-  var modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
-  modal.innerHTML = 
-    '<div style="background:#1c1c3f;border:1px solid #2a2a45;border-radius:12px;padding:20px;width:100%;max-width:380px;">' +
-      '<p style="color:#c9a84c;font-weight:bold;margin-bottom:12px;">➕ Nuevo Grupo</p>' +
-      '<input id="inputNuevoGrupo" placeholder="Nombre del grupo..." ' +
-        'style="width:100%;background:#0d0d14;border:1px solid #2a2a45;color:#e8e6f0;border-radius:8px;padding:10px;font-size:0.9rem;box-sizing:border-box;outline:none;">' +
-      '<div style="display:flex;gap:8px;margin-top:12px;">' +
-        '<button id="btnCancelarGrupo" style="flex:1;background:#42426e;border:none;color:#e8e6f0;border-radius:8px;padding:10px;cursor:pointer;font-weight:bold;">Cancelar</button>' +
-        '<button id="btnConfirmarGrupo" style="flex:1;background:#c9a84c;border:none;color:#000;border-radius:8px;padding:10px;cursor:pointer;font-weight:bold;">Crear</button>' +
-      '</div>' +
-    '</div>';
-  
-  document.body.appendChild(modal);
-  var input = document.getElementById('inputNuevoGrupo');
-  input.focus();
-  
-  function cerrar() { document.body.removeChild(modal); }
-  
-  function confirmar() {
-    var nombre = input.value.trim();
-    if (!nombre) { mostrarToast('Escribe un nombre para el grupo.'); return; }
-    jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre, cadenas: [] });
-    guardarJubiloGrupos();
-    renderJubiloSidebar();
-    cerrar();
-    mostrarToast('✅ Grupo "' + nombre + '" creado.');
-  }
-  
-  document.getElementById('btnCancelarGrupo').onclick = cerrar;
-  document.getElementById('btnConfirmarGrupo').onclick = confirmar;
-  input.addEventListener('keydown', function(e){ if(e.key==='Enter') confirmar(); if(e.key==='Escape') cerrar(); });
+  var nombre = prompt('Nombre del grupo');
+  if (!nombre || !nombre.trim()) return;
+  jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre.trim(), cadenas: [] });
+  guardarJubiloGrupos();
+  renderJubiloSidebar();
 }
 
 function renombrarGrupo(id) {
@@ -5534,55 +5461,19 @@ function eliminarCadena(grupoId, cadenaId) {
 function crearCadenaJubilo(){
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!jubiloGrupos.length) { mostrarToast('Primero crea un grupo.'); return; }
-
-  var opcionesGrupo = jubiloGrupos.map(function(g){
-    return '<option value="' + g.id + '">' + escH(g.nombre) + '</option>';
-  }).join('');
-
-  var modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
-  modal.innerHTML =
-    '<div style="background:#1c1c3f;border:1px solid #2a2a45;border-radius:12px;padding:20px;width:100%;max-width:380px;">' +
-      '<p style="color:#c9a84c;font-weight:bold;margin-bottom:12px;">➕ Nueva Cadena</p>' +
-      '<input id="inputNuevaCadena" placeholder="Nombre de la cadena..." ' +
-        'style="width:100%;background:#0d0d14;border:1px solid #2a2a45;color:#e8e6f0;border-radius:8px;padding:10px;font-size:0.9rem;box-sizing:border-box;outline:none;margin-bottom:10px;">' +
-      '<select id="selectGrupoCadena" ' +
-        'style="width:100%;background:#0d0d14;border:1px solid #2a2a45;color:#e8e6f0;border-radius:8px;padding:10px;font-size:0.9rem;box-sizing:border-box;outline:none;">' +
-        opcionesGrupo +
-      '</select>' +
-      '<div style="display:flex;gap:8px;margin-top:12px;">' +
-        '<button id="btnCancelarCadena" style="flex:1;background:#42426e;border:none;color:#e8e6f0;border-radius:8px;padding:10px;cursor:pointer;font-weight:bold;">Cancelar</button>' +
-        '<button id="btnConfirmarCadena" style="flex:1;background:#c9a84c;border:none;color:#000;border-radius:8px;padding:10px;cursor:pointer;font-weight:bold;">Crear</button>' +
-      '</div>' +
-    '</div>';
-
-  document.body.appendChild(modal);
-  var input = document.getElementById('inputNuevaCadena');
-  var selectGrupo = document.getElementById('selectGrupoCadena');
-  input.focus();
-  if (jubiloGrupoActivo) selectGrupo.value = jubiloGrupoActivo;
-
-  function cerrar() { document.body.removeChild(modal); }
-
-  function confirmar() {
-    var nombre = input.value.trim();
-    if (!nombre) { mostrarToast('Escribe un nombre para la cadena.'); return; }
-    var grupo = jubiloGrupos.find(function(g){ return g.id === selectGrupo.value; });
-    if (!grupo) { mostrarToast('Selecciona un grupo válido.'); return; }
-    var cadena = { id: 'cadena_' + Date.now(), nombre: nombre, alabanzas: [] };
-    grupo.cadenas.push(cadena);
-    guardarJubiloGrupos();
-    jubiloGrupoActivo = grupo.id;
-    jubiloCadenaActiva = cadena.id;
-    renderJubiloSidebar();
-    renderJubiloCadena(grupo.id, cadena.id);
-    cerrar();
-    mostrarToast('✅ Cadena "' + nombre + '" creada en "' + grupo.nombre + '".');
-  }
-
-  document.getElementById('btnCancelarCadena').onclick = cerrar;
-  document.getElementById('btnConfirmarCadena').onclick = confirmar;
-  input.addEventListener('keydown', function(e){ if(e.key==='Enter') confirmar(); if(e.key==='Escape') cerrar(); });
+  var nombre = prompt('Nombre de la cadena');
+  if (!nombre || !nombre.trim()) return;
+  var grupoNombre = prompt('Grupo al que pertenece (escribe el nombre exacto)', jubiloGrupos[0].nombre);
+  if (!grupoNombre || !grupoNombre.trim()) return;
+  var grupo = jubiloGrupos.find(function(g){ return jubiloNormText(g.nombre) === jubiloNormText(grupoNombre.trim()); });
+  if (!grupo) { mostrarToast('No encontre ese grupo.'); return; }
+  var cadena = { id: 'cadena_' + Date.now(), nombre: nombre.trim(), alabanzas: [] };
+  grupo.cadenas.push(cadena);
+  guardarJubiloGrupos();
+  jubiloGrupoActivo = grupo.id;
+  jubiloCadenaActiva = cadena.id;
+  renderJubiloSidebar();
+  renderJubiloCadena(grupo.id, cadena.id);
 }
 
 function renderJubiloSidebar(){
@@ -6518,89 +6409,6 @@ function toggleAdminLogin() {
       .catch(function() { mostrarToast('❌ Contraseña incorrecta.'); });
   }
 }
-
-
-
-
-
-
-
-
-
-
-function subirTodoAFirebase() {
-  if (!window.esAdmin) { mostrarToast('🔒 Solo admin.'); return; }
-  if (!window.fbDb) { mostrarToast('❌ No hay conexión Firebase.'); return; }
-
-  mostrarToast('⏳ Subiendo...');
-
-  // Subir dificultades (puntos reemplazados por _ en las claves)
-  var difData = {};
-  SONGS.forEach(function(s) {
-    var nivel = localStorage.getItem('yhwh_dif_' + s.id);
-    if (nivel) {
-      var claveSegura = String(s.id).replace(/\./g, '_');
-      difData[claveSegura] = nivel;
-    }
-  });
-  window.fbSet(window.fbRef(window.fbDb, 'dificultad'), difData)
-    .then(function(){ mostrarToast('✅ Dificultades subidas'); })
-    .catch(function(e){ mostrarToast('❌ Error dificultad: ' + e.message); });
-
-  // Subir etiquetas (puntos reemplazados por _ en las claves)
-  var etData = {};
-  SONGS.forEach(function(s) {
-    try {
-      var etiquetas = JSON.parse(localStorage.getItem('yhwh_etiq_' + s.id) || '[]');
-      if (etiquetas.length > 0) {
-        var claveSegura = String(s.id).replace(/\./g, '_');
-        etData[claveSegura] = etiquetas;
-      }
-    } catch(e) {}
-  });
-  window.fbSet(window.fbRef(window.fbDb, 'etiquetas'), etData)
-    .then(function(){ mostrarToast('✅ Etiquetas subidas'); })
-    .catch(function(e){ mostrarToast('❌ Error etiquetas: ' + e.message); });
-
-  // Subir notas (puntos reemplazados por _ en las claves)
-  var notasData = {};
-  SONGS.forEach(function(s) {
-    var nota = localStorage.getItem('yhwh_nota_' + s.id);
-    if (nota && nota.trim()) {
-      var claveSegura = String(s.id).replace(/\./g, '_');
-      notasData[claveSegura] = nota;
-    }
-  });
-  window.fbSet(window.fbRef(window.fbDb, 'notas_director'), notasData)
-    .then(function(){ mostrarToast('✅ Notas subidas'); })
-    .catch(function(e){ mostrarToast('❌ Error notas: ' + e.message); });
-
-  // Subir ediciones de júbilo (IDs de jubilo son números enteros, sin puntos, sin problema)
-  var editData = {};
-  SONGS_JUBILO.forEach(function(s) {
-    var guardado = localStorage.getItem('yhwh_jubilo_edit_' + s.id);
-    if (guardado !== null) editData[s.id] = guardado;
-  });
-  window.fbSet(window.fbRef(window.fbDb, 'jubilo_ediciones'), editData)
-    .then(function(){ mostrarToast('✅ Ediciones júbilo subidas'); })
-    .catch(function(e){ mostrarToast('❌ Error ediciones: ' + e.message); });
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 </script>
 
 
