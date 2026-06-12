@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -5465,11 +5465,39 @@ function activarWakeLockJubilo(){
 
 function crearGrupoJubilo(){
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
-  var nombre = prompt('Nombre del grupo');
-  if (!nombre || !nombre.trim()) return;
-  jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre.trim(), cadenas: [] });
-  guardarJubiloGrupos();
-  renderJubiloSidebar();
+  
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+  modal.innerHTML = 
+    '<div style="background:#1c1c3f;border:1px solid #2a2a45;border-radius:12px;padding:20px;width:100%;max-width:380px;">' +
+      '<p style="color:#c9a84c;font-weight:bold;margin-bottom:12px;">➕ Nuevo Grupo</p>' +
+      '<input id="inputNuevoGrupo" placeholder="Nombre del grupo..." ' +
+        'style="width:100%;background:#0d0d14;border:1px solid #2a2a45;color:#e8e6f0;border-radius:8px;padding:10px;font-size:0.9rem;box-sizing:border-box;outline:none;">' +
+      '<div style="display:flex;gap:8px;margin-top:12px;">' +
+        '<button id="btnCancelarGrupo" style="flex:1;background:#42426e;border:none;color:#e8e6f0;border-radius:8px;padding:10px;cursor:pointer;font-weight:bold;">Cancelar</button>' +
+        '<button id="btnConfirmarGrupo" style="flex:1;background:#c9a84c;border:none;color:#000;border-radius:8px;padding:10px;cursor:pointer;font-weight:bold;">Crear</button>' +
+      '</div>' +
+    '</div>';
+  
+  document.body.appendChild(modal);
+  var input = document.getElementById('inputNuevoGrupo');
+  input.focus();
+  
+  function cerrar() { document.body.removeChild(modal); }
+  
+  function confirmar() {
+    var nombre = input.value.trim();
+    if (!nombre) { mostrarToast('Escribe un nombre para el grupo.'); return; }
+    jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre, cadenas: [] });
+    guardarJubiloGrupos();
+    renderJubiloSidebar();
+    cerrar();
+    mostrarToast('✅ Grupo "' + nombre + '" creado.');
+  }
+  
+  document.getElementById('btnCancelarGrupo').onclick = cerrar;
+  document.getElementById('btnConfirmarGrupo').onclick = confirmar;
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') confirmar(); if(e.key==='Escape') cerrar(); });
 }
 
 function renombrarGrupo(id) {
@@ -5504,19 +5532,55 @@ function eliminarCadena(grupoId, cadenaId) {
 function crearCadenaJubilo(){
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!jubiloGrupos.length) { mostrarToast('Primero crea un grupo.'); return; }
-  var nombre = prompt('Nombre de la cadena');
-  if (!nombre || !nombre.trim()) return;
-  var grupoNombre = prompt('Grupo al que pertenece (escribe el nombre exacto)', jubiloGrupos[0].nombre);
-  if (!grupoNombre || !grupoNombre.trim()) return;
-  var grupo = jubiloGrupos.find(function(g){ return jubiloNormText(g.nombre) === jubiloNormText(grupoNombre.trim()); });
-  if (!grupo) { mostrarToast('No encontre ese grupo.'); return; }
-  var cadena = { id: 'cadena_' + Date.now(), nombre: nombre.trim(), alabanzas: [] };
-  grupo.cadenas.push(cadena);
-  guardarJubiloGrupos();
-  jubiloGrupoActivo = grupo.id;
-  jubiloCadenaActiva = cadena.id;
-  renderJubiloSidebar();
-  renderJubiloCadena(grupo.id, cadena.id);
+
+  var opcionesGrupo = jubiloGrupos.map(function(g){
+    return '<option value="' + g.id + '">' + escH(g.nombre) + '</option>';
+  }).join('');
+
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+  modal.innerHTML =
+    '<div style="background:#1c1c3f;border:1px solid #2a2a45;border-radius:12px;padding:20px;width:100%;max-width:380px;">' +
+      '<p style="color:#c9a84c;font-weight:bold;margin-bottom:12px;">➕ Nueva Cadena</p>' +
+      '<input id="inputNuevaCadena" placeholder="Nombre de la cadena..." ' +
+        'style="width:100%;background:#0d0d14;border:1px solid #2a2a45;color:#e8e6f0;border-radius:8px;padding:10px;font-size:0.9rem;box-sizing:border-box;outline:none;margin-bottom:10px;">' +
+      '<select id="selectGrupoCadena" ' +
+        'style="width:100%;background:#0d0d14;border:1px solid #2a2a45;color:#e8e6f0;border-radius:8px;padding:10px;font-size:0.9rem;box-sizing:border-box;outline:none;">' +
+        opcionesGrupo +
+      '</select>' +
+      '<div style="display:flex;gap:8px;margin-top:12px;">' +
+        '<button id="btnCancelarCadena" style="flex:1;background:#42426e;border:none;color:#e8e6f0;border-radius:8px;padding:10px;cursor:pointer;font-weight:bold;">Cancelar</button>' +
+        '<button id="btnConfirmarCadena" style="flex:1;background:#c9a84c;border:none;color:#000;border-radius:8px;padding:10px;cursor:pointer;font-weight:bold;">Crear</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  var input = document.getElementById('inputNuevaCadena');
+  var selectGrupo = document.getElementById('selectGrupoCadena');
+  input.focus();
+  if (jubiloGrupoActivo) selectGrupo.value = jubiloGrupoActivo;
+
+  function cerrar() { document.body.removeChild(modal); }
+
+  function confirmar() {
+    var nombre = input.value.trim();
+    if (!nombre) { mostrarToast('Escribe un nombre para la cadena.'); return; }
+    var grupo = jubiloGrupos.find(function(g){ return g.id === selectGrupo.value; });
+    if (!grupo) { mostrarToast('Selecciona un grupo válido.'); return; }
+    var cadena = { id: 'cadena_' + Date.now(), nombre: nombre, alabanzas: [] };
+    grupo.cadenas.push(cadena);
+    guardarJubiloGrupos();
+    jubiloGrupoActivo = grupo.id;
+    jubiloCadenaActiva = cadena.id;
+    renderJubiloSidebar();
+    renderJubiloCadena(grupo.id, cadena.id);
+    cerrar();
+    mostrarToast('✅ Cadena "' + nombre + '" creada en "' + grupo.nombre + '".');
+  }
+
+  document.getElementById('btnCancelarCadena').onclick = cerrar;
+  document.getElementById('btnConfirmarCadena').onclick = confirmar;
+  input.addEventListener('keydown', function(e){ if(e.key==='Enter') confirmar(); if(e.key==='Escape') cerrar(); });
 }
 
 function renderJubiloSidebar(){
