@@ -1,10 +1,10 @@
-const CACHE_NAME = 'alabanzas-v36';
+const CACHE_NAME = 'alabanzas-v37';
 
-// ✅ UN solo evento install, con críticos y opcionales
+// ✅ UN solo evento install, con crítico
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Archivos críticos — si fallan, el SW no se instala
+      // Archivos críticos — si fallan, el SW no se ins
       const criticos = [
         'index.html',
         'manifest.json',
