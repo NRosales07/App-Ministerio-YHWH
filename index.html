@@ -89,19 +89,25 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
   // Escuchar jubilo en tiempo real
 onValue(ref(db, 'jubilo'), function(snapshot) {
   var data = snapshot.val();
-  if (data) {
+  if (data === null || data === undefined) return;
+  var nuevosGrupos = [];
+  if (Array.isArray(data)) {
+    nuevosGrupos = data;
+  } else if (typeof data === 'object') {
     var keys = Object.keys(data);
     var esArray = keys.every(function(k) { return !isNaN(k); });
-    var nuevosGrupos = esArray 
-      ? keys.sort(function(a,b){return a-b;}).map(function(k){ return data[k]; })
-      : data;
-    
-    if (Array.isArray(nuevosGrupos)) {
-      jubiloGrupos = nuevosGrupos;
-      window.jubiloGrupos = jubiloGrupos;
-      localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
-      if (window.renderJubiloSidebar) window.renderJubiloSidebar();
+    if (esArray) {
+      nuevosGrupos = keys.sort(function(a,b){return Number(a)-Number(b);}).map(function(k){ return data[k]; });
     }
+  }
+  if (!Array.isArray(nuevosGrupos)) return;
+  nuevosGrupos = nuevosGrupos.filter(function(g){ return g && g.id; });
+  jubiloGrupos = nuevosGrupos;
+  window.jubiloGrupos = jubiloGrupos;
+  localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
+  if (window.renderJubiloSidebar) window.renderJubiloSidebar();
+  if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
+    window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
   }
 });
 
@@ -1353,7 +1359,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
     <div id="screen-menu" class="app-screen active">
       <div class="menu-container">
-      <h2 style="color: var(--gold); margin-bottom: 4px;">Ministerio <span style="color:var(--gold2)">YHWH</span></h2>
+      <h2 style="color: var(--gold); margin-bottom: 4px;">Ministerio - <span style="color:var(--gold2)">YHWH</span></h2>
 <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
           <button class="menu-btn" onclick="showScreen('screen-chords')">🎵 Letras y Transpositor</button>
           <button class="menu-btn" onclick="showScreen('screen-jubilo')">🎶 Alabanzas de Júbilo</button>
@@ -5514,6 +5520,7 @@ function crearCadenaJubilo(){
 function renderJubiloSidebar(){
   var list = document.getElementById('jubiloGroupList');
   if (!list) return;
+  if (!Array.isArray(jubiloGrupos)) jubiloGrupos = [];
   if (!jubiloGrupos.length) {
     list.innerHTML = '<div class="no-results">No hay grupos todavia.</div>';
     return;
