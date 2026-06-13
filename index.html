@@ -90,20 +90,26 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
 onValue(ref(db, 'jubilo'), function(snapshot) {
   var data = snapshot.val();
   if (data === null || data === undefined) return;
+  
   var nuevosGrupos = [];
+  
   if (Array.isArray(data)) {
     nuevosGrupos = data;
   } else if (typeof data === 'object') {
-    var keys = Object.keys(data);
-    var esArray = keys.every(function(k) { return !isNaN(k); });
-    if (esArray) {
-      nuevosGrupos = keys.sort(function(a,b){return Number(a)-Number(b);}).map(function(k){ return data[k]; });
-    }
+    nuevosGrupos = Object.values(data);
   }
-  if (!Array.isArray(nuevosGrupos)) return;
-  nuevosGrupos = nuevosGrupos.filter(function(g){ return g && g.id; });
   
-  // CRÍTICO: reasignar la variable global que usa todo el código
+  // Limpiar undefined y elementos sin id
+  nuevosGrupos = nuevosGrupos.filter(function(g){ 
+    return g && g.id && g.nombre; 
+  });
+  
+  // Limpiar cadenas dentro de cada grupo
+  nuevosGrupos.forEach(function(g){
+    if (!Array.isArray(g.cadenas)) g.cadenas = [];
+    g.cadenas = g.cadenas.filter(function(c){ return c && c.id; });
+  });
+
   jubiloGrupos = nuevosGrupos;
   window.jubiloGrupos = jubiloGrupos;
   localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
@@ -113,6 +119,15 @@ onValue(ref(db, 'jubilo'), function(snapshot) {
     window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
   }
 });
+  // CRÍTICO: reasignar la variable global que usa todo el código
+  jubiloGrupos = nuevosGrupos;
+  window.jubiloGrupos = jubiloGrupos;
+  localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
+  
+  if (window.renderJubiloSidebar) window.renderJubiloSidebar();
+  if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
+    window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
+  }
 
   onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
   var data = snapshot.val();
@@ -1362,7 +1377,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
     <div id="screen-menu" class="app-screen active">
       <div class="menu-container">
-      <h2 style="color: var(--gold); margin-bottom: 4px;"> -- <span style="color:var(--gold2)">YHWH</span></h2>
+      <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio <span style="color:var(--gold2)">YHWH</span></h2>
 <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
           <button class="menu-btn" onclick="showScreen('screen-chords')">🎵 Letras y Transpositor</button>
           <button class="menu-btn" onclick="showScreen('screen-jubilo')">🎶 Alabanzas de Júbilo</button>
@@ -5541,7 +5556,7 @@ function renderJubiloSidebar(){
     return;
   }
   var html = '';
-  jubiloGrupos.forEach(function(g){
+  jubiloGrupos.filter(function(g){ return g && g.id && g.nombre; }).forEach(function(g){
     html += '<details class="jubilo-group" open>' +
       '<summary style="display:flex;align-items:center;justify-content:space-between;">' +
         '<span>' + escH(g.nombre) + '</span>' +
