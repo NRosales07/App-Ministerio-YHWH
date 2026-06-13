@@ -87,26 +87,20 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
   });
 
   // Escuchar jubilo en tiempo real
- onValue(ref(db, 'jubilo'), function(snapshot) {
+onValue(ref(db, 'jubilo'), function(snapshot) {
   var data = snapshot.val();
   if (data) {
-    window.jubiloDataDB = data;
-    // Aplicar los grupos al array local
-    if (Array.isArray(data)) {
-      jubiloGrupos = data;
-    } else if (data && typeof data === 'object') {
-      // Firebase a veces convierte arrays a objetos con índices numéricos
-      var keys = Object.keys(data);
-      var esArray = keys.every(function(k) { return !isNaN(k); });
-      if (esArray) {
-        jubiloGrupos = keys.sort(function(a,b){return a-b;}).map(function(k){ return data[k]; });
-      }
-    }
-    localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
-    if (window.renderJubiloSidebar) window.renderJubiloSidebar();
-    // Si había una cadena activa, rerenderizarla
-    if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
-      window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
+    var keys = Object.keys(data);
+    var esArray = keys.every(function(k) { return !isNaN(k); });
+    var nuevosGrupos = esArray 
+      ? keys.sort(function(a,b){return a-b;}).map(function(k){ return data[k]; })
+      : data;
+    
+    if (Array.isArray(nuevosGrupos)) {
+      jubiloGrupos = nuevosGrupos;
+      window.jubiloGrupos = jubiloGrupos;
+      localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
+      if (window.renderJubiloSidebar) window.renderJubiloSidebar();
     }
   }
 });
@@ -5432,9 +5426,11 @@ var jubiloFontSize = parseInt(localStorage.getItem('yhwh_jubilo_fontsize')) || 1
 
 function guardarJubiloGrupos(){ 
   localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
+  window.jubiloGrupos = jubiloGrupos; // sincronizar referencia global
   if (window.esAdmin && window.fbDb) {
     window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloGrupos);
   }
+  renderJubiloSidebar(); // forzar re-render inmediato sin esperar Firebase
 }
 function getJubiloSong(id){ return SONGS_JUBILO.find(function(s){ return String(s.id) === String(id); }); }
 function getJubiloEditKey(id){ return 'yhwh_jubilo_edit_' + id; }
