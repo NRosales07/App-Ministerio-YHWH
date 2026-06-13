@@ -261,6 +261,12 @@ z-index: 100;
   position: relative;
   left: var(--latino-shift, -7px);
 }
+
+.jubilo-content .lc.latino-shift{
+  position: relative;
+  left: var(--jubilo-shift, -7px);
+}
+
 .song-content .ll{
   font-family: Arial, Helvetica, sans-serif;
   color: var(--text);
@@ -1372,7 +1378,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
     <div id="screen-menu" class="app-screen active">
       <div class="menu-container">
-      <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio  <span style="color:var(--gold2)">YHWH</span></h2>
+      <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio <span style="color:var(--gold2)">YHWH</span></h2>
 <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
           <button class="menu-btn" onclick="showScreen('screen-chords')">🎵 Letras y Transpositor</button>
           <button class="menu-btn" onclick="showScreen('screen-jubilo')">🎶 Alabanzas de Júbilo</button>
@@ -1380,7 +1386,9 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
          
 <button class="menu-btn" onclick="showScreen('screen-setlist')" id="btnMenuSetlist">📋 Repertorio</button>
+<button class="menu-btn" onclick="toggleAdminLogin()" id="btnAdminLoginMenu">🔑 Admin</button>
 <button id="btnClaroMenu" class="menu-btn" onclick="alternarModoClaroGlobal()" style="background:linear-gradient(135deg,#2a2a45,#1b2152);margin-top:8px;">🌙 Tema: Oscuro</button>
+
 </div>
     </div>
 
@@ -1703,16 +1711,18 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
    <!-- Opciones guardadas: no se muestran porque las vistas rápidas son más útiles en vivo -->
     <!-- Fila 5: Ajuste Latino Júbilo -->
 <div class="fila-botones" style="margin-top:4px;">
-  <button class="action-btn" onclick="cambiarAjusteLatino(-1)" title="Mover acordes latinos a la izquierda">
+  <button class="action-btn" onclick="cambiarAjusteJubilo(-1)" title="Mover acordes latinos a la izquierda">
     Acordes ←
   </button>
-  <button id="latinoShiftDisplayJubilo" class="action-btn" onclick="resetAjusteLatino()" title="Volver a -7px">
+  <button id="latinoShiftDisplayJubilo" class="action-btn" onclick="resetAjusteJubilo()" title="Volver a -7px">
     Latino -7px
   </button>
-  <button class="action-btn" onclick="cambiarAjusteLatino(1)" title="Mover acordes latinos a la derecha">
+  <button class="action-btn" onclick="cambiarAjusteJubilo(1)" title="Mover acordes latinos a la derecha">
     Acordes →
   </button>
 </div>
+
+
     <div class="fila-botones" style="margin-top:4px;display:none;">
       <button onclick="abrirTeleprompterJubilo()"
         style="background:#8b0000;color:#fff;border:none;padding:0 12px;
@@ -3667,6 +3677,9 @@ var singerViewPrevOcultarAcordes = null;
 var LATINO_SHIFT_DEFAULT = -7;
 var latinoShift = parseInt(localStorage.getItem('yhwh_latino_shift') || LATINO_SHIFT_DEFAULT, 10);
 if (isNaN(latinoShift)) latinoShift = LATINO_SHIFT_DEFAULT;
+var JUBILO_SHIFT_DEFAULT = -7;
+var jubiloShift = parseInt(localStorage.getItem('yhwh_jubilo_shift') || JUBILO_SHIFT_DEFAULT, 10);
+if (isNaN(jubiloShift)) jubiloShift = JUBILO_SHIFT_DEFAULT;
 
 var DICCIONARIO_LATINO = {
   'C': 'Do', 'D': 'Re', 'E': 'Mi', 'F': 'Fa', 'G': 'Sol', 'A': 'La', 'B': 'Si'
@@ -5507,6 +5520,8 @@ function initJubilo(){
   jubiloGlobalLatino = localStorage.getItem('yhwh_jubilo_latino') === '1';
   jubiloGlobalChords = localStorage.getItem('yhwh_jubilo_chords') === '1';
   
+    aplicarAjusteJubilo();
+
   // Actualizar botones según preferencias guardadas
   var btnLatino = document.getElementById('btnJubiloLatino');
   if (btnLatino) btnLatino.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
@@ -6538,6 +6553,26 @@ function toggleAdminLogin() {
       .then(function() { mostrarToast('✅ Modo admin activado.'); })
       .catch(function() { mostrarToast('❌ Contraseña incorrecta.'); });
   }
+}
+
+
+function cambiarAjusteJubilo(delta) {
+  jubiloShift += delta;
+  localStorage.setItem('yhwh_jubilo_shift', jubiloShift);
+  aplicarAjusteJubilo();
+}
+
+function resetAjusteJubilo() {
+  jubiloShift = JUBILO_SHIFT_DEFAULT;
+  localStorage.setItem('yhwh_jubilo_shift', jubiloShift);
+  aplicarAjusteJubilo();
+}
+
+function aplicarAjusteJubilo() {
+  // Usamos una variable CSS diferente para júbilo
+  document.documentElement.style.setProperty('--jubilo-shift', jubiloShift + 'px');
+  var display = document.getElementById('latinoShiftDisplayJubilo');
+  if (display) display.textContent = 'Latino ' + jubiloShift + 'px';
 }
 </script>
 
