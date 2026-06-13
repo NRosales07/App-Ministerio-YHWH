@@ -6090,9 +6090,24 @@ function filtrarSidebarJubilo(q) {
 
 function agregarAlabanzaJubilo(id){
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
-  var found=buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva); if(!found) return;
+  if (window.jubiloGrupos !== undefined) jubiloGrupos = window.jubiloGrupos;
+  if (!Array.isArray(jubiloGrupos)) jubiloGrupos = [];
+  
+  var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva); 
+  if (!found) { 
+    mostrarToast('⚠️ No se encontró la cadena activa.'); 
+    return; 
+  }
+  
+  if (!Array.isArray(found.cadena.alabanzas)) found.cadena.alabanzas = [];
   found.cadena.alabanzas.push(id);
-  guardarJubiloGrupos(); renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
+  
+  // Actualizar también en window y jubiloGrupos local
+  window.jubiloGrupos = jubiloGrupos;
+  
+  guardarJubiloGrupos(); 
+  renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
+  mostrarToast('✅ Alabanza añadida.');
 }
 
 function agregarCadenaJubiloAlRepertorio(){
