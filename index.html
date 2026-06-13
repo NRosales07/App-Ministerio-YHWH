@@ -1638,7 +1638,8 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <textarea class="notas-textarea" id="notasTextarea" 
     placeholder="Escribe indicaciones aquí... Ej: Entrar suave, repetir coro 2 veces, pausa antes del puente...">
   </textarea>
-  <div class="notas-guardado" id="notasGuardado">✓ Guardado</div>
+ <button onclick="guardarNotas()" style="margin-top:8px;width:100%;background:var(--gold);color:#000;border:none;border-radius:7px;padding:8px;font-size:0.82rem;font-weight:bold;cursor:pointer;">💾 Guardar nota</button>
+<div class="notas-guardado" id="notasGuardado">✓ Guardado</div>
 </div>
     </div>
   </div>
@@ -4722,6 +4723,7 @@ function guardarNotas() {
       if (nota && nota.trim()) notasData[s.id] = nota;
     });
     window.fbSet(window.fbRef(window.fbDb, 'notas_director'), notasData);
+    mostrarToast('✅ Nota guardada');  // AGREGA ESTA LÍNEA
   }
 
   if (guardado) {
