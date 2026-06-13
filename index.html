@@ -119,15 +119,7 @@ onValue(ref(db, 'jubilo'), function(snapshot) {
     window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
   }
 });
-  // CRÍTICO: reasignar la variable global que usa todo el código
-  jubiloGrupos = nuevosGrupos;
-  window.jubiloGrupos = jubiloGrupos;
-  localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
-  
-  if (window.renderJubiloSidebar) window.renderJubiloSidebar();
-  if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
-    window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
-  }
+
 
 onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
   var data = snapshot.val();
@@ -1380,7 +1372,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
     <div id="screen-menu" class="app-screen active">
       <div class="menu-container">
-      <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio <span style="color:var(--gold2)">YHWH</span></h2>
+      <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio -- <span style="color:var(--gold2)">YHWH</span></h2>
 <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
           <button class="menu-btn" onclick="showScreen('screen-chords')">🎵 Letras y Transpositor</button>
           <button class="menu-btn" onclick="showScreen('screen-jubilo')">🎶 Alabanzas de Júbilo</button>
