@@ -129,12 +129,15 @@ onValue(ref(db, 'jubilo'), function(snapshot) {
     window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
   }
 
-  onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
+onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
   var data = snapshot.val();
   if (data) {
     Object.keys(data).forEach(function(id) {
       localStorage.setItem('yhwh_jubilo_edit_' + id, data[id]);
     });
+    // ← ESTAS DOS LÍNEAS SON LAS QUE FALTABAN:
+    if (window.rerenderJubiloActive) window.rerenderJubiloActive();
+    if (window.aplicarFuenteJubilo) window.aplicarFuenteJubilo();
   }
 });
 
@@ -4602,6 +4605,12 @@ document.addEventListener('touchend', function(e) {
 // Abre la canción directamente sin dar rodeos
 //loadSong(id_alabanza);
 
+window.rerenderJubiloActive = function() {
+  if (jubiloGrupoActivo && jubiloCadenaActiva) {
+    renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
+  }
+};
+window.aplicarFuenteJubilo = aplicarFuenteJubilo;
 
 // REGISTRO DEL SERVICE WORKER (Para funcionamiento sin internet)
 if ('serviceWorker' in navigator) {
@@ -4642,6 +4651,8 @@ renderContent = function() {
   _renderContentOrig();
   aplicarFuente();
 };
+
+
 
 // Mostrar tamaño inicial en el display
 document.addEventListener('DOMContentLoaded', function() {

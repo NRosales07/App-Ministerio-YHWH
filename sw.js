@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alabanzas-v49';
+const CACHE_NAME = 'alabanzas-v50';
 
 // ✅ UN solo evento install, con críticos y opcionales
 self.addEventListener('install', (e) => {
