@@ -102,9 +102,12 @@ onValue(ref(db, 'jubilo'), function(snapshot) {
   }
   if (!Array.isArray(nuevosGrupos)) return;
   nuevosGrupos = nuevosGrupos.filter(function(g){ return g && g.id; });
+  
+  // CRÍTICO: reasignar la variable global que usa todo el código
   jubiloGrupos = nuevosGrupos;
   window.jubiloGrupos = jubiloGrupos;
   localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
+  
   if (window.renderJubiloSidebar) window.renderJubiloSidebar();
   if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
     window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
@@ -1359,7 +1362,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
     <div id="screen-menu" class="app-screen active">
       <div class="menu-container">
-      <h2 style="color: var(--gold); margin-bottom: 4px;">Ministerio - <span style="color:var(--gold2)">YHWH</span></h2>
+      <h2 style="color: var(--gold); margin-bottom: 4px;">Ministerio <span style="color:var(--gold2)">YHWH</span></h2>
 <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
           <button class="menu-btn" onclick="showScreen('screen-chords')">🎵 Letras y Transpositor</button>
           <button class="menu-btn" onclick="showScreen('screen-jubilo')">🎶 Alabanzas de Júbilo</button>
@@ -5431,6 +5434,7 @@ function abrirTeleprompterJubilo() {
 var jubiloFontSize = parseInt(localStorage.getItem('yhwh_jubilo_fontsize')) || 11;
 
 function guardarJubiloGrupos(){ 
+  window.jubiloGrupos = jubiloGrupos;
   localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
   window.jubiloGrupos = jubiloGrupos; // sincronizar referencia global
   if (window.esAdmin && window.fbDb) {
@@ -5451,6 +5455,7 @@ function jubiloNotaKey(id){ return 'yhwh_jubilo_nota_' + id; }
 function jubiloEsFav(id){ return jubiloFavs.indexOf(String(id)) !== -1; }
 
 function initJubilo(){
+   if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
   if (!Array.isArray(jubiloGrupos)) jubiloGrupos = [];
   renderJubiloSidebar();
   if (jubiloCadenaActiva) renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
@@ -5519,7 +5524,8 @@ function crearCadenaJubilo(){
 
 function renderJubiloSidebar(){
   var list = document.getElementById('jubiloGroupList');
-  if (!list) return;
+  if (!list) return;  
+  if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
   if (!Array.isArray(jubiloGrupos)) jubiloGrupos = [];
   if (!jubiloGrupos.length) {
     list.innerHTML = '<div class="no-results">No hay grupos todavia.</div>';
@@ -5557,6 +5563,7 @@ function renderJubiloSidebar(){
 }
 
 function buscarGrupoCadena(grupoId, cadenaId){
+    if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
   var grupo = jubiloGrupos.find(function(g){ return g.id === grupoId; });
   if (!grupo) return null;
   var cadena = grupo.cadenas.find(function(c){ return c.id === cadenaId; });
@@ -5565,6 +5572,7 @@ function buscarGrupoCadena(grupoId, cadenaId){
 }
 
 function renderJubiloCadena(grupoId, cadenaId){
+  if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
   var found = buscarGrupoCadena(grupoId, cadenaId);
   var main = document.getElementById('jubiloMain');
   if (!found || !main) return;
