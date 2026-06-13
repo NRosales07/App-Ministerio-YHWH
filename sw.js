@@ -1,10 +1,8 @@
-const CACHE_NAME = 'alabanzas-v53';
+const CACHE_NAME = 'alabanzas-v54';
 
-// ✅ UN solo evento install, con críticos y opcionales
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Archivos críticos — si fallan, el SW no se instala
       const criticos = [
         'index.html',
         'manifest.json',
@@ -12,12 +10,14 @@ self.addEventListener('install', (e) => {
         'icon-512.png'
       ];
 
-      // Archivos opcionales — si fallan, no bloquean la instalación
       const opcionales = [
         'Alabanzas_Acordes.pdf',
         'Alabanzas_Jub_Acordes.pdf',
         'Alabanzas_Jub_Letra.pdf',
-        'Alabanzas_Letra.pdf'
+        'Alabanzas_Letra.pdf',
+        'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js',
+        'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js',
+        'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'
       ];
 
       return cache.addAll(criticos).then(() => {
@@ -32,13 +32,12 @@ self.addEventListener('install', (e) => {
   self.skipWaiting();
 });
 
-// Toma control inmediato de todas las pestañas abiertas
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME) // borra cachés viejos
+          .filter(key => key !== CACHE_NAME)
           .map(key => caches.delete(key))
       );
     })
@@ -46,11 +45,12 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Responde con caché primero, red como respaldo
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((cached) => {
-      return cached || fetch(e.request);
+      return cached || fetch(e.request).catch(() => {
+        return caches.match('index.html');
+      });
     })
   );
 });
