@@ -1372,7 +1372,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
     <div id="screen-menu" class="app-screen active">
       <div class="menu-container">
-      <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio -- <span style="color:var(--gold2)">YHWH</span></h2>
+      <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio  <span style="color:var(--gold2)">YHWH</span></h2>
 <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
           <button class="menu-btn" onclick="showScreen('screen-chords')">🎵 Letras y Transpositor</button>
           <button class="menu-btn" onclick="showScreen('screen-jubilo')">🎶 Alabanzas de Júbilo</button>
@@ -1701,6 +1701,18 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     </div>
 
    <!-- Opciones guardadas: no se muestran porque las vistas rápidas son más útiles en vivo -->
+    <!-- Fila 5: Ajuste Latino Júbilo -->
+<div class="fila-botones" style="margin-top:4px;">
+  <button class="action-btn" onclick="cambiarAjusteLatino(-1)" title="Mover acordes latinos a la izquierda">
+    Acordes ←
+  </button>
+  <button id="latinoShiftDisplayJubilo" class="action-btn" onclick="resetAjusteLatino()" title="Volver a -7px">
+    Latino -7px
+  </button>
+  <button class="action-btn" onclick="cambiarAjusteLatino(1)" title="Mover acordes latinos a la derecha">
+    Acordes →
+  </button>
+</div>
     <div class="fila-botones" style="margin-top:4px;display:none;">
       <button onclick="abrirTeleprompterJubilo()"
         style="background:#8b0000;color:#fff;border:none;padding:0 12px;
@@ -3667,6 +3679,8 @@ function aplicarAjusteLatino() {
   document.documentElement.style.setProperty('--latino-shift', latinoShift + 'px');
   var display = document.getElementById('latinoShiftDisplay');
   if (display) display.textContent = 'Latino ' + latinoShift + 'px';
+  var displayJubilo = document.getElementById('latinoShiftDisplayJubilo');
+  if (displayJubilo) displayJubilo.textContent = 'Latino ' + latinoShift + 'px';
 }
 
 function cambiarAjusteLatino(delta) {
@@ -4547,6 +4561,16 @@ function vaciarRepertorio() {
 aplicarOrdenGuardado();
 buildList(SONGS);
 actualizarContadorRepertorio();
+
+// Restaurar cifrado latino al cargar
+if (cifradoLatino) {
+  var btn = document.getElementById('btnCifrado');
+  if (btn) btn.textContent = 'Cifrado: Latino';
+  var btnMusico = document.getElementById('btnCifradoMusico');
+  if (btnMusico) btnMusico.textContent = 'Cifrado: Latino';
+}
+
+
 // === GESTOS TÁCTILES ===
 var touchStartX = 0;
 var touchStartY = 0;
@@ -5338,6 +5362,7 @@ var jubiloVistaActual = null;
 
 function toggleJubiloLatinoGlobal() {
   jubiloGlobalLatino = !jubiloGlobalLatino;
+    localStorage.setItem('yhwh_jubilo_latino', jubiloGlobalLatino ? '1' : '0'); // LÍNEA NUEVA
   var btn = document.getElementById('btnJubiloLatino');
   if (btn) btn.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
 
@@ -5371,6 +5396,8 @@ function toggleJubiloLatinoGlobal() {
 
 function toggleJubiloChordsGlobal() {
   jubiloGlobalChords = !jubiloGlobalChords;
+    localStorage.setItem('yhwh_jubilo_chords', jubiloGlobalChords ? '1' : '0'); // LÍNEA NUEVA
+
   var btn = document.getElementById('btnJubiloChords');
   if (btn) btn.textContent = jubiloGlobalChords ? 'Mostrar Acordes 🎹' : 'Solo Letra 🎤';
 
@@ -5473,8 +5500,19 @@ function jubiloNotaKey(id){ return 'yhwh_jubilo_nota_' + id; }
 function jubiloEsFav(id){ return jubiloFavs.indexOf(String(id)) !== -1; }
 
 function initJubilo(){
-   if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
+  if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
   if (!Array.isArray(jubiloGrupos)) jubiloGrupos = [];
+  
+  // Restaurar preferencias guardadas
+  jubiloGlobalLatino = localStorage.getItem('yhwh_jubilo_latino') === '1';
+  jubiloGlobalChords = localStorage.getItem('yhwh_jubilo_chords') === '1';
+  
+  // Actualizar botones según preferencias guardadas
+  var btnLatino = document.getElementById('btnJubiloLatino');
+  if (btnLatino) btnLatino.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
+  var btnChords = document.getElementById('btnJubiloChords');
+  if (btnChords) btnChords.textContent = jubiloGlobalChords ? 'Mostrar Acordes 🎹' : 'Solo Letra 🎤';
+
   renderJubiloSidebar();
   if (jubiloCadenaActiva) renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
   activarWakeLockJubilo();
