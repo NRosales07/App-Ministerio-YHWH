@@ -1638,7 +1638,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <textarea class="notas-textarea" id="notasTextarea" 
     placeholder="Escribe indicaciones aquí... Ej: Entrar suave, repetir coro 2 veces, pausa antes del puente...">
   </textarea>
- <button onclick="guardarNotas()" style="margin-top:8px;width:100%;background:var(--gold);color:#000;border:none;border-radius:7px;padding:8px;font-size:0.82rem;font-weight:bold;cursor:pointer;">💾 Guardar nota</button>
+
 <div class="notas-guardado" id="notasGuardado">✓ Guardado</div>
 </div>
     </div>
@@ -5685,8 +5685,7 @@ function renderJubiloCadena(grupoId, cadenaId){
 html += '<button class="jubilo-add-btn" onclick="mostrarBuscadorJubilo()">+ Añadir Alabanza</button>' +
   '<div class="jubilo-notes" style="margin:0 0 20px 0;">' +
     '<div class="notas-label">📝 Notas del director — ' + escH(cadena.nombre) + '</div>' +
-    '<textarea class="notas-textarea" placeholder="Indicaciones generales para esta cadena..." oninput="guardarNotaJubilo(\'cadena_' + cadenaId + '\', this.value)">' +
-    escH(localStorage.getItem(jubiloNotaKey('cadena_' + cadenaId)) || '') +
+   '<textarea class="notas-textarea" id="notaJubiloCadena_' + cadenaId + '" placeholder="Indicaciones generales para esta cadena..." oninput="debouncedNotaJubilo(\'cadena_' + cadenaId + '\', this.value)">' +
     '</textarea>' +
   '</div>' +
   '<div id="jubiloAddBox"></div>';
@@ -5924,6 +5923,15 @@ function toggleJubiloLight(key){ jubiloState[key].light=!jubiloState[key].light;
 function cambiarFuenteJubilo(delta){ jubiloFontSize=Math.min(FONT_MAX,Math.max(FONT_MIN,jubiloFontSize+delta)); localStorage.setItem('yhwh_jubilo_fontsize', jubiloFontSize); aplicarFuenteJubilo(); }
 function aplicarFuenteJubilo(){ document.querySelectorAll('.jubilo-content .lc,.jubilo-content .ll,.jubilo-content .ls,.jubilo-content .lm').forEach(function(el){ el.style.fontSize=jubiloFontSize+'px'; }); document.querySelectorAll('#jubiloFontDisplay').forEach(function(el){ el.textContent=jubiloFontSize+'px'; }); }
 function guardarNotaJubilo(id, value){ localStorage.setItem(jubiloNotaKey(id), value); }
+
+var notaJubiloTimer = null;
+function debouncedNotaJubilo(id, value) {
+  clearTimeout(notaJubiloTimer);
+  notaJubiloTimer = setTimeout(function() {
+    guardarNotaJubilo(id, value);
+    mostrarToast('✅ Nota guardada');
+  }, 800);
+}
 function toggleJubiloFav(id){ var sid=String(id), idx=jubiloFavs.indexOf(sid); if(idx===-1) jubiloFavs.push(sid); else jubiloFavs.splice(idx,1); localStorage.setItem('yhwh_jubilo_favs', JSON.stringify(jubiloFavs)); rerenderJubiloActive(); }
 
 function setJubiloChordsGlobal(valor) {
