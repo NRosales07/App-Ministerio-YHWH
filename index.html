@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -4477,7 +4477,82 @@ function getRepertorioDia(dia) {
 }
 
 function getDiaLabel(dia) {
-  return formatearFechaBonita(dia);
+  var txt = formatearFechaBonita(dia);
+  return txt ? txt.charAt(0).toUpperCase() + txt.slice(1) : txt;
+}
+
+function tipoCultoKey(dia) {
+  return 'yhwh_tipo_culto_' + normalizarISO(dia || hoyISO());
+}
+
+function contarDiaDelMes(iso, targetDow) {
+  var fecha = fechaLocalDesdeISO(iso);
+  var count = 0;
+  var d = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
+  while (d <= fecha) {
+    if (d.getDay() === targetDow) count++;
+    d.setDate(d.getDate() + 1);
+  }
+  return count;
+}
+
+function getTipoCultoDia(dia) {
+  var iso = normalizarISO(dia || hoyISO());
+  var guardado = localStorage.getItem(tipoCultoKey(iso));
+  if (guardado && guardado.trim()) return guardado.trim();
+
+  var fecha = fechaLocalDesdeISO(iso);
+  var dow = fecha.getDay();
+
+  if (dow === 1) return 'Grupo por Ministerio';
+  if (dow === 4) return 'Ensayo de Alabanza';
+  if (dow === 6) return 'Grupo de Células';
+  if (dow === 2 || dow === 3) return 'Culto de Oración / Intercesión';
+
+  if (dow === 5) {
+    var viernesNum = contarDiaDelMes(iso, 5);
+    if (viernesNum === 1) return 'Culto de Caballeros';
+    if (viernesNum === 2) return 'Culto de Damas';
+    if (viernesNum === 3) return 'Culto de Jóvenes';
+    if (viernesNum === 4) return 'Culto de Familia';
+    if (viernesNum === 5) return 'Culto de Niños';
+    return 'Culto';
+  }
+
+  if (dow === 0) {
+    var domingoNum = contarDiaDelMes(iso, 0);
+    if (domingoNum === 1) return 'Culto familia pastoral';
+    if (domingoNum === 3) return 'Ayuno/Culto evangelístico';
+    return 'Culto evangelístico';
+  }
+
+  return '';
+}
+
+function getHorarioCultoDia(dia) {
+  var iso = normalizarISO(dia || hoyISO());
+  var fecha = fechaLocalDesdeISO(iso);
+  var dow = fecha.getDay();
+
+  if (dow === 0 && contarDiaDelMes(iso, 0) === 3) {
+    return 'Ayuno: 7:00 AM - 1:00 PM\nCulto evangelístico: 4:00 - 6:00 PM';
+  }
+  if (dow === 1 || dow === 2 || dow === 3 || dow === 6) return '7:00 - 8:00 PM';
+  if (dow === 4) return '7:30 - 9:00 PM';
+  if (dow === 5) return '7:00 - 9:00 PM';
+  if (dow === 0) return '4:00 - 6:00 PM';
+  return '';
+}
+
+function pedirTipoCulto(dia) {
+  var actual = getTipoCultoDia(dia);
+  var valor = prompt('Nombre del culto o evento para este día:', actual);
+  if (valor === null) return;
+  valor = valor.trim();
+  var iso = normalizarISO(dia || hoyISO());
+  if (!valor) localStorage.removeItem(tipoCultoKey(iso));
+  else localStorage.setItem(tipoCultoKey(iso), valor);
+  renderSetlist();
 }
 
 
@@ -4541,10 +4616,24 @@ function renderSetlist() {
 
   // Bug #3 fix: declarar divTiempo al inicio para que esté disponible en todo el bloque
   var divTiempo = document.getElementById('tiempoEstimado');
+  var cultoActual = getTipoCultoDia(repertorioFechaActiva);
+  var horarioActual = getHorarioCultoDia(repertorioFechaActiva);
+  var esClaro = document.body.classList.contains('light-theme');
+  var colorCulto = esClaro ? '#7f5f19' : 'var(--gold2)';
+  var colorFecha = esClaro ? '#55616f' : 'var(--text2)';
+  var colorHorario = esClaro ? '#31424f' : 'var(--text)';
+  var encabezadoCulto =
+    '<div style="text-align:center;margin:2px 0 14px 0;padding:12px 10px 10px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,0.02);">' +
+      '<div style="color:' + colorCulto + ';font-size:1.08rem;font-weight:700;line-height:1.2;">' + escH(cultoActual || 'Culto') + '</div>' +
+      '<div style="color:' + colorFecha + ';font-size:0.76rem;margin-top:4px;">' + escH(getDiaLabel(repertorioFechaActiva)) + '</div>' +
+      '<div style="color:' + colorHorario + ';font-size:0.78rem;margin-top:8px;line-height:1.35;white-space:pre-line;font-weight:600;">' + escH(horarioActual || '') + '</div>' +
+      '<button onclick="pedirTipoCulto(\'' + repertorioFechaActiva + '\')" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;">Editar culto</button>' +
+    '</div>';
 
   if (setlistDOM.length === 0) {
     cont.innerHTML =
-      '<div style="text-align:center; margin-top: 60px;">' +
+      encabezadoCulto +
+      '<div style="text-align:center; margin-top: 40px;">' +
         '<div style="font-size: 3rem;">&#127925;</div>' +
         '<p style="color:#e0946a;font-size:1rem;margin-top:16px;font-weight:bold;">No hay alabanzas para ' + getDiaLabel(repertorioFechaActiva) + '</p>' +
         '<p style="color:#8888aa;font-size:0.8rem;margin-top:8px;line-height:1.4;">Abre una cancion o una cadena de jubilo y presiona<br><strong style="color:#f1824b;">Repertorio</strong>.</p>' +
@@ -4554,7 +4643,7 @@ function renderSetlist() {
     return;
   }
 
-  var html = '';
+  var html = encabezadoCulto;
   for (var i = 0; i < setlistDOM.length; i++) {
     var s = setlistDOM[i];
     // Bug #2 fix: agregar clase drag-item y atributo data-index para que el drag and drop funcione
@@ -4576,7 +4665,17 @@ function renderSetlist() {
   renderCalendarioRepertorio();
 
   if (divTiempo) {
-    divTiempo.textContent = 'Tiempo estimado: ' + (setlistDOM.length * 4) + ' min aprox. (' + setlistDOM.length + ' alabanzas - 4 min)';
+    var minutosAdoracion = 0;
+    var minutosJubilo = 0;
+    for (var j = 0; j < setlistDOM.length; j++) {
+      if (setlistDOM[j].fuente === 'cadena_jubilo' || setlistDOM[j].fuente === 'jubilo') minutosJubilo += 20;
+      else minutosAdoracion += 4;
+    }
+    var totalMin = minutosAdoracion + minutosJubilo;
+    var partes = [];
+    if (minutosAdoracion) partes.push(minutosAdoracion + ' min adoración');
+    if (minutosJubilo) partes.push(minutosJubilo + ' min júbilo');
+    divTiempo.textContent = 'Tiempo estimado: ' + totalMin + ' min aprox. (' + partes.join(' + ') + ')';
   }
 }
 
@@ -4594,13 +4693,15 @@ function renderCalendarioRepertorio() {
   var semana = rangoSemana(repertorioFechaActiva);
   var hoy = hoyISO();
   var cursor = new Date(inicioGrid);
-  var html = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:14px;">';
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">';
-  html += '<div><div style="color:var(--gold2);font-weight:700;">' + base.toLocaleDateString('es-GT', { month: 'long', year: 'numeric' }) + '</div>';
-  html += '<div style="color:var(--text2);font-size:0.8rem;">Semana actual: ' + semana.inicio.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + ' - ' + semana.fin.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + '</div></div>';
-  html += '<div style="color:var(--text2);font-size:0.78rem;">Verde = tiene repertorio - Rojo = vacio</div></div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;font-size:0.72rem;color:var(--text2);margin-bottom:6px;text-align:center;">';
-  ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'].forEach(function(d){ html += '<div style="padding:4px 0;">' + d + '</div>'; });
+  var monthLabel = base.toLocaleDateString('es-GT', { month: 'long', year: 'numeric' });
+  monthLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+  var html = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:14px 12px 12px;margin-bottom:14px;">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:14px;">';
+  html += '<div><div style="color:var(--gold2);font-weight:700;font-size:1rem;line-height:1.2;">' + monthLabel + '</div>';
+  html += '<div style="color:var(--text2);font-size:0.78rem;margin-top:4px;">Semana actual: ' + semana.inicio.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + ' - ' + semana.fin.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + '</div></div>';
+  html += '<div style="min-height:18px;"></div></div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;font-size:0.66rem;color:var(--text2);margin-bottom:10px;text-align:center;letter-spacing:0.2px;">';
+  ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'].forEach(function(d){ html += '<div style="padding:2px 0 6px;font-weight:700;">' + d + '</div>'; });
   html += '</div>';
   html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;">';
   while (cursor <= finGrid) {
@@ -4619,12 +4720,10 @@ function renderCalendarioRepertorio() {
       if (enSemana && esFD) { bg = tiene ? '#1b5e20' : '#6b1f1f'; color = '#fff'; border = tiene ? '#5dd06a' : '#ff7b7b'; }
       else if (enSemana) { bg = '#263a77'; }
       if (esSeleccionada) { bg = '#f1824b'; color = '#000'; border = '#fff'; }
-      html += '<button onclick="cambiarDiaRepertorio(\'' + iso + '\')" style="min-height:62px;border:1px solid ' + border + ';border-radius:10px;background:' + bg + ';color:' + color + ';padding:6px;text-align:left;cursor:pointer;position:relative;overflow:hidden;">';
-      html += '<div style="font-size:0.8rem;font-weight:700;">' + actual.getDate() + '</div>';
-      if (iso === hoy) html += '<div style="position:absolute;top:6px;right:6px;font-size:0.68rem;font-weight:700;opacity:0.9;">Hoy</div>';
-      if (enSemana && esFD) { html += '<div style="font-size:0.68rem;opacity:0.92;line-height:1.1;margin-top:6px;">' + (tiene ? 'Listo' : 'Vacio') + ' - ' + cantidad + '</div>'; }
-      else if (enSemana) { html += '<div style="font-size:0.68rem;opacity:0.75;line-height:1.1;margin-top:6px;">Semana activa</div>'; }
-      else { html += '<div style="font-size:0.62rem;opacity:0.25;line-height:1.1;margin-top:8px;">&nbsp;</div>'; }
+      html += '<button onclick="cambiarDiaRepertorio(\'' + iso + '\')" style="min-height:66px;border:1px solid ' + border + ';border-radius:10px;background:' + bg + ';color:' + color + ';padding:7px 6px;text-align:left;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;">';
+      html += '<div style="font-size:0.68rem;font-weight:700;line-height:1;">' + actual.getDate() + '</div>';
+      if (enSemana && esFD && tiene) { html += '<div style="font-size:0.6rem;opacity:0.96;line-height:1.05;margin-top:7px;font-weight:700;">Listo</div>'; }
+      else { html += '<div style="min-height:12px;"></div>'; }
     })(new Date(cursor));
     cursor.setDate(cursor.getDate() + 1);
   }
@@ -4641,7 +4740,7 @@ function pedirFechaRepertorio(cb) {
     overlay.style.cssText = 'position:fixed;inset:0;background:rgba(6,8,20,0.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;';
     overlay.innerHTML = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:16px;max-width:360px;width:100%;box-shadow:0 18px 40px rgba(0,0,0,0.4);">' +
       '<div style="font-weight:700;color:var(--gold2);font-size:1rem;margin-bottom:8px;">Elegir fecha</div>' +
-      '<div style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;">Selecciona el d�a exacto donde quieres guardar la alabanza.</div>' +
+      '<div style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;">Selecciona el día exacto donde quieres guardar la alabanza.</div>' +
       '<input id="fechaRepertorioInput" type="date" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin-bottom:12px;" />' +
       '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
         '<button id="fechaRepertorioCancel" style="padding:9px 12px;border:none;border-radius:8px;background:#39406b;color:#fff;cursor:pointer;">Cancelar</button>' +
