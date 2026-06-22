@@ -55,12 +55,9 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
   var data = snapshot.val();
   if (data) {
     // Aplicar a la variable local y localStorage
-    repertorios = {
-      viernes: Array.isArray(data.viernes) ? data.viernes : [],
-      domingo: Array.isArray(data.domingo) ? data.domingo : []
-    };
+    repertorios = (data && typeof data === 'object') ? (data.fechas && typeof data.fechas === 'object' ? data.fechas : data) : {};
     localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
-    setlistDOM = getRepertorioDia(repertorioDiaActivo || 'domingo');
+    setlistDOM = getRepertorioFecha(repertorioFechaActiva || hoyISO());
     if (window.renderSetlist) window.renderSetlist();
     if (window.actualizarContadorRepertorio) window.actualizarContadorRepertorio();
   }
@@ -1775,16 +1772,21 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     <div class="logo">&#10022; <span>Repertorio</span></div>
   </header>
   <div style="flex:1; padding:16px; overflow-y:auto;">
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;">
-      <button id="btnRepViernes" onclick="cambiarDiaRepertorio('viernes')"
-        style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;">
-        Viernes
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;">
+      <button id="btnRepHoy" onclick="irAFechaHoy()"
+        style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
+        Hoy
       </button>
-      <button id="btnRepDomingo" onclick="cambiarDiaRepertorio('domingo')"
-        style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;">
-        Domingo
+      <button id="btnRepAnterior" onclick="cambiarMesRepertorio(-1)"
+        style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
+        Mes -
+      </button>
+      <button id="btnRepSiguiente" onclick="cambiarMesRepertorio(1)"
+        style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
+        Mes +
       </button>
     </div>
+    <div id="repertorioCalendario"></div>
     <div id="setlistContent"></div>
     <div style="text-align:center; margin-top:20px;">
       <button onclick="vaciarRepertorio()"
@@ -4320,7 +4322,7 @@ function showScreen(screenId) {
 function actualizarContadorRepertorio() {
   var btn = document.getElementById('btnMenuSetlist');
   if (!btn) return;
-  var total = getRepertorioDia('viernes').length + getRepertorioDia('domingo').length;
+  var total = Object.keys(repertorios).reduce(function(sum, key) { return sum + (Array.isArray(repertorios[key]) ? repertorios[key].length : 0); }, 0);
   btn.textContent = total > 0
     ? '📋 Repertorio (' + total + ')'
     : '📋 Repertorio';
@@ -4347,13 +4349,13 @@ function exportarRepertorio() {
     mostrarToast('⚠️ El repertorio está vacío.');
     return;
   }
-  var texto = '🎵 Repertorio del ' + getDiaLabel(repertorioDiaActivo) + '\n\n';
+  var texto = '🎵 Repertorio del ' + getDiaLabel(repertorioFechaActiva) + '\n\n';
   for (var i = 0; i < setlistDOM.length; i++) {
     texto += (i + 1) + '. ' + setlistDOM[i].title + ' — ' + (setlistDOM[i].tono || '') + '\n';
   }
   // Intenta compartir nativo (móvil), si no, copia al portapapeles
   if (navigator.share) {
-    navigator.share({ title: 'Repertorio del ' + getDiaLabel(repertorioDiaActivo), text: texto });
+    navigator.share({ title: 'Repertorio del ' + getDiaLabel(repertorioFechaActiva), text: texto });
   } else if (navigator.clipboard) {
     navigator.clipboard.writeText(texto).then(function() {
       mostrarToast('📋 Lista copiada al portapapeles.');
@@ -4373,25 +4375,80 @@ function exportarRepertorio() {
 
 
 
-var REPERTORIOS_KEY = 'yhwh_repertorios_v2';
-var repertorioDiaActivo = localStorage.getItem('yhwh_repertorio_dia') || 'domingo';
+var REPERTORIOS_KEY = 'yhwh_repertorios_v3';
+var repertorioFechaActiva = localStorage.getItem('yhwh_repertorio_fecha') || hoyISO();
+var repertorioMesActivo = localStorage.getItem('yhwh_repertorio_mes') || repertorioFechaActiva.slice(0, 7);
 var repertorios = cargarRepertorios();
-var setlistDOM = getRepertorioDia(repertorioDiaActivo);
+var setlistDOM = getRepertorioFecha(repertorioFechaActiva);
+
+function hoyISO() {
+  var d = new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+
+function fechaLocalDesdeISO(iso) {
+  var p = (iso || '').split('-');
+  if (p.length !== 3) return new Date();
+  return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+}
+
+function normalizarISO(fecha) {
+  if (!fecha) return hoyISO();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(fecha)) return fecha;
+  var d = new Date(fecha);
+  if (isNaN(d.getTime())) return hoyISO();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+
+function rangoSemana(iso) {
+  var d = fechaLocalDesdeISO(iso);
+  var day = d.getDay();
+  var diff = (day + 6) % 7;
+  var ini = new Date(d);
+  ini.setDate(d.getDate() - diff);
+  var fin = new Date(ini);
+  fin.setDate(ini.getDate() + 6);
+  return { inicio: ini, fin: fin };
+}
+
+function formatearFechaBonita(iso) {
+  var d = fechaLocalDesdeISO(iso);
+  return d.toLocaleDateString('es-GT', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function getCalendarioKey(iso) {
+  return normalizarISO(iso);
+}
+
+function getRepertorioFecha(fecha) {
+  fecha = getCalendarioKey(fecha);
+  if (!Array.isArray(repertorios[fecha])) repertorios[fecha] = [];
+  return repertorios[fecha];
+}
+
+function esViernesODomingo(iso) {
+  var d = fechaLocalDesdeISO(iso).getDay();
+  return d === 5 || d === 0;
+}
+
+function existeRepertorioEnFecha(iso) {
+  return Array.isArray(repertorios[getCalendarioKey(iso)]) && repertorios[getCalendarioKey(iso)].length > 0;
+}
 
 function cargarRepertorios() {
   var guardado = localStorage.getItem(REPERTORIOS_KEY);
   if (guardado) {
     try {
       var data = JSON.parse(guardado);
-      return {
-        viernes: Array.isArray(data.viernes) ? data.viernes : [],
-        domingo: Array.isArray(data.domingo) ? data.domingo : []
-      };
+      if (data && typeof data === 'object') {
+        if (data.fechas && typeof data.fechas === 'object') return data.fechas;
+        return data;
+      }
     } catch(e) {}
   }
-  var anterior = [];
-  try { anterior = JSON.parse(localStorage.getItem('yhwh_repertorio') || '[]'); } catch(e) {}
-  var inicial = { viernes: [], domingo: Array.isArray(anterior) ? anterior : [] };
+  var inicial = {};
   localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(inicial));
   return inicial;
 }
@@ -4399,64 +4456,64 @@ function cargarRepertorios() {
 function guardarRepertorios() {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
-  localStorage.setItem('yhwh_repertorio_dia', repertorioDiaActivo);
-  localStorage.setItem('yhwh_repertorio', JSON.stringify(getRepertorioDia('domingo')));
+  localStorage.setItem('yhwh_repertorio_fecha', repertorioFechaActiva);
+  localStorage.setItem('yhwh_repertorio_mes', repertorioMesActivo);
   if (window.esAdmin && window.fbDb) {
     window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios);
   }
 }
 
+
+
+
+// NUEVO: guarda solo qué fecha/mes estás viendo. No requiere admin, no toca el repertorio compartido.
+function guardarVistaRepertorio() {
+  localStorage.setItem('yhwh_repertorio_fecha', repertorioFechaActiva);
+  localStorage.setItem('yhwh_repertorio_mes', repertorioMesActivo);
+}
+
 function getRepertorioDia(dia) {
-  dia = dia === 'viernes' ? 'viernes' : 'domingo';
-  if (!Array.isArray(repertorios[dia])) repertorios[dia] = [];
-  return repertorios[dia];
+  return getRepertorioFecha(dia);
 }
 
 function getDiaLabel(dia) {
-  return dia === 'viernes' ? 'Viernes' : 'Domingo';
+  return formatearFechaBonita(dia);
 }
 
-function elegirDiaRepertorio() {
-  var respuesta = prompt('¿Para qué día quieres guardarla? Escribe Viernes o Domingo.', getDiaLabel(repertorioDiaActivo));
-  if (!respuesta) return null;
-  var normal = normSearchText(respuesta);
-  if (normal.indexOf('vier') === 0) return 'viernes';
-  if (normal.indexOf('dom') === 0) return 'domingo';
-  mostrarToast('Escribe Viernes o Domingo.');
-  return null;
-}
 
 function cambiarDiaRepertorio(dia) {
-  repertorioDiaActivo = dia === 'viernes' ? 'viernes' : 'domingo';
-  setlistDOM = getRepertorioDia(repertorioDiaActivo);
-  guardarRepertorios();
+  repertorioFechaActiva = normalizarISO(dia || hoyISO());
+  repertorioMesActivo = repertorioFechaActiva.slice(0, 7);
+  setlistDOM = getRepertorioFecha(repertorioFechaActiva);
+  guardarVistaRepertorio();
   renderSetlist();
   actualizarContadorRepertorio();
 }
 
-
 function agregarAlRepertorio() {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!currentSong) {
-    alert('Primero abre una canción.');
+    alert('Primero abre una canci�n.');
     return;
   }
-  agregarItemAlRepertorio({
-    id: currentSong.id,
-    title: currentSong.title,
-    tono: currentSong.tono,
-    fuente: 'adoracion'
+  pedirFechaRepertorio(function(fecha){
+    agregarItemAlRepertorio({
+      id: currentSong.id,
+      title: currentSong.title,
+      tono: currentSong.tono,
+      fuente: 'adoracion'
+    }, fecha);
   });
 }
 
 function agregarItemAlRepertorio(item, dia) {
-  dia = dia || elegirDiaRepertorio();
-  if (!dia) return;
-  var lista = getRepertorioDia(dia);
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  dia = normalizarISO(dia || repertorioFechaActiva);
+  var lista = getRepertorioFecha(dia);
   var fuente = item.fuente || 'adoracion';
   for (var i = 0; i < lista.length; i++) {
     if (String(lista[i].id) === String(item.id) && (lista[i].fuente || 'adoracion') === fuente) {
-      mostrarToast('⚠️ Ya está en el repertorio del ' + getDiaLabel(dia) + '.');
+      mostrarToast('⚠️ Ya está en el repertorio de ' + getDiaLabel(dia) + '.');
       return;
     }
   }
@@ -4468,73 +4525,158 @@ function agregarItemAlRepertorio(item, dia) {
     grupoId: item.grupoId || '',
     cadenaId: item.cadenaId || ''
   });
-  repertorioDiaActivo = dia;
-  setlistDOM = getRepertorioDia(repertorioDiaActivo);
+  repertorioFechaActiva = dia;
+  repertorioMesActivo = dia.slice(0, 7);
+  setlistDOM = getRepertorioFecha(repertorioFechaActiva);
   guardarRepertorios();
 
-  mostrarToast('✅ "' + item.title + '" añadida al repertorio del ' + getDiaLabel(dia) + '.');
+  mostrarToast('✅ "' + item.title + '" añadida al repertorio de ' + getDiaLabel(dia) + '.');
   actualizarContadorRepertorio();
 }
-
 
 function renderSetlist() {
   var cont = document.getElementById('setlistContent');
   if (!cont) return;
-  setlistDOM = getRepertorioDia(repertorioDiaActivo);
-  var btnV = document.getElementById('btnRepViernes');
-  var btnD = document.getElementById('btnRepDomingo');
-  if (btnV) {
-    btnV.style.background = repertorioDiaActivo === 'viernes' ? 'var(--gold)' : 'var(--bg3)';
-    btnV.style.color = repertorioDiaActivo === 'viernes' ? '#000' : 'var(--text)';
-  }
-  if (btnD) {
-    btnD.style.background = repertorioDiaActivo === 'domingo' ? 'var(--gold)' : 'var(--bg3)';
-    btnD.style.color = repertorioDiaActivo === 'domingo' ? '#000' : 'var(--text)';
-  }
+  setlistDOM = getRepertorioFecha(repertorioFechaActiva);
+
+  // Bug #3 fix: declarar divTiempo al inicio para que esté disponible en todo el bloque
+  var divTiempo = document.getElementById('tiempoEstimado');
 
   if (setlistDOM.length === 0) {
     cont.innerHTML =
       '<div style="text-align:center; margin-top: 60px;">' +
-        '<div style="font-size: 3rem;">🎵</div>' +
-        '<p style="color:#e0946a;font-size:1rem;margin-top:16px;font-weight:bold;">No hay alabanzas para ' + getDiaLabel(repertorioDiaActivo) + '</p>' +
-        '<p style="color:#8888aa;font-size:0.8rem;margin-top:8px;">Abre una canción o una cadena de júbilo y presiona<br><strong style="color:#f1824b;">✅ Repertorio</strong>.</p>' +
+        '<div style="font-size: 3rem;">&#127925;</div>' +
+        '<p style="color:#e0946a;font-size:1rem;margin-top:16px;font-weight:bold;">No hay alabanzas para ' + getDiaLabel(repertorioFechaActiva) + '</p>' +
+        '<p style="color:#8888aa;font-size:0.8rem;margin-top:8px;line-height:1.4;">Abre una cancion o una cadena de jubilo y presiona<br><strong style="color:#f1824b;">Repertorio</strong>.</p>' +
       '</div>';
-    var divTiempo = document.getElementById('tiempoEstimado');
     if (divTiempo) divTiempo.textContent = '';
+    renderCalendarioRepertorio();
     return;
   }
 
   var html = '';
-// ✨ REEMPLAZA EL FOR DE RENDERSETLIST POR ESTO:
-for (var i = 0; i < setlistDOM.length; i++) {
-  var s = setlistDOM[i];
-  
-  html +=
-    '<div class="song-item" data-id="' + s.id + '" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px;">' +
-      '<div style="flex:1; display:flex; align-items:center; gap:10px; padding: 6px 8px;" onclick="abrirDesdeRepertorio(' + i + ')">' +
-        '<div class="snum">#' + (i + 1) + '</div>' +
-        '<div class="sbody" style="flex:1;">' +
-          '<div class="stitle">' + escH(s.title) + '</div>' +
+  for (var i = 0; i < setlistDOM.length; i++) {
+    var s = setlistDOM[i];
+    // Bug #2 fix: agregar clase drag-item y atributo data-index para que el drag and drop funcione
+    html +=
+      '<div class="song-item drag-item" data-id="' + s.id + '" data-index="' + i + '" draggable="true" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px;">' +
+        '<div style="flex:1; display:flex; align-items:center; gap:10px; padding: 6px 8px;" onclick="abrirDesdeRepertorio(' + i + ')">' +
+          '<div class="snum">#' + (i + 1) + '</div>' +
+          '<div class="sbody" style="flex:1;">' +
+            '<div class="stitle">' + escH(s.title) + '</div>' +
+          '</div>' +
+          '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? 'Cadena Jubilo' : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
         '</div>' +
-        '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? 'Cadena Júbilo' : ((s.fuente === 'jubilo') ? 'Júbilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
-      '</div>' +
-      '<button onclick="eliminarDelRepertorio(' + i + ')" ' +
-        'style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
-    '</div>';
-}
+      '<button onclick="eliminarDelRepertorio(' + i + ')" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
+      '</div>';
+  }
 
   cont.innerHTML = html;
   iniciarDragRepertorio();
+  renderCalendarioRepertorio();
 
-  var divTiempo = document.getElementById('tiempoEstimado');
   if (divTiempo) {
-    divTiempo.textContent = '⏱️ Tiempo estimado: ' + (setlistDOM.length * 4) +
-      ' min aprox. (' + setlistDOM.length + ' alabanzas × 4 min)';
+    divTiempo.textContent = 'Tiempo estimado: ' + (setlistDOM.length * 4) + ' min aprox. (' + setlistDOM.length + ' alabanzas - 4 min)';
   }
 }
 
+function renderCalendarioRepertorio() {
+  var cont = document.getElementById('repertorioCalendario');
+  if (!cont) return;
+  var mes = repertorioMesActivo || repertorioFechaActiva.slice(0, 7);
+  var base = fechaLocalDesdeISO(mes + '-01');
+  var inicio = new Date(base.getFullYear(), base.getMonth(), 1);
+  var inicioGrid = new Date(inicio);
+  inicioGrid.setDate(inicio.getDate() - ((inicio.getDay() + 6) % 7));
+  var finMes = new Date(base.getFullYear(), base.getMonth() + 1, 0);
+  var finGrid = new Date(finMes);
+  finGrid.setDate(finMes.getDate() + (6 - ((finMes.getDay() + 6) % 7)));
+  var semana = rangoSemana(repertorioFechaActiva);
+  var hoy = hoyISO();
+  var cursor = new Date(inicioGrid);
+  var html = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:14px;">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">';
+  html += '<div><div style="color:var(--gold2);font-weight:700;">' + base.toLocaleDateString('es-GT', { month: 'long', year: 'numeric' }) + '</div>';
+  html += '<div style="color:var(--text2);font-size:0.8rem;">Semana actual: ' + semana.inicio.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + ' - ' + semana.fin.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + '</div></div>';
+  html += '<div style="color:var(--text2);font-size:0.78rem;">Verde = tiene repertorio - Rojo = vacio</div></div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;font-size:0.72rem;color:var(--text2);margin-bottom:6px;text-align:center;">';
+  ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'].forEach(function(d){ html += '<div style="padding:4px 0;">' + d + '</div>'; });
+  html += '</div>';
+  html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;">';
+  while (cursor <= finGrid) {
+    (function(actual){
+      var iso = actual.getFullYear() + '-' + pad2(actual.getMonth() + 1) + '-' + pad2(actual.getDate());
+      var dentroMes = actual.getMonth() === base.getMonth();
+      var esSeleccionada = iso === repertorioFechaActiva;
+      var enSemana = actual >= semana.inicio && actual <= semana.fin;
+      var esFD = esViernesODomingo(iso);
+      var tiene = existeRepertorioEnFecha(iso);
+      var cantidad = Array.isArray(repertorios[iso]) ? repertorios[iso].length : 0;
+      var bg = '#101038';
+      var color = 'var(--text)';
+      var border = 'rgba(255,255,255,0.08)';
+      if (!dentroMes) { bg = '#0b1026'; color = '#556'; }
+      if (enSemana && esFD) { bg = tiene ? '#1b5e20' : '#6b1f1f'; color = '#fff'; border = tiene ? '#5dd06a' : '#ff7b7b'; }
+      else if (enSemana) { bg = '#263a77'; }
+      if (esSeleccionada) { bg = '#f1824b'; color = '#000'; border = '#fff'; }
+      html += '<button onclick="cambiarDiaRepertorio(\'' + iso + '\')" style="min-height:62px;border:1px solid ' + border + ';border-radius:10px;background:' + bg + ';color:' + color + ';padding:6px;text-align:left;cursor:pointer;position:relative;overflow:hidden;">';
+      html += '<div style="font-size:0.8rem;font-weight:700;">' + actual.getDate() + '</div>';
+      if (iso === hoy) html += '<div style="position:absolute;top:6px;right:6px;font-size:0.68rem;font-weight:700;opacity:0.9;">Hoy</div>';
+      if (enSemana && esFD) { html += '<div style="font-size:0.68rem;opacity:0.92;line-height:1.1;margin-top:6px;">' + (tiene ? 'Listo' : 'Vacio') + ' - ' + cantidad + '</div>'; }
+      else if (enSemana) { html += '<div style="font-size:0.68rem;opacity:0.75;line-height:1.1;margin-top:6px;">Semana activa</div>'; }
+      else { html += '<div style="font-size:0.62rem;opacity:0.25;line-height:1.1;margin-top:8px;">&nbsp;</div>'; }
+    })(new Date(cursor));
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  html += '</div></div>';
+  cont.innerHTML = html;
+}
 
+function pedirFechaRepertorio(cb) {
+  var fecha = repertorioFechaActiva || hoyISO();
+  var overlay = document.getElementById('fechaRepertorioOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'fechaRepertorioOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(6,8,20,0.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;';
+    overlay.innerHTML = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:16px;max-width:360px;width:100%;box-shadow:0 18px 40px rgba(0,0,0,0.4);">' +
+      '<div style="font-weight:700;color:var(--gold2);font-size:1rem;margin-bottom:8px;">Elegir fecha</div>' +
+      '<div style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;">Selecciona el d�a exacto donde quieres guardar la alabanza.</div>' +
+      '<input id="fechaRepertorioInput" type="date" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin-bottom:12px;" />' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
+        '<button id="fechaRepertorioCancel" style="padding:9px 12px;border:none;border-radius:8px;background:#39406b;color:#fff;cursor:pointer;">Cancelar</button>' +
+        '<button id="fechaRepertorioOk" style="padding:9px 12px;border:none;border-radius:8px;background:var(--gold);color:#000;font-weight:700;cursor:pointer;">Guardar</button>' +
+      '</div></div>';
+    document.body.appendChild(overlay);
+  }
+  var input = overlay.querySelector('#fechaRepertorioInput');
+  var ok = overlay.querySelector('#fechaRepertorioOk');
+  var cancel = overlay.querySelector('#fechaRepertorioCancel');
+  input.value = fecha;
+  function cerrar() { overlay.style.display = 'none'; }
+  cancel.onclick = function(){ cerrar(); };
+  ok.onclick = function(){
+    var val = normalizarISO(input.value);
+    cerrar();
+    if (cb) cb(val);
+    else cambiarDiaRepertorio(val);
+  };
+  overlay.style.display = 'flex';
+}
+
+function irAFechaHoy() {
+  cambiarDiaRepertorio(hoyISO());
+}
+
+function cambiarMesRepertorio(delta) {
+  var d = fechaLocalDesdeISO((repertorioMesActivo || repertorioFechaActiva.slice(0,7)) + '-01');
+  d.setMonth(d.getMonth() + delta);
+  repertorioMesActivo = d.getFullYear() + '-' + pad2(d.getMonth() + 1);
+  renderSetlist();
+  guardarVistaRepertorio();
+}
 function eliminarDelRepertorio(index) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   setlistDOM.splice(index, 1);
   guardarRepertorios();
   renderSetlist();
@@ -4551,19 +4693,26 @@ function abrirDesdeRepertorio(index) {
   if (item && (item.fuente === 'jubilo' || item.fuente === 'cadena_jubilo')) {
     showScreen('screen-jubilo');
     if (item.fuente === 'cadena_jubilo' && item.grupoId && item.cadenaId) {
+      var found = buscarGrupoCadena(item.grupoId, item.cadenaId);
+      if (!found) {
+        mostrarToast('⚠️ Esta cadena ya no existe (fue eliminada o renombrada).');
+        return;
+      }
       renderJubiloCadena(item.grupoId, item.cadenaId);
+      mostrarToast('Abriendo cadena: ' + found.cadena.nombre);
+      return;
     }
-    mostrarToast(item.fuente === 'cadena_jubilo' ? 'Abre esa cadena en Júbilo.' : 'Abre la cadena de júbilo donde está esa alabanza.');
+    mostrarToast('Abre la cadena de júbilo donde está esa alabanza.');
     return;
   }
   showScreen('screen-chords');
   if (item) loadSong(item.id);
 }
-
 function vaciarRepertorio() {
-  if (confirm('¿Vaciar el repertorio del ' + getDiaLabel(repertorioDiaActivo) + '?')) {
-    repertorios[repertorioDiaActivo] = [];
-    setlistDOM = getRepertorioDia(repertorioDiaActivo);
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  if (confirm('¿Vaciar el repertorio del ' + getDiaLabel(repertorioFechaActiva) + '?')) {
+    repertorios[repertorioFechaActiva] = [];
+    setlistDOM = getRepertorioDia(repertorioFechaActiva);
     guardarRepertorios();
     
     renderSetlist();
@@ -4888,6 +5037,7 @@ function mostrarToast(mensaje, duracion) {
 
 
 function moverEnRepertorio(index, direccion) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var nuevoIndex = index + direccion;
   if (nuevoIndex < 0 || nuevoIndex >= setlistDOM.length) return;
   var temp = setlistDOM[index];
@@ -5360,7 +5510,7 @@ function renderEtiquetas() {
 // === ALABANZAS DE JUBILO ====================================
 // ============================================================
 // Hacer variables globales para que Firebase pueda acceder a ellas
-window.REPERTORIOS_KEY = 'yhwh_repertorios_v2';
+window.REPERTORIOS_KEY = 'yhwh_repertorios_v3';
 var JUBILO_GRUPOS_KEY = 'yhwh_jubilo_grupos';
 var jubiloGrupos = JSON.parse(localStorage.getItem(JUBILO_GRUPOS_KEY) || '[]');
 window.jubiloGrupos = jubiloGrupos; // exponer globalmente
@@ -5657,7 +5807,10 @@ function renderJubiloCadena(grupoId, cadenaId){
   if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
   var found = buscarGrupoCadena(grupoId, cadenaId);
   var main = document.getElementById('jubiloMain');
-  if (!found || !main) return;
+  if (!found || !main) {
+    if (!found) mostrarToast('⚠️ No se encontró esa cadena de júbilo.');
+    return;
+  }
   jubiloGrupoActivo = grupoId;
   jubiloCadenaActiva = cadenaId;
   activarWakeLockJubilo();
@@ -6177,15 +6330,18 @@ function agregarAlabanzaJubilo(id){
 }
 
 function agregarCadenaJubiloAlRepertorio(){
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva);
   if (!found) return;
-  agregarItemAlRepertorio({
-    id: found.cadena.id,
-    title: 'Cadena: ' + found.cadena.nombre,
-    tono: (found.cadena.alabanzas || []).length + ' alabanzas',
-    fuente: 'cadena_jubilo',
-    grupoId: found.grupo.id,
-    cadenaId: found.cadena.id
+  pedirFechaRepertorio(function(fecha){
+    agregarItemAlRepertorio({
+      id: found.cadena.id,
+      title: 'Cadena: ' + found.cadena.nombre,
+      tono: (found.cadena.alabanzas || []).length + ' alabanzas',
+      fuente: 'cadena_jubilo',
+      grupoId: found.grupo.id,
+      cadenaId: found.cadena.id
+    }, fecha);
   });
 }
 
@@ -6369,6 +6525,7 @@ function iniciarDragRepertorio() {
 }
 
 function moverDragRepertorio(desde, hasta) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var item = setlistDOM.splice(desde, 1)[0];
   setlistDOM.splice(hasta, 0, item);
   guardarRepertorios();
