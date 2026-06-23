@@ -42,12 +42,27 @@
   window.fbSignOut = signOut;
   window.fbOnAuthChanged = onAuthStateChanged;
 
+  function actualizarEstadoConexion() {
+    var enLinea = navigator.onLine;
+    var estados = document.querySelectorAll('.network-status');
+    estados.forEach(function(estado) {
+      estado.textContent = enLinea ? '🌐 En la nube' : '📴 Sin conexión';
+      estado.className = 'network-status ' + (enLinea ? 'online' : 'offline');
+    });
+  }
+
+  window.actualizarEstadoConexion = actualizarEstadoConexion;
+
   // Detectar si eres admin
   onAuthStateChanged(auth, function(user) {
     window.esAdmin = !!(user && user.email === 'rosalesjrnain07@gmail.com');
     var btnAdmin = document.getElementById('btnAdminLogin');
     if (btnAdmin) btnAdmin.textContent = window.esAdmin ? '🔓 Admin' : '🔑 Admin';
   });
+
+  window.addEventListener('online', actualizarEstadoConexion);
+  window.addEventListener('offline', actualizarEstadoConexion);
+  window.addEventListener('DOMContentLoaded', actualizarEstadoConexion);
 
 
   // Escuchar repertorio en tiempo real
@@ -189,7 +204,38 @@ z-index: 100;
 .search-wrap input:focus{border-color:var(--gold);}
 .si{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text2);}
 .song-count{color:var(--text2);font-size:0.75rem;white-space:nowrap;}
+.network-status{
+  font-size:0.72rem;
+  font-weight:700;
+  white-space:nowrap;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid transparent;
+  display:block;
+  width:fit-content;
+  text-align:center;
+}
+.network-top{
+  width:100%;
+  margin:10px auto 4px;
+}
+.network-inline-right{
+  margin:0 0 0 auto;
+  align-self:center;
+  width:auto;
+}
+.network-status.online{
+  color:#6fe39d;
+  background:rgba(111,227,157,0.12);
+  border-color:rgba(111,227,157,0.25);
+}
+.network-status.offline{
+  color:#ffb56b;
+  background:rgba(255,181,107,0.12);
+  border-color:rgba(255,181,107,0.25);
+}
 .layout{display:flex;flex:1;min-height:0;height:calc(100vh - 52px);}
+
 .sidebar{width:280px;min-width:240px;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;}
 .song-item{padding:10px 16px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;border-bottom:1px solid rgba(255,255,255,0.03);}
 .song-item:hover{background:var(--bg3);border-left-color:var(--gold);}
@@ -465,6 +511,43 @@ body.light-theme .notas-container {
   color: #1f2933 !important;
   box-shadow: 0 8px 26px rgba(95, 76, 39, 0.08);
 }
+body.light-theme .font-controls,
+body.light-theme .song-nav-bar,
+body.light-theme .musician-cifrado-bar,
+body.light-theme .song-next-box,
+body.light-theme .transition-box {
+  background: #fffaf0 !important;
+  border-color: #d8cdb8 !important;
+  color: #1f2933 !important;
+}
+body.light-theme .song-nav-bar .font-btn,
+body.light-theme .musician-cifrado-bar .action-btn,
+body.light-theme #btnTransicionToggle,
+body.light-theme #btnOcultarTransicion {
+  background: #ffffff !important;
+  color: #31424f !important;
+  border-color: #d8cdb8 !important;
+  box-shadow: 0 2px 8px rgba(95, 76, 39, 0.08) !important;
+}
+body.light-theme .song-nav-bar .font-btn:hover,
+body.light-theme .musician-cifrado-bar .action-btn:hover,
+body.light-theme #btnTransicionToggle:hover,
+body.light-theme #btnOcultarTransicion:hover {
+  background: #e8f1ea !important;
+  color: #176b6a !important;
+  border-color: #b6d6cf !important;
+}
+body.light-theme .song-next-kicker,
+body.light-theme .song-next-meta,
+body.light-theme .transition-box-head {
+  color: #55616f !important;
+}
+body.light-theme .song-next-title {
+  color: #7f5f19 !important;
+}
+body.light-theme .song-next-box strong {
+  color: #7f5f19 !important;
+}
 body.light-theme .song-item,
 body.light-theme .jubilo-chain {
   border-color: rgba(127, 95, 25, 0.14) !important;
@@ -524,6 +607,28 @@ body.light-theme .primary-action {
   background: #b85c38 !important;
   color: #ffffff !important;
 }
+body.light-theme .jubilo-chain-save-btn {
+  background: #ffffff !important;
+  color: #31424f !important;
+  border-color: #d8cdb8 !important;
+  box-shadow: 0 2px 8px rgba(95, 76, 39, 0.08) !important;
+}
+body.light-theme .jubilo-chain-save-btn:hover {
+  background: #e8f1ea !important;
+  border-color: #b6d6cf !important;
+  color: #176b6a !important;
+}
+body.light-theme .jubilo-card-edit-btn {
+  background: #ffffff !important;
+  color: #31424f !important;
+  border-color: #d8cdb8 !important;
+  box-shadow: 0 2px 8px rgba(95, 76, 39, 0.08) !important;
+}
+body.light-theme .jubilo-card-edit-btn:hover {
+  background: #e8f1ea !important;
+  border-color: #b6d6cf !important;
+  color: #176b6a !important;
+}
 body.light-theme .menu-btn,
 body.light-theme .jubilo-add-btn {
   background: linear-gradient(135deg, #176b6a, #7f5f19) !important;
@@ -561,6 +666,22 @@ body.light-theme .jubilo-empty h2 {
 }
 body.light-theme .welcome,
 body.light-theme .jubilo-empty,
+body.light-theme .network-status {
+  background: #ffffff !important;
+  color: #31424f !important;
+  border-color: #d8cdb8 !important;
+  box-shadow: 0 2px 8px rgba(95, 76, 39, 0.08);
+}
+body.light-theme .network-status.online {
+  color: #176b6a !important;
+  background: #e8f1ea !important;
+  border-color: #b6d6cf !important;
+}
+body.light-theme .network-status.offline {
+  color: #b85c38 !important;
+  background: #fff4cf !important;
+  border-color: #e0c07c !important;
+}
 body.light-theme .song-count,
 body.light-theme .snum,
 body.light-theme .skey,
@@ -580,6 +701,26 @@ body.light-theme .song-meta strong {
   color: #55616f !important;
 }
 
+body.light-theme #btnVaciarRepertorio {
+  background: #b85c38 !important;
+  color: #ffffff !important;
+  border: 1px solid #b85c38 !important;
+  box-shadow: 0 2px 8px rgba(184, 92, 56, 0.18) !important;
+}
+body.light-theme #btnVaciarRepertorio:hover {
+  background: #a94e2d !important;
+  border-color: #a94e2d !important;
+}
+body.light-theme #btnCompartirRepertorio {
+  background: #176b6a !important;
+  color: #ffffff !important;
+  border: 1px solid #176b6a !important;
+  box-shadow: 0 2px 8px rgba(23, 107, 106, 0.18) !important;
+}
+body.light-theme #btnCompartirRepertorio:hover {
+  background: #1f827f !important;
+  border-color: #1f827f !important;
+}
 body.light-theme .tp-btn {
   background: #ffffff;
   color: #31424f;
@@ -784,6 +925,42 @@ body.light-theme .toast {
   border-color: #1a365d;
 }
 
+.transition-box{
+  margin:12px 0 10px;
+  border:1px solid rgba(201,168,76,.55);
+  background: linear-gradient(135deg, rgba(25,29,66,.95), rgba(75,49,12,.92));
+  border-radius:12px;
+  padding:10px 12px;
+  box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+.transition-box-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:6px;
+  color:var(--gold2);
+  font-size:0.86rem;
+  font-weight:700;
+}
+.transition-box-text{
+  color:var(--text);
+  font-size:0.84rem;
+  line-height:1.45;
+}
+.transition-box small{
+  color:var(--text2);
+  display:block;
+  margin-top:4px;
+}
+body.light-theme .transition-box{
+  background: linear-gradient(135deg, #fff8ea, #f3e0bb);
+  border-color:#cfb67a;
+}
+body.light-theme .transition-box-head{ color:#7f5f19; }
+body.light-theme .transition-box-text{ color:#22303b; }
+body:not(.musician-view) #transitionControlArea{ display:none !important; }
+
 /* Pega esto al final del bloque de estilos de light-theme */
 
 /* Botones Siguiente/Anterior */
@@ -829,6 +1006,26 @@ body.light-theme .etiqueta-chip {
 }
 body.light-theme .etiqueta-chip.activa {
   background: rgba(0,0,0,0.12) !important;
+}
+body.light-theme .dificultad-badge {
+  background: #ffffff !important;
+  border-color: #d8cdb8 !important;
+  color: #31424f !important;
+}
+body.light-theme .dif-facil {
+  background: #e8f1ea !important;
+  color: #176b6a !important;
+  border-color: #b6d6cf !important;
+}
+body.light-theme .dif-media {
+  background: #fff4cf !important;
+  color: #7f5f19 !important;
+  border-color: #e0c07c !important;
+}
+body.light-theme .dif-dificil {
+  background: #fde8e6 !important;
+  color: #b83a2f !important;
+  border-color: #e6b0aa !important;
 }
 
 
@@ -1122,10 +1319,49 @@ body.light-theme .etiqueta-chip.activa {
 .singer-exit, .musician-exit { display: none; width: auto; padding: 0 10px; }
 body.singer-view #screen-chords .singer-exit { display: inline-flex; }
 body.musician-view #screen-chords .musician-exit { display: inline-flex; }
-.musician-nav { display: none; align-items: center; gap: 6px; }
-body.singer-view #screen-chords .musician-nav,
-body.musician-view #screen-chords .musician-nav { display: inline-flex; }
-
+.song-nav-bar { display: none; align-items: center; justify-content:center; gap: 6px; width:100%; flex-wrap:wrap; }
+body.singer-view #screen-chords .song-nav-bar,
+body.musician-view #screen-chords .song-nav-bar { display: inline-flex; }
+.song-nav-bar .font-btn { min-width: 78px; }
+.song-nav-bar {
+  padding: 6px 14px;
+  background: #1b2152;
+  border: 1px solid var(--border);
+  border-radius: 0;
+}
+.song-nav-bar .font-btn {
+  height: 30px;
+}
+.song-next-box {
+  display: none;
+  width: 100%;
+  margin: 4px auto 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(27,33,82,0.92);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.10);
+  text-align: center;
+}
+.song-next-kicker {
+  font-size: 0.68rem;
+  color: var(--text2);
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+.song-next-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--gold);
+  line-height: 1.1;
+}
+.song-next-meta {
+  margin-top: 1px;
+  color: var(--text2);
+  font-size: 0.7rem;
+}
+.song-next-box strong { color: var(--text); }
 body.singer-view #screen-chords header,
 body.singer-view #screen-chords .sidebar,
 body.singer-view #screen-chords .controls,
@@ -1138,7 +1374,7 @@ body.singer-view #screen-chords .layout { height: auto; display: block; }
 body.singer-view #screen-chords .main { padding: 10px 8px 40px; overflow-y: visible !important; }
 body.singer-view #screen-chords .song-header { border-bottom: none; margin-bottom: 8px; padding-bottom: 4px; }
 body.singer-view #screen-chords .song-title { font-size: 1.15rem; margin-top: 6px; }
-body.singer-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 12px; border-radius: 0; }
+body.singer-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 2px; border-radius: 0; }
 body.singer-view #screen-chords .song-content {
   white-space: pre-wrap;
   overflow-x: visible;
@@ -1175,9 +1411,11 @@ body.musician-view #screen-chords .layout { height: auto; display: block; }
 body.musician-view #screen-chords .main { padding: 10px 8px 40px; overflow-y: visible !important; }
 body.musician-view #screen-chords .song-header { border-bottom: none; margin-bottom: 8px; padding-bottom: 4px; }
 body.musician-view #screen-chords .song-title { font-size: 1.15rem; margin-top: 6px; }
-body.musician-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 12px; border-radius: 0; }
+body.musician-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 2px; border-radius: 0; }
 body.musician-view #screen-chords .song-content { padding: 0 10px 60px; }
-body.musician-view #screen-chords .musician-cifrado-bar { display: flex !important; }
+body.musician-view #screen-chords .musician-cifrado-bar { display: flex !important; margin-top: 0; }
+body.musician-view #screen-chords .song-next-box { display: none !important; }
+body.singer-view #screen-chords .song-next-box { display: block; }
 body.light-theme .more-actions { border-top-color: rgba(0,0,0,0.12); }
 
 @media(max-width:580px) {
@@ -1374,6 +1612,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 <!-- PANTALLA 1: MENÚ PRINCIPAL -->
 
     <div id="screen-menu" class="app-screen active">
+      <div class="network-status network-top" id="networkStatusMenu" style="margin: 10px auto 4px;">🌐 En la nube</div>
       <div class="menu-container">
       <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio <span style="color:var(--gold2)">YHWH</span></h2>
 <p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
@@ -1399,6 +1638,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <div class="header-brand">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
     <div class="logo">&#10022; <span>Ministerio </span>YHWH</div>
+    <div class="network-status network-inline-right" id="networkStatus">🌐 En la nube</div>
   </div>
 
   <!-- Fila Superior Derecha: Contador -->
@@ -1495,11 +1735,34 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <button class="font-btn singer-exit" id="btnSalirVistaCantante" onclick="toggleVistaCantante()" title="Salir">Salir</button>
   <button class="font-btn musician-exit" id="btnSalirVistaMusico" onclick="toggleVistaMusico()" title="Salir">Salir</button>
   </div>
+
   <div class="musician-cifrado-bar" style="display:none; width:100%; justify-content:center; align-items:center; gap:8px; padding:6px 14px; background:#1b2152; border-radius:0; border-top:1px solid var(--border); flex-wrap:wrap;">
-<button class="font-btn" onclick="navegarCancion(-1)" title="Anterior">Ant.</button>
-<button class="font-btn" onclick="navegarCancion(1)" title="Siguiente">Sig.</button>
     <button id="btnCifradoMusico" class="action-btn" onclick="alternarCifrado(); document.getElementById('btnCifrado').textContent = document.getElementById('btnCifradoMusico').textContent" style="height:30px; font-size:0.75rem;">Cifrado: Americano</button>
 </div>
+
+  <div class="song-nav-bar" style="margin-top:0;">
+    <button class="font-btn" onclick="navegarCancion(-1)" title="Anterior">Ant.</button>
+    <button class="font-btn" onclick="navegarCancion(1)" title="Siguiente">Sig.</button>
+  </div>
+
+  <div class="song-next-box" id="nextSongBox">
+    <div class="song-next-kicker">Siguiente alabanza</div>
+    <div class="song-next-title" id="nextSongTitle">-</div>
+    <div class="song-next-meta" id="nextSongMeta">-</div>
+  </div>
+
+  <div id="transitionControlArea" style="margin-top:4px;">
+    <button id="btnTransicionToggle" class="action-btn" onclick="alternarTransicionSugerida()" style="width:100%;margin-bottom:8px;">
+      Ver transición
+    </button>
+    <div class="transition-box" id="transitionBox" style="display:none;">
+      <div class="transition-box-head">
+        <span>🎼 Transición sugerida</span>
+        <button class="action-btn" id="btnOcultarTransicion" onclick="ocultarTransicionSugerida()" style="width:auto;padding:4px 10px;height:28px;font-size:0.72rem;">Ocultar</button>
+      </div>
+      <div class="transition-box-text" id="transitionText"></div>
+    </div>
+  </div>
      
      
  <div class="controls">
@@ -1508,17 +1771,6 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
         
         
         
-
-
-          <button style="background: var(--bg3); color: var(--text); padding: 0 8px; width: auto; font-size: 0.75rem; font-weight: bold; margin-right: 4px; border-radius: 5px; height: 28px; cursor: pointer; border: 1px solid var(--border);" 
-        onclick="navegarCancion(-1)">
-  ⬅ Ant.
-</button>
-
-<button style="background: var(--gold); color: #000; padding: 0 8px; width: auto; font-size: 0.75rem; font-weight: bold; margin-left: 8px; border-radius: 5px; height: 28px; cursor: pointer;" 
-        onclick="navegarCancion(1)">
-  Sig. ➡
-</button>
 
           <div class="semitone-ctrl">
             <button id="btnDown">&#9837;</button>
@@ -1537,8 +1789,8 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 <div class="quick-actions">
   <div class="fila-botones">
-    <button id="btnOcultarAcordes" class="action-btn" onclick="alternarAcordes()">
-      Solo Letra
+    <button id="btnCifrado" class="action-btn" onclick="alternarCifrado()">
+      Cifrado: Americano
     </button>
 
     <button id="btnAddSetlist" class="action-btn" onclick="agregarAlRepertorio()">
@@ -1563,10 +1815,6 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 <div class="more-actions" id="moreSongOptions">
   <div class="fila-botones">
-    <button id="btnCifrado" class="action-btn" onclick="alternarCifrado()">
-      Cifrado: Americano
-    </button>
-
     <button class="action-btn" onclick="compartirCancion()">
       Compartir
     </button>
@@ -1628,7 +1876,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 
       </div>
-      <div class="song-content" id="viewContent"></div>
+    <div class="song-content" id="viewContent"></div>
       <!-- NOTAS POR CANCIÓN -->
 <div class="notas-container" id="notasContainer" style="display:none;">
   <span class="notas-label">📝 Notas del director</span>
@@ -1651,6 +1899,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <header style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:15px;flex-shrink:0;">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
     <div class="logo">🎹 <span>Alabanzas</span> de Júbilo</div>
+    <div class="network-status" id="networkStatusJubilo">🌐 En la nube</div>
   </header>
 
  <!-- BARRA DE CONTROLES GLOBALES -->
@@ -1770,6 +2019,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     display:flex; align-items:center; gap:15px; flex-shrink:0;">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
     <div class="logo">&#10022; <span>Repertorio</span></div>
+    <div class="network-status" id="networkStatusSetlist">🌐 En la nube</div>
   </header>
   <div style="flex:1; padding:16px; overflow-y:auto;">
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;">
@@ -1789,7 +2039,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     <div id="repertorioCalendario"></div>
     <div id="setlistContent"></div>
     <div style="text-align:center; margin-top:20px;">
-      <button onclick="vaciarRepertorio()"
+      <button id="btnVaciarRepertorio" onclick="vaciarRepertorio()"
         style="background:#c0392b; color:#fff; border:none; padding:10px 18px;
                border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">
         🗑️ Vaciar Repertorio
@@ -1798,9 +2048,9 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     </div>
   </div>
    <div id="tiempoEstimado" style="text-align:center;color:var(--text2);font-size:0.82rem;margin-bottom:12px;"></div>
-          <button onclick="exportarRepertorio()"
+          <button id="btnCompartirRepertorio" onclick="exportarRepertorio()"
   style="background:#1d2677; color:#fff; border:none; padding:10px 18px;
-         border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer; margin-right:10px;">
+          font-size:0.9rem; font-weight:bold; cursor:pointer; margin-right:10px;width: 100%;">
   📤 Compartir lista
 </button>
     </div>
@@ -1810,6 +2060,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <header style="background: linear-gradient(135deg,#f1824b,#1d2677,#101038); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
     <div class="logo">&#10022; <span>PDFs</span> Disponibles</div>
+    <div class="network-status" id="networkStatusPdfs">🌐 En la nube</div>
   </header>
   
   <div class="layout">
@@ -3850,6 +4101,372 @@ function getSemitonesTo(targetKey,origKey){
   return ((it-io)%12+12)%12;
 }
 
+var TRANSICION_OCULTA_KEY = 'yhwh_transicion_oculta';
+var transicionOculta = localStorage.getItem(TRANSICION_OCULTA_KEY);
+transicionOculta = transicionOculta === null ? true : transicionOculta === '1';
+
+function getToneRoot(tono) {
+  var m = String(tono || '').trim().match(/^([A-G](?:#|b)?)/);
+  return m ? m[1] : '';
+}
+
+function getDominante(root) {
+  var r = getToneRoot(root);
+  if (!r) return '';
+  var idx = CHROMATIC.indexOf(norm(r));
+  if (idx === -1) return '';
+  var dominant = CHROMATIC[(idx + 7) % 12];
+  return dominant;
+}
+
+function formatDominant(root) {
+  var d = getDominante(root);
+  return d ? d + '7' : '';
+}
+
+function formatChordRoot(root) {
+  var r = getToneRoot(root);
+  return r ? escH(r) : '';
+}
+
+function buildFifthPath(fromRoot, toRoot) {
+  var start = getToneRoot(fromRoot);
+  var target = getToneRoot(toRoot);
+  if (!start || !target) return [];
+
+  var path = [start];
+  var current = start;
+  var guard = 0;
+  while (current !== target && guard < 7) {
+    var idx = CHROMATIC.indexOf(norm(current));
+    if (idx === -1) break;
+    current = CHROMATIC[(idx + 7) % 12];
+    path.push(current);
+    guard++;
+  }
+
+  if (path[path.length - 1] !== target) {
+    path.push(target);
+  }
+  return path;
+}
+
+function transposeRoot(root, semitones) {
+  var idx = CHROMATIC.indexOf(norm(root));
+  if (idx === -1) return root;
+  return CHROMATIC[((idx + semitones) % 12 + 12) % 12];
+}
+
+function isMinorKey(tono) {
+  return /m$/.test(String(tono || '').trim());
+}
+
+function formatTonicChord(root, minor) {
+  return root + (minor ? 'm' : '');
+}
+
+function formatSubdominantChord(root, minor) {
+  return root + (minor ? 'm' : '');
+}
+
+function formatDominantChord(root, minor) {
+  return root + '7';
+}
+
+function buildTargetCadence(toKey) {
+  var root = getToneRoot(toKey);
+  if (!root) return [];
+  var minor = isMinorKey(toKey);
+  var tonic = formatTonicChord(root, minor);
+  var subdominantRoot = transposeRoot(root, 5);
+  var relativeRoot = minor ? transposeRoot(root, 3) : transposeRoot(root, 9);
+  return [
+    tonic,
+    subdominantRoot + (minor ? 'm' : ''),
+    relativeRoot + (minor ? '' : 'm'),
+    tonic
+  ];
+}
+
+function buildSuspendedEntry(fromKey, toKey) {
+  var fromRoot = getToneRoot(fromKey);
+  var toRoot = getToneRoot(toKey);
+  if (!fromRoot || !toRoot) return [];
+  var fromMinor = isMinorKey(fromKey);
+  var toMinor = isMinorKey(toKey);
+
+  var entry = [];
+  entry.push(formatTonicChord(fromRoot, fromMinor));
+  entry.push(fromRoot + 'sus4');
+  entry.push(fromRoot + 'sus2');
+  entry.push(formatTonicChord(fromRoot, fromMinor));
+
+  entry.push(toRoot + 'sus4');
+  entry.push(toRoot + 'sus2');
+  entry.push(formatTonicChord(toRoot, toMinor));
+  return entry;
+}
+
+function buildSmoothBridge(fromKey, toKey) {
+  var fromRoot = getToneRoot(fromKey);
+  var toRoot = getToneRoot(toKey);
+  if (!fromRoot || !toRoot) return [];
+
+  var fromMinor = isMinorKey(fromKey);
+  var toMinor = isMinorKey(toKey);
+  var fromIdx = CHROMATIC.indexOf(norm(fromRoot));
+  var toIdx = CHROMATIC.indexOf(norm(toRoot));
+  if (fromIdx === -1 || toIdx === -1) return [];
+
+  var interval = ((toIdx - fromIdx) % 12 + 12) % 12;
+
+  if (interval === 0) {
+    return [formatTonicChord(fromRoot, fromMinor), formatTonicChord(toRoot, toMinor)];
+  }
+
+  if (interval <= 2) {
+    return buildSuspendedEntry(fromKey, toKey);
+  }
+
+  if (interval <= 5) {
+    var targetCadence = buildTargetCadence(toKey);
+    return [
+      formatTonicChord(fromRoot, fromMinor),
+      fromRoot + 'sus4',
+      targetCadence[1],
+      targetCadence[2],
+      targetCadence[3]
+    ];
+  }
+
+  var targetCadenceLong = buildTargetCadence(toKey);
+  var sourceLink = fromMinor
+    ? transposeRoot(fromRoot, 3) + 'm'
+    : transposeRoot(fromRoot, 9) + 'm';
+  var sourceColor = fromRoot + 'sus2';
+
+  if (toMinor) {
+    return [
+      formatTonicChord(fromRoot, fromMinor),
+      sourceColor,
+      sourceLink,
+      targetCadenceLong[1],
+      targetCadenceLong[2],
+      targetCadenceLong[3]
+    ];
+  }
+
+  return [
+    formatTonicChord(fromRoot, fromMinor),
+    sourceColor,
+    sourceLink,
+    targetCadenceLong[1],
+    targetCadenceLong[2],
+    targetCadenceLong[3]
+  ];
+}
+
+function buildTransitionText(prevSong, nextSong) {
+  var prevKey = prevSong && prevSong.tono ? prevSong.tono : prevSong;
+  var nextKey = nextSong && nextSong.tono ? nextSong.tono : nextSong;
+  var fromRoot = getToneRoot(prevKey);
+  var toRoot = getToneRoot(nextKey);
+  if (!fromRoot || !toRoot) return '';
+  if (fromRoot === toRoot) {
+    return 'La alabanza actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> y la que sigue <strong>' + escH(nextSong && nextSong.title ? nextSong.title : '') + '</strong> están en <strong>' + escH(fromRoot) + '</strong>. Puedes entrar directo o hacer un pequeño cierre en el mismo tono.';
+  }
+
+  var fromMinor = isMinorKey(prevKey);
+  var toMinor = isMinorKey(nextKey);
+  var interval = ((CHROMATIC.indexOf(norm(toRoot)) - CHROMATIC.indexOf(norm(fromRoot))) % 12 + 12) % 12;
+  var path = buildSmoothBridge(prevKey, nextKey);
+  var moves = path.map(function(chord, index) {
+    return index === path.length - 1 ? '<strong>' + escH(chord) + '</strong>' : escH(chord);
+  });
+
+  var tipoDestino = toMinor ? 'menor' : 'mayor';
+  var destinoTitulo = nextSong && nextSong.title ? nextSong.title : 'la siguiente alabanza';
+  var actualTitulo = prevSong && prevSong.title ? prevSong.title : 'la alabanza actual';
+  var detalle = '';
+  if (interval <= 2) {
+    detalle = 'más suave cuando el cambio es corto';
+  } else if (interval <= 5) {
+    detalle = 'más larga cuando el salto es grande';
+  } else {
+    detalle = 'con una caminata armónica más larga';
+  }
+
+  return 'La alabanza actual <strong>' + escH(actualTitulo) + '</strong> está en <strong>' + escH(fromRoot + (fromMinor ? 'm' : '')) + '</strong> y la que sigue <strong>' + escH(destinoTitulo) + '</strong> está en <strong>' + escH(toRoot + (toMinor ? 'm' : '')) + '</strong>. ' +
+    'Para pasar de <strong>' + escH(prevKey) + '</strong> a <strong>' + escH(nextKey) + '</strong>, prueba esta progresión ' +
+    detalle + ': <strong>' + moves.join(' - ') + '</strong>.' +
+    '<small>Está pensada para aterrizar en un tono <strong>' + tipoDestino + '</strong>, sin depender siempre de quintas, usando acordes puente simples y suspensiones cuando ayudan.</small>';
+}
+
+function getNextAdoracionItem(index) {
+  if (!Array.isArray(setlistDOM)) return null;
+  for (var i = index + 1; i < setlistDOM.length; i++) {
+    if ((setlistDOM[i].fuente || 'adoracion') === 'adoracion') return setlistDOM[i];
+  }
+  return null;
+}
+
+function getActiveNavigationList() {
+  var listaRepertorioAdoracion = Array.isArray(setlistDOM)
+    ? setlistDOM.filter(function(item) { return (item.fuente || 'adoracion') === 'adoracion'; })
+    : [];
+  if (listaRepertorioAdoracion.length > 0) return listaRepertorioAdoracion;
+  return Array.isArray(SONGS) ? SONGS : [];
+}
+
+function toTitleCaseText(text) {
+  var stop = {
+    'de':1,'la':1,'las':1,'el':1,'los':1,'y':1,'o':1,'u':1,'en':1,'del':1,'al':1,'a':1,'para':1,'por':1,'con':1,'sin':1,'sobre':1
+  };
+  return String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .map(function(word, idx){
+      if (!word) return word;
+      var lower = word.toLowerCase();
+      if (idx > 0 && stop[lower]) return lower;
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(' ');
+}
+
+function getNextSongForCurrent() {
+  if (!currentSong) return null;
+  var listaActiva = getActiveNavigationList();
+  for (var i = 0; i < listaActiva.length; i++) {
+    if (String(listaActiva[i].id) === String(currentSong.id)) {
+      var nextIdx = (i + 1) % listaActiva.length;
+      return listaActiva[nextIdx] || null;
+    }
+  }
+  var listaOriginal = Array.isArray(SONGS) ? SONGS : [];
+  for (var j = 0; j < listaOriginal.length; j++) {
+    if (String(listaOriginal[j].id) === String(currentSong.id)) {
+      var nextOriginalIdx = (j + 1) % listaOriginal.length;
+      return listaOriginal[nextOriginalIdx] || null;
+    }
+  }
+  return listaActiva.length ? listaActiva[0] : (listaOriginal.length ? listaOriginal[0] : null);
+}
+
+function actualizarSiguienteAlabanza() {
+  var isSinger = document.body.classList.contains('singer-view');
+  var box = document.getElementById('nextSongBox');
+  var title = document.getElementById('nextSongTitle');
+  var meta = document.getElementById('nextSongMeta');
+  if (!box || !title || !meta) return;
+  if (!isSinger) {
+    box.style.display = 'none';
+    return;
+  }
+  if (!currentSong) {
+    box.style.display = 'none';
+    return;
+  }
+  var nextSong = getNextSongForCurrent();
+  if (!nextSong) {
+    box.style.display = 'none';
+    return;
+  }
+  title.textContent = toTitleCaseText(nextSong.title || '-');
+  meta.textContent = '';
+  box.style.display = 'block';
+}
+
+function getPrevAdoracionItem(index) {
+  if (!Array.isArray(setlistDOM)) return null;
+  for (var i = index - 1; i >= 0; i--) {
+    if ((setlistDOM[i].fuente || 'adoracion') === 'adoracion') return setlistDOM[i];
+  }
+  return null;
+}
+
+function ocultarTransicionSugerida() {
+  transicionOculta = true;
+  localStorage.setItem(TRANSICION_OCULTA_KEY, '1');
+  var box = document.getElementById('transitionBox');
+  if (box) box.style.display = 'none';
+  var btn = document.getElementById('btnTransicionToggle');
+  if (btn) btn.textContent = 'Ver transición';
+}
+
+function alternarTransicionSugerida() {
+  transicionOculta = !transicionOculta;
+  localStorage.setItem(TRANSICION_OCULTA_KEY, transicionOculta ? '1' : '0');
+  var btn = document.getElementById('btnTransicionToggle');
+  if (btn) btn.textContent = transicionOculta ? 'Ver transición' : 'Ocultar transición';
+  if (transicionOculta) {
+    var box = document.getElementById('transitionBox');
+    if (box) box.style.display = 'none';
+  } else {
+    actualizarTransicionActual();
+  }
+}
+
+function mostrarTransicionSugerida(prevSong, nextSong) {
+  var box = document.getElementById('transitionBox');
+  var text = document.getElementById('transitionText');
+  if (!box || !text) return;
+  if (transicionOculta || !prevSong || !nextSong) {
+    box.style.display = 'none';
+    return;
+  }
+
+  var contenido = buildTransitionText(prevSong, nextSong);
+  if (!contenido) {
+    box.style.display = 'none';
+    return;
+  }
+
+  text.innerHTML = contenido;
+  box.style.display = 'block';
+  var btn = document.getElementById('btnTransicionToggle');
+  if (btn) btn.textContent = 'Ocultar transición';
+}
+
+function actualizarTransicionActual() {
+  if (!currentSong || !Array.isArray(setlistDOM) || !setlistDOM.length) {
+    var box = document.getElementById('transitionBox');
+    if (box) box.style.display = 'none';
+    return;
+  }
+
+  var idx = -1;
+  for (var i = 0; i < setlistDOM.length; i++) {
+    if (String(setlistDOM[i].id) === String(currentSong.id) && (setlistDOM[i].fuente || 'adoracion') === 'adoracion') {
+      idx = i;
+      break;
+    }
+  }
+
+  if (idx === -1) {
+    var box = document.getElementById('transitionBox');
+    if (box) box.style.display = 'none';
+    return;
+  }
+
+  var next = getNextAdoracionItem(idx);
+  if (!next) {
+    var box2 = document.getElementById('transitionBox');
+    if (box2) box2.style.display = 'none';
+    return;
+  }
+
+  mostrarTransicionSugerida(currentSong, next);
+}
+
+function initTransitionUI() {
+  var btn = document.getElementById('btnTransicionToggle');
+  if (btn) btn.textContent = transicionOculta ? 'Ver transición' : 'Ocultar transición';
+  var box = document.getElementById('transitionBox');
+  if (box) box.style.display = transicionOculta ? 'none' : 'block';
+}
+
 
 function renderContent(){
   if(!currentSong) return;
@@ -3915,6 +4532,8 @@ out += '<span class="lc' + (cifradoLatino ? ' latino-shift' : '') + '">' + tlCli
       '<strong>Álbum:</strong> '+escH(currentSong.album||'-')+
       (currentSong.version ? ' &nbsp;|&nbsp; <strong>Versión:</strong> '+escH(currentSong.version) : '');
   }
+
+  actualizarSiguienteAlabanza();
 }
 
 function setActiveKey(key){
@@ -4031,9 +4650,12 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
     (song.version ? ' &nbsp;|&nbsp; <strong>Versión:</strong> '+escH(song.version) : '');
 
 
-    buildKeySelector(song);
+  buildKeySelector(song);
   updateSemDisplay();
   renderContent();
+  initTransitionUI();
+  actualizarTransicionActual();
+  actualizarSiguienteAlabanza();
   var items=document.querySelectorAll('.song-item');
   for(var i=0;i<items.length;i++) items[i].classList.remove('active');
   var a=document.querySelector('.song-item[data-id="'+id+'"]');
@@ -4238,6 +4860,7 @@ function toggleVistaCantante() {
   if (btn) btn.textContent = activa ? 'Salir vista cantante' : 'Vista cantante';
   var btnSalir = document.getElementById('btnSalirVistaCantante');
   if (btnSalir) btnSalir.textContent = activa ? 'Salir' : 'Salir';
+  actualizarSiguienteAlabanza();
 
   if (activa && !ocultarAcordes) {
     ocultarAcordes = true;
@@ -4279,6 +4902,9 @@ function toggleVistaMusico() {
   var btnSalir = document.getElementById('btnSalirVistaMusico');
   if (btnSalir) btnSalir.textContent = activa ? 'Salir' : 'Salir';
   renderContent();
+  initTransitionUI();
+  actualizarSiguienteAlabanza();
+  if (activa) actualizarTransicionActual();
 }
 
 // --- NUEVO: Variable y función para el Modo Claro ---
@@ -4633,8 +5259,8 @@ function renderSetlist() {
   if (setlistDOM.length === 0) {
     cont.innerHTML =
       encabezadoCulto +
-      '<div style="text-align:center; margin-top: 40px;">' +
-        '<div style="font-size: 3rem;">&#127925;</div>' +
+      '<div style="text-align:center; margin-top: 10px;">' +
+        '<div style="font-size: 2rem;">&#127925;</div>' +
         '<p style="color:#e0946a;font-size:1rem;margin-top:16px;font-weight:bold;">No hay alabanzas para ' + getDiaLabel(repertorioFechaActiva) + '</p>' +
         '<p style="color:#8888aa;font-size:0.8rem;margin-top:8px;line-height:1.4;">Abre una cancion o una cadena de jubilo y presiona<br><strong style="color:#f1824b;">Repertorio</strong>.</p>' +
       '</div>';
@@ -4654,7 +5280,7 @@ function renderSetlist() {
           '<div class="sbody" style="flex:1;">' +
             '<div class="stitle">' + escH(s.title) + '</div>' +
           '</div>' +
-          '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? 'Cadena Jubilo' : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
+        '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? 'Cadena Jubilo' : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
         '</div>' +
       '<button onclick="eliminarDelRepertorio(' + i + ')" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
       '</div>';
@@ -4677,11 +5303,14 @@ function renderSetlist() {
     if (minutosJubilo) partes.push(minutosJubilo + ' min júbilo');
     divTiempo.textContent = 'Tiempo estimado: ' + totalMin + ' min aprox. (' + partes.join(' + ') + ')';
   }
+
+  if (currentSong) actualizarTransicionActual();
 }
 
 function renderCalendarioRepertorio() {
   var cont = document.getElementById('repertorioCalendario');
   if (!cont) return;
+  var isLight = document.body.classList.contains('light-theme');
   var mes = repertorioMesActivo || repertorioFechaActiva.slice(0, 7);
   var base = fechaLocalDesdeISO(mes + '-01');
   var inicio = new Date(base.getFullYear(), base.getMonth(), 1);
@@ -4691,16 +5320,34 @@ function renderCalendarioRepertorio() {
   var finGrid = new Date(finMes);
   finGrid.setDate(finMes.getDate() + (6 - ((finMes.getDay() + 6) % 7)));
   var semana = rangoSemana(repertorioFechaActiva);
-  var hoy = hoyISO();
   var cursor = new Date(inicioGrid);
   var monthLabel = base.toLocaleDateString('es-GT', { month: 'long', year: 'numeric' });
   monthLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
-  var html = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:14px 12px 12px;margin-bottom:14px;">';
+  var panelBg = isLight ? '#fffaf0' : '#1b2152';
+  var panelBorder = isLight ? '#d8cdb8' : 'var(--border)';
+  var panelShadow = isLight ? '0 8px 26px rgba(95, 76, 39, 0.08)' : 'none';
+  var titleColor = isLight ? '#7f5f19' : 'var(--gold2)';
+  var subColor = isLight ? '#55616f' : 'var(--text2)';
+  var dayColor = isLight ? '#55616f' : 'var(--text2)';
+  var cellBase = isLight ? '#ffffff' : '#101038';
+  var cellMuted = isLight ? '#f3eee3' : '#0b1026';
+  var cellText = isLight ? '#1f2933' : 'var(--text)';
+  var cellMutedText = isLight ? '#7a8794' : '#556';
+  var selectedBg = isLight ? '#176b6a' : '#f1824b';
+  var selectedText = isLight ? '#ffffff' : '#000';
+  var selectedBorder = isLight ? '#176b6a' : '#fff';
+  var weekBg = isLight ? '#e8f1ea' : '#263a77';
+  var greenBg = isLight ? '#e8f1ea' : '#1b5e20';
+  var redBg = isLight ? '#fde8e6' : '#6b1f1f';
+  var greenBorder = isLight ? '#b6d6cf' : '#5dd06a';
+  var redBorder = isLight ? '#e6b0aa' : '#ff7b7b';
+  var cardText = isLight ? '#1f2933' : '#fff';
+  var html = '<div style="background:' + panelBg + ';border:1px solid ' + panelBorder + ';border-radius:14px;padding:14px 12px 12px;margin-bottom:14px;box-shadow:' + panelShadow + ';">';
   html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:14px;">';
-  html += '<div><div style="color:var(--gold2);font-weight:700;font-size:1rem;line-height:1.2;">' + monthLabel + '</div>';
-  html += '<div style="color:var(--text2);font-size:0.78rem;margin-top:4px;">Semana actual: ' + semana.inicio.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + ' - ' + semana.fin.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + '</div></div>';
+  html += '<div><div style="color:' + titleColor + ';font-weight:700;font-size:1rem;line-height:1.2;">' + monthLabel + '</div>';
+  html += '<div style="color:' + subColor + ';font-size:0.78rem;margin-top:4px;">Semana actual: ' + semana.inicio.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + ' - ' + semana.fin.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + '</div></div>';
   html += '<div style="min-height:18px;"></div></div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;font-size:0.66rem;color:var(--text2);margin-bottom:10px;text-align:center;letter-spacing:0.2px;">';
+  html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;font-size:0.66rem;color:' + dayColor + ';margin-bottom:10px;text-align:center;letter-spacing:0.2px;">';
   ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'].forEach(function(d){ html += '<div style="padding:2px 0 6px;font-weight:700;">' + d + '</div>'; });
   html += '</div>';
   html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;">';
@@ -4712,18 +5359,17 @@ function renderCalendarioRepertorio() {
       var enSemana = actual >= semana.inicio && actual <= semana.fin;
       var esFD = esViernesODomingo(iso);
       var tiene = existeRepertorioEnFecha(iso);
-      var cantidad = Array.isArray(repertorios[iso]) ? repertorios[iso].length : 0;
-      var bg = '#101038';
-      var color = 'var(--text)';
-      var border = 'rgba(255,255,255,0.08)';
-      if (!dentroMes) { bg = '#0b1026'; color = '#556'; }
-      if (enSemana && esFD) { bg = tiene ? '#1b5e20' : '#6b1f1f'; color = '#fff'; border = tiene ? '#5dd06a' : '#ff7b7b'; }
-      else if (enSemana) { bg = '#263a77'; }
-      if (esSeleccionada) { bg = '#f1824b'; color = '#000'; border = '#fff'; }
+      var bg = dentroMes ? cellBase : cellMuted;
+      var color = dentroMes ? cellText : cellMutedText;
+      var border = isLight ? '#d8cdb8' : 'rgba(255,255,255,0.08)';
+      if (enSemana && esFD) { bg = tiene ? greenBg : redBg; color = cardText; border = tiene ? greenBorder : redBorder; }
+      else if (enSemana) { bg = weekBg; color = isLight ? '#1f2933' : '#fff'; }
+      if (esSeleccionada) { bg = selectedBg; color = selectedText; border = selectedBorder; }
       html += '<button onclick="cambiarDiaRepertorio(\'' + iso + '\')" style="min-height:66px;border:1px solid ' + border + ';border-radius:10px;background:' + bg + ';color:' + color + ';padding:7px 6px;text-align:left;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;">';
       html += '<div style="font-size:0.68rem;font-weight:700;line-height:1;">' + actual.getDate() + '</div>';
       if (enSemana && esFD && tiene) { html += '<div style="font-size:0.6rem;opacity:0.96;line-height:1.05;margin-top:7px;font-weight:700;">Listo</div>'; }
       else { html += '<div style="min-height:12px;"></div>'; }
+      html += '</button>';
     })(new Date(cursor));
     cursor.setDate(cursor.getDate() + 1);
   }
@@ -4823,6 +5469,8 @@ function vaciarRepertorio() {
 aplicarOrdenGuardado();
 buildList(SONGS);
 actualizarContadorRepertorio();
+var btnTransicionToggle = document.getElementById('btnTransicionToggle');
+if (btnTransicionToggle) btnTransicionToggle.textContent = transicionOculta ? 'Ver transición' : 'Ocultar transición';
 
 // Restaurar cifrado latino al cargar
 if (cifradoLatino) {
@@ -5922,7 +6570,7 @@ function renderJubiloCadena(grupoId, cadenaId){
   var cadena = found.cadena;
   var html = '<div class="jubilo-chain-head"><h2>' + escH(cadena.nombre) + '</h2>' +
     '<p>Grupo: ' + escH(found.grupo.nombre) + ' &nbsp;|&nbsp; ' + (cadena.alabanzas || []).length + ' alabanzas</p>' +
-    '<button onclick="agregarCadenaJubiloAlRepertorio()" style="margin-top:10px;background:var(--gold);display: block; margin: 20px auto;border:none;color:#000;border-radius:6px;padding:8px 12px;font-size:0.78rem;font-weight:bold;cursor:pointer;">✅ Guardar cadena en repertorio</button>' +
+    '<button onclick="agregarCadenaJubiloAlRepertorio()" style="margin-top:10px;background:#176b6a;display:block;margin:20px auto;border:1px solid #176b6a;color:#ffffff;border-radius:999px;padding:8px 12px;font-size:0.78rem;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(23,107,106,0.18);">✅ Guardar cadena</button>' +
     '</div>';
 
   if (!cadena.alabanzas || !cadena.alabanzas.length) {
@@ -5982,7 +6630,7 @@ function renderJubiloSongCard(song, index, cadena){
         '<button class="jubilo-icon-btn" title="Quitar" onclick="quitarAlabanzaJubilo('+index+')" style="background:#4a1a1a;color:#e74c3c;">✕</button>' +
       '</div>' +
       '<button onclick="activarEditorJubilo(\'' + key + '\',' + song.id + ')" ' +
-        'style="background:#2d304e;border:none;color:#f3c641;border-radius:5px;padding:5px 8px;font-size:0.72rem;cursor:pointer;white-space:nowrap;">' +
+        'class="jubilo-card-edit-btn" style="background:#2d304e;border:1px solid #c9a84c;color:#f3c641;border-radius:999px;padding:5px 10px;font-size:0.72rem;cursor:pointer;white-space:nowrap;">' +
         '✏️ Editar' +
       '</button>' +
     '</div>' +
@@ -6643,10 +7291,8 @@ var PIANO_BLACK    = [1,3,6,8,10];
 var PIANO_INTERVAL = {0:'R',1:'b2',2:'2',3:'b3',4:'3',5:'4',
                       6:'b5',7:'5',8:'b6',9:'6',10:'b7',11:'7',14:'9'};
 var PIANO_CHORD_TYPES = {
-  '':    [0,4,7],   'm':[0,3,7],    '7':[0,4,7,10],  'maj7':[0,4,7,11],
-  'm7':  [0,3,7,10],'dim':[0,3,6],  'dim7':[0,3,6,9],'aug':[0,4,8],
-  'sus4':[0,5,7],   'sus2':[0,2,7], '9':[0,4,7,10,14],'5':[0,7],
-  'm9':  [0,3,7,10,14],'add9':[0,4,7,14],'6':[0,4,7,9],'m6':[0,3,7,9]
+  '':    [0,4,7],   'm':[0,3,7],
+  'sus4':[0,5,7],   'sus2':[0,2,7]
 };
 
 function pianoNormRoot(r){ return PIANO_ENH[r] || r; }
@@ -6730,12 +7376,10 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
   }).join(' · ');
 
   var typeName = {
-    '':'Mayor','m':'menor','7':'Dom. 7','maj7':'Maj7','m7':'men. 7',
-    'dim':'Dism.','dim7':'Dism. 7','aug':'Aum.','sus4':'Sus4','sus2':'Sus2',
-    '9':'9ª','m9':'men. 9ª','add9':'Add9','5':'Power','6':'6ª','m6':'men. 6ª'
+    '':'Mayor','m':'menor','sus4':'Sus4','sus2':'Sus2'
   }[type] || type;
 
-  var variantBtns = ['','m','7','maj7','m7','dim','aug','sus4','sus2'].map(function(t){
+  var variantBtns = ['','m','sus4','sus2'].map(function(t){
     var lbl = root + (t||'');
     var active = t === type ? 'background:#7F77DD;color:#fff;border-color:#534AB7;' : '';
     return '<button onclick="abrirPiano(\''+root+t+'\')" style="'+active+
@@ -6907,3 +7551,21 @@ function aplicarAjusteJubilo() {
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
