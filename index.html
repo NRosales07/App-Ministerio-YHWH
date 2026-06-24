@@ -12,6 +12,15 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 
+<script>
+  // Estados globales tempranos para que Firebase pueda escribir aunque el resto aún no haya cargado.
+  window.REPERTORIOS_KEY = window.REPERTORIOS_KEY || 'yhwh_repertorios_v3';
+  window.repertorios = window.repertorios || {};
+  window.setlistDOM = window.setlistDOM || [];
+  window.JUBILO_GRUPOS_KEY = window.JUBILO_GRUPOS_KEY || 'yhwh_jubilo_grupos';
+  window.jubiloGrupos = window.jubiloGrupos || [];
+</script>
+
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -69,10 +78,13 @@
 onValue(ref(db, 'repertorio'), function(snapshot) {
   var data = snapshot.val();
   if (data) {
-      // Aplicar a la variable local y localStorage
-      repertorios = (data && typeof data === 'object') ? (data.fechas && typeof data.fechas === 'object' ? data.fechas : data) : {};
-      localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
-    setlistDOM = getRepertorioFecha(repertorioFechaActiva || hoyISO());
+      // Aplicar a window para no depender del orden de carga del resto del script
+      var nuevoRepertorio = (data && typeof data === 'object') ? (data.fechas && typeof data.fechas === 'object' ? data.fechas : data) : {};
+      window.repertorios = nuevoRepertorio;
+      try { repertorios = nuevoRepertorio; } catch (e) {}
+      localStorage.setItem(window.REPERTORIOS_KEY, JSON.stringify(window.repertorios));
+      window.setlistDOM = Array.isArray(window.repertorios[repertorioFechaActiva || hoyISO()]) ? window.repertorios[repertorioFechaActiva || hoyISO()] : [];
+      try { setlistDOM = window.setlistDOM; } catch (e) {}
     if (window.renderSetlist) window.renderSetlist();
     if (window.actualizarContadorRepertorio) window.actualizarContadorRepertorio();
   }
@@ -124,10 +136,10 @@ onValue(ref(db, 'jubilo'), function(snapshot) {
     g.cadenas = g.cadenas.filter(function(c){ return c && c.id; });
   });
 
-  jubiloGrupos = nuevosGrupos;
-  window.jubiloGrupos = jubiloGrupos;
-  localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
-  localStorage.setItem('yhwh_jubilo_cache', JSON.stringify(jubiloGrupos));
+  window.jubiloGrupos = nuevosGrupos;
+  try { jubiloGrupos = nuevosGrupos; } catch (e) {}
+  localStorage.setItem(window.JUBILO_GRUPOS_KEY, JSON.stringify(window.jubiloGrupos));
+  localStorage.setItem('yhwh_jubilo_cache', JSON.stringify(window.jubiloGrupos));
   
   if (window.renderJubiloSidebar) window.renderJubiloSidebar();
   if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
@@ -6606,9 +6618,10 @@ function renderEtiquetas() {
 // === ALABANZAS DE JUBILO ====================================
 // ============================================================
 // Hacer variables globales para que Firebase pueda acceder a ellas
-window.REPERTORIOS_KEY = 'yhwh_repertorios_v3';
-var JUBILO_GRUPOS_KEY = 'yhwh_jubilo_grupos';
-var jubiloGrupos = JSON.parse(localStorage.getItem(JUBILO_GRUPOS_KEY) || '[]');
+window.REPERTORIOS_KEY = window.REPERTORIOS_KEY || 'yhwh_repertorios_v3';
+window.JUBILO_GRUPOS_KEY = window.JUBILO_GRUPOS_KEY || 'yhwh_jubilo_grupos';
+var JUBILO_GRUPOS_KEY = window.JUBILO_GRUPOS_KEY;
+var jubiloGrupos = window.jubiloGrupos || JSON.parse(localStorage.getItem(JUBILO_GRUPOS_KEY) || '[]');
 window.jubiloGrupos = jubiloGrupos; // exponer globalmente
 
 var jubiloGrupoActivo = null;
