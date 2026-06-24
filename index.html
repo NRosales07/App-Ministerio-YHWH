@@ -69,9 +69,9 @@
 onValue(ref(db, 'repertorio'), function(snapshot) {
   var data = snapshot.val();
   if (data) {
-    // Aplicar a la variable local y localStorage
-    repertorios = (data && typeof data === 'object') ? (data.fechas && typeof data.fechas === 'object' ? data.fechas : data) : {};
-    localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
+      // Aplicar a la variable local y localStorage
+      repertorios = (data && typeof data === 'object') ? (data.fechas && typeof data.fechas === 'object' ? data.fechas : data) : {};
+      localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
     setlistDOM = getRepertorioFecha(repertorioFechaActiva || hoyISO());
     if (window.renderSetlist) window.renderSetlist();
     if (window.actualizarContadorRepertorio) window.actualizarContadorRepertorio();
@@ -80,9 +80,10 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
 
   // Escuchar etiquetas en tiempo real
   onValue(ref(db, 'etiquetas'), function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
+  var data = snapshot.val();
+  if (data) {
       window.etiquetasDB = data;
+      localStorage.setItem('yhwh_etiquetas_cache', JSON.stringify(data));
       if (window.renderEtiquetas) window.renderEtiquetas();
       if (window.filterSongs) window.filterSongs();
     }
@@ -90,9 +91,10 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
 
   // Escuchar dificultad en tiempo real
   onValue(ref(db, 'dificultad'), function(snapshot) {
-    var data = snapshot.val();
-    if (data) {
+  var data = snapshot.val();
+  if (data) {
       window.dificultadDB = data;
+      localStorage.setItem('yhwh_dificultad_cache', JSON.stringify(data));
       if (window.actualizarBotonesDificultad) window.actualizarBotonesDificultad();
       if (window.filterSongs) window.filterSongs();
     }
@@ -125,6 +127,7 @@ onValue(ref(db, 'jubilo'), function(snapshot) {
   jubiloGrupos = nuevosGrupos;
   window.jubiloGrupos = jubiloGrupos;
   localStorage.setItem(JUBILO_GRUPOS_KEY, JSON.stringify(jubiloGrupos));
+  localStorage.setItem('yhwh_jubilo_cache', JSON.stringify(jubiloGrupos));
   
   if (window.renderJubiloSidebar) window.renderJubiloSidebar();
   if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
@@ -153,6 +156,10 @@ onValue(ref(db, 'notas_director'), function(snapshot) {
     });
   }
 });
+
+// Respaldo local inicial por si Firebase tarda o no hay red
+window.etiquetasDB = window.etiquetasDB || JSON.parse(localStorage.getItem('yhwh_etiquetas_cache') || '{}');
+window.dificultadDB = window.dificultadDB || JSON.parse(localStorage.getItem('yhwh_dificultad_cache') || '{}');
 </script>
 
 <style>
@@ -243,6 +250,17 @@ z-index: 100;
 .snum{font-size: 0.85rem;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:1px;}
 .stitle{font-size:0.95rem;font-weight:700;color:var(--text);}
 .skey{font-size:0.95rem;color:var(--chord);margin-top:1px;font-family:monospace;}
+.ssearch-match{
+  font-size:0.72rem;
+  color:var(--text2);
+  margin-top:2px;
+  line-height:1.2;
+  font-weight:400;
+}
+.ssearch-match strong{
+  color:var(--gold2);
+  font-weight:800;
+}
 .main{flex:1;overflow-y:auto;padding:20px 16px;}
 .welcome {
   display: flex;
@@ -501,6 +519,7 @@ body.light-theme .menu-container,
 body.light-theme .song-view,
 body.light-theme .controls,
 body.light-theme .font-controls,
+body.light-theme #adoracionControlsBar,
 body.light-theme #jubiloControlsBar,
 body.light-theme .jubilo-sidebar,
 body.light-theme .jubilo-song-card,
@@ -512,10 +531,12 @@ body.light-theme .notas-container {
   box-shadow: 0 8px 26px rgba(95, 76, 39, 0.08);
 }
 body.light-theme .font-controls,
+body.light-theme #adoracionControlsBar,
 body.light-theme .song-nav-bar,
 body.light-theme .musician-cifrado-bar,
 body.light-theme .song-next-box,
-body.light-theme .transition-box {
+body.light-theme .transition-box,
+body.light-theme #jubiloCifradoBar {
   background: #fffaf0 !important;
   border-color: #d8cdb8 !important;
   color: #1f2933 !important;
@@ -531,6 +552,7 @@ body.light-theme #btnOcultarTransicion {
 }
 body.light-theme .song-nav-bar .font-btn:hover,
 body.light-theme .musician-cifrado-bar .action-btn:hover,
+body.light-theme #jubiloCifradoBar .jubilo-small-btn:hover,
 body.light-theme #btnTransicionToggle:hover,
 body.light-theme #btnOcultarTransicion:hover {
   background: #e8f1ea !important;
@@ -891,9 +913,7 @@ body.light-theme .notas-label { color: #4a5568; }
 .fav-toggle-btn:hover { border-color: var(--gold); color: var(--gold); }
 
 /* === DRAG REPERTORIO === */
-.drag-item { cursor: grab; transition: opacity 0.15s, transform 0.15s; }
-.drag-item.dragging { opacity: 0.4; transform: scale(0.98); cursor: grabbing; }
-.drag-item.drag-over { border-color: var(--gold) !important; background: var(--bg3) !important; }
+.song-item { transition: background 0.15s, border-color 0.15s; }
 
 
 /* === TOAST NOTIFICACIÓN === */
@@ -1324,10 +1344,12 @@ body.singer-view #screen-chords .song-nav-bar,
 body.musician-view #screen-chords .song-nav-bar { display: inline-flex; }
 .song-nav-bar .font-btn { min-width: 78px; }
 .song-nav-bar {
+  width: 100%;
   padding: 6px 14px;
   background: #1b2152;
   border: 1px solid var(--border);
   border-radius: 0;
+  box-sizing: border-box;
 }
 .song-nav-bar .font-btn {
   height: 30px;
@@ -1375,6 +1397,20 @@ body.singer-view #screen-chords .main { padding: 10px 8px 40px; overflow-y: visi
 body.singer-view #screen-chords .song-header { border-bottom: none; margin-bottom: 8px; padding-bottom: 4px; }
 body.singer-view #screen-chords .song-title { font-size: 1.15rem; margin-top: 6px; }
 body.singer-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 2px; border-radius: 0; }
+body.singer-view #screen-chords #adoracionControlsBar,
+body.musician-view #screen-chords #adoracionControlsBar,
+body.singer-view #screen-chords .font-controls,
+body.musician-view #screen-chords .font-controls,
+body.singer-view #screen-chords .song-nav-bar,
+body.musician-view #screen-chords .song-nav-bar,
+body.musician-view #screen-chords .musician-cifrado-bar,
+body.singer-view #screen-chords .song-next-box,
+body.musician-view #screen-chords .song-next-box,
+body:not(.musician-view) #transitionControlArea,
+body.musician-view #transitionControlArea {
+  width: 100%;
+  box-sizing: border-box;
+}
 body.singer-view #screen-chords .song-content {
   white-space: pre-wrap;
   overflow-x: visible;
@@ -1413,8 +1449,83 @@ body.musician-view #screen-chords .song-header { border-bottom: none; margin-bot
 body.musician-view #screen-chords .song-title { font-size: 1.15rem; margin-top: 6px; }
 body.musician-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 2px; border-radius: 0; }
 body.musician-view #screen-chords .song-content { padding: 0 10px 60px; }
-body.musician-view #screen-chords .musician-cifrado-bar { display: flex !important; margin-top: 0; }
-body.musician-view #screen-chords .song-next-box { display: none !important; }
+body.singer-view #screen-chords #adoracionControlsBar,
+body.musician-view #screen-chords #adoracionControlsBar {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  margin: 0 -8px 2px;
+  width: auto;
+  align-self: stretch;
+  background: #1b2152;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+body.singer-view #screen-chords #adoracionControlsBar .font-controls,
+body.musician-view #screen-chords #adoracionControlsBar .font-controls {
+  margin-bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 0;
+}
+body.singer-view #screen-chords #adoracionControlsBar > *,
+body.musician-view #screen-chords #adoracionControlsBar > *,
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar > *,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar > * {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+body.singer-view #screen-chords #adoracionControlsBar .font-controls,
+body.singer-view #screen-chords #adoracionControlsBar .song-nav-bar,
+body.singer-view #screen-chords #adoracionControlsBar .musician-cifrado-bar,
+body.singer-view #screen-chords #adoracionControlsBar .song-next-box,
+body.singer-view #screen-chords #adoracionControlsBar #transitionControlArea,
+body.musician-view #screen-chords #adoracionControlsBar .font-controls,
+body.musician-view #screen-chords #adoracionControlsBar .song-nav-bar,
+body.musician-view #screen-chords #adoracionControlsBar .musician-cifrado-bar,
+body.musician-view #screen-chords #adoracionControlsBar .song-next-box,
+body.musician-view #screen-chords #adoracionControlsBar #transitionControlArea,
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .font-controls,
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .fila-botones,
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar #jubiloCifradoBar,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .font-controls,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .fila-botones,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar #jubiloCifradoBar {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+body.singer-view #screen-chords #adoracionControlsBar .song-nav-bar,
+body.musician-view #screen-chords #adoracionControlsBar .song-nav-bar,
+body.singer-view #screen-chords #adoracionControlsBar .musician-cifrado-bar,
+body.musician-view #screen-chords #adoracionControlsBar .musician-cifrado-bar,
+body.singer-view #screen-chords #adoracionControlsBar #transitionControlArea,
+body.musician-view #screen-chords #adoracionControlsBar #transitionControlArea,
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .fila-botones,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .fila-botones,
+body.jubilo-musician-view #screen-jubilo #jubiloCifradoBar {
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+body.musician-view #screen-chords .musician-cifrado-bar {
+  display: flex !important;
+  margin-top: 0;
+  padding: 6px 14px;
+  background: #1b2152;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-radius: 0;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+body.musician-view #screen-chords .song-next-box { display: block; }
 body.singer-view #screen-chords .song-next-box { display: block; }
 body.light-theme .more-actions { border-top-color: rgba(0,0,0,0.12); }
 
@@ -1451,6 +1562,52 @@ body.jubilo-musician-view #screen-jubilo .jubilo-notes,
 body.jubilo-musician-view #screen-jubilo #jubiloAddBox,
 body.jubilo-musician-view #screen-jubilo .jubilo-add-btn { display: none !important; }
 body.jubilo-musician-view #screen-jubilo #jubiloCifradoBar { display: flex !important; }
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .fila-botones,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .fila-botones,
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .jubilo-semitone-ctrl,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .jubilo-semitone-ctrl,
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .jubilo-controls-extra,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .jubilo-controls-extra {
+  display: none !important;
+}
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar {
+  padding-bottom: 8px;
+  padding-top: 8px;
+  margin: 0 -8px 0;
+  width: auto;
+  align-self: stretch;
+  box-sizing: border-box;
+  background: #1b2152;
+  border-bottom: 1px solid var(--border);
+}
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .font-controls,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .font-controls {
+  margin-bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 0;
+}
+body.jubilo-musician-view #screen-jubilo #jubiloCifradoBar {
+  margin-top: 0;
+  width: 100%;
+  padding: 6px 14px;
+  background: #1b2152;
+  border: 1px solid var(--border);
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+  box-sizing: border-box;
+  border-radius: 0;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+body.jubilo-musician-view #screen-jubilo #jubiloCifradoBar .jubilo-small-btn {
+  min-height: 32px;
+}
+body.jubilo-singer-view #screen-jubilo #jubiloCifradoBar {
+  display: none !important;
+}
 
 body.jubilo-singer-view #screen-jubilo .jubilo-layout,
 body.jubilo-musician-view #screen-jubilo .jubilo-layout { grid-template-columns: 1fr !important; overflow: visible; }
@@ -1656,7 +1813,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <!-- Fila Inferior Automática: Buscador centrado y amplio -->
   <div class="search-wrap">
     <span class="si">&#128269;</span>
-    <input type="text" id="searchInput" placeholder="Buscar cancion, frase, tono o compositor...">
+    <input type="text" id="searchInput" placeholder="Buscar cancion, frase, tono, compositor o album...">
   </div>
 
  <select id="filtroTono" onchange="filterSongs()" 
@@ -1704,6 +1861,22 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <option value="sanidad">Sanidad</option>
 </select>
 
+  <select id="filtroDificultad" onchange="filterSongs()"
+  style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+         padding:7px 10px;color:var(--text);font-size:0.82rem;outline:none;
+         width:100%;margin-top:4px;
+         -webkit-appearance:none;appearance:none;">
+  <option value="">⭐ Todas las dificultades</option>
+  <option value="facil">🟢 Fácil</option>
+  <option value="media">🟡 Media</option>
+  <option value="dificil">🔴 Difícil</option>
+</select>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+    <button id="btnFavFiltro" class="action-btn" onclick="toggleFiltroFavoritos()" style="flex:1;min-width:140px;">⭐ Favoritos</button>
+    <button id="btnLimpiarFiltros" class="action-btn" onclick="limpiarFiltrosBusqueda()" style="flex:1;min-width:140px;">Limpiar filtros</button>
+  </div>
+
 </header>
 
 
@@ -1723,22 +1896,20 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <div style="text-align: center; margin-top: 12px; min-height: 40px;" id="mediaContainer"></div>
 </div>
 
-<!-- CONTROLES DE TAMAÑO DE FUENTE -->
-<div class="font-controls" style="justify-content: center;">
-  <span>Tamaño</span>
-  <button class="font-btn" onclick="cambiarFuente(-1)" title="Reducir">A −</button>
-  <div class="font-size-display" id="fontSizeDisplay">11px</div>
-  <button class="font-btn" onclick="cambiarFuente(1)" title="Aumentar">A +</button>
-
-  
-
-  <button class="font-btn singer-exit" id="btnSalirVistaCantante" onclick="toggleVistaCantante()" title="Salir">Salir</button>
-  <button class="font-btn musician-exit" id="btnSalirVistaMusico" onclick="toggleVistaMusico()" title="Salir">Salir</button>
+<div id="adoracionControlsBar" style="display:flex; flex-direction:column; width:100%;">
+  <!-- CONTROLES DE TAMAÑO DE FUENTE -->
+  <div class="font-controls" style="justify-content: center; width: 100%;">
+    <span>Tamaño</span>
+    <button class="font-btn" onclick="cambiarFuente(-1)" title="Reducir">A −</button>
+    <div class="font-size-display" id="fontSizeDisplay">11px</div>
+    <button class="font-btn" onclick="cambiarFuente(1)" title="Aumentar">A +</button>
+    <button class="font-btn singer-exit" id="btnSalirVistaCantante" onclick="toggleVistaCantante()" title="Salir">Salir</button>
+    <button class="font-btn musician-exit" id="btnSalirVistaMusico" onclick="toggleVistaMusico()" title="Salir">Salir</button>
   </div>
 
-  <div class="musician-cifrado-bar" style="display:none; width:100%; justify-content:center; align-items:center; gap:8px; padding:6px 14px; background:#1b2152; border-radius:0; border-top:1px solid var(--border); flex-wrap:wrap;">
+  <div class="musician-cifrado-bar" style="display:none; width:100%;">
     <button id="btnCifradoMusico" class="action-btn" onclick="alternarCifrado(); document.getElementById('btnCifrado').textContent = document.getElementById('btnCifradoMusico').textContent" style="height:30px; font-size:0.75rem;">Cifrado: Americano</button>
-</div>
+  </div>
 
   <div class="song-nav-bar" style="margin-top:0;">
     <button class="font-btn" onclick="navegarCancion(-1)" title="Anterior">Ant.</button>
@@ -1749,6 +1920,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     <div class="song-next-kicker">Siguiente alabanza</div>
     <div class="song-next-title" id="nextSongTitle">-</div>
     <div class="song-next-meta" id="nextSongMeta">-</div>
+    <button id="nextSongAction" class="action-btn" style="display:none;width:100%;margin-top:8px;" onclick="void(0)"></button>
   </div>
 
   <div id="transitionControlArea" style="margin-top:4px;">
@@ -1763,6 +1935,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
       <div class="transition-box-text" id="transitionText"></div>
     </div>
   </div>
+</div>
      
      
  <div class="controls">
@@ -1799,6 +1972,10 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   </div>
 
   <div class="fila-botones">
+    <button id="btnFavSong" class="action-btn" onclick="toggleFavoritoActual()">
+      ⭐ Favorito
+    </button>
+
     <button id="btnVistaCantante" class="action-btn gold-action" onclick="toggleVistaCantante()">
       Vista cantante
     </button>
@@ -1903,7 +2080,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   </header>
 
  <!-- BARRA DE CONTROLES GLOBALES -->
-  <div id="jubiloControlsBar" style="display:none;background:#1b2152;border-bottom:1px solid var(--border);padding:12px 14px;">
+  <div id="jubiloControlsBar" style="display:none;">
 
     <!-- Fila 1: Tamaño de fuente -->
     <div class="font-controls" style="justify-content:center;margin-bottom:8px;">
@@ -1911,19 +2088,15 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
       <button class="font-btn" onclick="cambiarFuenteJubilo(-1)">A −</button>
       <div class="font-size-display" id="jubiloFontDisplay">11px</div>
       <button class="font-btn" onclick="cambiarFuenteJubilo(1)">A +</button>
+      <button class="font-btn jubilo-exit" id="btnSalirVistaJubilo" onclick="salirVistasJubilo()" title="Salir">Salir</button>
     </div>
 
-    <!-- Fila 2: Cifrado y Letra -->
+    <!-- Fila 2: Cifrado -->
     <div class="fila-botones">
       <button id="btnJubiloLatino" onclick="if(typeof toggleJubiloLatinoGlobal==='function')toggleJubiloLatinoGlobal();"
         style="background:var(--bg3);color:var(--text);border:1px solid var(--border);
         padding:0 12px;font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
         Cifrado: Americano
-      </button>
-      <button id="btnJubiloChords" onclick="if(typeof toggleJubiloChordsGlobal==='function')toggleJubiloChordsGlobal();"
-        style="background:var(--bg3);color:var(--text);border:1px solid var(--border);
-        padding:0 12px;font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
-        Solo Letra 🎤
       </button>
     </div>
 
@@ -1982,9 +2155,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
         🎭 Presentación
       </button>
     </div>
-<div id="jubiloCifradoBar" style="display:none; width:100%; justify-content:center; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap;">
-  <button class="jubilo-small-btn" onclick="navegarCancionJubiloMusico(-1)">⬅ Ant.</button>
-  <button class="jubilo-small-btn" onclick="navegarCancionJubiloMusico(1)">Sig. ➡</button>
+<div id="jubiloCifradoBar" style="display:none; width:100%;">
   <button id="btnJubiloCifradoMusico" class="jubilo-small-btn" onclick="toggleJubiloLatinoGlobal(); this.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano'">Cifrado: Americano</button>
 </div>
   </div>
@@ -2022,7 +2193,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     <div class="network-status" id="networkStatusSetlist">🌐 En la nube</div>
   </header>
   <div style="flex:1; padding:16px; overflow-y:auto;">
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;">
+    <div style="display:flex;gap:8px;justify-content:center;margin:0 auto 14px;flex-wrap:wrap;width:100%;max-width:420px;">
       <button id="btnRepHoy" onclick="irAFechaHoy()"
         style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
         Hoy
@@ -4273,7 +4444,7 @@ function buildTransitionText(prevSong, nextSong) {
   var toRoot = getToneRoot(nextKey);
   if (!fromRoot || !toRoot) return '';
   if (fromRoot === toRoot) {
-    return 'La alabanza actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> y la que sigue <strong>' + escH(nextSong && nextSong.title ? nextSong.title : '') + '</strong> están en <strong>' + escH(fromRoot) + '</strong>. Puedes entrar directo o hacer un pequeño cierre en el mismo tono.';
+    return 'Actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> en <strong>' + escH(fromRoot) + '</strong>. Siguiente <strong>' + escH(nextSong && nextSong.title ? nextSong.title : '') + '</strong> en <strong>' + escH(toRoot) + '</strong>.<small>Transición: mismo tono, entra directo.</small>';
   }
 
   var fromMinor = isMinorKey(prevKey);
@@ -4284,22 +4455,12 @@ function buildTransitionText(prevSong, nextSong) {
     return index === path.length - 1 ? '<strong>' + escH(chord) + '</strong>' : escH(chord);
   });
 
-  var tipoDestino = toMinor ? 'menor' : 'mayor';
-  var destinoTitulo = nextSong && nextSong.title ? nextSong.title : 'la siguiente alabanza';
-  var actualTitulo = prevSong && prevSong.title ? prevSong.title : 'la alabanza actual';
-  var detalle = '';
-  if (interval <= 2) {
-    detalle = 'más suave cuando el cambio es corto';
-  } else if (interval <= 5) {
-    detalle = 'más larga cuando el salto es grande';
-  } else {
-    detalle = 'con una caminata armónica más larga';
-  }
+  var actualTitulo = nextSong && nextSong.title ? nextSong.title : 'la siguiente alabanza';
+  var actualKey = fromRoot + (fromMinor ? 'm' : '');
+  var nextKeyLabel = toRoot + (toMinor ? 'm' : '');
+  var shortHint = interval <= 2 ? 'Cambio corto' : (interval <= 5 ? 'Cambio medio' : 'Cambio largo');
 
-  return 'La alabanza actual <strong>' + escH(actualTitulo) + '</strong> está en <strong>' + escH(fromRoot + (fromMinor ? 'm' : '')) + '</strong> y la que sigue <strong>' + escH(destinoTitulo) + '</strong> está en <strong>' + escH(toRoot + (toMinor ? 'm' : '')) + '</strong>. ' +
-    'Para pasar de <strong>' + escH(prevKey) + '</strong> a <strong>' + escH(nextKey) + '</strong>, prueba esta progresión ' +
-    detalle + ': <strong>' + moves.join(' - ') + '</strong>.' +
-    '<small>Está pensada para aterrizar en un tono <strong>' + tipoDestino + '</strong>, sin depender siempre de quintas, usando acordes puente simples y suspensiones cuando ayudan.</small>';
+  return 'Actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> en <strong>' + escH(actualKey) + '</strong>. Siguiente <strong>' + escH(actualTitulo) + '</strong> en <strong>' + escH(nextKeyLabel) + '</strong>. Transición: <strong>' + moves.join(' - ') + '</strong>.<small>' + shortHint + ': usa ese cierre para entrar con seguridad.</small>';
 }
 
 function getNextAdoracionItem(index) {
@@ -4354,13 +4515,26 @@ function getNextSongForCurrent() {
   return listaActiva.length ? listaActiva[0] : (listaOriginal.length ? listaOriginal[0] : null);
 }
 
+function getNextRepertorioItemForCurrent() {
+  if (!currentSong || !Array.isArray(setlistDOM)) return null;
+  for (var i = 0; i < setlistDOM.length; i++) {
+    if (String(setlistDOM[i].id) === String(currentSong.id)) {
+      var nextIdx = (i + 1) % setlistDOM.length;
+      return setlistDOM[nextIdx] || null;
+    }
+  }
+  return null;
+}
+
 function actualizarSiguienteAlabanza() {
   var isSinger = document.body.classList.contains('singer-view');
+  var isMusician = document.body.classList.contains('musician-view');
   var box = document.getElementById('nextSongBox');
   var title = document.getElementById('nextSongTitle');
   var meta = document.getElementById('nextSongMeta');
+  var action = document.getElementById('nextSongAction');
   if (!box || !title || !meta) return;
-  if (!isSinger) {
+  if (!isSinger && !isMusician) {
     box.style.display = 'none';
     return;
   }
@@ -4368,13 +4542,38 @@ function actualizarSiguienteAlabanza() {
     box.style.display = 'none';
     return;
   }
-  var nextSong = getNextSongForCurrent();
+  var nextSong = getNextRepertorioItemForCurrent() || getNextSongForCurrent();
   if (!nextSong) {
     box.style.display = 'none';
     return;
   }
-  title.textContent = toTitleCaseText(nextSong.title || '-');
-  meta.textContent = '';
+  var isJubiloItem = (nextSong.fuente === 'jubilo' || nextSong.fuente === 'cadena_jubilo');
+  if (isJubiloItem && nextSong.grupoId && nextSong.cadenaId) {
+    var found = buscarGrupoCadena(nextSong.grupoId, nextSong.cadenaId);
+    var nombreCadena = found && found.cadena ? found.cadena.nombre : 'cadena de Júbilo';
+    title.textContent = nombreCadena;
+    meta.textContent = 'Cadena de Júbilo';
+    if (action) {
+      action.style.display = 'block';
+      action.textContent = 'Ir a ' + nombreCadena;
+      action.onclick = function() {
+        abrirDesdeRepertorio(setlistDOM.findIndex(function(item) {
+          return String(item.id) === String(nextSong.id) &&
+            item.fuente === 'cadena_jubilo' &&
+            item.grupoId === nextSong.grupoId &&
+            item.cadenaId === nextSong.cadenaId;
+        }));
+      };
+    }
+  } else {
+    title.textContent = toTitleCaseText(nextSong.title || '-');
+    meta.textContent = '';
+    if (action) {
+      action.style.display = 'none';
+      action.onclick = null;
+      action.textContent = '';
+    }
+  }
   box.style.display = 'block';
 }
 
@@ -4656,6 +4855,7 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
   initTransitionUI();
   actualizarTransicionActual();
   actualizarSiguienteAlabanza();
+  actualizarBotonFavoritoActual();
   var items=document.querySelectorAll('.song-item');
   for(var i=0;i<items.length;i++) items[i].classList.remove('active');
   var a=document.querySelector('.song-item[data-id="'+id+'"]');
@@ -4729,13 +4929,15 @@ function buildList(songs){
   }
   count.textContent=songs.length+' canciones';
   var html='';
-// ✨ REEMPLAZALO POR ESTO EN BUILDLIST:
-for(var i=0;i<songs.length;i++){
+  var q = normSearchText(document.getElementById('searchInput') ? document.getElementById('searchInput').value : '');
+  for(var i=0;i<songs.length;i++){
   var s=songs[i];
+  var match = getSongSearchMatch(s, q);
   html+='<div class="song-item" data-id="'+s.id+'" onclick="loadSong(\''+s.id+'\')">';
   html+='<div class="snum">#'+(i+1)+'</div>';
   html+='<div class="sbody">'; // Caja para ordenar el texto
     html+='<div class="stitle">'+escH(s.title)+'</div>';
+    if (match) html+='<div class="ssearch-match">'+match+'</div>';
   html+='</div>';
   html+='<div class="skey">'+(s.tono?'&#9836; '+escH(s.tono):'')+'</div>';
   html+='</div>';
@@ -4745,6 +4947,19 @@ for(var i=0;i<songs.length;i++){
 
 function normSearchText(value) {
   return String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function escapeRegExp(text) {
+  return String(text || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function highlightSearchHit(label, value, q) {
+  if (!value) return '';
+  var raw = String(value);
+  var search = String(q || '').trim();
+  if (!search) return label + ': ' + escH(raw);
+  var re = new RegExp('(' + escapeRegExp(search) + ')', 'ig');
+  return label + ': ' + escH(raw).replace(re, '<strong>$1</strong>');
 }
 
 function getSongSearchMatch(song, q) {
@@ -4763,7 +4978,7 @@ function getSongSearchMatch(song, q) {
   ];
   for (var i = 0; i < campos.length; i++) {
     if (normSearchText(campos[i].value).indexOf(q) !== -1) {
-      return campos[i].label + ': ' + campos[i].value;
+      return highlightSearchHit(campos[i].label, campos[i].value, q);
     }
   }
   var content = song.content || '';
@@ -4772,7 +4987,8 @@ function getSongSearchMatch(song, q) {
   if (idx !== -1) {
     var start = Math.max(0, idx - 28);
     var end = Math.min(content.length, idx + q.length + 42);
-    return 'Letra: ...' + content.slice(start, end).replace(/\s+/g, ' ').trim() + '...';
+    var snippet = content.slice(start, end).replace(/\s+/g, ' ').trim();
+    return 'Letra: ...' + escH(snippet).replace(new RegExp('(' + escapeRegExp(q) + ')', 'ig'), '<strong>$1</strong>') + '...';
   }
   return '';
 }
@@ -4781,6 +4997,9 @@ function filterSongs(){
   var q = normSearchText(document.getElementById('searchInput').value);
   var filtroTono = document.getElementById('filtroTono');
   var tonoFiltro = filtroTono ? filtroTono.value : '';
+  var filtroDificultad = document.getElementById('filtroDificultad');
+  var dificultadFiltro = filtroDificultad ? filtroDificultad.value : '';
+  var soloFavoritos = !!window.modoFav;
   var filtered = [];
   for(var i = 0; i < SONGS.length; i++){
     var s = SONGS[i];
@@ -4793,21 +5012,94 @@ function filterSongs(){
     var coincideTexto = !q || textoBusqueda.indexOf(q) !== -1 || (q.length > 2 && contenido.indexOf(q) !== -1);
     var tonoOriginal = s.tono ? s.tono.split(/[\s|,]/)[0].trim() : '';
     var coincideTono = tonoFiltro === '' || tonoOriginal === tonoFiltro;
-var etiquetaFiltro = document.getElementById('filtroEtiqueta') ? document.getElementById('filtroEtiqueta').value : '';
-var coincideEtiqueta = etiquetaFiltro === '' || getEtiquetasCancion(s.id).indexOf(etiquetaFiltro) !== -1;
-if(coincideTexto && coincideTono && coincideEtiqueta) filtered.push(s);
+    var etiquetaFiltro = document.getElementById('filtroEtiqueta') ? document.getElementById('filtroEtiqueta').value : '';
+    var coincideEtiqueta = etiquetaFiltro === '' || getEtiquetasCancion(s.id).indexOf(etiquetaFiltro) !== -1;
+    var dificultad = getDificultadCancion(s.id) || '';
+    var coincideDificultad = dificultadFiltro === '' || dificultad === dificultadFiltro;
+    var coincideFav = !soloFavoritos || esFavorito(s.id);
+    if(coincideTexto && coincideTono && coincideEtiqueta && coincideDificultad && coincideFav) filtered.push(s);
   }
   buildList(filtered);
+  actualizarResumenFiltros(filtered.length);
+}
+
+function actualizarResumenFiltros(total) {
+  var count = document.getElementById('songCount');
+  var favBtn = document.getElementById('btnFavFiltro');
+  if (favBtn) {
+    favBtn.style.borderColor = window.modoFav ? 'var(--gold)' : 'var(--border)';
+    favBtn.style.color = window.modoFav ? 'var(--gold)' : 'var(--text)';
+    favBtn.textContent = window.modoFav ? '⭐ Favoritos activos' : '⭐ Favoritos';
+  }
+  if (count) {
+    var extra = [];
+    var tono = document.getElementById('filtroTono');
+    var etq = document.getElementById('filtroEtiqueta');
+    var dif = document.getElementById('filtroDificultad');
+    if (tono && tono.value) extra.push('tono ' + tono.value);
+    if (etq && etq.value) extra.push('etiqueta');
+    if (dif && dif.value) extra.push('dificultad ' + dif.value);
+    if (window.modoFav) extra.push('favoritos');
+    count.textContent = total + ' canciones' + (extra.length ? ' · ' + extra.join(', ') : '');
+  }
+}
+
+function toggleFiltroFavoritos() {
+  toggleModoFav();
+  filterSongs();
+}
+
+function limpiarFiltrosBusqueda() {
+  var searchInput = document.getElementById('searchInput');
+  var tono = document.getElementById('filtroTono');
+  var etiqueta = document.getElementById('filtroEtiqueta');
+  var dificultad = document.getElementById('filtroDificultad');
+  if (searchInput) searchInput.value = '';
+  if (tono) tono.value = '';
+  if (etiqueta) etiqueta.value = '';
+  if (dificultad) dificultad.value = '';
+  if (window.modoFav) toggleModoFav();
+  localStorage.removeItem('yhwh_search_query');
+  localStorage.removeItem('yhwh_filter_tono');
+  localStorage.removeItem('yhwh_filter_etiqueta');
+  localStorage.removeItem('yhwh_filter_dificultad');
+  filterSongs();
 }
 
 
 
 
 
-document.getElementById('searchInput').addEventListener('input',filterSongs);
+document.getElementById('searchInput').addEventListener('input',function(){
+  localStorage.setItem('yhwh_search_query', this.value || '');
+  filterSongs();
+});
+document.getElementById('filtroTono').addEventListener('change', function() {
+  localStorage.setItem('yhwh_filter_tono', this.value || '');
+  filterSongs();
+});
+document.getElementById('filtroEtiqueta').addEventListener('change', function() {
+  localStorage.setItem('yhwh_filter_etiqueta', this.value || '');
+  filterSongs();
+});
+document.getElementById('filtroDificultad').addEventListener('change', function() {
+  localStorage.setItem('yhwh_filter_dificultad', this.value || '');
+  filterSongs();
+});
 document.getElementById('btnDown').addEventListener('click',function(){shiftSemitone(-1);});
 document.getElementById('btnUp').addEventListener('click',function(){shiftSemitone(1);});
 aplicarAjusteLatino();
+
+(function restaurarFiltrosBusqueda() {
+  var searchInput = document.getElementById('searchInput');
+  var tono = document.getElementById('filtroTono');
+  var etiqueta = document.getElementById('filtroEtiqueta');
+  var dificultad = document.getElementById('filtroDificultad');
+  if (searchInput) searchInput.value = localStorage.getItem('yhwh_search_query') || '';
+  if (tono) tono.value = localStorage.getItem('yhwh_filter_tono') || '';
+  if (etiqueta) etiqueta.value = localStorage.getItem('yhwh_filter_etiqueta') || '';
+  if (dificultad) dificultad.value = localStorage.getItem('yhwh_filter_dificultad') || '';
+})();
 
 
 
@@ -4908,29 +5200,45 @@ function toggleVistaMusico() {
 }
 
 // --- NUEVO: Variable y función para el Modo Claro ---
+var THEME_PREF_KEY = 'yhwh_theme_pref';
 var modoClaro = false;
 
-function alternarModoClaro() {
-  modoClaro = !modoClaro;
-  
-  // Añade o quita la clase del tema claro al body
+function aplicarTemaClaro(activar, guardar) {
+  modoClaro = !!activar;
   document.body.classList.toggle('light-theme', modoClaro);
-  
-  // Actualizamos el texto del botón
   var btn = document.getElementById('btnClaro');
   if (btn) {
     btn.textContent = modoClaro ? 'Tema: Claro ☀️' : 'Tema: Oscuro 🌙';
   }
+  var btnMenu = document.getElementById('btnClaroMenu');
+  if (btnMenu) {
+    btnMenu.textContent = modoClaro ? '☀️ Tema: Claro' : '🌙 Tema: Oscuro';
+  }
+  if (guardar) localStorage.setItem(THEME_PREF_KEY, modoClaro ? 'light' : 'dark');
+}
+
+function inicializarTemaPreferido() {
+  var guardado = localStorage.getItem(THEME_PREF_KEY);
+  if (guardado === 'light' || guardado === 'dark') {
+    aplicarTemaClaro(guardado === 'light', false);
+    return;
+  }
+  aplicarTemaClaro(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches, false);
+}
+
+function alternarModoClaro() {
+  aplicarTemaClaro(!modoClaro, true);
 }
 
 // Agrega esto junto a la función alternarModoClaro existente:
 function alternarModoClaroGlobal() {
   alternarModoClaro();
-  var btnMenu = document.getElementById('btnClaroMenu');
-  if (btnMenu) {
-    btnMenu.textContent = modoClaro ? '☀️ Tema: Claro' : '🌙 Tema: Oscuro';
-  }
 }
+
+inicializarTemaPreferido();
+window.addEventListener('DOMContentLoaded', function() {
+  aplicarTemaClaro(modoClaro, false);
+});
 
 // Función para ocultar pantallas y mostrar la seleccionada
 function showScreen(screenId) {
@@ -5272,22 +5580,24 @@ function renderSetlist() {
   var html = encabezadoCulto;
   for (var i = 0; i < setlistDOM.length; i++) {
     var s = setlistDOM[i];
-    // Bug #2 fix: agregar clase drag-item y atributo data-index para que el drag and drop funcione
     html +=
-      '<div class="song-item drag-item" data-id="' + s.id + '" data-index="' + i + '" draggable="true" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px;">' +
-        '<div style="flex:1; display:flex; align-items:center; gap:10px; padding: 6px 8px;" onclick="abrirDesdeRepertorio(' + i + ')">' +
+      '<div class="song-item" data-id="' + s.id + '" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px; gap:6px;">' +
+        '<div style="flex:1; display:flex; align-items:center; gap:10px; padding: 6px 8px; min-width:0;" onclick="abrirDesdeRepertorio(' + i + ')">' +
           '<div class="snum">#' + (i + 1) + '</div>' +
-          '<div class="sbody" style="flex:1;">' +
+          '<div class="sbody" style="flex:1; min-width:0;">' +
             '<div class="stitle">' + escH(s.title) + '</div>' +
           '</div>' +
         '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? 'Cadena Jubilo' : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
         '</div>' +
-      '<button onclick="eliminarDelRepertorio(' + i + ')" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
+        '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' +
+          '<button onclick="moverRepertorioArriba(' + i + ');event.stopPropagation();" title="Subir" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:0.8rem;padding:4px 7px;border-radius:6px;">↑</button>' +
+          '<button onclick="moverRepertorioAbajo(' + i + ');event.stopPropagation();" title="Bajar" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);cursor:pointer;font-size:0.8rem;padding:4px 7px;border-radius:6px;">↓</button>' +
+          '<button onclick="eliminarDelRepertorio(' + i + ');event.stopPropagation();" title="Eliminar" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
+        '</div>' +
       '</div>';
   }
 
   cont.innerHTML = html;
-  iniciarDragRepertorio();
   renderCalendarioRepertorio();
 
   if (divTiempo) {
@@ -5323,6 +5633,14 @@ function renderCalendarioRepertorio() {
   var cursor = new Date(inicioGrid);
   var monthLabel = base.toLocaleDateString('es-GT', { month: 'long', year: 'numeric' });
   monthLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
+  var prevLabel = new Date(base.getFullYear(), base.getMonth() - 1, 1).toLocaleDateString('es-GT', { month: 'long' });
+  var nextLabel = new Date(base.getFullYear(), base.getMonth() + 1, 1).toLocaleDateString('es-GT', { month: 'long' });
+  prevLabel = prevLabel.charAt(0).toUpperCase() + prevLabel.slice(1);
+  nextLabel = nextLabel.charAt(0).toUpperCase() + nextLabel.slice(1);
+  var btnPrev = document.getElementById('btnRepAnterior');
+  var btnNext = document.getElementById('btnRepSiguiente');
+  if (btnPrev) btnPrev.textContent = '◀ ' + prevLabel;
+  if (btnNext) btnNext.textContent = nextLabel + ' ▶';
   var panelBg = isLight ? '#fffaf0' : '#1b2152';
   var panelBorder = isLight ? '#d8cdb8' : 'var(--border)';
   var panelShadow = isLight ? '0 8px 26px rgba(95, 76, 39, 0.08)' : 'none';
@@ -5343,10 +5661,11 @@ function renderCalendarioRepertorio() {
   var redBorder = isLight ? '#e6b0aa' : '#ff7b7b';
   var cardText = isLight ? '#1f2933' : '#fff';
   var html = '<div style="background:' + panelBg + ';border:1px solid ' + panelBorder + ';border-radius:14px;padding:14px 12px 12px;margin-bottom:14px;box-shadow:' + panelShadow + ';">';
-  html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:14px;">';
-  html += '<div><div style="color:' + titleColor + ';font-weight:700;font-size:1rem;line-height:1.2;">' + monthLabel + '</div>';
-  html += '<div style="color:' + subColor + ';font-size:0.78rem;margin-top:4px;">Semana actual: ' + semana.inicio.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + ' - ' + semana.fin.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + '</div></div>';
-  html += '<div style="min-height:18px;"></div></div>';
+  html += '<div style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;text-align:center;">';
+  html += '<div style="width:100%;">';
+  html += '<div style="color:' + titleColor + ';font-weight:800;font-size:1.08rem;line-height:1.15;">' + monthLabel + '</div>';
+  html += '<div style="color:' + subColor + ';font-size:0.78rem;margin-top:4px;">Semana actual: ' + semana.inicio.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + ' - ' + semana.fin.toLocaleDateString('es-GT', { day: '2-digit', month: 'short' }) + '</div>';
+  html += '</div></div>';
   html += '<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;font-size:0.66rem;color:' + dayColor + ';margin-bottom:10px;text-align:center;letter-spacing:0.2px;">';
   ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'].forEach(function(d){ html += '<div style="padding:2px 0 6px;font-weight:700;">' + d + '</div>'; });
   html += '</div>';
@@ -5467,7 +5786,7 @@ function vaciarRepertorio() {
 
 // 1. Dibuja la lista a la izquierda automáticamente
 aplicarOrdenGuardado();
-buildList(SONGS);
+filterSongs();
 actualizarContadorRepertorio();
 var btnTransicionToggle = document.getElementById('btnTransicionToggle');
 if (btnTransicionToggle) btnTransicionToggle.textContent = transicionOculta ? 'Ver transición' : 'Ocultar transición';
@@ -5656,6 +5975,7 @@ loadSong = function(id) {
 // ============================================================
 var favs = JSON.parse(localStorage.getItem('yhwh_favs') || '[]');
 var modoFav = false;
+window.modoFav = modoFav;
 
 function esFavorito(id) {
   return favs.indexOf(String(id)) !== -1;
@@ -5681,6 +6001,7 @@ function toggleFav(id, event) {
 
 function toggleModoFav() {
   modoFav = !modoFav;
+  window.modoFav = modoFav;
   var btn = document.getElementById('btnFavToggle');
   if (btn) {
     btn.textContent = modoFav ? '📋 Ver todos' : '⭐ Favoritos';
@@ -5695,6 +6016,32 @@ function toggleModoFav() {
   }
 }
 
+function actualizarBotonFavoritoActual() {
+  var btn = document.getElementById('btnFavSong');
+  if (!btn) return;
+  if (!currentSong) {
+    btn.textContent = '⭐ Favorito';
+    btn.disabled = true;
+    btn.style.opacity = '0.55';
+    btn.style.cursor = 'not-allowed';
+    return;
+  }
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.style.cursor = 'pointer';
+  var activo = esFavorito(currentSong.id);
+  btn.textContent = activo ? '💛 Quitar favorito' : '⭐ Favorito';
+  btn.style.borderColor = activo ? 'var(--gold)' : 'var(--border)';
+  btn.style.color = activo ? 'var(--gold)' : 'var(--text)';
+}
+
+function toggleFavoritoActual() {
+  if (!currentSong) return;
+  toggleFav(currentSong.id);
+  actualizarBotonFavoritoActual();
+  actualizarResumenFiltros(document.querySelectorAll('.song-item').length);
+}
+
 // Parchamos buildList para mantener una lista compacta
 var _buildListOrig = buildList;
 buildList = function(songs) {
@@ -5707,6 +6054,7 @@ buildList = function(songs) {
   }
 
   if (count) count.textContent = songs.length + ' canciones';
+  actualizarBotonFavoritoActual();
 
   var html = '';
   for (var i = 0; i < songs.length; i++) {
@@ -5724,6 +6072,7 @@ function crearItemHtml(s, num) {
       '<div class="song-item-texto">' +
         '<div class="snum">#' + num + '</div>' +
         '<div class="stitle">' + escH(s.title) + obtenerBadgeDificultad(s.id) + '</div>' +
+        (match ? '<div class="ssearch-match">' + match + '</div>' : '') +
         '<div class="skey">' + (s.tono ? '&#9836; ' + escH(s.tono) : '') + '</div>' +
       '</div>' +
     '</div>' +
@@ -6570,7 +6919,7 @@ function renderJubiloCadena(grupoId, cadenaId){
   var cadena = found.cadena;
   var html = '<div class="jubilo-chain-head"><h2>' + escH(cadena.nombre) + '</h2>' +
     '<p>Grupo: ' + escH(found.grupo.nombre) + ' &nbsp;|&nbsp; ' + (cadena.alabanzas || []).length + ' alabanzas</p>' +
-    '<button onclick="agregarCadenaJubiloAlRepertorio()" style="margin-top:10px;background:#176b6a;display:block;margin:20px auto;border:1px solid #176b6a;color:#ffffff;border-radius:999px;padding:8px 12px;font-size:0.78rem;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(23,107,106,0.18);">✅ Guardar cadena</button>' +
+    '<button onclick="agregarCadenaJubiloAlRepertorio()" style="margin-top:10px;background:var(--gold);display:block;margin:20px auto;border:1px solid var(--gold);color:#111111;border-radius:999px;padding:8px 12px;font-size:0.78rem;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(201,168,76,0.22);">✅ Guardar cadena</button>' +
     '</div>';
 
   if (!cadena.alabanzas || !cadena.alabanzas.length) {
@@ -7185,99 +7534,25 @@ function toggleModoPresent() {
 }
 
 // ============================================================
-// === DRAG REPERTORIO ========================================
+// === ORDEN DEL REPERTORIO ===================================
 // ============================================================
-function iniciarDragRepertorio() {
-  var items = document.querySelectorAll('.drag-item');
-  var dragSrcIndex = null;
-
-  items.forEach(function(item) {
-    item.addEventListener('dragstart', function() {
-      dragSrcIndex = parseInt(this.getAttribute('data-index'));
-      this.classList.add('dragging');
-    });
-    item.addEventListener('dragend', function() {
-      this.classList.remove('dragging');
-      document.querySelectorAll('.drag-item').forEach(function(i) {
-        i.classList.remove('drag-over');
-      });
-    });
-    item.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      this.classList.add('drag-over');
-    });
-    item.addEventListener('dragleave', function() {
-      this.classList.remove('drag-over');
-    });
-    item.addEventListener('drop', function(e) {
-      e.preventDefault();
-      var targetIndex = parseInt(this.getAttribute('data-index'));
-      if (dragSrcIndex === null || dragSrcIndex === targetIndex) return;
-      moverDragRepertorio(dragSrcIndex, targetIndex);
-    });
-
-    var touchSrcIndex = null;
-    var touchClone = null;
-    var touchOffsetY = 0;
-
-    item.addEventListener('touchstart', function(e) {
-      touchSrcIndex = parseInt(this.getAttribute('data-index'));
-      this.classList.add('dragging');
-      touchClone = this.cloneNode(true);
-      touchClone.style.position = 'fixed';
-      touchClone.style.width = this.offsetWidth + 'px';
-      touchClone.style.opacity = '0.85';
-      touchClone.style.zIndex = '9999';
-      touchClone.style.pointerEvents = 'none';
-      touchClone.style.background = '#42426e';
-      touchClone.style.borderRadius = '8px';
-      document.body.appendChild(touchClone);
-      var rect = this.getBoundingClientRect();
-      touchOffsetY = e.touches[0].clientY - rect.top;
-    }, { passive: true });
-
-    item.addEventListener('touchmove', function(e) {
-      if (!touchClone) return;
-      var y = e.touches[0].clientY - touchOffsetY;
-      var x = this.getBoundingClientRect().left;
-      touchClone.style.top = y + 'px';
-      touchClone.style.left = x + 'px';
-      touchClone.style.display = 'none';
-      var elDebajo = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
-      touchClone.style.display = '';
-      document.querySelectorAll('.drag-item').forEach(function(i) {
-        i.classList.remove('drag-over');
-      });
-      var targetItem = elDebajo ? elDebajo.closest('.drag-item') : null;
-      if (targetItem) targetItem.classList.add('drag-over');
-    }, { passive: true });
-
-    item.addEventListener('touchend', function(e) {
-      this.classList.remove('dragging');
-      if (touchClone) { document.body.removeChild(touchClone); touchClone = null; }
-      var elDebajo = document.elementFromPoint(
-        e.changedTouches[0].clientX, e.changedTouches[0].clientY
-      );
-      var targetItem = elDebajo ? elDebajo.closest('.drag-item') : null;
-      document.querySelectorAll('.drag-item').forEach(function(i) {
-        i.classList.remove('drag-over');
-      });
-      if (targetItem && touchSrcIndex !== null) {
-        var targetIndex = parseInt(targetItem.getAttribute('data-index'));
-        if (targetIndex !== touchSrcIndex) moverDragRepertorio(touchSrcIndex, targetIndex);
-      }
-      touchSrcIndex = null;
-    }, { passive: true });
-  });
-}
-
-function moverDragRepertorio(desde, hasta) {
+function moverRepertorioIndice(desde, hasta) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  if (desde === hasta) return;
+  if (desde < 0 || hasta < 0 || desde >= setlistDOM.length || hasta >= setlistDOM.length) return;
   var item = setlistDOM.splice(desde, 1)[0];
   setlistDOM.splice(hasta, 0, item);
   guardarRepertorios();
   renderSetlist();
   mostrarToast('↕ Orden actualizado');
+}
+
+function moverRepertorioArriba(index) {
+  moverRepertorioIndice(index, index - 1);
+}
+
+function moverRepertorioAbajo(index) {
+  moverRepertorioIndice(index, index + 1);
 }
 
 
@@ -7551,21 +7826,3 @@ function aplicarAjusteJubilo() {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

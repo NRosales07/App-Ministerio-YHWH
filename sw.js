@@ -1,4 +1,5 @@
-const CACHE_NAME = 'alabanzas-v59';
+const CACHE_NAME = 'alabanzas-v61';
+const DATA_CACHE_NAME = 'alabanzas-data-v1';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -46,11 +47,41 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
+
+  const url = new URL(e.request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+  const isHtmlNav = e.request.mode === 'navigate' || (e.request.headers.get('accept') || '').includes('text/html');
+
+  if (isHtmlNav) {
+    e.respondWith(
+      fetch(e.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put('index.html', copy));
+          return response;
+        })
+        .catch(() => caches.match('index.html'))
+    );
+    return;
+  }
+
+  if (!isSameOrigin) {
+    e.respondWith(
+      caches.match(e.request).then((cached) => cached || fetch(e.request))
+    );
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      return cached || fetch(e.request).catch(() => {
-        return caches.match('index.html');
-      });
-    })
+    caches.open(DATA_CACHE_NAME).then(async (cache) => {
+      const cached = await cache.match(e.request);
+      const networkFetch = fetch(e.request).then((response) => {
+        if (response && response.ok) cache.put(e.request, response.clone());
+        return response;
+      }).catch(() => cached);
+
+      return cached || networkFetch;
+    }).catch(() => caches.match(e.request))
   );
 });
