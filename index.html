@@ -102,13 +102,54 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
   });
 
   // Escuchar dificultad en tiempo real
+  function sincronizarDificultadesDesdeCache() {
+    var cache = {};
+
+    try {
+      cache = JSON.parse(localStorage.getItem('yhwh_dificultad_cache') || '{}') || {};
+    } catch (e) {
+      cache = {};
+    }
+
+    // Mapa principal: Firebase cacheado o local.
+    var base = (window.dificultadDB && typeof window.dificultadDB === 'object') ? window.dificultadDB : {};
+    var merged = {};
+
+    Object.keys(cache).forEach(function(id) {
+      merged[id] = cache[id];
+    });
+
+    Object.keys(base).forEach(function(id) {
+      merged[id] = base[id];
+    });
+
+    // Respaldo final: claves individuales por canción, si la lista ya está disponible.
+    if (typeof SONGS !== 'undefined' && Array.isArray(SONGS)) {
+      for (var i = 0; i < SONGS.length; i++) {
+        var songId = SONGS[i].id;
+        var nivel = localStorage.getItem('yhwh_dif_' + songId);
+        if (nivel) merged[songId] = nivel;
+      }
+    }
+
+    window.dificultadDB = merged;
+    try { dificultadDB = merged; } catch (e) {}
+    localStorage.setItem('yhwh_dificultad_cache', JSON.stringify(merged));
+
+    if (window.actualizarBotonesDificultad) window.actualizarBotonesDificultad();
+    if (window.filterSongs) window.filterSongs();
+  }
+  window.sincronizarDificultadesDesdeCache = sincronizarDificultadesDesdeCache;
+
   onValue(ref(db, 'dificultad'), function(snapshot) {
-  var data = snapshot.val();
-  if (data) {
+    var data = snapshot.val();
+    if (data !== null && data !== undefined) {
       window.dificultadDB = data;
       localStorage.setItem('yhwh_dificultad_cache', JSON.stringify(data));
       if (window.actualizarBotonesDificultad) window.actualizarBotonesDificultad();
       if (window.filterSongs) window.filterSongs();
+    } else {
+      sincronizarDificultadesDesdeCache();
     }
   });
 
@@ -166,6 +207,17 @@ onValue(ref(db, 'notas_director'), function(snapshot) {
     Object.keys(data).forEach(function(id) {
       localStorage.setItem('yhwh_nota_' + id, data[id]);
     });
+  }
+});
+
+// Escuchar nombres de cultos editados en tiempo real
+onValue(ref(db, 'cultos_nombres'), function(snapshot) {
+  var data = snapshot.val();
+  if (data && typeof data === 'object') {
+    window.cultosNombresDB = data;
+    localStorage.setItem('yhwh_cultos_nombres_cache', JSON.stringify(data));
+    if (window.renderSetlist) window.renderSetlist();
+    if (window.renderCalendarioRepertorio) window.renderCalendarioRepertorio();
   }
 });
 
@@ -315,6 +367,15 @@ z-index: 100;
   .compositor-card .cc-nombre{font-size:0.74rem;}
   .compositor-song-card .cs-title{font-size:0.74rem;}
 }
+
+/* === Vista por Grupos de Júbilo (mismo patrón que Vista por Grupos/Artistas) === */
+.jubilo-compositores-overlay{
+  display:none;
+  position:fixed;top:0;left:0;width:100vw;height:100vh;
+  background:var(--bg);z-index:8000;
+  flex-direction:column;
+}
+.jubilo-compositores-overlay.visible{display:flex;}
 .snum{font-size: 0.85rem;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:1px;}
 .stitle{font-size:0.95rem;font-weight:700;color:var(--text);}
 .skey{font-size:0.95rem;color:var(--chord);margin-top:1px;font-family:monospace;}
@@ -336,6 +397,7 @@ z-index: 100;
   align-items: center; /* Mantiene el centrado horizontal */
   text-align: center;
   color: var(--text2);
+  
   
   /* Agrega esto para empujar el contenido hacia abajo */
   padding-top: 135px; /* Ajusta este valor en píxeles hasta que quede donde te guste */
@@ -1404,9 +1466,15 @@ body.light-theme .dif-dificil {
 
 .primary-action { background: #8b0000; color: #fff; border: none; }
 .gold-action { background: var(--gold); color: #000; border: none; }
-.singer-exit, .musician-exit { display: none; width: auto; padding: 0 10px; }
-body.singer-view #screen-chords .singer-exit { display: inline-flex; }
-body.musician-view #screen-chords .musician-exit { display: inline-flex; }
+.singer-exit, .musician-exit { display: none; width: auto; padding: 0 10px; justify-content: center; align-items: center; text-align: center; }
+body.singer-view #screen-chords .singer-exit,
+body.singer-view #screen-chords .musician-exit,
+body.musician-view #screen-chords .singer-exit,
+body.musician-view #screen-chords .musician-exit { display: flex; justify-content: center; align-items: center; }
+/* Fila de vistas de Adoración: oculta por defecto, visible en singer/musician */
+.adoracion-vistas-row { display: none !important; }
+body.singer-view #screen-chords .adoracion-vistas-row,
+body.musician-view #screen-chords .adoracion-vistas-row { display: flex !important; }
 .song-nav-bar { display: none; align-items: center; justify-content:center; gap: 6px; width:100%; flex-wrap:wrap; }
 body.singer-view #screen-chords .song-nav-bar,
 body.musician-view #screen-chords .song-nav-bar { display: inline-flex; }
@@ -1462,7 +1530,18 @@ body.singer-view #screen-chords .notas-container { display: none !important; }
 
 body.singer-view #screen-chords .layout { height: auto; display: block; }
 body.singer-view #screen-chords .main { padding: 10px 8px 40px; overflow-y: visible !important; }
-body.singer-view #screen-chords .song-header { border-bottom: none; margin-bottom: 8px; padding-bottom: 4px; }
+body.singer-view #screen-chords .song-header {
+  border-bottom: none;
+  margin: 0 -8px 0;
+  padding: 10px 14px 8px;
+  background: #1b2152;
+  width: auto;
+  box-sizing: border-box;
+}
+body.light-theme.singer-view #screen-chords .song-header {
+  background: #fffaf0 !important;
+  border-bottom: 1px solid #d8cdb8 !important;
+}
 body.singer-view #screen-chords .song-title { font-size: 1.15rem; margin-top: 6px; }
 body.singer-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 2px; border-radius: 0; }
 body.singer-view #screen-chords #adoracionControlsBar,
@@ -1513,7 +1592,18 @@ body.musician-view #screen-chords .notas-container { display: none !important; }
 
 body.musician-view #screen-chords .layout { height: auto; display: block; }
 body.musician-view #screen-chords .main { padding: 10px 8px 40px; overflow-y: visible !important; }
-body.musician-view #screen-chords .song-header { border-bottom: none; margin-bottom: 8px; padding-bottom: 4px; }
+body.musician-view #screen-chords .song-header {
+  border-bottom: none;
+  margin: 0 -8px 0;
+  padding: 10px 14px 8px;
+  background: #1b2152;
+  width: auto;
+  box-sizing: border-box;
+}
+body.light-theme.musician-view #screen-chords .song-header {
+  background: #fffaf0 !important;
+  border-bottom: 1px solid #d8cdb8 !important;
+}
 body.musician-view #screen-chords .song-title { font-size: 1.15rem; margin-top: 6px; }
 body.musician-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 2px; border-radius: 0; }
 body.musician-view #screen-chords .song-content { padding: 0 10px 60px; }
@@ -1524,7 +1614,7 @@ body.musician-view #screen-chords #adoracionControlsBar {
   gap: 0;
   padding: 0;
   margin: 0 -8px 2px;
-  width: auto;
+  width: auto !important;
   align-self: stretch;
   background: #1b2152;
   border-bottom: 1px solid var(--border);
@@ -1549,11 +1639,13 @@ body.jubilo-musician-view #screen-jubilo #jubiloControlsBar > * {
 body.singer-view #screen-chords #adoracionControlsBar .font-controls,
 body.singer-view #screen-chords #adoracionControlsBar .song-nav-bar,
 body.singer-view #screen-chords #adoracionControlsBar .musician-cifrado-bar,
+body.singer-view #screen-chords #adoracionControlsBar .adoracion-vistas-row,
 body.singer-view #screen-chords #adoracionControlsBar .song-next-box,
 body.singer-view #screen-chords #adoracionControlsBar #transitionControlArea,
 body.musician-view #screen-chords #adoracionControlsBar .font-controls,
 body.musician-view #screen-chords #adoracionControlsBar .song-nav-bar,
 body.musician-view #screen-chords #adoracionControlsBar .musician-cifrado-bar,
+body.musician-view #screen-chords #adoracionControlsBar .adoracion-vistas-row,
 body.musician-view #screen-chords #adoracionControlsBar .song-next-box,
 body.musician-view #screen-chords #adoracionControlsBar #transitionControlArea,
 body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .font-controls,
@@ -1569,6 +1661,8 @@ body.jubilo-musician-view #screen-jubilo #jubiloControlsBar #jubiloCifradoBar {
 }
 body.singer-view #screen-chords #adoracionControlsBar .song-nav-bar,
 body.musician-view #screen-chords #adoracionControlsBar .song-nav-bar,
+body.singer-view #screen-chords #adoracionControlsBar .adoracion-vistas-row,
+body.musician-view #screen-chords #adoracionControlsBar .adoracion-vistas-row,
 body.singer-view #screen-chords #adoracionControlsBar .musician-cifrado-bar,
 body.musician-view #screen-chords #adoracionControlsBar .musician-cifrado-bar,
 body.singer-view #screen-chords #adoracionControlsBar #transitionControlArea,
@@ -1637,6 +1731,10 @@ body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .jubilo-semitone-ctr
 body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .jubilo-controls-extra,
 body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .jubilo-controls-extra {
   display: none !important;
+}
+body.jubilo-singer-view #screen-jubilo #jubiloControlsBar .fila-botones.jubilo-vistas-row,
+body.jubilo-musician-view #screen-jubilo #jubiloControlsBar .fila-botones.jubilo-vistas-row {
+  display: flex !important;
 }
 body.jubilo-singer-view #screen-jubilo #jubiloControlsBar,
 body.jubilo-musician-view #screen-jubilo #jubiloControlsBar {
@@ -1984,8 +2082,12 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     <button class="font-btn" onclick="cambiarFuente(-1)" title="Reducir">A −</button>
     <div class="font-size-display" id="fontSizeDisplay">11px</div>
     <button class="font-btn" onclick="cambiarFuente(1)" title="Aumentar">A +</button>
-    <button class="font-btn singer-exit" id="btnSalirVistaCantante" onclick="toggleVistaCantante()" title="Salir">Salir</button>
-    <button class="font-btn musician-exit" id="btnSalirVistaMusico" onclick="toggleVistaMusico()" title="Salir">Salir</button>
+  </div>
+
+  <!-- FILA: Botones de Vista (cambian a "Salir vista X" cuando están activos) -->
+  <div class="fila-botones adoracion-vistas-row" style="padding:6px 14px;">
+    <button id="btnSalirVistaCantante" class="action-btn singer-exit" onclick="toggleVistaCantante()" style="flex:1;height:32px;font-size:0.75rem;font-weight:bold;display:flex;align-items:center;justify-content:center;text-align:center;">Vista cantante</button>
+    <button id="btnSalirVistaMusico" class="action-btn musician-exit" onclick="toggleVistaMusico()" style="flex:1;height:32px;font-size:0.75rem;font-weight:bold;display:flex;align-items:center;justify-content:center;text-align:center;">Vista músico</button>
   </div>
 
   <div class="musician-cifrado-bar" style="display:none; width:100%;">
@@ -2075,6 +2177,9 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <div class="fila-botones">
     <button class="action-btn" onclick="compartirCancion()">
       Compartir
+    </button>
+    <button id="btnImprimirPDF" class="action-btn" onclick="abrirImprimirPDF()" style="background:linear-gradient(135deg,#1a4a1a,#0d2b0d);border-color:#4caf50;color:#4caf50;">
+      🖨️ Imprimir PDF
     </button>
   </div>
 
@@ -2169,7 +2274,6 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
       <button class="font-btn" onclick="cambiarFuenteJubilo(-1)">A −</button>
       <div class="font-size-display" id="jubiloFontDisplay">11px</div>
       <button class="font-btn" onclick="cambiarFuenteJubilo(1)">A +</button>
-      <button class="font-btn jubilo-exit" id="btnSalirVistaJubilo" onclick="salirVistasJubilo()" title="Salir">Salir</button>
     </div>
 
     <!-- Fila 2: Cifrado -->
@@ -2196,7 +2300,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     </div>
 
    <!-- Fila 4: Vistas rápidas -->
-    <div class="fila-botones" style="margin-top:4px;">
+    <div class="fila-botones jubilo-vistas-row" style="margin-top:4px;">
       <button id="btnJubiloVistaCantante" onclick="toggleJubiloVistaCantante()"
         style="background:var(--gold);color:#000;border:none;padding:0 12px;
         font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
@@ -2247,6 +2351,9 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
         <button class="jubilo-btn" onclick="crearGrupoJubilo()">＋ Grupo</button>
         <button class="jubilo-btn" onclick="crearCadenaJubilo()">＋ Cadena</button>
       </div>
+      <div class="jubilo-actions" style="grid-template-columns:1fr;">
+        <button class="jubilo-btn" onclick="abrirVistaGruposJubilo()" style="background:var(--gold);color:#000;border:none;">🎤 Ver por grupo</button>
+      </div>
     <div style="position:relative;margin-bottom:10px;">
   <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text2);">🔍</span>
   <input id="jubiloSearchGlobal" type="text" placeholder="Buscar alabanza de júbilo..."
@@ -2263,6 +2370,15 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
       </div>
     </main>
   </div>
+</div>
+
+<div class="jubilo-compositores-overlay" id="jubiloComposOverlay">
+  <div class="compositores-header">
+    <button class="compositores-back" id="btnJubiloComposVolver" onclick="volverListaGruposJubilo()" style="display:none;">&larr; Grupos</button>
+    <span class="compositores-titulo" id="jubiloComposTitulo">💃🏻 Grupos de Júbilo</span>
+    <button class="compositores-cerrar" onclick="cerrarVistaGruposJubilo()">✕ Cerrar</button>
+  </div>
+  <div class="compositores-body" id="jubiloComposBody"></div>
 </div>
 
 <div id="screen-setlist" class="app-screen">
@@ -2300,11 +2416,18 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     </div>
   </div>
    <div id="tiempoEstimado" style="text-align:center;color:var(--text2);font-size:0.82rem;margin-bottom:12px;"></div>
-          <button id="btnCompartirRepertorio" onclick="exportarRepertorio()"
-  style="background:#1d2677; color:#fff; border:none; padding:10px 18px;
-          font-size:0.9rem; font-weight:bold; cursor:pointer; margin-right:10px;width: 100%;">
-  📤 Compartir lista
-</button>
+    <div style="display:flex;gap:8px;padding:0 16px 16px;justify-content:center;flex-wrap:wrap;">
+      <button id="btnCompartirRepertorio" onclick="exportarRepertorio()"
+        style="background:#1d2677;color:#fff;border:none;padding:10px 18px;
+               font-size:0.9rem;font-weight:bold;cursor:pointer;border-radius:8px;flex:1;min-width:140px;">
+        📤 Compartir lista
+      </button>
+      <button onclick="abrirExportarSetlist()"
+        style="background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;border:none;padding:10px 18px;
+               font-size:0.9rem;font-weight:bold;cursor:pointer;border-radius:8px;flex:1;min-width:140px;">
+        📄 Exportar PDF / Imagen
+      </button>
+    </div>
     </div>
     
 <!-- PANTALLA 3: VISOR DE PDFS -->
@@ -5358,10 +5481,7 @@ function toggleVistaCantante() {
     singerViewPrevOcultarAcordes = ocultarAcordes;
   }
   document.body.classList.toggle('singer-view', activa);
-  var btn = document.getElementById('btnVistaCantante');
-  if (btn) btn.textContent = activa ? 'Salir vista cantante' : 'Vista cantante';
-  var btnSalir = document.getElementById('btnSalirVistaCantante');
-  if (btnSalir) btnSalir.textContent = activa ? 'Salir' : 'Salir';
+  actualizarBotonesVistaAdoracion();
   actualizarSiguienteAlabanza();
 
   if (activa && !ocultarAcordes) {
@@ -5399,14 +5519,30 @@ function toggleVistaMusico() {
     }
   }
   document.body.classList.toggle('musician-view', activa);
-  var btn = document.getElementById('btnVistaMusico');
-  if (btn) btn.textContent = activa ? 'Salir vista musico' : 'Vista musico';
-  var btnSalir = document.getElementById('btnSalirVistaMusico');
-  if (btnSalir) btnSalir.textContent = activa ? 'Salir' : 'Salir';
+  actualizarBotonesVistaAdoracion();
   renderContent();
   initTransitionUI();
   actualizarSiguienteAlabanza();
   if (activa) actualizarTransicionActual();
+}
+
+function actualizarBotonesVistaAdoracion() {
+  var cantanteActiva = document.body.classList.contains('singer-view');
+  var musicoActiva = document.body.classList.contains('musician-view');
+  var btnCantante = document.getElementById('btnSalirVistaCantante');
+  var btnMusico = document.getElementById('btnSalirVistaMusico');
+  if (btnCantante) {
+    btnCantante.textContent = cantanteActiva ? 'Salir vista cantante' : 'Vista cantante';
+    btnCantante.style.background = cantanteActiva ? 'var(--gold)' : '';
+    btnCantante.style.color = cantanteActiva ? '#000' : '';
+    btnCantante.style.borderColor = cantanteActiva ? 'var(--gold)' : '';
+  }
+  if (btnMusico) {
+    btnMusico.textContent = musicoActiva ? 'Salir vista músico' : 'Vista músico';
+    btnMusico.style.background = musicoActiva ? 'var(--gold)' : '';
+    btnMusico.style.color = musicoActiva ? '#000' : '';
+    btnMusico.style.borderColor = musicoActiva ? 'var(--gold)' : '';
+  }
 }
 
 // --- NUEVO: Variable y función para el Modo Claro ---
@@ -5642,6 +5778,8 @@ function contarDiaDelMes(iso, targetDow) {
 
 function getTipoCultoDia(dia) {
   var iso = normalizarISO(dia || hoyISO());
+  var _dbN = window.cultosNombresDB || JSON.parse(localStorage.getItem('yhwh_cultos_nombres_cache') || '{}');
+  if (_dbN[iso] && _dbN[iso].trim()) return _dbN[iso].trim();
   var guardado = localStorage.getItem(tipoCultoKey(iso));
   if (guardado && guardado.trim()) return guardado.trim();
 
@@ -5689,6 +5827,7 @@ function getHorarioCultoDia(dia) {
 }
 
 function pedirTipoCulto(dia) {
+  if (!window.esAdmin) { mostrarToast('🔒 Solo el admin puede editar el nombre del culto.'); return; }
   var actual = getTipoCultoDia(dia);
   var valor = prompt('Nombre del culto o evento para este día:', actual);
   if (valor === null) return;
@@ -5696,6 +5835,15 @@ function pedirTipoCulto(dia) {
   var iso = normalizarISO(dia || hoyISO());
   if (!valor) localStorage.removeItem(tipoCultoKey(iso));
   else localStorage.setItem(tipoCultoKey(iso), valor);
+  var _dbN = window.cultosNombresDB || JSON.parse(localStorage.getItem('yhwh_cultos_nombres_cache') || '{}');
+  if (!valor) delete _dbN[iso]; else _dbN[iso] = valor;
+  window.cultosNombresDB = _dbN;
+  localStorage.setItem('yhwh_cultos_nombres_cache', JSON.stringify(_dbN));
+  if (window.fbDb && window.fbRef && window.fbSet) {
+    window.fbSet(window.fbRef(window.fbDb, 'cultos_nombres'), _dbN)
+      .then(function() { mostrarToast('✅ Nombre del culto guardado.'); })
+      .catch(function() { mostrarToast('❌ Error al guardar en la nube.'); });
+  } else { mostrarToast('✅ Guardado localmente.'); }
   renderSetlist();
 }
 
@@ -5766,8 +5914,14 @@ function renderSetlist() {
   var colorCulto = esClaro ? '#7f5f19' : 'var(--gold2)';
   var colorFecha = esClaro ? '#55616f' : 'var(--text2)';
   var colorHorario = esClaro ? '#31424f' : 'var(--text)';
+  var _isoHdr = normalizarISO(repertorioFechaActiva);
+  var _dbNHdr = window.cultosNombresDB || JSON.parse(localStorage.getItem('yhwh_cultos_nombres_cache') || '{}');
+  var cultoEditado = !!(_dbNHdr[_isoHdr] && _dbNHdr[_isoHdr].trim()) || !!(localStorage.getItem(tipoCultoKey(_isoHdr)) || '').trim();
+  var _borderHdr = cultoEditado ? '2px solid var(--gold)' : '1px solid var(--border)';
+  var _bgHdr = cultoEditado ? 'rgba(201,168,76,0.07)' : 'rgba(255,255,255,0.02)';
   var encabezadoCulto =
-    '<div style="text-align:center;margin:2px 0 14px 0;padding:12px 10px 10px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,0.02);">' +
+    '<div style="text-align:center;margin:2px 0 14px 0;padding:12px 10px 10px;border-radius:14px;border:' + _borderHdr + ';background:' + _bgHdr + ';">' +
+    (cultoEditado ? '<div style="font-size:0.65rem;color:var(--gold);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">✏️ Editado</div>' : '') +
       '<div style="color:' + colorCulto + ';font-size:1.08rem;font-weight:700;line-height:1.2;">' + escH(cultoActual || 'Culto') + '</div>' +
       '<div style="color:' + colorFecha + ';font-size:0.76rem;margin-top:4px;">' + escH(getDiaLabel(repertorioFechaActiva)) + '</div>' +
       '<div style="color:' + colorHorario + ';font-size:0.78rem;margin-top:8px;line-height:1.35;white-space:pre-line;font-weight:600;">' + escH(horarioActual || '') + '</div>' +
@@ -5891,13 +6045,68 @@ function renderCalendarioRepertorio() {
       var bg = dentroMes ? cellBase : cellMuted;
       var color = dentroMes ? cellText : cellMutedText;
       var border = isLight ? '#d8cdb8' : 'rgba(255,255,255,0.08)';
-      if (enSemana && esFD) { bg = tiene ? greenBg : redBg; color = cardText; border = tiene ? greenBorder : redBorder; }
-      else if (enSemana) { bg = weekBg; color = isLight ? '#1f2933' : '#fff'; }
-      if (esSeleccionada) { bg = selectedBg; color = selectedText; border = selectedBorder; }
-      html += '<button onclick="cambiarDiaRepertorio(\'' + iso + '\')" style="min-height:66px;border:1px solid ' + border + ';border-radius:10px;background:' + bg + ';color:' + color + ';padding:7px 6px;text-align:left;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;">';
+      var etiqueta = '';
+
+      // Dias con contenido fuera de la semana actual: verde palido
+      if (!enSemana && tiene) {
+        bg = isLight ? 'rgba(182,214,207,0.35)' : 'rgba(27,94,32,0.30)';
+        border = isLight ? 'rgba(182,214,207,0.6)' : 'rgba(93,208,106,0.30)';
+        etiqueta = '<div style="font-size:0.55rem;opacity:0.6;line-height:1.05;margin-top:5px;font-weight:700;">•</div>';
+      }
+
+      // Semana actual
+      if (enSemana && esFD) {
+        bg = tiene ? greenBg : redBg;
+        color = cardText;
+        border = tiene ? greenBorder : redBorder;
+        if (tiene) etiqueta = '<div style="font-size:0.6rem;opacity:0.96;line-height:1.05;margin-top:7px;font-weight:700;">Listo</div>';
+      } else if (enSemana && tiene) {
+        bg = greenBg; color = cardText; border = greenBorder;
+        etiqueta = '<div style="font-size:0.6rem;opacity:0.96;line-height:1.05;margin-top:7px;font-weight:700;">Listo</div>';
+      } else if (enSemana) {
+        bg = weekBg; color = isLight ? '#1f2933' : '#fff';
+      }
+
+      // Borde amarillo si el culto fue editado manualmente
+      var _dbN = window.cultosNombresDB || JSON.parse(localStorage.getItem('yhwh_cultos_nombres_cache') || '{}');
+      var cultoEditadoCal = !!(_dbN[iso] && _dbN[iso].trim()) || !!(localStorage.getItem('yhwh_tipo_culto_' + iso) || '').trim();
+      if (cultoEditadoCal) border = isLight ? '#b8952a' : 'var(--gold)';
+
+      // Seleccionado: mantiene fondo verde/rojo si lo tiene, solo el borde cambia
+      if (esSeleccionada) {
+        color = selectedText;
+        border = selectedBorder;
+        if (!tiene) bg = selectedBg;
+        // Si el día seleccionado es viernes o domingo (día de alabanza), texto en amarillo
+        if (esFD) color = isLight ? '#7f5f19' : '#e8c97a';
+      }
+
+      var tipoCulto = dentroMes ? getTipoCultoDia(iso) : '';
+      var cultoEmoji = '';
+      var dowCal = actual.getDay(); // 0=dom,4=jue,5=vie
+      var mostrarEmoji = dowCal === 5 || dowCal === 4 || dowCal === 0 || esSeleccionada;
+      if (tipoCulto && mostrarEmoji) {
+        var t = tipoCulto.toLowerCase();
+        if (t.indexOf('caballero') !== -1)                                               cultoEmoji = '👔';
+        else if (t.indexOf('dama') !== -1)                                               cultoEmoji = '👗';
+        else if (t.indexOf('joven') !== -1 || t.indexOf('jóven') !== -1)                cultoEmoji = '⚡';
+        else if (t.indexOf('niño') !== -1)                                               cultoEmoji = '👶🏻';
+        else if (t.indexOf('familia pastoral') !== -1)                                   cultoEmoji = '✝️';
+        else if (t.indexOf('familia') !== -1)                                            cultoEmoji = '👨‍👩‍👧‍👦';
+        else if (t.indexOf('ayuno') !== -1)                                              cultoEmoji = '🙏🏻';
+        else if (t.indexOf('evangelístico') !== -1 || t.indexOf('evangelistico') !== -1) cultoEmoji = '🔥';
+        else if (t.indexOf('ensayo') !== -1)                                             cultoEmoji = '🎤';
+        else if (t.indexOf('oración') !== -1 || t.indexOf('oracion') !== -1 || t.indexOf('intercesión') !== -1) cultoEmoji = '🕊️';
+        else if (t.indexOf('ministerio') !== -1)                                         cultoEmoji = '📖';
+        else if (t.indexOf('célula') !== -1 || t.indexOf('celula') !== -1)              cultoEmoji = '🌱';
+        else if (t.indexOf('culto') !== -1)                                              cultoEmoji = '🔥';
+        else                                                                             cultoEmoji = '📅';
+      }
+
+      html += '<button onclick="cambiarDiaRepertorio(\'' + iso + '\')" title="' + (tipoCulto || '') + '" style="min-height:66px;border:1px solid ' + border + ';border-radius:10px;background:' + bg + ';color:' + color + ';padding:7px 6px;text-align:left;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;">';
       html += '<div style="font-size:0.68rem;font-weight:700;line-height:1;">' + actual.getDate() + '</div>';
-      if (enSemana && esFD && tiene) { html += '<div style="font-size:0.6rem;opacity:0.96;line-height:1.05;margin-top:7px;font-weight:700;">Listo</div>'; }
-      else { html += '<div style="min-height:12px;"></div>'; }
+      if (cultoEmoji) { var emojiOpacity = enSemana ? '1' : '0.28'; html += '<div style="font-size:0.85rem;line-height:1;margin-top:4px;text-align:center;width:100%;opacity:' + emojiOpacity + ';filter:' + (enSemana ? 'none' : 'grayscale(0.4)') + ';transition:opacity 0.2s;">' + cultoEmoji + '</div>'; }
+      html += etiqueta || '<div style="min-height:12px;"></div>';
       html += '</button>';
     })(new Date(cursor));
     cursor.setDate(cursor.getDate() + 1);
@@ -5996,6 +6205,7 @@ function vaciarRepertorio() {
 
 // 1. Dibuja la lista a la izquierda automáticamente
 aplicarOrdenGuardado();
+if (window.sincronizarDificultadesDesdeCache) window.sincronizarDificultadesDesdeCache();
 filterSongs();
 actualizarContadorRepertorio();
 var btnTransicionToggle = document.getElementById('btnTransicionToggle');
@@ -7112,6 +7322,92 @@ function buscarGrupoCadena(grupoId, cadenaId){
   return { grupo: grupo, cadena: cadena };
 }
 
+// === Vista por Grupos de Júbilo (mismo patrón que "Ver por grupo/artista" de Adoración) ===
+var jubiloComposGrupoActivo = null;
+
+function abrirVistaGruposJubilo() {
+  if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
+  jubiloComposGrupoActivo = null;
+  var overlay = document.getElementById('jubiloComposOverlay');
+  if (!overlay) return;
+  overlay.classList.add('visible');
+  renderListaGruposJubilo();
+}
+
+function cerrarVistaGruposJubilo() {
+  var overlay = document.getElementById('jubiloComposOverlay');
+  if (overlay) overlay.classList.remove('visible');
+  jubiloComposGrupoActivo = null;
+}
+
+function renderListaGruposJubilo() {
+  if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
+  var titulo = document.getElementById('jubiloComposTitulo');
+  var back = document.getElementById('btnJubiloComposVolver');
+  var body = document.getElementById('jubiloComposBody');
+  if (!body) return;
+  if (titulo) titulo.textContent = '💃🏻 Grupos de Júbilo';
+  if (back) back.style.display = 'none';
+
+  var grupos = (jubiloGrupos || []).filter(function(g){ return g && g.id && g.nombre; });
+
+  if (!grupos.length) {
+    body.innerHTML = '<div class="no-results">No hay grupos de júbilo todavía.</div>';
+    return;
+  }
+
+  var html = '<div class="compositores-grid">';
+  grupos.forEach(function(g) {
+    var cantidad = (g.cadenas || []).length;
+    html += '<div class="compositor-card" onclick="verGrupoJubilo(\'' + g.id + '\')">' +
+      '<div class="cc-nombre">' + escH(g.nombre) + '</div>' +
+      '<div class="cc-count">' + cantidad + (cantidad === 1 ? ' cadena' : ' cadenas') + '</div>' +
+      '</div>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function verGrupoJubilo(grupoId) {
+  if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
+  jubiloComposGrupoActivo = grupoId;
+  var grupo = jubiloGrupos.find(function(g){ return g.id === grupoId; });
+
+  var titulo = document.getElementById('jubiloComposTitulo');
+  var back = document.getElementById('btnJubiloComposVolver');
+  var body = document.getElementById('jubiloComposBody');
+  if (!body) return;
+  if (titulo) titulo.textContent = '💃🏻 ' + (grupo ? grupo.nombre : '');
+  if (back) back.style.display = 'inline-block';
+
+  var cadenas = grupo ? grupo.cadenas : [];
+
+  if (!cadenas || !cadenas.length) {
+    body.innerHTML = '<div class="no-results">Sin cadenas para este grupo.</div>';
+    return;
+  }
+
+  var html = '<div class="compositores-songs-grid">';
+  cadenas.forEach(function(c) {
+    var cantidad = (c.alabanzas || []).length;
+    html += '<div class="compositor-song-card" onclick="seleccionarCadenaDesdeGrupoJubilo(\'' + grupoId + '\',\'' + c.id + '\')">' +
+      '<div class="cs-title">' + escH(c.nombre) + '</div>' +
+      '<div class="cs-meta">' + cantidad + (cantidad === 1 ? ' alabanza' : ' alabanzas') + '</div>' +
+      '</div>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
+
+function volverListaGruposJubilo() {
+  renderListaGruposJubilo();
+}
+
+function seleccionarCadenaDesdeGrupoJubilo(grupoId, cadenaId) {
+  cerrarVistaGruposJubilo();
+  renderJubiloCadena(grupoId, cadenaId);
+}
+
 function renderJubiloCadena(grupoId, cadenaId){
   if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
   var found = buscarGrupoCadena(grupoId, cadenaId);
@@ -7408,8 +7704,20 @@ function setJubiloChordsGlobal(valor) {
 function actualizarBotonesVistaJubilo() {
   var btnCantante = document.getElementById('btnJubiloVistaCantante');
   var btnMusico = document.getElementById('btnJubiloVistaMusico');
-  if (btnCantante) btnCantante.textContent = jubiloVistaActual === 'cantante' ? 'Salir cantante' : 'Vista cantante';
-  if (btnMusico) btnMusico.textContent = jubiloVistaActual === 'musico' ? 'Salir músico' : 'Vista músico';
+  if (btnCantante) {
+    var cantanteOpaco = jubiloVistaActual === 'musico'; // solo se apaga si la OTRA vista esta activa
+    btnCantante.textContent = jubiloVistaActual === 'cantante' ? 'Salir vista cantante' : 'Vista cantante';
+    btnCantante.style.background = cantanteOpaco ? 'var(--bg3)' : 'var(--gold)';
+    btnCantante.style.color = cantanteOpaco ? 'var(--text)' : '#000';
+    btnCantante.style.border = cantanteOpaco ? '1px solid var(--border)' : 'none';
+  }
+  if (btnMusico) {
+    var musicoOpaco = jubiloVistaActual === 'cantante'; // solo se apaga si la OTRA vista esta activa
+    btnMusico.textContent = jubiloVistaActual === 'musico' ? 'Salir vista músico' : 'Vista músico';
+    btnMusico.style.background = musicoOpaco ? 'var(--bg3)' : 'var(--gold)';
+    btnMusico.style.color = musicoOpaco ? 'var(--text)' : '#000';
+    btnMusico.style.border = musicoOpaco ? '1px solid var(--border)' : 'none';
+  }
 }
 
 function salirVistasJubilo() {
@@ -7916,17 +8224,15 @@ document.addEventListener('keydown', function(e){
 var mqLight = window.matchMedia('(prefers-color-scheme: light)');
 
 function verificarTemaDispositivo(e) {
-  // e.matches es TRUE si el celular está en modo claro
+  // Si el usuario YA eligió manualmente un tema en la app, respetarlo siempre
+  var guardado = localStorage.getItem(THEME_PREF_KEY);
+  if (guardado === 'light' || guardado === 'dark') return;
+
+  // Solo aplicar el tema del sistema si el usuario nunca ha elegido uno
   if (e.matches) {
-    // Si el dispositivo está en CLARO pero tu app sigue en OSCURO, lo activamos
-    if (!modoClaro) {
-      alternarModoClaroGlobal();
-    }
+    if (!modoClaro) aplicarTemaClaro(true, false);
   } else {
-    // Si el dispositivo está en OSCURO pero tu app se quedó en CLARO, lo desactivamos
-    if (modoClaro) {
-      alternarModoClaroGlobal();
-    }
+    if (modoClaro) aplicarTemaClaro(false, false);
   }
 }
 
@@ -7945,12 +8251,45 @@ function toggleAdminLogin() {
     window.fbSignOut(window.fbAuth);
     mostrarToast('Sesión cerrada.');
   } else {
-    var pass = prompt('Contraseña admin:');
-    if (!pass) return;
-    window.fbSignIn(window.fbAuth, 'rosalesjrnain07@gmail.com', pass)
-      .then(function() { mostrarToast('✅ Modo admin activado.'); })
-      .catch(function() { mostrarToast('❌ Contraseña incorrecta.'); });
+    abrirAdminModal();
   }
+}
+
+function abrirAdminModal() {
+  var modal = document.getElementById('adminLoginModal');
+  var input = document.getElementById('adminPassInput');
+  var err   = document.getElementById('adminLoginError');
+  if (!modal) return;
+  if (err) err.textContent = '';
+  if (input) { input.value = ''; }
+  modal.style.display = 'flex';
+  // Foco automático al campo — funciona en iOS PWA
+  setTimeout(function() { if (input) input.focus(); }, 120);
+}
+
+function cerrarAdminModal() {
+  var modal = document.getElementById('adminLoginModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function confirmarAdminLogin() {
+  var input = document.getElementById('adminPassInput');
+  var err   = document.getElementById('adminLoginError');
+  var pass  = input ? input.value.trim() : '';
+  if (!pass) {
+    if (err) err.textContent = 'Escribe la contraseña.';
+    return;
+  }
+  if (err) err.textContent = '';
+  window.fbSignIn(window.fbAuth, 'rosalesjrnain07@gmail.com', pass)
+    .then(function() {
+      cerrarAdminModal();
+      mostrarToast('✅ Modo admin activado.');
+    })
+    .catch(function() {
+      if (err) err.textContent = '❌ Contraseña incorrecta, intenta de nuevo.';
+      if (input) { input.value = ''; input.focus(); }
+    });
 }
 
 
@@ -8035,7 +8374,672 @@ function aplicarAjusteJubilo() {
   </div>
 </div>
 
+<!-- ===== MODAL LOGIN ADMIN (reemplaza al prompt nativo) ===== -->
+<div id="adminLoginModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
+  background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div style="max-width:340px;width:100%;background:#1c1c3f;border-radius:14px;
+    border:1px solid #2a2a45;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:2rem;margin-bottom:6px;">🔐</div>
+      <div style="color:#c9a84c;font-weight:bold;font-size:1.05rem;">Acceso Administrador</div>
+      <div style="color:#8888aa;font-size:0.78rem;margin-top:4px;">Ingresa la contraseña para continuar</div>
+    </div>
+    <input id="adminPassInput" type="password" placeholder="Contraseña…"
+      style="width:100%;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;
+             border-radius:8px;padding:12px 14px;font-size:1rem;outline:none;
+             box-sizing:border-box;margin-bottom:8px;"
+      onkeydown="if(event.key==='Enter') confirmarAdminLogin()"
+    />
+    <div id="adminLoginError" style="color:#ff6b6b;font-size:0.78rem;min-height:18px;margin-bottom:10px;text-align:center;"></div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="cerrarAdminModal()"
+        style="flex:1;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;
+               border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">
+        Cancelar
+      </button>
+      <button onclick="confirmarAdminLogin()"
+        style="flex:1;background:linear-gradient(135deg,#c9a84c,#e8c97a);border:none;color:#000;
+               border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">
+        Entrar
+      </button>
+    </div>
+  </div>
+</div>
 
+
+<!-- ===== MODAL EXPORTAR SETLIST PDF / IMAGEN ===== -->
+<div id="exportSetlistModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
+  background:rgba(0,0,0,0.9);z-index:9998;align-items:flex-start;justify-content:center;
+  overflow-y:auto;padding:20px;box-sizing:border-box;">
+  <div style="max-width:480px;width:100%;background:#1c1c3f;border-radius:14px;
+    border:1px solid #2a2a45;padding:20px;margin:0 auto;">
+
+    <!-- Cabecera modal -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <span style="color:#c9a84c;font-weight:bold;font-size:1rem;">📄 Exportar Setlist</span>
+      <button onclick="cerrarExportarSetlist()" style="background:#42426e;border:none;color:#e8e6f0;
+        border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:bold;">✕</button>
+    </div>
+
+    <!-- Opciones -->
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <label style="color:#8888aa;font-size:0.78rem;font-weight:700;letter-spacing:0.5px;width:100%;text-transform:uppercase;">Incluir en la exportación:</label>
+      <label style="display:flex;align-items:center;gap:6px;color:#e8e6f0;font-size:0.85rem;cursor:pointer;">
+        <input type="checkbox" id="expOptNotas" checked style="accent-color:#c9a84c;width:15px;height:15px;"> Notas del director
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;color:#e8e6f0;font-size:0.85rem;cursor:pointer;">
+        <input type="checkbox" id="expOptTono" checked style="accent-color:#c9a84c;width:15px;height:15px;"> Tono de cada canción
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;color:#e8e6f0;font-size:0.85rem;cursor:pointer;">
+        <input type="checkbox" id="expOptTiempo" checked style="accent-color:#c9a84c;width:15px;height:15px;"> Tiempo estimado
+      </label>
+    </div>
+
+    <!-- Preview canvas -->
+    <div style="background:#0d0d14;border-radius:10px;border:1px solid #2a2a45;
+                padding:10px;margin-bottom:14px;overflow:hidden;text-align:center;">
+      <canvas id="exportCanvas" style="max-width:100%;border-radius:6px;"></canvas>
+    </div>
+
+    <!-- Botones de acción -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button onclick="descargarSetlistImagen()"
+        style="flex:1;min-width:120px;background:linear-gradient(135deg,#519bfc,#1d2677);color:#fff;
+               border:none;border-radius:8px;padding:12px;font-weight:bold;font-size:0.9rem;cursor:pointer;">
+        🖼️ Guardar Imagen
+      </button>
+      <button onclick="descargarSetlistPDF()"
+        style="flex:1;min-width:120px;background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;
+               border:none;border-radius:8px;padding:12px;font-weight:bold;font-size:0.9rem;cursor:pointer;">
+        📄 Guardar PDF
+      </button>
+    </div>
+    <div style="text-align:center;color:#8888aa;font-size:0.72rem;margin-top:10px;">
+      En iPhone: toca "Guardar Imagen" y luego "Guardar en Fotos" 📱
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// === EXPORTAR SETLIST COMO PDF / IMAGEN =====================
+// ============================================================
+
+function abrirExportarSetlist() {
+  if (!setlistDOM || setlistDOM.length === 0) {
+    mostrarToast('⚠️ El repertorio está vacío.');
+    return;
+  }
+  var modal = document.getElementById('exportSetlistModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  // Pequeño delay para que el canvas esté en el DOM
+  setTimeout(generarCanvasSetlist, 80);
+
+  // Redibujar al cambiar opciones
+  ['expOptNotas','expOptTono','expOptTiempo'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.onchange = generarCanvasSetlist;
+  });
+}
+
+function cerrarExportarSetlist() {
+  var modal = document.getElementById('exportSetlistModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function generarCanvasSetlist() {
+  var canvas = document.getElementById('exportCanvas');
+  if (!canvas) return;
+
+  var mostrarNotas  = document.getElementById('expOptNotas')  ? document.getElementById('expOptNotas').checked  : true;
+  var mostrarTono   = document.getElementById('expOptTono')   ? document.getElementById('expOptTono').checked   : true;
+  var mostrarTiempo = document.getElementById('expOptTiempo') ? document.getElementById('expOptTiempo').checked : true;
+
+  var lista = setlistDOM || [];
+  var cultoDia   = getTipoCultoDia(repertorioFechaActiva) || 'Culto';
+  var fechaLabel = getDiaLabel(repertorioFechaActiva);
+
+  // ---- calcular tiempo estimado ----
+  var minAd = 0, minJub = 0;
+  lista.forEach(function(s) {
+    if (s.fuente === 'cadena_jubilo' || s.fuente === 'jubilo') minJub += 20;
+    else minAd += 4;
+  });
+  var tiempoStr = 'Tiempo estimado: ' + (minAd + minJub) + ' min';
+  if (minAd && minJub) tiempoStr += ' (' + minAd + ' adoración + ' + minJub + ' júbilo)';
+
+  // ---- medidas ----
+  var W = 800;
+  var PADDING = 40;
+  var fontTitle   = 'bold 28px Arial';
+  var fontSubtitle = '22px Arial';
+  var fontItem    = 'bold 20px Arial';
+  var fontTono    = '18px Arial';
+  var fontNota    = 'italic 16px Arial';
+  var fontPie     = '14px Arial';
+
+  // Primer paso: calcular altura total
+  var ctx = canvas.getContext('2d');
+  canvas.width = W;
+  canvas.height = 10; // temporal
+
+  var lineH = 34;
+  var notaLineH = 22;
+  var H = 60; // top padding
+
+  H += 50; // título culto
+  H += 32; // fecha
+  H += 20; // separador
+  H += 14; // gap
+
+  lista.forEach(function(s) {
+    H += lineH;
+    if (mostrarTono && s.tono) H += notaLineH;
+    if (mostrarNotas) {
+      var nota = localStorage.getItem('yhwh_nota_' + s.id) || '';
+      if (nota.trim()) {
+        var lineas = nota.trim().split('\n');
+        H += lineas.length * notaLineH + 4;
+      }
+    }
+    H += 12; // gap entre ítems
+  });
+
+  if (mostrarTiempo) H += 38;
+  H += 50; // pie de página + padding
+
+  // Segundo paso: dibujar
+  canvas.height = H;
+  ctx.clearRect(0, 0, W, H);
+
+  // Fondo degradado oscuro
+  var bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#0d0d1a');
+  bg.addColorStop(1, '#1c1c3f');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Barra superior dorada
+  var topBar = ctx.createLinearGradient(0, 0, W, 0);
+  topBar.addColorStop(0, '#f1824b');
+  topBar.addColorStop(0.5, '#1d2677');
+  topBar.addColorStop(1, '#101038');
+  ctx.fillStyle = topBar;
+  ctx.fillRect(0, 0, W, 8);
+
+  var y = 52;
+
+  // Título culto
+  ctx.font = fontTitle;
+  ctx.fillStyle = '#c9a84c';
+  ctx.textAlign = 'center';
+  ctx.fillText(cultoDia, W / 2, y);
+  y += 38;
+
+  // Fecha
+  ctx.font = fontSubtitle;
+  ctx.fillStyle = '#e0946a';
+  ctx.fillText(fechaLabel, W / 2, y);
+  y += 30;
+
+  // Línea separadora
+  ctx.strokeStyle = '#2a2a45';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(PADDING, y);
+  ctx.lineTo(W - PADDING, y);
+  ctx.stroke();
+  y += 22;
+
+  // Lista de canciones
+  ctx.textAlign = 'left';
+  lista.forEach(function(s, i) {
+    // Fondo alterno suave
+    if (i % 2 === 0) {
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      var itemH = lineH + 12;
+      if (mostrarTono && s.tono) itemH += notaLineH;
+      if (mostrarNotas) {
+        var n = (localStorage.getItem('yhwh_nota_' + s.id) || '').trim();
+        if (n) itemH += n.split('\n').length * notaLineH + 4;
+      }
+      ctx.fillRect(PADDING - 8, y - 24, W - (PADDING - 8) * 2, itemH);
+    }
+
+    // Número
+    ctx.font = 'bold 16px Arial';
+    ctx.fillStyle = '#c9a84c';
+    ctx.fillText('#' + (i + 1), PADDING, y);
+
+    // Título
+    ctx.font = fontItem;
+    ctx.fillStyle = '#e8e6f0';
+    ctx.fillText(s.title, PADDING + 44, y);
+    y += lineH;
+
+    // Tono
+    if (mostrarTono && s.tono) {
+      ctx.font = fontTono;
+      ctx.fillStyle = '#e8824a';
+      var tonoLabel = (s.fuente === 'cadena_jubilo' || s.fuente === 'jubilo')
+        ? '🎶 ' + (s.tono || 'Júbilo')
+        : '♪ Tono: ' + s.tono;
+      ctx.fillText(tonoLabel, PADDING + 44, y);
+      y += notaLineH;
+    }
+
+    // Notas del director
+    if (mostrarNotas) {
+      var nota = (localStorage.getItem('yhwh_nota_' + s.id) || '').trim();
+      if (nota) {
+        var lineas = nota.split('\n');
+        ctx.font = fontNota;
+        ctx.fillStyle = '#8bc7ff';
+        lineas.forEach(function(ln) {
+          ctx.fillText('📝 ' + ln, PADDING + 44, y);
+          y += notaLineH;
+        });
+        y += 4;
+      }
+    }
+
+    y += 12;
+  });
+
+  // Tiempo estimado
+  if (mostrarTiempo) {
+    ctx.strokeStyle = '#2a2a45';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(PADDING, y);
+    ctx.lineTo(W - PADDING, y);
+    ctx.stroke();
+    y += 22;
+    ctx.font = 'bold 16px Arial';
+    ctx.fillStyle = '#8888aa';
+    ctx.textAlign = 'center';
+    ctx.fillText(tiempoStr, W / 2, y);
+    y += 24;
+  }
+
+  // Pie
+  ctx.font = fontPie;
+  ctx.fillStyle = '#42426e';
+  ctx.textAlign = 'center';
+  ctx.fillText('Generado por YHWH Alabanzas', W / 2, H - 18);
+
+  return canvas;
+}
+
+function descargarSetlistImagen() {
+  var canvas = generarCanvasSetlist();
+  if (!canvas) return;
+  var fecha = (repertorioFechaActiva || 'setlist').replace(/\//g, '-');
+  var link = document.createElement('a');
+  link.download = 'setlist-' + fecha + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  mostrarToast('✅ Imagen guardada');
+}
+
+
+
+
+// Sobreescribir descargarSetlistPDF para usar el blob directamente
+function descargarSetlistPDF() {
+  var canvasEl = generarCanvasSetlist();
+  if (!canvasEl) return;
+
+  var W_pt = 595.28;
+  var H_pt = (canvasEl.height / canvasEl.width) * W_pt;
+  var jpegData = canvasEl.toDataURL('image/jpeg', 0.92);
+  var jpegBase64 = jpegData.split(',')[1];
+  var jpegRaw = atob(jpegBase64);
+  var jpegLen = jpegRaw.length;
+  var cw = canvasEl.width, ch = canvasEl.height;
+  var NL = '\n';
+
+  var obj1 = '1 0 obj' + NL + '<< /Type /Catalog /Pages 2 0 R >>' + NL + 'endobj' + NL;
+  var obj2 = '2 0 obj' + NL + '<< /Type /Pages /Kids [3 0 R] /Count 1 >>' + NL + 'endobj' + NL;
+  var obj3 = '3 0 obj' + NL +
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W_pt.toFixed(2) + ' ' + H_pt.toFixed(2) + ']' +
+    ' /Contents 4 0 R /Resources << /XObject << /Img1 5 0 R >> >> >>' + NL + 'endobj' + NL;
+  var stream = 'q ' + W_pt.toFixed(2) + ' 0 0 ' + H_pt.toFixed(2) + ' 0 0 cm /Img1 Do Q';
+  var obj4 = '4 0 obj' + NL + '<< /Length ' + stream.length + ' >>' + NL +
+    'stream' + NL + stream + NL + 'endstream' + NL + 'endobj' + NL;
+  var obj5head = '5 0 obj' + NL +
+    '<< /Type /XObject /Subtype /Image /Width ' + cw + ' /Height ' + ch +
+    ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegLen + ' >>' + NL +
+    'stream' + NL;
+  var obj5tail = NL + 'endstream' + NL + 'endobj' + NL;
+  var header = '%PDF-1.4' + NL;
+  var body   = header + obj1 + obj2 + obj3 + obj4 + obj5head;
+
+  var pos = header.length;
+  var o1 = pos; pos += obj1.length;
+  var o2 = pos; pos += obj2.length;
+  var o3 = pos; pos += obj3.length;
+  var o4 = pos; pos += obj4.length;
+  var o5 = pos;
+
+  var xrefOffset = pos + obj5head.length + jpegLen + obj5tail.length;
+  var xref =
+    'xref' + NL + '0 6' + NL +
+    '0000000000 65535 f ' + NL +
+    pad10(o1) + ' 00000 n ' + NL +
+    pad10(o2) + ' 00000 n ' + NL +
+    pad10(o3) + ' 00000 n ' + NL +
+    pad10(o4) + ' 00000 n ' + NL +
+    pad10(o5) + ' 00000 n ' + NL;
+  var trailer =
+    'trailer' + NL + '<< /Size 6 /Root 1 0 R >>' + NL +
+    'startxref' + NL + xrefOffset + NL + '%%EOF';
+
+  var enc = new TextEncoder();
+  var jpegBytes = new Uint8Array(jpegLen);
+  for (var i = 0; i < jpegLen; i++) jpegBytes[i] = jpegRaw.charCodeAt(i);
+
+  var blob = new Blob(
+    [enc.encode(body), jpegBytes, enc.encode(obj5tail + xref + trailer)],
+    { type: 'application/pdf' }
+  );
+  var url  = URL.createObjectURL(blob);
+  var link = document.createElement('a');
+  var fecha = (repertorioFechaActiva || 'setlist').replace(/[\/]/g, '-');
+  link.href = url;
+  link.download = 'setlist-' + fecha + '.pdf';
+  link.click();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 4000);
+  mostrarToast('\u2705 PDF descargado');
+}
+
+function pad10(n) { return ('0000000000' + n).slice(-10); }
+
+</script>
+
+
+<!-- ===== MODAL IMPRIMIR PÁGINA DE PDF ===== -->
+<div id="imprimirPDFModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
+  background:rgba(0,0,0,0.88);z-index:9997;align-items:center;justify-content:center;
+  padding:20px;box-sizing:border-box;">
+  <div style="max-width:380px;width:100%;background:#1c1c3f;border-radius:14px;
+    border:1px solid #2a2a45;padding:22px;box-shadow:0 8px 40px rgba(0,0,0,0.7);">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <span style="color:#c9a84c;font-weight:bold;font-size:1rem;">🖨️ Imprimir desde PDF</span>
+      <button onclick="cerrarImprimirPDF()" style="background:#42426e;border:none;color:#e8e6f0;
+        border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:bold;">✕</button>
+    </div>
+
+    <!-- Nombre canción -->
+    <div id="imprimirNombreCancion" style="color:#e8e6f0;font-weight:bold;font-size:0.95rem;
+      text-align:center;margin-bottom:16px;padding:10px;background:rgba(255,255,255,0.05);
+      border-radius:8px;border:1px solid #2a2a45;"></div>
+
+    <!-- Campos de página (solo admin) -->
+    <div id="imprimirAdminPanel" style="display:none;margin-bottom:14px;">
+      <div style="color:#8888aa;font-size:0.72rem;font-weight:700;text-transform:uppercase;
+        letter-spacing:0.5px;margin-bottom:8px;">Asignar páginas (solo admin)</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <label style="color:#e8e6f0;font-size:0.82rem;flex:1;">📖 Letra:</label>
+        <input type="number" id="inputPaginaLetra" min="1" max="999" placeholder="Pág."
+          style="width:80px;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;
+                 border-radius:6px;padding:7px 10px;font-size:0.9rem;text-align:center;outline:none;" />
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+        <label style="color:#e8e6f0;font-size:0.82rem;flex:1;">🎵 Acordes:</label>
+        <input type="number" id="inputPaginaAcordes" min="1" max="999" placeholder="Pág."
+          style="width:80px;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;
+                 border-radius:6px;padding:7px 10px;font-size:0.9rem;text-align:center;outline:none;" />
+      </div>
+      <button onclick="guardarPaginasPDF()"
+        style="width:100%;background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;
+               border:none;border-radius:8px;padding:10px;font-weight:bold;font-size:0.88rem;cursor:pointer;margin-bottom:12px;">
+        💾 Guardar páginas
+      </button>
+      <div style="border-top:1px solid #2a2a45;padding-top:12px;"></div>
+    </div>
+
+    <!-- Info páginas asignadas -->
+    <div id="imprimirInfoPaginas" style="margin-bottom:14px;"></div>
+
+    <!-- Botones imprimir -->
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button id="btnImpLetra" onclick="imprimirPaginaPDF('letra')"
+        style="flex:1;min-width:120px;background:linear-gradient(135deg,#1d2677,#519bfc);color:#fff;
+               border:none;border-radius:8px;padding:12px;font-weight:bold;font-size:0.88rem;cursor:pointer;display:none;">
+        📖 Imprimir Letra
+      </button>
+      <button id="btnImpAcordes" onclick="imprimirPaginaPDF('acordes')"
+        style="flex:1;min-width:120px;background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;
+               border:none;border-radius:8px;padding:12px;font-weight:bold;font-size:0.88rem;cursor:pointer;display:none;">
+        🎵 Imprimir Acordes
+      </button>
+    </div>
+
+    <!-- Sin páginas asignadas -->
+    <div id="imprimirSinPaginas" style="text-align:center;color:#8888aa;font-size:0.82rem;
+      padding:10px 0;display:none;">
+      Aún no se han asignado las páginas de esta canción.<br>
+      <span style="color:#e0946a;font-size:0.75rem;">Solo el admin puede asignarlas.</span>
+    </div>
+
+    <div style="text-align:center;color:#42426e;font-size:0.68rem;margin-top:12px;">
+      Extrae la página exacta del PDF para imprimir
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// === IMPRIMIR PÁGINA EXACTA DE PDF ==========================
+// ============================================================
+
+// Clave Firebase y localStorage para páginas de PDF
+var PDF_PAGINAS_KEY = 'yhwh_pdf_paginas';
+var pdfPaginasDB = {};
+
+// Cargar desde localStorage al inicio
+try {
+  pdfPaginasDB = JSON.parse(localStorage.getItem(PDF_PAGINAS_KEY) || '{}') || {};
+} catch(e) { pdfPaginasDB = {}; }
+
+// Sincronizar desde Firebase en tiempo real (con espera si aún no cargó)
+function iniciarListenerPdfPaginas(intentos) {
+  if (window.fbDb && window.fbRef && window.fbOnValue) {
+    window.fbOnValue(window.fbRef(window.fbDb, 'pdf_paginas'), function(snapshot) {
+      var data = snapshot.val();
+      if (data && typeof data === 'object') {
+        pdfPaginasDB = data;
+        localStorage.setItem(PDF_PAGINAS_KEY, JSON.stringify(data));
+      }
+    });
+  } else if (intentos > 0) {
+    setTimeout(function() { iniciarListenerPdfPaginas(intentos - 1); }, 800);
+  }
+}
+iniciarListenerPdfPaginas(10);
+
+function abrirImprimirPDF() {
+  if (!currentSong) return;
+  var modal = document.getElementById('imprimirPDFModal');
+  if (!modal) return;
+
+  // Nombre canción
+  var nombre = document.getElementById('imprimirNombreCancion');
+  if (nombre) nombre.textContent = currentSong.title;
+
+  // Panel admin
+  var adminPanel = document.getElementById('imprimirAdminPanel');
+  if (adminPanel) adminPanel.style.display = window.esAdmin ? 'block' : 'none';
+
+  // Rellenar inputs si ya tiene páginas
+  var paginas = pdfPaginasDB[currentSong.id] || {};
+  var inpLetra = document.getElementById('inputPaginaLetra');
+  var inpAcordes = document.getElementById('inputPaginaAcordes');
+  if (inpLetra)   inpLetra.value   = paginas.letra   || '';
+  if (inpAcordes) inpAcordes.value = paginas.acordes || '';
+
+  actualizarUIImprimirPDF();
+  modal.style.display = 'flex';
+}
+
+function cerrarImprimirPDF() {
+  var modal = document.getElementById('imprimirPDFModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function actualizarUIImprimirPDF() {
+  if (!currentSong) return;
+  var paginas = pdfPaginasDB[currentSong.id] || {};
+  var tieneLetra   = !!paginas.letra;
+  var tieneAcordes = !!paginas.acordes;
+
+  var info = document.getElementById('imprimirInfoPaginas');
+  var sinPag = document.getElementById('imprimirSinPaginas');
+  var btnL = document.getElementById('btnImpLetra');
+  var btnA = document.getElementById('btnImpAcordes');
+
+  if (tieneLetra || tieneAcordes) {
+    if (sinPag) sinPag.style.display = 'none';
+    var html = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">';
+    if (tieneLetra)   html += '<div style="flex:1;background:rgba(81,155,252,0.1);border:1px solid #519bfc;border-radius:8px;padding:8px;text-align:center;"><div style="color:#519bfc;font-size:0.7rem;font-weight:700;">LETRA</div><div style="color:#e8e6f0;font-weight:bold;font-size:1.1rem;">Pág. ' + paginas.letra + '</div></div>';
+    if (tieneAcordes) html += '<div style="flex:1;background:rgba(201,168,76,0.1);border:1px solid #c9a84c;border-radius:8px;padding:8px;text-align:center;"><div style="color:#c9a84c;font-size:0.7rem;font-weight:700;">ACORDES</div><div style="color:#e8e6f0;font-weight:bold;font-size:1.1rem;">Pág. ' + paginas.acordes + '</div></div>';
+    html += '</div>';
+    if (info) info.innerHTML = html;
+    if (btnL) btnL.style.display = tieneLetra   ? 'block' : 'none';
+    if (btnA) btnA.style.display = tieneAcordes ? 'block' : 'none';
+  } else {
+    if (info) info.innerHTML = '';
+    if (sinPag) sinPag.style.display = 'block';
+    if (btnL) btnL.style.display = 'none';
+    if (btnA) btnA.style.display = 'none';
+  }
+}
+
+function guardarPaginasPDF() {
+  if (!currentSong || !window.esAdmin) return;
+  var inpLetra   = document.getElementById('inputPaginaLetra');
+  var inpAcordes = document.getElementById('inputPaginaAcordes');
+  var letra   = inpLetra   ? parseInt(inpLetra.value)   : 0;
+  var acordes = inpAcordes ? parseInt(inpAcordes.value) : 0;
+
+  if (!letra && !acordes) {
+    mostrarToast('⚠️ Escribe al menos una página.');
+    return;
+  }
+
+  var datos = {};
+  if (letra)   datos.letra   = letra;
+  if (acordes) datos.acordes = acordes;
+
+  pdfPaginasDB[currentSong.id] = datos;
+  localStorage.setItem(PDF_PAGINAS_KEY, JSON.stringify(pdfPaginasDB));
+
+  // Guardar en Firebase con reintentos
+  function intentarGuardarFirebase(intentos) {
+    if (window.fbDb && window.fbSet && window.fbRef) {
+      window.fbSet(window.fbRef(window.fbDb, 'pdf_paginas/' + currentSong.id), datos)
+        .then(function() {
+          mostrarToast('✅ Páginas guardadas en Firebase');
+        })
+        .catch(function(err) {
+          console.error('Firebase pdf_paginas error:', err && err.message ? err.message : err);
+          if (intentos > 0) {
+            setTimeout(function() { intentarGuardarFirebase(intentos - 1); }, 1500);
+          } else {
+            mostrarToast('⚠️ Error: ' + (err && err.message ? err.message : 'sin detalle'));
+          }
+        });
+    } else if (intentos > 0) {
+      // Firebase aún no cargó, esperar y reintentar
+      setTimeout(function() { intentarGuardarFirebase(intentos - 1); }, 1000);
+    } else {
+      mostrarToast('⚠️ Guardado local. Firebase no disponible.');
+    }
+  }
+  intentarGuardarFirebase(3);
+
+  actualizarUIImprimirPDF();
+}
+
+function imprimirPaginaPDF(tipo) {
+  if (!currentSong) return;
+  var paginas = pdfPaginasDB[currentSong.id] || {};
+  var numPagina = tipo === 'letra' ? paginas.letra : paginas.acordes;
+  var archivoPDF = tipo === 'letra' ? 'Alabanzas_Letra.pdf' : 'Alabanzas_Acordes.pdf';
+
+  if (!numPagina) {
+    mostrarToast('⚠️ No hay página asignada para ' + tipo);
+    return;
+  }
+
+  mostrarToast('⏳ Cargando PDF...');
+
+  // Cargar pdf-lib dinámicamente
+  if (!window.PDFLib) {
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+    script.onload = function() {
+      extraerPaginaPDF(archivoPDF, numPagina, tipo);
+    };
+    script.onerror = function() {
+      mostrarToast('❌ Sin conexión para cargar pdf-lib');
+    };
+    document.head.appendChild(script);
+  } else {
+    extraerPaginaPDF(archivoPDF, numPagina, tipo);
+  }
+}
+
+function extraerPaginaPDF(archivo, numeroPagina, tipo) {
+  fetch(archivo)
+    .then(function(res) {
+      if (!res.ok) throw new Error('No se pudo cargar ' + archivo);
+      return res.arrayBuffer();
+    })
+    .then(function(buffer) {
+      return window.PDFLib.PDFDocument.load(buffer);
+    })
+    .then(function(pdfOriginal) {
+      return window.PDFLib.PDFDocument.create().then(function(pdfNuevo) {
+        // pdfNuevo.copyPages es quien debe llamar, pasando pdfOriginal como fuente
+        return pdfNuevo.copyPages(pdfOriginal, [numeroPagina - 1]).then(function(paginas) {
+          pdfNuevo.addPage(paginas[0]);
+          return pdfNuevo.save();
+        });
+      });
+    })
+    .then(function(pdfBytes) {
+      var blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      var url  = URL.createObjectURL(blob);
+
+      // Abrir en nueva pestaña para imprimir
+      var ventana = window.open(url, '_blank');
+      if (ventana) {
+        ventana.onload = function() {
+          ventana.focus();
+          ventana.print();
+        };
+        mostrarToast('✅ PDF listo para imprimir');
+      } else {
+        // Fallback: descargar directo (Safari bloquea popups a veces)
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = currentSong.title + ' - ' + tipo + '.pdf';
+        link.click();
+        mostrarToast('✅ PDF descargado');
+      }
+
+      setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
+      cerrarImprimirPDF();
+    })
+    .catch(function(err) {
+      mostrarToast('❌ Error: ' + err.message);
+    });
+}
+</script>
 
 </body>
 </html>
