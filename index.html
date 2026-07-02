@@ -67,6 +67,8 @@
     window.esAdmin = !!(user && user.email === 'rosalesjrnain07@gmail.com');
     var btnAdmin = document.getElementById('btnAdminLogin');
     if (btnAdmin) btnAdmin.textContent = window.esAdmin ? '🔓 Admin' : '🔑 Admin';
+    var btnAdminJubilo = document.getElementById('btnAdminLoginJubilo');
+    if (btnAdminJubilo) btnAdminJubilo.textContent = window.esAdmin ? '🔓 Admin' : '🔑 Admin';
   });
 
   window.addEventListener('online', actualizarEstadoConexion);
@@ -1075,6 +1077,27 @@ body.light-theme .toast {
   border-color: #1a365d;
 }
 
+/* === ZONAS DE TOQUE: avanzar/retroceder pantalla en Vista músico === */
+.tap-zone-hint {
+  display: none;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold);
+  opacity: 0.32;
+  font-size: 1.3rem;
+  line-height: 1;
+  pointer-events: none; /* nunca bloquea el toque real */
+  z-index: 60;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+.tap-zone-hint.tap-zone-top { top: 4px; }
+.tap-zone-hint.tap-zone-bottom { bottom: 4px; }
+body.musician-view #screen-chords .tap-zone-hint,
+body.jubilo-musician-view #screen-jubilo .tap-zone-hint {
+  display: block;
+}
+
 .transition-box{
   margin:12px 0 10px;
   border:1px solid rgba(201,168,76,.55);
@@ -1954,6 +1977,9 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 <!-- PANTALLA 2: TU REPERTORIO CON TRANSPOSITOR (INICIO) -->
 <div id="screen-chords" class="app-screen">
 
+<div class="tap-zone-hint tap-zone-top">▲</div>
+<div class="tap-zone-hint tap-zone-bottom">▼</div>
+
 
 
 <header>
@@ -2259,10 +2285,22 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 <!-- PANTALLA: ALABANZAS DE JUBILO -->
 <div id="screen-jubilo" class="app-screen">
-  <header style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:15px;flex-shrink:0;">
-    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
-    <div class="logo">🎹 <span>Alabanzas</span> de Júbilo</div>
-    <div class="network-status" id="networkStatusJubilo">🌐 En la nube</div>
+  <div class="tap-zone-hint tap-zone-top">▲</div>
+  <div class="tap-zone-hint tap-zone-bottom">▼</div>
+
+  <header style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:15px;">
+      <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+      <div class="logo">🎹 <span>Alabanzas</span> de Júbilo</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <button id="btnAdminLoginJubilo" onclick="toggleAdminLogin()"
+        style="background:var(--bg3);border:1px solid var(--border);color:var(--text);
+               padding:5px 10px;border-radius:6px;font-size:0.72rem;cursor:pointer;">
+        🔑 Admin
+      </button>
+      <div class="network-status" id="networkStatusJubilo">🌐 En la nube</div>
+    </div>
   </header>
 
  <!-- BARRA DE CONTROLES GLOBALES -->
@@ -4408,13 +4446,25 @@ function transposeChord(chord,st){
 // Transpose preserving ALL whitespace exactly - only replace chord tokens
 function transposeChordLine(line,st){
   if(st===0) return line;
+  // Proteger palabras clave (TROMPETAS/VIOLIN) para que no se dañen
+  // al confundirse letras internas (E, A, etc.) con acordes.
+  var protegidas = [];
+  var lineProtegida = line.replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, function(match){
+    protegidas.push(match);
+    return '\u0000' + (protegidas.length - 1) + '\u0000';
+  });
   // Replace chord tokens but preserve surrounding spaces exactly
-  return line.replace(/([A-G][b#]?(?:m(?:aj)?|M|dim|aug|sus[24]?|add[0-9]?|[679]|[24])?)(?=[^a-z]|$)/g, function(match){
+  var resultado = lineProtegida.replace(/([A-G][b#]?(?:m(?:aj)?|M|dim|aug|sus[24]?|add[0-9]?|[679]|[24])?)(?=[^a-z]|$)/g, function(match){
     var transposed = transposeChord(match, st);
     // Pad or trim to same length to preserve spacing of following chords
     while(transposed.length < match.length) transposed += ' ';
     return transposed.slice(0, match.length + (transposed.length > match.length ? transposed.length - match.length : 0));
   });
+  // Restaurar las palabras protegidas
+  resultado = resultado.replace(/\u0000(\d+)\u0000/g, function(m, idx){
+    return protegidas[parseInt(idx, 10)];
+  });
+  return resultado;
 }
 
 function isChordLine(line){
@@ -4442,12 +4492,14 @@ function separarSeccionesCantante(raw){
 
 function resaltarTextoCantante(raw){
   return escH(raw)
-    .replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
+    .replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>')
+    .replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>');
 }
 
 function resaltarTextoConMelodia(raw){
   return escH(raw)
     .replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>')
+    .replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>')
     .replace(/\b([A-ZÁÉÍÓÚÑÜ]{2,}(?:\s+[A-ZÁÉÍÓÚÑÜ]{2,})*)\b/g, function(match){
       return '<span class="word-red">' + match + '</span>';
     });
@@ -4458,7 +4510,7 @@ function resaltarMarcadores(raw){
   if (/\bINTRO\b/i.test(raw)) {
     html = html.replace(/(MELODIA|MELODÍA|melodia|melodía)/gi, '<span class="word-red">$1</span>');
   }
-  html = html.replace(/(TROMPETAS|trompetas)/g, '<span class="word-red">$1</span>');
+  html = html.replace(/(TROMPETAS|trompetas|VIOLIN|violin|VIOLÍN|violín)/g, '<span class="word-red">$1</span>');
   return html.replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
 }
 
@@ -4894,6 +4946,10 @@ function renderContent(){
     if(isChordLine(raw)){
       // ✨ CAMBIO AQUÍ: Si la opción de ocultar acordes está activa, saltamos la línea
       if (ocultarAcordes) {
+        var cueMatch = raw.match(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/i);
+        if (cueMatch) {
+          out += '<span class="ll"><span class="word-red">' + escH(cueMatch[1]) + '</span></span>';
+        }
         continue; 
       }
       
@@ -4906,6 +4962,7 @@ function renderContent(){
       tl = tl.replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
       var tlEscapada = escH(tl);
 tlEscapada = tlEscapada.replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
+tlEscapada = tlEscapada.replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>');
 var tlClickable = tlEscapada.replace(
   /((?:Do|Re|Mi|Fa|Sol|La|Si|[A-G])[b#]?(?:m(?:aj)?7?|7|dim7?|aug|sus[24]?|add9|9|m9|6|5)?)/g,
   '<span onclick="abrirPiano(chordLatinoToAmericano(\'$1\'))" style="cursor:pointer;text-decoration:none;" title="Ver acorde en piano">$1</span>'
@@ -5602,7 +5659,14 @@ function showScreen(screenId) {
 function actualizarContadorRepertorio() {
   var btn = document.getElementById('btnMenuSetlist');
   if (!btn) return;
-  var total = Object.keys(repertorios).reduce(function(sum, key) { return sum + (Array.isArray(repertorios[key]) ? repertorios[key].length : 0); }, 0);
+  var rango = rangoSemana(repertorioFechaActiva || hoyISO());
+  var total = Object.keys(repertorios).reduce(function(sum, key) {
+    var d = fechaLocalDesdeISO(key);
+    if (d >= rango.inicio && d <= rango.fin) {
+      return sum + (Array.isArray(repertorios[key]) ? repertorios[key].length : 0);
+    }
+    return sum;
+  }, 0);
   btn.textContent = total > 0
     ? '📋 Repertorio (' + total + ')'
     : '📋 Repertorio';
@@ -7036,6 +7100,8 @@ window.jubiloGrupos = jubiloGrupos; // exponer globalmente
 
 var jubiloGrupoActivo = null;
 var jubiloCadenaActiva = null;
+var jubiloAddBoxAbierto = false;
+var jubiloAddBoxQuery = '';
 var jubiloState = {};
 var jubiloFavs = JSON.parse(localStorage.getItem('yhwh_jubilo_favs') || '[]');
 var jubiloGlobalLatino = false;
@@ -7208,23 +7274,77 @@ function activarWakeLockJubilo(){
   if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function(){});
 }
 
+function mostrarModalJubilo(opts, cb) {
+  var overlay = document.getElementById('jubiloFormOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'jubiloFormOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(6,8,20,0.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;';
+    document.body.appendChild(overlay);
+  }
+  var selectHtml = '';
+  if (opts.mostrarSelectGrupo) {
+    selectHtml = '<select id="jubiloFormSelect" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin-bottom:12px;box-sizing:border-box;">' +
+      jubiloGrupos.map(function(g){ return '<option value="' + g.id + '"' + (g.id === opts.grupoSeleccionado ? ' selected' : '') + '>' + escH(g.nombre) + '</option>'; }).join('') +
+      '</select>';
+  }
+  overlay.innerHTML = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:16px;max-width:360px;width:100%;box-shadow:0 18px 40px rgba(0,0,0,0.4);">' +
+    '<div style="font-weight:700;color:var(--gold2);font-size:1rem;margin-bottom:8px;">' + escH(opts.titulo || '') + '</div>' +
+    (opts.subtitulo ? '<div style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;">' + escH(opts.subtitulo) + '</div>' : '') +
+    '<input id="jubiloFormInput" type="text" placeholder="' + escH(opts.placeholder || '') + '" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin-bottom:12px;box-sizing:border-box;" />' +
+    selectHtml +
+    '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
+      '<button id="jubiloFormCancel" style="padding:9px 12px;border:none;border-radius:8px;background:#39406b;color:#fff;cursor:pointer;">Cancelar</button>' +
+      '<button id="jubiloFormOk" style="padding:9px 12px;border:none;border-radius:8px;background:var(--gold);color:#000;font-weight:700;cursor:pointer;">Guardar</button>' +
+    '</div></div>';
+  overlay.style.display = 'flex';
+
+  var input = overlay.querySelector('#jubiloFormInput');
+  var select = overlay.querySelector('#jubiloFormSelect');
+  var ok = overlay.querySelector('#jubiloFormOk');
+  var cancel = overlay.querySelector('#jubiloFormCancel');
+  input.value = opts.valor || '';
+  setTimeout(function(){ input.focus(); input.select(); }, 20);
+
+  function cerrar() { overlay.style.display = 'none'; }
+  cancel.onclick = function(){ cerrar(); };
+  input.onkeydown = function(e){ if (e.key === 'Enter') { e.preventDefault(); ok.onclick(); } };
+  ok.onclick = function(){
+    var nombre = (input.value || '').trim();
+    if (!nombre) { input.focus(); return; }
+    var grupoId = select ? select.value : null;
+    cerrar();
+    cb(nombre, grupoId);
+  };
+}
+
 function crearGrupoJubilo(){
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
    if (window.jubiloGrupos !== undefined) jubiloGrupos = window.jubiloGrupos; // ← AGREGA
   if (!Array.isArray(jubiloGrupos)) jubiloGrupos = []; // ← AGREGA
-  var nombre = prompt('Nombre del grupo');
-  if (!nombre || !nombre.trim()) return;
-  jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre.trim(), cadenas: [] });
-  guardarJubiloGrupos();
-  renderJubiloSidebar();
+  mostrarModalJubilo({
+    titulo: 'Nuevo grupo',
+    subtitulo: 'Ponle un nombre al nuevo grupo de Júbilo.',
+    placeholder: 'Nombre del grupo'
+  }, function(nombre){
+    jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre, cadenas: [] });
+    guardarJubiloGrupos();
+    renderJubiloSidebar();
+    mostrarToast('✅ Grupo creado.');
+  });
 }
 
 function renombrarGrupo(id) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var g = jubiloGrupos.find(function(x){ return x.id === id; });
   if (!g) return;
-  var n = prompt('Nuevo nombre del grupo', g.nombre);
-  if (n && n.trim()) { g.nombre = n.trim(); guardarJubiloGrupos(); renderJubiloSidebar(); }
+  mostrarModalJubilo({
+    titulo: 'Renombrar grupo',
+    placeholder: 'Nombre del grupo',
+    valor: g.nombre
+  }, function(nombre){
+    g.nombre = nombre; guardarJubiloGrupos(); renderJubiloSidebar();
+  });
 }
 function eliminarGrupo(id) {
     if (window.jubiloGrupos !== undefined) jubiloGrupos = window.jubiloGrupos; // ← AGREGA
@@ -7237,8 +7357,13 @@ function renombrarCadena(grupoId, cadenaId) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var found = buscarGrupoCadena(grupoId, cadenaId);
   if (!found) return;
-  var n = prompt('Nuevo nombre de la cadena', found.cadena.nombre);
-  if (n && n.trim()) { found.cadena.nombre = n.trim(); guardarJubiloGrupos(); renderJubiloSidebar(); if (jubiloCadenaActiva === cadenaId) renderJubiloCadena(grupoId, cadenaId); }
+  mostrarModalJubilo({
+    titulo: 'Renombrar cadena',
+    placeholder: 'Nombre de la cadena',
+    valor: found.cadena.nombre
+  }, function(nombre){
+    found.cadena.nombre = nombre; guardarJubiloGrupos(); renderJubiloSidebar(); if (jubiloCadenaActiva === cadenaId) renderJubiloCadena(grupoId, cadenaId);
+  });
 }
 function eliminarCadena(grupoId, cadenaId) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
@@ -7254,19 +7379,24 @@ function crearCadenaJubilo(){
    if (window.jubiloGrupos !== undefined) jubiloGrupos = window.jubiloGrupos; // ← AGREGA
   if (!Array.isArray(jubiloGrupos)) jubiloGrupos = []; // ← AGREGA
   if (!jubiloGrupos.length) { mostrarToast('Primero crea un grupo.'); return; }
-  var nombre = prompt('Nombre de la cadena');
-  if (!nombre || !nombre.trim()) return;
-  var grupoNombre = prompt('Grupo al que pertenece (escribe el nombre exacto)', jubiloGrupos[0].nombre);
-  if (!grupoNombre || !grupoNombre.trim()) return;
-  var grupo = jubiloGrupos.find(function(g){ return jubiloNormText(g.nombre) === jubiloNormText(grupoNombre.trim()); });
-  if (!grupo) { mostrarToast('No encontre ese grupo.'); return; }
-  var cadena = { id: 'cadena_' + Date.now(), nombre: nombre.trim(), alabanzas: [] };
-  grupo.cadenas.push(cadena);
-  guardarJubiloGrupos();
-  jubiloGrupoActivo = grupo.id;
-  jubiloCadenaActiva = cadena.id;
-  renderJubiloSidebar();
-  renderJubiloCadena(grupo.id, cadena.id);
+  mostrarModalJubilo({
+    titulo: 'Nueva cadena',
+    subtitulo: 'Ponle un nombre y elige el grupo al que pertenece.',
+    placeholder: 'Nombre de la cadena',
+    mostrarSelectGrupo: true,
+    grupoSeleccionado: jubiloGrupoActivo || jubiloGrupos[0].id
+  }, function(nombre, grupoId){
+    var grupo = jubiloGrupos.find(function(g){ return g.id === grupoId; });
+    if (!grupo) { mostrarToast('No se encontró ese grupo.'); return; }
+    var cadena = { id: 'cadena_' + Date.now(), nombre: nombre, alabanzas: [] };
+    grupo.cadenas.push(cadena);
+    guardarJubiloGrupos();
+    jubiloGrupoActivo = grupo.id;
+    jubiloCadenaActiva = cadena.id;
+    renderJubiloSidebar();
+    renderJubiloCadena(grupo.id, cadena.id);
+    mostrarToast('✅ Cadena creada.');
+  });
 }
 
 function renderJubiloSidebar(){
@@ -7440,7 +7570,7 @@ function renderJubiloCadena(grupoId, cadenaId){
     });
   }
 
-html += '<button class="jubilo-add-btn" onclick="mostrarBuscadorJubilo()">+ Añadir Alabanza</button>' +
+html += (jubiloAddBoxAbierto ? '' : '<button class="jubilo-add-btn" onclick="mostrarBuscadorJubilo()">+ Añadir Alabanza</button>') +
   '<div class="jubilo-notes" style="margin:0 0 20px 0;">' +
     '<div class="notas-label">📝 Notas del director — ' + escH(cadena.nombre) + '</div>' +
    '<textarea class="notas-textarea" id="notaJubiloCadena_' + cadenaId + '" placeholder="Indicaciones generales para esta cadena..." oninput="debouncedNotaJubilo(\'cadena_' + cadenaId + '\', this.value)">' +
@@ -7449,6 +7579,7 @@ html += '<button class="jubilo-add-btn" onclick="mostrarBuscadorJubilo()">+ Aña
   '<div id="jubiloAddBox"></div>';
   main.innerHTML = html;
   aplicarFuenteJubilo();
+  if (jubiloAddBoxAbierto) mostrarBuscadorJubilo();
 
   // Sincronizar estado de botones globales con el estado actual
   var btnLatino = document.getElementById('btnJubiloLatino');
@@ -7599,6 +7730,7 @@ getJubiloContent(song).split('\n').forEach(function(raw){    var s = raw.trim();
       var line = st.semitones === 0 ? raw : transposeChordLine(raw, st.semitones);
       if (st.latino) line = lineToLatino(line);
       line = escH(line).replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
+      line = line.replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>');
      var lineClickable = line.replace(
   /((?:Do|Re|Mi|Fa|Sol|La|Si|[A-G])[b#]?(?:m(?:aj)?7?|7|dim7?|aug|sus[24]?|add9|9|m9|6|5)?)/g,
   '<span onclick="abrirPiano(chordLatinoToAmericano(\'$1\'))" style="cursor:pointer;text-decoration:none;" title="Ver acorde en piano">$1</span>'
@@ -7865,12 +7997,26 @@ function scrollToAlabanza(index) {
 
 
 function mostrarBuscadorJubilo(){
+  jubiloAddBoxAbierto = true;
   var box=document.getElementById('jubiloAddBox'); if(!box) return;
-  box.innerHTML='<div class="jubilo-search-box"><input id="jubiloSearchInput" placeholder="Buscar alabanza de jubilo..." oninput="filtrarAlabanzasJubilo(this.value)" autofocus><div class="jubilo-suggestions" id="jubiloSuggestions"></div></div>';
-  filtrarAlabanzasJubilo('');
+  box.innerHTML='<div class="jubilo-search-box">' +
+    '<div style="display:flex;gap:6px;align-items:center;">' +
+      '<input id="jubiloSearchInput" placeholder="Buscar alabanza de jubilo..." oninput="filtrarAlabanzasJubilo(this.value)" style="flex:1;">' +
+      '<button onclick="cerrarBuscadorJubilo()" title="Cerrar" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:1.1rem;padding:4px 8px;">✕</button>' +
+    '</div>' +
+    '<div class="jubilo-suggestions" id="jubiloSuggestions"></div></div>';
+  var input = document.getElementById('jubiloSearchInput');
+  if (input) input.value = jubiloAddBoxQuery || '';
+  filtrarAlabanzasJubilo(jubiloAddBoxQuery || '');
   setTimeout(function(){ var i=document.getElementById('jubiloSearchInput'); if(i) i.focus(); }, 20);
 }
+function cerrarBuscadorJubilo(){
+  jubiloAddBoxAbierto = false;
+  jubiloAddBoxQuery = '';
+  if (jubiloGrupoActivo && jubiloCadenaActiva) renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
+}
 function filtrarAlabanzasJubilo(q){
+  jubiloAddBoxQuery = q;
   var cont=document.getElementById('jubiloSuggestions'); if(!cont) return;
   var nq=jubiloNormText(q);
   var res=SONGS_JUBILO.filter(function(s){
@@ -9039,6 +9185,56 @@ function extraerPaginaPDF(archivo, numeroPagina, tipo) {
       mostrarToast('❌ Error: ' + err.message);
     });
 }
+// === ZONAS DE TOQUE PARA VISTA MÚSICO ===
+// Al tocar la mitad superior de la pantalla retrocede una "página",
+// al tocar la mitad inferior avanza una "página". Así el músico no
+// necesita hacer el gesto de deslizar el dedo mientras toca.
+(function () {
+  function esElementoInteractivo(el) {
+    while (el && el !== document.body) {
+      var tag = el.tagName;
+      if (tag === 'BUTTON' || tag === 'A' || tag === 'INPUT' ||
+          tag === 'SELECT' || tag === 'TEXTAREA' ||
+          el.hasAttribute('onclick') ||
+          (el.classList && (
+            el.classList.contains('action-btn') ||
+            el.classList.contains('font-btn') ||
+            el.classList.contains('key-btn') ||
+            el.classList.contains('back-btn') ||
+            el.classList.contains('jubilo-small-btn') ||
+            el.classList.contains('jubilo-icon-btn') ||
+            el.classList.contains('jubilo-btn')
+          ))) {
+        return true;
+      }
+      el = el.parentElement;
+    }
+    return false;
+  }
+
+  function vistaMusicoActiva() {
+    var chordsActivo = document.getElementById('screen-chords') &&
+      document.getElementById('screen-chords').classList.contains('active');
+    var jubiloActivo = document.getElementById('screen-jubilo') &&
+      document.getElementById('screen-jubilo').classList.contains('active');
+    if (chordsActivo && document.body.classList.contains('musician-view')) return true;
+    if (jubiloActivo && document.body.classList.contains('jubilo-musician-view')) return true;
+    return false;
+  }
+
+  document.addEventListener('click', function (e) {
+    if (!vistaMusicoActiva()) return;
+    if (esElementoInteractivo(e.target)) return;
+
+    var y = e.clientY;
+    var salto = window.innerHeight * 0.75;
+    if (y > window.innerHeight / 2) {
+      window.scrollBy({ top: salto, behavior: 'smooth' });
+    } else {
+      window.scrollBy({ top: -salto, behavior: 'smooth' });
+    }
+  }, false);
+})();
 </script>
 
 </body>
