@@ -1093,8 +1093,7 @@ body.light-theme .toast {
 }
 .tap-zone-hint.tap-zone-top { top: 4px; }
 .tap-zone-hint.tap-zone-bottom { bottom: 4px; }
-body.musician-view #screen-chords .tap-zone-hint,
-body.jubilo-musician-view #screen-jubilo .tap-zone-hint {
+body.musician-view #screen-chords .tap-zone-hint {
   display: block;
 }
 
@@ -1567,6 +1566,20 @@ body.light-theme.singer-view #screen-chords .song-header {
 }
 body.singer-view #screen-chords .song-title { font-size: 1.15rem; margin-top: 6px; }
 body.singer-view #screen-chords .font-controls { position: sticky; top: 0; z-index: 120; margin: 0 -8px 2px; border-radius: 0; }
+body.singer-view #screen-chords .volver-repertorio-btn,
+body.musician-view #screen-chords .volver-repertorio-btn {
+  display: block !important;
+  margin: 8px auto 0;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  background: var(--bg3);
+  color: var(--gold2);
+  border: 1px solid var(--gold2);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+}
 body.singer-view #screen-chords #adoracionControlsBar,
 body.musician-view #screen-chords #adoracionControlsBar,
 body.singer-view #screen-chords .font-controls,
@@ -1999,6 +2012,12 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   🔑 Admin
 </button>
 
+<button id="btnRolUsuario" onclick="mostrarModalRol()"
+  style="background:var(--bg3);border:1px solid var(--border);color:var(--text);
+         padding:5px 10px;border-radius:6px;font-size:0.72rem;cursor:pointer;">
+  🎤 Rol
+</button>
+
     <div class="song-count" id="songCount"></div>
   </div>
 
@@ -2007,6 +2026,12 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     <span class="si">&#128269;</span>
     <input type="text" id="searchInput" placeholder="Buscar cancion, frase, tono, compositor o album...">
   </div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+    <button id="btnToggleFiltros" class="action-btn" onclick="toggleFiltrosAvanzados()" style="flex:1;min-width:140px;">🔍 Filtros</button>
+  </div>
+
+<div id="filtrosAvanzados" style="display:none;">
 
  <select id="filtroTono" onchange="filterSongs()" 
   style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
@@ -2069,6 +2094,8 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     <button id="btnLimpiarFiltros" class="action-btn" onclick="limpiarFiltrosBusqueda()" style="flex:1;min-width:140px;">Limpiar filtros</button>
   </div>
 
+</div>
+
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
     <button id="btnVistaCompositores" class="action-btn gold-action" onclick="abrirVistaCompositores()" style="flex:1;min-width:140px;">🎤 Ver por grupo/artista</button>
   </div>
@@ -2098,7 +2125,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
          <div class="song-header">
   <div class="song-title" id="viewTitle"></div>
   <div class="song-meta" id="viewMeta"></div>
-  <div style="text-align: center; margin-top: 12px; min-height: 40px;" id="mediaContainer"></div>
+  <button id="btnVolverRepertorioAdoracion" class="volver-repertorio-btn" onclick="showScreen('screen-setlist')" style="display:none;">&#128214; Volver al Repertorio</button>
 </div>
 
 <div id="adoracionControlsBar" style="display:flex; flex-direction:column; width:100%;">
@@ -2181,10 +2208,6 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   </div>
 
   <div class="fila-botones">
-    <button id="btnFavSong" class="action-btn" onclick="toggleFavoritoActual()">
-      ⭐ Favorito
-    </button>
-
     <button id="btnVistaCantante" class="action-btn gold-action" onclick="toggleVistaCantante()">
       Vista cantante
     </button>
@@ -2230,6 +2253,19 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
       Acordes →
     </button>
   </div>
+
+  <div class="fila-botones">
+    <button id="btnFavSong" class="action-btn" onclick="toggleFavoritoActual()">
+      ⭐ Favorito
+    </button>
+  </div>
+
+  <div style="text-align: center; margin-top: 12px; min-height: 40px;" id="mediaContainer"></div>
+
+  <div class="etiquetas-panel" id="etiquetasPanel" style="display:none;">
+    <span class="etiquetas-titulo">🏷️ Etiquetas</span>
+    <div id="etiquetasChips"></div>
+  </div>
 </div>
 <div class="more-actions" id="difficultyOptions"> <div style="display:flex; align-items:center; text-align:center; gap:6px; margin-top:8px; width:100%; justify-content:center;">
 <div style="display:flex;align-items:center; text-align:center;gap:6px;margin-top:8px;width:100%;justify-content:center;">
@@ -2257,10 +2293,6 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 
         
-<div class="etiquetas-panel" id="etiquetasPanel" style="display:none;">
-  <span class="etiquetas-titulo">🏷️ Etiquetas</span>
-  <div id="etiquetasChips"></div>
-</div>
 </div>
 
 
@@ -2349,6 +2381,31 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
         font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
         Vista músico
       </button>
+    </div>
+
+    <div class="fila-botones jubilo-vistas-row" style="margin-top:4px;">
+      <button id="btnJubiloVolverRepertorio" onclick="showScreen('screen-setlist')"
+        style="background:var(--bg3);color:var(--gold2);border:1px solid var(--gold2);padding:0 12px;
+        font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
+        &#128214; Volver al Repertorio
+      </button>
+    </div>
+
+    <div class="fila-botones jubilo-vistas-row" style="margin-top:4px;">
+      <button id="btnJubiloAutoScroll" onclick="toggleAutoScrollJubilo()"
+        style="background:var(--bg3);color:var(--gold2);border:1px solid var(--gold2);padding:0 12px;
+        font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:2;">
+        &#9654; Scroll automático
+      </button>
+      <button onclick="cambiarVelocidadAutoScrollJubilo(-1)" title="Más lento"
+        style="background:var(--bg3);color:var(--text);border:1px solid var(--border);
+        font-size:0.9rem;font-weight:bold;border-radius:5px;height:32px;width:34px;cursor:pointer;flex:0 0 auto;">−</button>
+      <div id="jubiloScrollVelDisplay"
+        style="display:flex;align-items:center;justify-content:center;min-width:36px;
+        color:var(--text2);font-size:0.72rem;">5px/seg</div>
+      <button onclick="cambiarVelocidadAutoScrollJubilo(1)" title="Más rápido"
+        style="background:var(--bg3);color:var(--text);border:1px solid var(--border);
+        font-size:0.9rem;font-weight:bold;border-radius:5px;height:32px;width:34px;cursor:pointer;flex:0 0 auto;">+</button>
     </div>
 
    <!-- Opciones guardadas: no se muestran porque las vistas rápidas son más útiles en vivo -->
@@ -4693,6 +4750,12 @@ function buildSmoothBridge(fromKey, toKey) {
   ];
 }
 
+function transitionChordHTML(chord) {
+  var display = cifradoLatino ? lineToLatino(chord) : chord;
+  var chordEscapado = escH(chord).replace(/'/g, "\\'");
+  return '<span onclick="abrirPiano(\'' + chordEscapado + '\')" style="cursor:pointer;text-decoration:none;" title="Ver acorde en piano">' + escH(display) + '</span>';
+}
+
 function buildTransitionText(prevSong, nextSong) {
   var prevKey = prevSong && prevSong.tono ? prevSong.tono : prevSong;
   var nextKey = nextSong && nextSong.tono ? nextSong.tono : nextSong;
@@ -4700,7 +4763,7 @@ function buildTransitionText(prevSong, nextSong) {
   var toRoot = getToneRoot(nextKey);
   if (!fromRoot || !toRoot) return '';
   if (fromRoot === toRoot) {
-    return 'Actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> en <strong>' + escH(fromRoot) + '</strong>. Siguiente <strong>' + escH(nextSong && nextSong.title ? nextSong.title : '') + '</strong> en <strong>' + escH(toRoot) + '</strong>.<small>Transición: mismo tono, entra directo.</small>';
+    return 'Actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> en <strong>' + transitionChordHTML(fromRoot) + '</strong>. Siguiente <strong>' + escH(nextSong && nextSong.title ? nextSong.title : '') + '</strong> en <strong>' + transitionChordHTML(toRoot) + '</strong>.<small>Transición: mismo tono, entra directo.</small>';
   }
 
   var fromMinor = isMinorKey(prevKey);
@@ -4708,7 +4771,7 @@ function buildTransitionText(prevSong, nextSong) {
   var interval = ((CHROMATIC.indexOf(norm(toRoot)) - CHROMATIC.indexOf(norm(fromRoot))) % 12 + 12) % 12;
   var path = buildSmoothBridge(prevKey, nextKey);
   var moves = path.map(function(chord, index) {
-    return index === path.length - 1 ? '<strong>' + escH(chord) + '</strong>' : escH(chord);
+    return index === path.length - 1 ? '<strong>' + transitionChordHTML(chord) + '</strong>' : transitionChordHTML(chord);
   });
 
   var actualTitulo = nextSong && nextSong.title ? nextSong.title : 'la siguiente alabanza';
@@ -4716,7 +4779,7 @@ function buildTransitionText(prevSong, nextSong) {
   var nextKeyLabel = toRoot + (toMinor ? 'm' : '');
   var shortHint = interval <= 2 ? 'Cambio corto' : (interval <= 5 ? 'Cambio medio' : 'Cambio largo');
 
-  return 'Actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> en <strong>' + escH(actualKey) + '</strong>. Siguiente <strong>' + escH(actualTitulo) + '</strong> en <strong>' + escH(nextKeyLabel) + '</strong>. Transición: <strong>' + moves.join(' - ') + '</strong>.<small>' + shortHint + ': usa ese cierre para entrar con seguridad.</small>';
+  return 'Actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> en <strong>' + transitionChordHTML(actualKey) + '</strong>. Siguiente <strong>' + escH(actualTitulo) + '</strong> en <strong>' + transitionChordHTML(nextKeyLabel) + '</strong>. Transición: <strong>' + moves.join(' - ') + '</strong>.<small>' + shortHint + ': usa ese cierre para entrar con seguridad.</small>';
 }
 
 function getNextAdoracionItem(index) {
@@ -4885,33 +4948,36 @@ function mostrarTransicionSugerida(prevSong, nextSong) {
 }
 
 function actualizarTransicionActual() {
-  if (!currentSong || !Array.isArray(setlistDOM) || !setlistDOM.length) {
+  if (!currentSong) {
     var box = document.getElementById('transitionBox');
     if (box) box.style.display = 'none';
     return;
   }
 
+  // Igual que navegarCancion(): si la alabanza actual está en el repertorio del
+  // domingo, la transición se calcula dentro de ese repertorio. Si no (es decir,
+  // se está viendo una alabanza normal en orden de lista), se calcula usando el
+  // orden general de SONGS.
+  var listaRepertorioAdoracion = Array.isArray(setlistDOM)
+    ? setlistDOM.filter(function(item) { return (item.fuente || 'adoracion') === 'adoracion'; })
+    : [];
+  var listaActiva = listaRepertorioAdoracion.length > 0 ? listaRepertorioAdoracion : (Array.isArray(SONGS) ? SONGS : []);
+
   var idx = -1;
-  for (var i = 0; i < setlistDOM.length; i++) {
-    if (String(setlistDOM[i].id) === String(currentSong.id) && (setlistDOM[i].fuente || 'adoracion') === 'adoracion') {
+  for (var i = 0; i < listaActiva.length; i++) {
+    if (String(listaActiva[i].id) === String(currentSong.id)) {
       idx = i;
       break;
     }
   }
 
-  if (idx === -1) {
-    var box = document.getElementById('transitionBox');
-    if (box) box.style.display = 'none';
-    return;
-  }
-
-  var next = getNextAdoracionItem(idx);
-  if (!next) {
+  if (idx === -1 || idx + 1 >= listaActiva.length) {
     var box2 = document.getElementById('transitionBox');
     if (box2) box2.style.display = 'none';
     return;
   }
 
+  var next = listaActiva[idx + 1];
   mostrarTransicionSugerida(currentSong, next);
 }
 
@@ -5503,6 +5569,7 @@ function alternarCifrado() {
   if (btnMusico) btnMusico.textContent = cifradoLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
   if (currentSong) buildKeySelector(currentSong);
   renderContent();
+  actualizarTransicionActual();
 }
 
 
@@ -5515,6 +5582,15 @@ function alternarAcordes() {
     btn.textContent = ocultarAcordes ? 'Mostrar acordes' : 'Solo Letra';
   }
   renderContent();
+}
+
+function toggleFiltrosAvanzados() {
+  var panel = document.getElementById('filtrosAvanzados');
+  var btn = document.getElementById('btnToggleFiltros');
+  if (!panel) return;
+  var abierto = panel.style.display === 'none' || !panel.style.display;
+  panel.style.display = abierto ? 'block' : 'none';
+  if (btn) btn.textContent = abierto ? '🔍 Ocultar filtros' : '🔍 Filtros';
 }
 
 function toggleMasOpciones() {
@@ -5645,6 +5721,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
 // Función para ocultar pantallas y mostrar la seleccionada
 function showScreen(screenId) {
+  if (screenId !== 'screen-jubilo' && typeof detenerAutoScrollJubilo === 'function') {
+    detenerAutoScrollJubilo();
+  }
   var screens = document.querySelectorAll('.app-screen');
   for (var i = 0; i < screens.length; i++) {
     screens[i].classList.remove('active');
@@ -6246,6 +6325,7 @@ function abrirDesdeRepertorio(index) {
         return;
       }
       renderJubiloCadena(item.grupoId, item.cadenaId);
+      aplicarVistaSegunRolJubilo();
       mostrarToast('Abriendo cadena: ' + found.cadena.nombre);
       return;
     }
@@ -6253,7 +6333,10 @@ function abrirDesdeRepertorio(index) {
     return;
   }
   showScreen('screen-chords');
-  if (item) loadSong(item.id);
+  if (item) {
+    loadSong(item.id);
+    aplicarVistaSegunRolCanciones();
+  }
 }
 function vaciarRepertorio() {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
@@ -6272,6 +6355,12 @@ aplicarOrdenGuardado();
 if (window.sincronizarDificultadesDesdeCache) window.sincronizarDificultadesDesdeCache();
 filterSongs();
 actualizarContadorRepertorio();
+
+// Rol de usuario (cantante/músico): si es la primera vez, preguntamos
+actualizarBotonRol();
+if (!getRolUsuario()) {
+  setTimeout(function(){ mostrarModalRol(); }, 400);
+}
 var btnTransicionToggle = document.getElementById('btnTransicionToggle');
 if (btnTransicionToggle) btnTransicionToggle.textContent = transicionOculta ? 'Ver transición' : 'Ocultar transición';
 
@@ -7853,6 +7942,7 @@ function actualizarBotonesVistaJubilo() {
 }
 
 function salirVistasJubilo() {
+  detenerAutoScrollJubilo();
   document.body.classList.remove('jubilo-singer-view', 'jubilo-musician-view');
   if (jubiloSingerPrevChords !== null) {
     setJubiloChordsGlobal(jubiloSingerPrevChords);
@@ -7860,6 +7950,91 @@ function salirVistasJubilo() {
   }
   jubiloVistaActual = null;
   actualizarBotonesVistaJubilo();
+}
+
+// === SCROLL AUTOMÁTICO PARA JÚBILO ===
+// Reemplaza el antiguo "toque para saltar de página": en vez de tocar la
+// pantalla para avanzar, la letra se desplaza sola a velocidad constante.
+// Usa requestAnimationFrame con delta de tiempo real para que la velocidad
+// (en px/segundo) se mantenga estable aunque el navegador tenga hipos.
+var JUBILO_SCROLL_VEL_KEY = 'yhwh_jubilo_scroll_px_seg';
+var jubiloAutoScrollActivo = false;
+var jubiloAutoScrollFrameId = null;
+var jubiloAutoScrollUltimoFrame = null;
+var jubiloAutoScrollVelocidad = parseFloat(localStorage.getItem(JUBILO_SCROLL_VEL_KEY)) || 5;
+var jubiloAutoScrollSobrante = 0;
+
+function actualizarUIAutoScrollJubilo() {
+  var btn = document.getElementById('btnJubiloAutoScroll');
+  if (btn) btn.innerHTML = jubiloAutoScrollActivo ? '&#9208; Detener scroll' : '&#9654; Scroll automático';
+  var disp = document.getElementById('jubiloScrollVelDisplay');
+  if (disp) disp.textContent = jubiloAutoScrollVelocidad + 'px/seg';
+}
+
+function detenerAutoScrollJubilo() {
+  jubiloAutoScrollActivo = false;
+  if (jubiloAutoScrollFrameId) {
+    cancelAnimationFrame(jubiloAutoScrollFrameId);
+    jubiloAutoScrollFrameId = null;
+  }
+  jubiloAutoScrollUltimoFrame = null;
+  jubiloAutoScrollSobrante = 0;
+  actualizarUIAutoScrollJubilo();
+}
+
+function pasoAutoScrollJubilo(timestamp) {
+  if (!jubiloAutoScrollActivo) return;
+  if (jubiloAutoScrollUltimoFrame === null) jubiloAutoScrollUltimoFrame = timestamp;
+  var delta = (timestamp - jubiloAutoScrollUltimoFrame) / 1000;
+  jubiloAutoScrollUltimoFrame = timestamp;
+
+  var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  if (window.scrollY >= maxScroll - 2) {
+    detenerAutoScrollJubilo();
+    return;
+  }
+
+  // scrollBy redondea a píxeles enteros, así que a velocidades bajas cada
+  // frame movería menos de 1px y se perdería. Acumulamos el sobrante y solo
+  // desplazamos cuando ya se juntó al menos 1px completo.
+  jubiloAutoScrollSobrante += jubiloAutoScrollVelocidad * delta;
+  var mover = Math.floor(jubiloAutoScrollSobrante);
+  if (mover >= 1) {
+    jubiloAutoScrollSobrante -= mover;
+    window.scrollBy({ top: mover, behavior: 'auto' });
+  }
+  jubiloAutoScrollFrameId = requestAnimationFrame(pasoAutoScrollJubilo);
+}
+
+function iniciarAutoScrollJubilo() {
+  jubiloAutoScrollActivo = true;
+  actualizarUIAutoScrollJubilo();
+  jubiloAutoScrollUltimoFrame = null;
+  jubiloAutoScrollSobrante = 0;
+  if (jubiloAutoScrollFrameId) cancelAnimationFrame(jubiloAutoScrollFrameId);
+  jubiloAutoScrollFrameId = requestAnimationFrame(pasoAutoScrollJubilo);
+}
+
+function toggleAutoScrollJubilo() {
+  if (jubiloAutoScrollActivo) {
+    detenerAutoScrollJubilo();
+  } else {
+    iniciarAutoScrollJubilo();
+  }
+}
+
+function cambiarVelocidadAutoScrollJubilo(direccion) {
+  var paso;
+  if (direccion > 0) {
+    paso = jubiloAutoScrollVelocidad < 5 ? 1 : 5;
+  } else {
+    paso = jubiloAutoScrollVelocidad <= 5 ? 1 : 5;
+  }
+  var nueva = Math.min(200, Math.max(1, jubiloAutoScrollVelocidad + direccion * paso));
+  jubiloAutoScrollVelocidad = Math.round(nueva);
+  localStorage.setItem(JUBILO_SCROLL_VEL_KEY, jubiloAutoScrollVelocidad);
+  actualizarUIAutoScrollJubilo();
+  // No hace falta reiniciar el loop: la velocidad se lee en vivo en cada frame.
 }
 
 function aplicarVistaJubilo(tipo) {
@@ -8445,6 +8620,68 @@ function cambiarAjusteJubilo(delta) {
   aplicarAjusteJubilo();
 }
 
+// ===== ROL DE USUARIO (Cantante / Músico) =====
+var ROL_USUARIO_KEY = 'yhwh_rol_usuario';
+
+function getRolUsuario() {
+  return localStorage.getItem(ROL_USUARIO_KEY) || null;
+}
+
+function actualizarBotonRol() {
+  var btn = document.getElementById('btnRolUsuario');
+  if (!btn) return;
+  var rol = getRolUsuario();
+  if (rol === 'cantante') {
+    btn.textContent = '🎤 Cantante';
+  } else if (rol === 'musico') {
+    btn.textContent = '🎸 Músico';
+  } else {
+    btn.textContent = '🎤 Rol';
+  }
+}
+
+function mostrarModalRol() {
+  var modal = document.getElementById('rolModal');
+  var cerrarWrap = document.getElementById('rolModalCerrarWrap');
+  if (!modal) return;
+  // Si ya hay un rol guardado, mostramos la opción de "Cancelar" (es un cambio voluntario, no la primera vez)
+  if (cerrarWrap) cerrarWrap.style.display = getRolUsuario() ? 'block' : 'none';
+  modal.style.display = 'flex';
+}
+
+function cerrarModalRol() {
+  var modal = document.getElementById('rolModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function seleccionarRol(rol) {
+  localStorage.setItem(ROL_USUARIO_KEY, rol);
+  actualizarBotonRol();
+  cerrarModalRol();
+  mostrarToast(rol === 'cantante' ? '🎤 Rol guardado: Cantante' : '🎸 Rol guardado: Músico');
+}
+
+// Aplica la vista (cantante/músico) correspondiente al rol guardado, en la pantalla de acordes
+function aplicarVistaSegunRolCanciones() {
+  var rol = getRolUsuario();
+  if (!rol) return;
+  if (rol === 'cantante') {
+    if (!document.body.classList.contains('singer-view')) toggleVistaCantante();
+  } else if (rol === 'musico') {
+    if (!document.body.classList.contains('musician-view')) toggleVistaMusico();
+  }
+}
+
+// Aplica la vista (cantante/músico) correspondiente al rol guardado, en la pantalla de júbilo
+function aplicarVistaSegunRolJubilo() {
+  var rol = getRolUsuario();
+  if (!rol) return;
+  var tipo = rol === 'cantante' ? 'cantante' : 'musico';
+  if (jubiloVistaActual !== tipo) {
+    aplicarVistaJubilo(tipo);
+  }
+}
+
 function resetAjusteJubilo() {
   jubiloShift = JUBILO_SHIFT_DEFAULT;
   localStorage.setItem('yhwh_jubilo_shift', jubiloShift);
@@ -8552,6 +8789,37 @@ function aplicarAjusteJubilo() {
   </div>
 </div>
 
+
+<!-- ===== MODAL SELECCIÓN DE ROL (Cantante / Músico) ===== -->
+<div id="rolModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
+  background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div style="max-width:340px;width:100%;background:#1c1c3f;border-radius:14px;
+    border:1px solid #2a2a45;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:2rem;margin-bottom:6px;">🎶</div>
+      <div style="color:#c9a84c;font-weight:bold;font-size:1.05rem;">¿Quién eres?</div>
+      <div style="color:#8888aa;font-size:0.78rem;margin-top:4px;">Esto nos ayuda a abrir cada alabanza del repertorio directamente en la vista que necesitas.</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button onclick="seleccionarRol('cantante')"
+        style="width:100%;background:linear-gradient(135deg,#c9a84c,#e8c97a);border:none;color:#000;
+               border-radius:8px;padding:13px;cursor:pointer;font-weight:bold;font-size:0.92rem;">
+        🎤 Soy Cantante
+      </button>
+      <button onclick="seleccionarRol('musico')"
+        style="width:100%;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;
+               border-radius:8px;padding:13px;cursor:pointer;font-weight:bold;font-size:0.92rem;">
+        🎸 Soy Músico
+      </button>
+    </div>
+    <div id="rolModalCerrarWrap" style="display:none;margin-top:14px;text-align:center;">
+      <button onclick="cerrarModalRol()"
+        style="background:transparent;border:none;color:#8888aa;cursor:pointer;font-size:0.78rem;text-decoration:underline;">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== MODAL EXPORTAR SETLIST PDF / IMAGEN ===== -->
 <div id="exportSetlistModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
@@ -9213,12 +9481,11 @@ function extraerPaginaPDF(archivo, numeroPagina, tipo) {
   }
 
   function vistaMusicoActiva() {
+    // NOTA: en Júbilo ya no se usa el toque para saltar de página; en su lugar
+    // se usa la función de scroll automático (ver toggleAutoScrollJubilo).
     var chordsActivo = document.getElementById('screen-chords') &&
       document.getElementById('screen-chords').classList.contains('active');
-    var jubiloActivo = document.getElementById('screen-jubilo') &&
-      document.getElementById('screen-jubilo').classList.contains('active');
     if (chordsActivo && document.body.classList.contains('musician-view')) return true;
-    if (jubiloActivo && document.body.classList.contains('jubilo-musician-view')) return true;
     return false;
   }
 
