@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="YHWH Alabanzas">
 
 <link rel="apple-touch-icon" href="icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Parisienne&display=swap" rel="stylesheet">
 
 <script>
   // Estados globales tempranos para que Firebase pueda escribir aunque el resto aún no haya cargado.
@@ -237,7 +237,426 @@ window.dificultadDB = window.dificultadDB || JSON.parse(localStorage.getItem('yh
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;}
-header {
+
+/* ============================================================ */
+/* === PANTALLA DE CARGA (SPLASH) =============================== */
+/* ============================================================ */
+.splash-screen{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  background:radial-gradient(ellipse at center, #1c1c3f 0%, #0d0d14 75%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  transition:opacity 0.6s ease, visibility 0.6s ease;
+  opacity:1;
+  visibility:visible;
+  overflow:hidden;
+}
+.splash-screen.splash-hide{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.ambient-glow{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.ambient-glow{
+  inset:-25%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(232,201,122,0.18), transparent 28%),
+    radial-gradient(circle at 80% 30%, rgba(139,199,255,0.14), transparent 26%),
+    radial-gradient(circle at 55% 80%, rgba(241,130,75,0.06), transparent 30%),
+    radial-gradient(circle at 50% 92%, rgba(255,255,255,0.08), transparent 24%);
+  animation:glowDrift 16s ease-in-out infinite alternate;
+}
+.splash-waves{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:0.95;
+}
+.splash-waves::before,
+.splash-waves::after{
+  content:"";
+  position:absolute;
+  left:-10%;
+  width:120%;
+  height:52%;
+  border-radius:50%;
+  filter:blur(0.2px);
+}
+.splash-waves::before::before,
+.splash-waves::after::before{
+  content:"";
+}
+.splash-waves{
+  background:
+    radial-gradient(circle at 10% 8%, rgba(255,255,255,0.90) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 18% 22%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 30% 12%, rgba(232,201,122,0.72) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 42% 18%, rgba(139,199,255,0.62) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 58% 10%, rgba(255,255,255,0.80) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 72% 16%, rgba(241,130,75,0.52) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 86% 6%, rgba(255,255,255,0.86) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 94% 20%, rgba(255,255,255,0.68) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 8% 86%, rgba(255,255,255,0.84) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 18% 76%, rgba(232,201,122,0.62) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 32% 90%, rgba(255,255,255,0.70) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 46% 82%, rgba(139,199,255,0.60) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 58% 94%, rgba(255,255,255,0.76) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 70% 84%, rgba(241,130,75,0.50) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 84% 92%, rgba(255,255,255,0.82) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 94% 80%, rgba(255,255,255,0.68) 0 1px, transparent 1.2px);
+  background-repeat:no-repeat;
+  background-size:100% 100%;
+  opacity:0.98;
+  animation:starDrift 22s linear infinite;
+}
+.splash-waves::before{
+  bottom:0;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255,255,255,0.88) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 24% 8%, rgba(255,255,255,0.74) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 36% 14%, rgba(232,201,122,0.72) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 48% 10%, rgba(139,199,255,0.64) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 60% 16%, rgba(255,255,255,0.82) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 72% 10%, rgba(241,130,75,0.52) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 84% 14%, rgba(255,255,255,0.86) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 92% 8%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 10% 50%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 22% 42%, rgba(232,201,122,0.58) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 34% 56%, rgba(255,255,255,0.80) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 46% 44%, rgba(139,199,255,0.62) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 58% 52%, rgba(255,255,255,0.78) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 70% 40%, rgba(241,130,75,0.48) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 82% 54%, rgba(255,255,255,0.84) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 92% 46%, rgba(255,255,255,0.70) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 12% 86%, rgba(255,255,255,0.86) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 24% 92%, rgba(232,201,122,0.66) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 38% 82%, rgba(255,255,255,0.74) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 50% 94%, rgba(139,199,255,0.58) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 62% 84%, rgba(255,255,255,0.80) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 74% 96%, rgba(241,130,75,0.50) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 86% 88%, rgba(255,255,255,0.84) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 96% 94%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px);
+  background-repeat:no-repeat;
+  background-size:100% 100%;
+  opacity:0.92;
+  animation:starDrift 32s linear infinite reverse;
+}
+.splash-waves::after{
+  bottom:0;
+  height:100%;
+  background:
+    radial-gradient(circle at 6% 90%, rgba(255,255,255,0.85) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 16% 84%, rgba(232,201,122,0.62) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 26% 96%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 42% 88%, rgba(139,199,255,0.60) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 58% 94%, rgba(255,255,255,0.78) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 74% 86%, rgba(241,130,75,0.52) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 88% 96%, rgba(255,255,255,0.84) 0 1.2px, transparent 1.5px),
+    radial-gradient(circle at 6% 84%, rgba(255,255,255,0.45) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 20% 92%, rgba(232,201,122,0.26) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 36% 80%, rgba(139,199,255,0.30) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 52% 94%, rgba(255,255,255,0.40) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 70% 86%, rgba(241,130,75,0.26) 0 1px, transparent 1.2px),
+    radial-gradient(circle at 86% 96%, rgba(255,255,255,0.44) 0 1px, transparent 1.2px);
+  background-repeat:no-repeat;
+  background-size:100% 100%;
+  opacity:0.45;
+  animation:starDrift 34s linear infinite reverse;
+}
+.splash-ripples{
+  display:none;
+}
+.scene-header, .song-header{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.scene-header > *, .song-header > *{
+  position:relative;
+  z-index:1;
+}
+.scene-header::before, .song-header::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,0.08), transparent 24%, transparent 76%, rgba(255,255,255,0.05)),
+    radial-gradient(circle at 15% 20%, rgba(232,201,122,0.18), transparent 24%),
+    radial-gradient(circle at 85% 30%, rgba(139,199,255,0.14), transparent 26%),
+    radial-gradient(circle at 55% 100%, rgba(241,130,75,0.12), transparent 32%);
+  background-size:100% 100%, 180px 180px, 220px 220px, 260px 260px;
+  background-repeat:no-repeat, repeat, repeat, repeat;
+  opacity:0.9;
+  animation:headerSheen 14s linear infinite;
+  pointer-events:none;
+}
+.scene-header::after, .song-header::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:0.22;
+  pointer-events:none;
+  background-repeat:repeat;
+  background-size:280px 280px;
+  animation:notesFloat 20s linear infinite;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280' viewBox='0 0 280 280'%3E%3Cg fill='none' stroke='%23f1d8a1' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M58 54v34c0 6-4 10-10 10s-10-4-10-10 4-10 10-10c2 0 4 1 6 2V58l24-6v24c0 6-4 10-10 10s-10-4-10-10 4-10 10-10c2 0 4 1 6 2V52z'/%3E%3Cpath d='M174 150v-24l24-6v20c0 6-4 10-10 10s-10-4-10-10 4-10 10-10c2 0 4 1 6 2V128l-16 4v27'/%3E%3Cpath d='M220 66c3 0 5 2 5 5s-2 5-5 5-5-2-5-5 2-5 5-5z' fill='%23f1d8a1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+#screen-menu{
+  position:relative;
+  overflow:hidden;
+}
+#screen-menu::before,
+#screen-menu::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+#screen-menu::before{
+  background:
+    radial-gradient(circle at 12% 20%, rgba(232,201,122,0.18), transparent 7%),
+    radial-gradient(circle at 82% 14%, rgba(139,199,255,0.16), transparent 6%),
+    radial-gradient(circle at 24% 72%, rgba(241,130,75,0.14), transparent 7%),
+    radial-gradient(circle at 76% 68%, rgba(232,201,122,0.12), transparent 7%),
+    radial-gradient(circle at 50% 46%, rgba(255,255,255,0.10), transparent 5%);
+  animation:particleDrift 14s ease-in-out infinite alternate;
+  opacity:0.8;
+}
+#screen-menu::after{
+  background:
+    radial-gradient(circle at 18% 32%, rgba(255,255,255,0.55), transparent 1.8px),
+    radial-gradient(circle at 36% 18%, rgba(232,201,122,0.55), transparent 1.6px),
+    radial-gradient(circle at 63% 26%, rgba(139,199,255,0.5), transparent 1.8px),
+    radial-gradient(circle at 78% 48%, rgba(255,255,255,0.42), transparent 1.5px),
+    radial-gradient(circle at 24% 82%, rgba(241,130,75,0.45), transparent 1.7px),
+    radial-gradient(circle at 54% 72%, rgba(232,201,122,0.4), transparent 1.6px),
+    radial-gradient(circle at 88% 82%, rgba(139,199,255,0.45), transparent 1.5px);
+  background-size:100% 100%;
+  opacity:0.9;
+  animation:particleTwinkle 5s ease-in-out infinite alternate;
+}
+@keyframes particleDrift{
+  from{ transform:translate3d(-1%,0,0) scale(1); }
+  to{ transform:translate3d(1.5%,-1%,0) scale(1.03); }
+}
+@keyframes particleTwinkle{
+  from{ opacity:0.55; transform:translateY(0); }
+  to{ opacity:1; transform:translateY(-6px); }
+}
+@keyframes driftNotes{
+  from{ transform:translate3d(0,0,0) rotate(0deg); }
+  to{ transform:translate3d(-6%, -8%, 0) rotate(-3deg); }
+}
+@keyframes driftNotesReverse{
+  from{ transform:translate3d(0,0,0) rotate(0deg); }
+  to{ transform:translate3d(5%, 7%, 0) rotate(4deg); }
+}
+@keyframes glowDrift{
+  from{ transform:translate3d(-1%, 0, 0) scale(1); }
+  to{ transform:translate3d(1.5%, -1.5%, 0) scale(1.05); }
+}
+@keyframes headerSheen{
+  0%{ transform:translateX(-2%); }
+  50%{ transform:translateX(2%); }
+  100%{ transform:translateX(-2%); }
+}
+@keyframes notesFloat{
+  from{ background-position:0 0; }
+  to{ background-position:180px 180px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .ambient-glow,
+  .scene-header::before,
+  .scene-header::after,
+  .song-header::before,
+  .song-header::after,
+  .splash-logo,
+  .splash-loader span,
+  .splash-content{
+    animation:none !important;
+  }
+}
+.splash-content{
+  position:relative;
+  text-align:center;
+  padding:20px;
+  animation:splashFadeUp 0.9s ease;
+}
+.splash-content::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-6px;
+  width:340px;
+  height:340px;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:
+    radial-gradient(circle, rgba(232,201,122,0.14) 0%, rgba(232,201,122,0.06) 20%, rgba(139,199,255,0.04) 38%, transparent 72%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, transparent 34%);
+  filter:blur(14px);
+  opacity:0.18;
+  animation:splashHalo 6s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+.splash-content::after{
+  content:"✝";
+  position:absolute;
+  left:50%;
+  top:-92px;
+  transform:translateX(-50%);
+  color:rgba(255,255,255,0.30);
+  font-size:4.8rem;
+  line-height:1;
+  font-family:serif;
+  text-shadow:0 0 8px rgba(232,201,122,0.08);
+  opacity:0.42;
+  pointer-events:none;
+  animation:splashSymbolGlow 7s ease-in-out infinite alternate;
+}
+.splash-content > *{
+  position:relative;
+  z-index:1;
+}
+.splash-logo{
+  width:110px;
+  height:110px;
+  object-fit:cover;
+  border-radius:50%;
+  margin-bottom:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.45);
+  animation:splashPulse 3s ease-in-out infinite;
+}
+.splash-title{
+  font-family:'Parisienne','Inter',Arial,serif;
+  color:var(--gold);
+  font-size:1.55rem;
+  letter-spacing:0.5px;
+  font-weight:700;
+  margin:0;
+  max-width:300px;
+  margin:0 auto;
+  line-height:1.4;
+}
+.splash-title span{ color:var(--gold2); }
+.splash-subtitle{
+  font-family:'Parisienne','Inter',Arial,serif;
+  color:var(--text2);
+  font-size:1.05rem;
+  letter-spacing:0.5px;
+  font-weight:700;
+  text-transform:none;
+  margin:6px 0 26px;
+}
+.splash-verse{
+  color:var(--text);
+  font-size:0.8rem;
+  font-style:italic;
+  max-width:280px;
+  line-height:1.55;
+  margin:0 auto 30px;
+  opacity:0.85;
+}
+.splash-verse span{
+  display:block;
+  color:var(--gold);
+  font-style:normal;
+  font-size:0.72rem;
+  margin-top:4px;
+  letter-spacing:0.5px;
+}
+.splash-loader{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+}
+.splash-loader span{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--gold);
+  animation:splashBounce 1.2s ease-in-out infinite;
+}
+.splash-loader span:nth-child(2){ animation-delay:0.15s; }
+.splash-loader span:nth-child(3){ animation-delay:0.3s; }
+@keyframes splashBounce{
+  0%,80%,100%{ transform:scale(0.6); opacity:0.4; }
+  40%{ transform:scale(1); opacity:1; }
+}
+@keyframes splashPulse{
+  0%,100%{ transform:scale(1); opacity:1; }
+  50%{ transform:scale(1.15); opacity:0.7; }
+}
+@keyframes splashFadeUp{
+  from{ opacity:0; transform:translateY(14px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+@keyframes splashHalo{
+  from{ transform:translateX(-50%) scale(0.96); opacity:0.7; }
+  to{ transform:translateX(-50%) scale(1.04); opacity:1; }
+}
+@keyframes splashWaveDrift{
+  from{ transform:translateX(-2%) scaleY(1); }
+  to{ transform:translateX(2%) scaleY(1.06); }
+}
+@keyframes splashRipplePulse{
+  0%,100%{ transform:scale(0.98); opacity:0.42; }
+  50%{ transform:scale(1.04); opacity:0.85; }
+}
+@keyframes splashRiverMove{
+  from{ transform:translateX(-50%) scaleX(0.98); }
+  to{ transform:translateX(-50%) scaleX(1.02); }
+}
+@keyframes splashRiverShimmer{
+  from{ background-position:0 0; }
+  to{ background-position:72px 0; }
+}
+@keyframes splashSymbolGlow{
+  from{ opacity:0.35; transform:translateX(-50%) scale(0.96); }
+  to{ opacity:0.7; transform:translateX(-50%) scale(1.04); }
+}
+body.light-theme .splash-screen{
+  background:radial-gradient(ellipse at center, #fffaf0 0%, #f7f2e8 75%);
+}
+body.light-theme .splash-content::before{
+  background:
+    radial-gradient(circle, rgba(127,95,25,0.10) 0%, rgba(127,95,25,0.05) 18%, rgba(23,107,106,0.03) 34%, transparent 72%),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 0%, transparent 34%);
+}
+body.light-theme .splash-content::after{
+  color:rgba(127,95,25,0.14);
+  text-shadow:0 0 8px rgba(127,95,25,0.06);
+}
+body.light-theme .ambient-glow{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(127,95,25,0.14), transparent 28%),
+    radial-gradient(circle at 80% 30%, rgba(23,107,106,0.12), transparent 26%),
+    radial-gradient(circle at 55% 80%, rgba(184,92,56,0.10), transparent 30%),
+    radial-gradient(circle at 50% 92%, rgba(255,255,255,0.24), transparent 24%);
+}
+
+body.light-theme #screen-menu::before{
+  opacity:0.7;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(127,95,25,0.16), transparent 7%),
+    radial-gradient(circle at 82% 14%, rgba(23,107,106,0.14), transparent 6%),
+    radial-gradient(circle at 24% 72%, rgba(184,92,56,0.12), transparent 7%),
+    radial-gradient(circle at 76% 68%, rgba(127,95,25,0.10), transparent 7%),
+    radial-gradient(circle at 50% 46%, rgba(255,255,255,0.28), transparent 5%);
+}
+body.light-theme #screen-menu::after{
+  opacity:0.75;
+}
+header, .compositores-header, .comparador-header, .teleprompter-header {
   background: linear-gradient(135deg, #f1824b, #1d2677, #101038);
   border-bottom: 1px solid var(--border);
   padding: 12px 16px;
@@ -652,7 +1071,7 @@ body.light-theme .audio-player .ap-time{color:#7a6a4d;}
   width: 100%;
   background: linear-gradient(135deg, #1d2677, #1b2152);
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 0.2px solid rgba(201,168,76,0.34);
   padding: 15px;
   margin: 15px 0;
   border-radius: 10px;
@@ -662,7 +1081,63 @@ body.light-theme .audio-player .ap-time{color:#7a6a4d;}
   transition: all 0.2s;
 }
 .menu-btn:hover {
-  border-color: var(--gold);
+  border-color: rgba(232,201,122,0.75);
+}
+
+/* === Fondo con movimiento sutil en la pantalla de menú === */
+#screen-menu {
+  background: linear-gradient(90deg, #f1824b, #1d2677, #3a2a7d, #101038);
+  background-size: 300% 100%;
+  animation: menuGradientMove 12s ease infinite;
+}
+body.light-theme #screen-menu {
+  background: linear-gradient(-45deg, #f7f2e8, #fbe6b8, #f1ece0, #fff3d6) !important;
+  background-size: 400% 400%;
+  animation: menuGradientMove 12s ease infinite;
+}
+@keyframes menuGradientMove {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* === Entrada animada, uno por uno, de los elementos del menú ===
+   Por defecto quedan visibles (sin animar), para que nunca se
+   escondan si por algo el JS no llega a disparar la animación.
+   La clase "run-menu-intro" la agrega el JS del splash justo cuando
+   se empieza a ocultar, para que el efecto se vea DESPUÉS del splash,
+   no mientras el splash todavía lo está tapando. */
+#screen-menu h2,
+#screen-menu p,
+#screen-menu .menu-btn {
+  opacity: 1;
+}
+body.run-menu-intro #screen-menu h2,
+body.run-menu-intro #screen-menu p,
+body.run-menu-intro #screen-menu .menu-btn {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: menuItemIn 0.5s ease forwards;
+}
+body.run-menu-intro #screen-menu h2 { animation-delay: 0.1s; }
+body.run-menu-intro #screen-menu p  { animation-delay: 0.2s; }
+body.run-menu-intro #screen-menu .menu-btn:nth-of-type(1) { animation-delay: 0.3s; }
+body.run-menu-intro #screen-menu .menu-btn:nth-of-type(2) { animation-delay: 0.4s; }
+body.run-menu-intro #screen-menu .menu-btn:nth-of-type(3) { animation-delay: 0.5s; }
+body.run-menu-intro #screen-menu .menu-btn:nth-of-type(4) { animation-delay: 0.6s; }
+body.run-menu-intro #screen-menu .menu-btn:nth-of-type(5) { animation-delay: 0.7s; }
+body.run-menu-intro #screen-menu .menu-btn:nth-of-type(6) { animation-delay: 0.8s; }
+@keyframes menuItemIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #screen-menu { animation: none; }
+  body.run-menu-intro #screen-menu h2,
+  body.run-menu-intro #screen-menu p,
+  body.run-menu-intro #screen-menu .menu-btn {
+    animation: none; opacity: 1; transform: none;
+  }
 }
 .back-btn {
   background: var(--bg3);
@@ -701,6 +1176,19 @@ body.light-theme header {
   background: linear-gradient(135deg, #fff4cf, #dbead7, #cfe8ef) !important;
   border-bottom-color: #d8cdb8 !important;
   box-shadow: 0 5px 22px rgba(95, 76, 39, 0.16) !important;
+}
+body.light-theme .scene-header::before,
+body.light-theme .song-header::before{
+  background:
+    linear-gradient(120deg, rgba(255,255,255,0.22), transparent 24%, transparent 76%, rgba(255,255,255,0.12)),
+    radial-gradient(circle at 15% 20%, rgba(127,95,25,0.13), transparent 24%),
+    radial-gradient(circle at 85% 30%, rgba(23,107,106,0.11), transparent 26%),
+    radial-gradient(circle at 55% 100%, rgba(184,92,56,0.09), transparent 32%);
+}
+body.light-theme .scene-header::after,
+body.light-theme .song-header::after{
+  opacity:0.16;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280' viewBox='0 0 280 280'%3E%3Cg fill='none' stroke='%237f5f19' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' opacity='0.75'%3E%3Cpath d='M58 54v34c0 6-4 10-10 10s-10-4-10-10 4-10 10-10c2 0 4 1 6 2V58l24-6v24c0 6-4 10-10 10s-10-4-10-10 4-10 10-10c2 0 4 1 6 2V52z'/%3E%3Cpath d='M174 150v-24l24-6v20c0 6-4 10-10 10s-10-4-10-10 4-10 10-10c2 0 4 1 6 2V128l-16 4v27'/%3E%3Cpath d='M220 66c3 0 5 2 5 5s-2 5-5 5-5-2-5-5 2-5 5-5z' fill='%23176b6a'/%3E%3C/g%3E%3C/svg%3E");
 }
 body.light-theme .logo,
 body.light-theme .logo span { color: #7f5f19 !important; }
@@ -864,7 +1352,12 @@ body.light-theme .menu-btn,
 body.light-theme .jubilo-add-btn {
   background: linear-gradient(135deg, #176b6a, #7f5f19) !important;
   color: #ffffff !important;
-  border-color: transparent !important;
+  border-color: rgba(127,95,25,0.28) !important;
+}
+body.light-theme .logo{
+  font-family:'Parisienne','Inter',Arial,serif;
+  font-size:1.15rem;
+  letter-spacing:0.2px;
 }
 body.light-theme .semiphone-ctrl,
 body.light-theme .semitone-ctrl,
@@ -2052,14 +2545,60 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 <body>
 
+<!-- ============================================================ -->
+<!-- === PANTALLA DE CARGA (SPLASH) =============================== -->
+<!-- ============================================================ -->
+<div id="splashScreen" class="splash-screen">
+  <div class="ambient-glow"></div>
+  <div class="splash-waves"></div>
+  <div class="splash-ripples"></div>
+  <div class="splash-river"></div>
+  <div class="splash-content">
+    <img class="splash-logo" src="icon-512.png" alt="Manantial de Alabanza YHWH">
+    <h1 class="splash-title"><span>Manantial de Alabanza</span></h1>
+    <p class="splash-subtitle">Yhwh</p>
+    <div class="splash-verse">
+      “Porque yo derramaré aguas sobre el sequedal, y ríos sobre la tierra árida; mi Espíritu derramaré sobre tu generación, y mi bendición sobre tus renuevos.”
+      <span>— Isaías 44:3</span>
+    </div>
+    <div class="splash-loader"><span></span><span></span><span></span></div>
+  </div>
+</div>
+<script>
+(function () {
+  var MIN_SPLASH_MS = 4500; // tiempo mínimo que se muestra la pantalla, en milisegundos
+  var inicio = Date.now();
+
+  function ocultarSplash() {
+    var el = document.getElementById('splashScreen');
+    if (!el || el.dataset.oculto) return;
+    el.dataset.oculto = '1';
+    var transcurrido = Date.now() - inicio;
+    var esperar = Math.max(0, MIN_SPLASH_MS - transcurrido);
+    setTimeout(function () {
+      el.classList.add('splash-hide');
+      document.body.classList.add('run-menu-intro');
+      setTimeout(function () { el.remove(); }, 650);
+    }, esperar);
+  }
+
+  if (document.readyState === 'complete') {
+    ocultarSplash();
+  } else {
+    window.addEventListener('load', ocultarSplash);
+  }
+  // Salvaguarda: si algo tarda demasiado en cargar, la ocultamos igual a los 9s
+  setTimeout(ocultarSplash, 9000);
+})();
+</script>
 
 <!-- PANTALLA 1: MENÚ PRINCIPAL -->
 
     <div id="screen-menu" class="app-screen active">
       <div class="network-status network-top" id="networkStatusMenu" style="margin: 10px auto 4px;">🌐 En la nube</div>
       <div class="menu-container">
-      <h2 style="color: var(--gold); margin-bottom: 4px;"> Ministerio <span style="color:var(--gold2)">YHWH</span></h2>
-<p style="color: var(--text2); font-size: 0.9rem; margin-bottom: 20px;">Recursos Digitales</p>
+      <h2 style="color: var(--gold); margin-bottom: 4px; font-family:'Parisienne','Inter',Arial,serif; font-weight:700;"><span style="color:var(--gold2)">Manantial de Alabanza</span></h2>
+<p style="color: var(--text2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.15rem; letter-spacing: 0.2px; margin-bottom: 20px;">Recursos Digitales</p>
           <button class="menu-btn" onclick="showScreen('screen-chords')">🙏🏻 Alabanzas de Adoración</button>
           <button class="menu-btn" onclick="showScreen('screen-jubilo')">💃🏻 Alabanzas de Júbilo</button>
           <button class="menu-btn" onclick="showScreen('screen-pdfs')">🎤 Cancioneros en PDF</button> 
@@ -2080,7 +2619,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 
 
-<header>
+<header class="scene-header">
   <!-- Fila Superior Izquierda: Menú y Título juntos -->
   <div class="header-brand">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
@@ -2191,7 +2730,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 
 <div class="compositores-overlay" id="compositoresOverlay">
-  <div class="compositores-header">
+  <div class="compositores-header scene-header">
     <button class="compositores-back" id="btnCompositoresVolver" onclick="volverListaCompositores()" style="display:none;">&larr; Compositores</button>
     <span class="compositores-titulo" id="compositoresTitulo">🎼 Compositores</span>
     <button class="compositores-cerrar" onclick="cerrarVistaCompositores()">✕ Cerrar</button>
@@ -2346,6 +2885,12 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     </button>
   </div>
 
+  <div class="fila-botones solo-musico">
+    <button id="btnYoutubeCancion" class="action-btn" onclick="abrirYoutubeCancion()" style="width:100%;background:linear-gradient(135deg,#b71c1c,#7a0000);border-color:#ff4d4d;color:#fff;">
+      ▶️ Ver en YouTube
+    </button>
+  </div>
+
   <div class="fila-botones">
     <button id="btnFavSong" class="action-btn" onclick="toggleFavoritoActual()">
       ⭐ Favorito
@@ -2410,7 +2955,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   <div class="tap-zone-hint tap-zone-top">▲</div>
   <div class="tap-zone-hint tap-zone-bottom">▼</div>
 
-  <header style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+  <header class="scene-header" style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:15px;">
       <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
       <div class="logo">🎹 <span>Alabanzas</span> de Júbilo</div>
@@ -2563,7 +3108,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 </div>
 
 <div class="jubilo-compositores-overlay" id="jubiloComposOverlay">
-  <div class="compositores-header">
+  <div class="compositores-header scene-header">
     <button class="compositores-back" id="btnJubiloComposVolver" onclick="volverListaGruposJubilo()" style="display:none;">&larr; Grupos</button>
     <span class="compositores-titulo" id="jubiloComposTitulo">💃🏻 Grupos de Júbilo</span>
     <button class="compositores-cerrar" onclick="cerrarVistaGruposJubilo()">✕ Cerrar</button>
@@ -2572,7 +3117,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 </div>
 
 <div id="screen-setlist" class="app-screen">
-  <header style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);
+  <header class="scene-header" style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);
     border-bottom:1px solid #2a2a45; padding:12px 16px;
     display:flex; align-items:center; gap:15px; flex-shrink:0;">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
@@ -2622,7 +3167,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     
 <!-- PANTALLA 3: VISOR DE PDFS -->
 <div id="screen-pdfs" class="app-screen">
-  <header style="background: linear-gradient(135deg,#f1824b,#1d2677,#101038); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
+  <header class="scene-header" style="background: linear-gradient(135deg,#f1824b,#1d2677,#101038); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
     <div class="logo">&#10022; <span>PDFs</span> Disponibles</div>
     <div class="network-status" id="networkStatusPdfs">🌐 En la nube</div>
@@ -4805,8 +5350,56 @@ if ('serviceWorker' in navigator) {
 // ============================================================
 var FONT_MIN = 9;
 var FONT_MAX = 22;
+
+// Lee el rol directamente de localStorage/cookie con la llave literal,
+// sin depender de ROL_USUARIO_KEY (que se declara más abajo en el archivo).
+function getRolActualSeguro() {
+  try {
+    var r = localStorage.getItem('yhwh_rol_usuario');
+    if (r) return r;
+  } catch (e) {}
+  try {
+    var match = document.cookie.match(/(?:^|; )yhwh_rol_usuario=([^;]*)/);
+    if (match) return decodeURIComponent(match[1]);
+  } catch (e) {}
+  return null;
+}
+
+// Cada rol (cantante/músico) tiene su propia llave de tamaño de letra,
+// tanto para canciones normales como para Júbilo.
+function claveFontSize() {
+  var rol = getRolActualSeguro();
+  if (rol === 'cantante') return 'yhwh_fontsize_cantante';
+  if (rol === 'musico') return 'yhwh_fontsize_musico';
+  return 'yhwh_fontsize'; // sin rol elegido todavía
+}
+function claveFontSizeJubilo() {
+  var rol = getRolActualSeguro();
+  if (rol === 'cantante') return 'yhwh_jubilo_fontsize_cantante';
+  if (rol === 'musico') return 'yhwh_jubilo_fontsize_musico';
+  return 'yhwh_jubilo_fontsize'; // sin rol elegido todavía
+}
+
+// Migración: si ya existía un tamaño guardado con la llave antigua (compartida),
+// lo copiamos como punto de partida a las llaves nuevas de cada rol, para que
+// nadie pierda su ajuste actual al actualizar la app.
+(function migrarFontSizePorRol() {
+  try {
+    var viejo = localStorage.getItem('yhwh_fontsize');
+    if (viejo) {
+      if (!localStorage.getItem('yhwh_fontsize_cantante')) localStorage.setItem('yhwh_fontsize_cantante', viejo);
+      if (!localStorage.getItem('yhwh_fontsize_musico')) localStorage.setItem('yhwh_fontsize_musico', viejo);
+    }
+    var viejoJubilo = localStorage.getItem('yhwh_jubilo_fontsize');
+    if (viejoJubilo) {
+      if (!localStorage.getItem('yhwh_jubilo_fontsize_cantante')) localStorage.setItem('yhwh_jubilo_fontsize_cantante', viejoJubilo);
+      if (!localStorage.getItem('yhwh_jubilo_fontsize_musico')) localStorage.setItem('yhwh_jubilo_fontsize_musico', viejoJubilo);
+    }
+  } catch (e) {}
+})();
+
 var FONT_DEFAULT = document.body.classList.contains('rol-cantante') ? 14 : 12;
-var fontSizeCurrent = parseInt(localStorage.getItem('yhwh_fontsize')) || FONT_DEFAULT;
+var fontSizeCurrent = parseInt(localStorage.getItem(claveFontSize())) || FONT_DEFAULT;
 
 function aplicarFuente() {
   var el = document.getElementById('viewContent');
@@ -4820,7 +5413,7 @@ function aplicarFuente() {
 
 function cambiarFuente(delta) {
   fontSizeCurrent = Math.min(FONT_MAX, Math.max(FONT_MIN, fontSizeCurrent + delta));
-  localStorage.setItem('yhwh_fontsize', fontSizeCurrent);
+  localStorage.setItem(claveFontSize(), fontSizeCurrent);
   aplicarFuente();
 }
 
@@ -5158,6 +5751,21 @@ function compartirCancion() {
 }
 
 
+
+function abrirYoutubeCancion() {
+  if (!currentSong || !currentSong.youtube) {
+    mostrarToast('⚠️ Esta alabanza no tiene video de YouTube.');
+    return;
+  }
+  var url = currentSong.youtube;
+  // Si es un link de tipo "embed" (el que se usa para el reproductor interno),
+  // lo convertimos a un link normal de YouTube para abrirlo en una pestaña/app.
+  var idMatch = url.match(/embed\/([a-zA-Z0-9_-]+)/);
+  if (idMatch) {
+    url = 'https://www.youtube.com/watch?v=' + idMatch[1];
+  }
+  window.open(url, '_blank');
+}
 
 function abrirComparadorTonos() {
   if (!currentSong) return;
@@ -5676,7 +6284,7 @@ function abrirTeleprompterJubilo() {
   overlay.classList.add('visible');
   if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function(){});
 }
-var jubiloFontSize = parseInt(localStorage.getItem('yhwh_jubilo_fontsize')) || (document.body.classList.contains('rol-cantante') ? 14 : 12);
+var jubiloFontSize = parseInt(localStorage.getItem(claveFontSizeJubilo())) || (document.body.classList.contains('rol-cantante') ? 14 : 12);
 
 function guardarJubiloGrupos(){ 
   window.jubiloGrupos = jubiloGrupos;
@@ -6262,7 +6870,7 @@ function shiftJubiloSemitone(key, songId, delta){
 function toggleJubiloLatino(key){ jubiloState[key].latino=!jubiloState[key].latino; rerenderJubiloActive(); }
 function toggleJubiloChords(key){ jubiloState[key].hideChords=!jubiloState[key].hideChords; rerenderJubiloActive(); }
 function toggleJubiloLight(key){ jubiloState[key].light=!jubiloState[key].light; rerenderJubiloActive(); }
-function cambiarFuenteJubilo(delta){ jubiloFontSize=Math.min(FONT_MAX,Math.max(FONT_MIN,jubiloFontSize+delta)); localStorage.setItem('yhwh_jubilo_fontsize', jubiloFontSize); aplicarFuenteJubilo(); }
+function cambiarFuenteJubilo(delta){ jubiloFontSize=Math.min(FONT_MAX,Math.max(FONT_MIN,jubiloFontSize+delta)); localStorage.setItem(claveFontSizeJubilo(), jubiloFontSize); aplicarFuenteJubilo(); }
 function aplicarFuenteJubilo(){ document.querySelectorAll('.jubilo-content .lc,.jubilo-content .ll,.jubilo-content .ls,.jubilo-content .lm').forEach(function(el){ el.style.fontSize=jubiloFontSize+'px'; }); document.querySelectorAll('#jubiloFontDisplay').forEach(function(el){ el.textContent=jubiloFontSize+'px'; }); }
 function guardarNotaJubilo(id, value){ localStorage.setItem(jubiloNotaKey(id), value); }
 
@@ -7082,17 +7690,18 @@ function seleccionarRol(rol) {
   actualizarBotonesModalRol();
   cerrarModalRol();
 
-  // Si el usuario no ha personalizado el tamaño de letra manualmente,
-  // aplicamos de inmediato el tamaño por defecto del rol recién elegido
-  // (sin esto, se necesitaba recargar la página para que tomara efecto).
-  if (!localStorage.getItem('yhwh_fontsize')) {
-    fontSizeCurrent = rol === 'cantante' ? 14 : 12;
-    if (typeof aplicarFuente === 'function') aplicarFuente();
-  }
-  if (!localStorage.getItem('yhwh_jubilo_fontsize')) {
-    jubiloFontSize = rol === 'cantante' ? 14 : 12;
-    if (typeof aplicarFuenteJubilo === 'function') aplicarFuenteJubilo();
-  }
+  // Cada rol tiene su propio tamaño de letra guardado. Si el rol recién
+  // elegido ya tiene un tamaño guardado, lo usamos; si nunca se ha tocado
+  // en ese rol, usamos el tamaño por defecto del rol.
+  var claveCanciones = rol === 'cantante' ? 'yhwh_fontsize_cantante' : 'yhwh_fontsize_musico';
+  var guardadoCanciones = parseInt(localStorage.getItem(claveCanciones));
+  fontSizeCurrent = guardadoCanciones || (rol === 'cantante' ? 14 : 12);
+  if (typeof aplicarFuente === 'function') aplicarFuente();
+
+  var claveJubilo = rol === 'cantante' ? 'yhwh_jubilo_fontsize_cantante' : 'yhwh_jubilo_fontsize_musico';
+  var guardadoJubilo = parseInt(localStorage.getItem(claveJubilo));
+  jubiloFontSize = guardadoJubilo || (rol === 'cantante' ? 14 : 12);
+  if (typeof aplicarFuenteJubilo === 'function') aplicarFuenteJubilo();
 
   mostrarToast(rol === 'cantante' ? '🎤 Rol guardado: Cantante' : '🎸 Rol guardado: Músico');
 }
