@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor de Alabanzas — Adoración</title>
+<style>
+:root{
+  --bg:#0d0d14;--bg2:#1c1c3f;--bg3:#42426e;
+  --border:#2a2a45;--gold:#c9a84c;--gold2:#e8c97a;
+  --text:#e8e6f0;--text2:#e0946a;--chord:#e8824a;
+  --section:#8bc7ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;}
+header{
+  background:linear-gradient(135deg,#f1824b,#1d2677,#101038);
+  border-bottom:1px solid var(--border);
+  padding:14px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  box-shadow:0 4px 24px rgba(0,0,0,0.5);
+}
+header h1{font-size:1.05rem;color:var(--gold2);}
+header .sub{font-size:0.75rem;color:#ffe;opacity:0.85;}
+
+.toolbar{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:12px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+}
+.toolbar label{font-size:0.72rem;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-right:4px;}
+select, input[type=text], input[type=number], textarea{
+  background:var(--bg3);border:1px solid var(--border);border-radius:7px;
+  color:var(--text);padding:8px 10px;font-family:inherit;font-size:0.85rem;outline:none;
+}
+select:focus, input:focus, textarea:focus{border-color:var(--gold);}
+button{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  border-radius:7px;padding:8px 14px;font-weight:bold;font-size:0.8rem;cursor:pointer;
+}
+button:hover{border-color:var(--gold);color:var(--gold2);}
+button.primary{background:var(--gold);color:#111;border-color:var(--gold);}
+button.primary:hover{background:var(--gold2);color:#000;}
+button.danger{border-color:#c0392b;color:#ff7a6a;}
+
+.layout{
+  display:flex;gap:0;min-height:calc(100vh - 130px);
+}
+.panel{flex:1;min-width:0;padding:18px;overflow-y:auto;}
+.panel-form{border-right:1px solid var(--border);max-width:480px;}
+.panel-preview{background:#0b0b20;}
+
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:0.72rem;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.field input, .field textarea{width:100%;}
+.field textarea{min-height:420px;font-family:'Consolas',monospace;font-size:0.78rem;line-height:1.5;white-space:pre;resize:vertical;}
+.field-row{display:flex;gap:10px;}
+.field-row .field{flex:1;}
+.hint{font-size:0.68rem;color:var(--text2);opacity:0.8;margin-top:4px;line-height:1.4;}
+
+.preview-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.preview-title{font-family:'Inter',Helvetica,serif;font-size:1.1rem;color:var(--gold2);text-align:center;font-weight:700;margin-bottom:4px;}
+.preview-meta{color:var(--text2);text-align:center;font-size:0.8rem;margin-bottom:16px;}
+
+.song-content{
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:0.85rem;
+  line-height:1.5;
+  overflow-x:auto;
+  white-space:pre;
+  padding-bottom:20px;
+}
+.song-content .lc{font-family:Arial,Helvetica,sans-serif;color:var(--chord);font-weight:bold;display:block;font-size:0.78rem;text-align:left;}
+.song-content .ll{font-family:Arial,Helvetica,sans-serif;color:var(--text);font-size:0.78rem;text-align:left;display:block;}
+.song-content .ls{font-family:Arial,Helvetica,sans-serif;color:var(--section);text-align:center;font-weight:bold;display:block;margin-top:10px;margin-bottom:10px;font-size:0.78rem;letter-spacing:0.5px;}
+.song-content .lm{font-family:Arial,Helvetica,sans-serif;color:var(--text2);display:block;text-align:center;font-size:0.85rem;font-weight:bold;white-space:pre-line;}
+.song-content .lb{display:block;height:6px;}
+.word-red{color:#ff4a4a !important;font-weight:bold;}
+.word-repeticion{color:#f1c40f;font-weight:bold;}
+
+.role-toggle{display:flex;gap:6px;background:var(--bg3);border-radius:8px;padding:3px;}
+.role-toggle button{border:none;padding:6px 12px;border-radius:6px;background:transparent;}
+.role-toggle button.active{background:var(--gold);color:#111;}
+
+.status{font-size:0.75rem;color:var(--gold2);padding:0 18px 10px;min-height:18px;}
+
+@media(max-width:900px){
+  .layout{flex-direction:column;}
+  .panel-form{max-width:none;border-right:none;border-bottom:1px solid var(--border);}
+  .field textarea{min-height:260px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🎼 Editor de Alabanzas</h1>
+    <div class="sub">Edita el contenido y ve la vista previa exacta antes de guardar</div>
+  </div>
+  <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+    <div class="role-toggle" id="tabsBiblioteca">
+      <button id="btnBibAdoracion" class="active" onclick="cambiarBiblioteca('adoracion')">🙏 Adoración</button>
+      <button id="btnBibJubilo" onclick="cambiarBiblioteca('jubilo')">🎉 Júbilo</button>
+    </div>
+    <div class="role-toggle">
+      <button id="btnVerMusico" class="active" onclick="cambiarVistaPreview('musico')">🎸 Vista Músico</button>
+      <button id="btnVerCantante" onclick="cambiarVistaPreview('cantante')">🎤 Vista Cantante</button>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <label>Alabanza</label>
+  <select id="selectorCanciones" onchange="cargarDesdeSelector()"></select>
+
+  <label>ID directo</label>
+  <input type="number" id="inputId" style="width:80px" placeholder="ej. 5">
+  <button onclick="cargarPorId()">Cargar por ID</button>
+
+  <button onclick="nuevaCancion()">➕ Nueva alabanza</button>
+  <span style="flex:1"></span>
+  <button class="primary" onclick="aplicarCambios()">✅ Aplicar cambios a la lista</button>
+  <button onclick="copiarJSON()">📋 Copiar JSON de esta canción</button>
+  <button onclick="descargarArchivo()">⬇️ Descargar archivo actualizado</button>
+</div>
+<div class="status" id="status"></div>
+
+<div class="layout">
+  <div class="panel panel-form">
+    <div class="field-row">
+      <div class="field">
+        <label>Num</label>
+        <input type="number" id="fNum">
+      </div>
+      <div class="field">
+        <label>ID (no cambiar en canciones existentes)</label>
+        <input type="number" id="fId">
+      </div>
+    </div>
+    <div class="field">
+      <label>Título</label>
+      <input type="text" id="fTitle">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Compositor</label>
+        <input type="text" id="fCompositor">
+      </div>
+      <div class="field">
+        <label>Tono original</label>
+        <input type="text" id="fTono" placeholder="ej. C, Fm, C#">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Álbum</label>
+        <input type="text" id="fAlbum">
+      </div>
+      <div class="field">
+        <label>Versión (opcional)</label>
+        <input type="text" id="fVersion">
+      </div>
+    </div>
+    <div class="field">
+      <label>YouTube embed (opcional)</label>
+      <input type="text" id="fYoutube" placeholder="https://www.youtube.com/embed/...">
+    </div>
+    <div class="field">
+      <label>Contenido (letra y acordes)</label>
+      <textarea id="fContent" oninput="renderPreview()" placeholder="[INTRO]:&#10;   C   G   Am   F&#10;[VERSO 1]:&#10;C           G&#10;Letra de la canción aquí..."></textarea>
+      <div class="hint">
+        Usa <b>[SECCIÓN]:</b> para marcadores (ej. [VERSO 1]:, [CORO]:).
+        Las líneas de acordes se detectan automáticamente si tienen pocas letras normales (mayormente notas C D E F G A B con sostenidos/bemoles).
+        <b>TROMPETAS</b> y <b>VIOLIN</b> se resaltan en rojo, y <b>X2 / X4</b> en amarillo.
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-preview">
+    <div class="preview-card">
+      <div class="preview-title" id="pTitle">Título de la alabanza</div>
+      <div class="preview-meta" id="pMeta">Compositor · Tono · Álbum</div>
+      <div class="song-content" id="pContent"></div>
+    </div>
+  </div>
+</div>
+
+<script src="canciones-adoracion.js"></script>
+<script src="canciones-jubilo.js"></script>
+<script>
+// ============================================================
+// Si no existen los archivos de canciones (o fallan al cargar), evitamos que truene
+// ============================================================
+if (typeof SONGS === 'undefined') { window.SONGS = []; }
+if (typeof SONGS_JUBILO === 'undefined') { window.SONGS_JUBILO = []; }
+
+var bibliotecas = {
+  adoracion: { lista: SONGS, archivo: 'canciones-adoracion.js', variable: 'SONGS' },
+  jubilo:    { lista: SONGS_JUBILO, archivo: 'canciones-jubilo.js', variable: 'SONGS_JUBILO' }
+};
+var bibliotecaActiva = 'adoracion';
+function listaActiva(){ return bibliotecas[bibliotecaActiva].lista; }
+
+function cambiarBiblioteca(nombre){
+  bibliotecaActiva = nombre;
+  document.getElementById('btnBibAdoracion').classList.toggle('active', nombre === 'adoracion');
+  document.getElementById('btnBibJubilo').classList.toggle('active', nombre === 'jubilo');
+  poblarSelector();
+  nuevaCancion();
+  setStatus('Ahora estás editando: ' + (nombre === 'adoracion' ? 'Adoración' : 'Júbilo'));
+}
+
+var vistaCantante = false;
+var editandoId = null; // null = canción nueva sin id asignado todavía
+
+// ---- Helpers de renderizado (copiados 1:1 de la app para que la vista previa sea fiel) ----
+function escH(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function isChordLine(line){
+  var s=line.trim();
+  if(!s) return false;
+  if(s[0]==='[') return false;
+  if(/^(MELOD|HABLADO)/i.test(s)) return false;
+  var noChords=s.replace(/[A-G][b#]?(?:m(?:aj)?|M|dim|aug|sus[24]?|add[0-9]?|[679]|[24])?/g,'');
+  var noSep=noChords.replace(/[-|\s\[\]X0-9().#]+/g,'');
+  return noSep.length/Math.max(s.length,1)<0.22;
+}
+
+function esLineaSeccionCantante(s){
+  return /^\[?\s*(VERSO|CORO|MELODIA|MELODÍA|TROMPETAS)\b/i.test(s.trim());
+}
+
+function separarSeccionesCantante(raw){
+  var texto = raw.replace(/\s+(\[?\s*(?:VERSO|CORO|MELODIA|MELODÍA|TROMPETAS)\b)/gi, '\n$1');
+  return texto.split('\n').filter(function(linea){ return linea.trim(); });
+}
+
+function resaltarTextoConMelodia(raw){
+  return escH(raw)
+    .replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>')
+    .replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>')
+    .replace(/\b([A-ZÁÉÍÓÚÑÜ]{2,}(?:\s+[A-ZÁÉÍÓÚÑÜ]{2,})*)\b/g, function(match){
+      return '<span class="word-red">' + match + '</span>';
+    });
+}
+
+function resaltarMarcadores(raw){
+  var html = escH(raw);
+  if (/\bINTRO\b/i.test(raw)) {
+    html = html.replace(/(MELODIA|MELODÍA|melodia|melodía)/gi, '<span class="word-red">$1</span>');
+  }
+  html = html.replace(/(TROMPETAS|trompetas|VIOLIN|violin|VIOLÍN|violín)/g, '<span class="word-red">$1</span>');
+  return html.replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
+}
+
+function renderContentPreview(content){
+  var lines = (content || '').split('\n');
+  var out = '';
+  for (var i = 0; i < lines.length; i++) {
+    var raw = lines[i];
+    var s = raw.trim();
+    if (!s) { out += '<span class="lb"></span>'; continue; }
+
+    if (s[0] === '[') {
+      out += '<span class="ls">' + resaltarMarcadores(s) + '</span>';
+      continue;
+    }
+    if (/^[0-9]+\.\s/.test(s) || /^(COMPOSITOR|VERS|ALBU|TONO)/.test(s)) {
+      out += '<span class="lm">' + escH(s) + '</span>';
+      continue;
+    }
+    if (isChordLine(raw)) {
+      var tl = escH(raw);
+      tl = tl.replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
+      tl = tl.replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>');
+      out += '<span class="lc">' + tl + '</span>';
+    } else {
+      var partes = vistaCantante ? separarSeccionesCantante(raw) : [raw];
+      for (var j = 0; j < partes.length; j++) {
+        var parte = partes[j];
+        var clase = vistaCantante && esLineaSeccionCantante(parte) ? 'ls' : 'll';
+        out += '<span class="' + clase + '">' + (clase === 'ls' ? resaltarMarcadores(parte) : resaltarTextoConMelodia(parte)) + '</span>';
+      }
+    }
+  }
+  return out;
+}
+
+function renderPreview(){
+  var titulo = document.getElementById('fTitle').value || 'Título de la alabanza';
+  var compositor = document.getElementById('fCompositor').value || '-';
+  var tono = document.getElementById('fTono').value || '-';
+  var album = document.getElementById('fAlbum').value || '-';
+  var version = document.getElementById('fVersion').value;
+  var content = document.getElementById('fContent').value;
+
+  document.getElementById('pTitle').textContent = titulo;
+  document.getElementById('pMeta').innerHTML =
+    '<strong>Compositor:</strong> ' + escH(compositor) +
+    ' &nbsp;|&nbsp; <strong>Tono:</strong> ' + escH(tono) + '<br>' +
+    '<strong>Álbum:</strong> ' + escH(album) +
+    (version ? ' &nbsp;|&nbsp; <strong>Versión:</strong> ' + escH(version) : '');
+  document.getElementById('pContent').innerHTML = renderContentPreview(content);
+}
+
+function cambiarVistaPreview(rol){
+  vistaCantante = rol === 'cantante';
+  document.getElementById('btnVerMusico').classList.toggle('active', !vistaCantante);
+  document.getElementById('btnVerCantante').classList.toggle('active', vistaCantante);
+  renderPreview();
+}
+
+// ---- Cargar / poblar selector ----
+function poblarSelector(){
+  var sel = document.getElementById('selectorCanciones');
+  sel.innerHTML = '<option value="">— Elegir alabanza —</option>';
+  var ordenadas = listaActiva().slice().sort(function(a,b){
+    if (a.num != null && b.num != null) return a.num - b.num;
+    return (a.title||'').localeCompare(b.title||'');
+  });
+  ordenadas.forEach(function(s){
+    var opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = (s.num != null ? s.num + '. ' : '') + s.title + '  (id ' + s.id + ')';
+    sel.appendChild(opt);
+  });
+}
+
+function buscarPorId(id){
+  var lista = listaActiva();
+  for (var i = 0; i < lista.length; i++) {
+    if (lista[i].id == id) return lista[i];
+  }
+  return null;
+}
+
+function cargarCancion(song){
+  editandoId = song.id;
+  document.getElementById('fNum').value = song.num != null ? song.num : '';
+  document.getElementById('fId').value = song.id;
+  document.getElementById('fTitle').value = song.title || '';
+  document.getElementById('fCompositor').value = song.compositor || '';
+  document.getElementById('fTono').value = song.tono || '';
+  document.getElementById('fAlbum').value = song.album || '';
+  document.getElementById('fVersion').value = song.version || '';
+  document.getElementById('fYoutube').value = song.youtube || '';
+  document.getElementById('fContent').value = song.content || '';
+  document.getElementById('selectorCanciones').value = song.id;
+  renderPreview();
+  setStatus('Cargada: "' + song.title + '" (id ' + song.id + ')');
+}
+
+function cargarDesdeSelector(){
+  var id = document.getElementById('selectorCanciones').value;
+  if (!id) return;
+  var song = buscarPorId(id);
+  if (song) cargarCancion(song);
+}
+
+function cargarPorId(){
+  var id = document.getElementById('inputId').value;
+  if (id === '') return;
+  var song = buscarPorId(id);
+  if (song) { cargarCancion(song); }
+  else { setStatus('⚠️ No existe ninguna alabanza con id ' + id); }
+}
+
+function nuevaCancion(){
+  editandoId = null;
+  var lista = listaActiva();
+  var maxId = lista.reduce(function(m,s){ return Math.max(m, Number(s.id)||0); }, -1);
+  var maxNum = lista.reduce(function(m,s){ return Math.max(m, Number(s.num)||0); }, 0);
+  document.getElementById('fNum').value = maxNum + 1;
+  document.getElementById('fId').value = maxId + 1;
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fCompositor').value = '';
+  document.getElementById('fTono').value = '';
+  document.getElementById('fAlbum').value = '';
+  document.getElementById('fVersion').value = '';
+  document.getElementById('fYoutube').value = '';
+  document.getElementById('fContent').value = '';
+  document.getElementById('selectorCanciones').value = '';
+  renderPreview();
+  setStatus('Nueva alabanza lista para escribir (id sugerido ' + (maxId + 1) + ')');
+}
+
+function leerFormulario(){
+  var obj = {
+    num: Number(document.getElementById('fNum').value) || null,
+    title: document.getElementById('fTitle').value.trim(),
+    compositor: document.getElementById('fCompositor').value.trim(),
+    tono: document.getElementById('fTono').value.trim(),
+    album: document.getElementById('fAlbum').value.trim(),
+    content: document.getElementById('fContent').value,
+    id: Number(document.getElementById('fId').value)
+  };
+  var version = document.getElementById('fVersion').value.trim();
+  var youtube = document.getElementById('fYoutube').value.trim();
+  if (version) obj.version = version;
+  if (youtube) obj.youtube = youtube;
+  return obj;
+}
+
+function aplicarCambios(){
+  var obj = leerFormulario();
+  if (!obj.title) { setStatus('⚠️ Ponle un título antes de aplicar.'); return; }
+  if (obj.id === '' || isNaN(obj.id)) { setStatus('⚠️ El ID debe ser un número.'); return; }
+
+  var lista = listaActiva();
+  var existente = buscarPorId(obj.id);
+  if (existente) {
+    Object.keys(existente).forEach(function(k){ delete existente[k]; });
+    Object.assign(existente, obj);
+    setStatus('✅ Actualizada en la lista: "' + obj.title + '" (id ' + obj.id + '). Aún falta descargar el archivo.');
+  } else {
+    lista.push(obj);
+    setStatus('✅ Agregada a la lista: "' + obj.title + '" (id ' + obj.id + '). Aún falta descargar el archivo.');
+  }
+  editandoId = obj.id;
+  poblarSelector();
+  document.getElementById('selectorCanciones').value = obj.id;
+}
+
+function copiarJSON(){
+  var obj = leerFormulario();
+  var texto = JSON.stringify(obj, null, 2);
+  navigator.clipboard.writeText(texto).then(function(){
+    setStatus('📋 JSON de esta canción copiado al portapapeles.');
+  }).catch(function(){
+    setStatus('⚠️ No se pudo copiar automáticamente. Selecciona el texto manualmente.');
+  });
+}
+
+function descargarArchivo(){
+  var info = bibliotecas[bibliotecaActiva];
+  var texto = 'var ' + info.variable + ' = \n' + JSON.stringify(info.lista, null, 2) + ';\n';
+  var blob = new Blob([texto], { type: 'text/javascript' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = info.archivo;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  setStatus('⬇️ Archivo descargado: ' + info.archivo + '. Reemplázalo en tu servidor.');
+}
+
+function setStatus(msg){
+  document.getElementById('status').textContent = msg;
+}
+
+// ---- Inicio ----
+poblarSelector();
+renderPreview();
+</script>
+</body>
+</html>

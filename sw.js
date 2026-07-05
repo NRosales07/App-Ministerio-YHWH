@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alabanzas-v67';
-const DATA_CACHE_NAME = 'alabanzas-data-v7';
+const CACHE_NAME = 'alabanzas-v69';
+const DATA_CACHE_NAME = 'alabanzas-data-v9';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -8,7 +8,9 @@ self.addEventListener('install', (e) => {
         'index.html',
         'manifest.json',
         'icon-192.png',
-        'icon-512.png'
+        'icon-512.png',
+        'canciones-adoracion.js',
+        'canciones-jubilo.js'
       ];
 
       const opcionales = [

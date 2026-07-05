@@ -1,0 +1,1050 @@
+var SONGS_JUBILO = [
+  {
+    "id": 300,
+    "title": "GRANDE ES EL SEÑOR",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n              Em                                                                              Am\nX2    Grande es el Señor, creador del universo, canta y danza al Rey que viene pronto,\n  Em                                                                       B\nQue felicidad el corazón nos llena, grande es el Señor.   X2\n[CORO]:\nEm | D | Em | B |\n            Em                                                  D\nX2     Ohh, Hosanna al Altísimo, Ohh, Hosanna al Altísimo,\n   Em                                                    B\nOhh, Hosanna al Altísimo, grande es el Señor.  X2"
+  },
+  {
+    "id": 301,
+    "title": "CANTARÉ AL SEÑOR",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n               Em                                      D                  Am               B       Em\nX2   Cantaré al Señor por siempre, su diestra es todo poder.   X2\n[CORO]:\n           Em            D                                Em                                D                             Em\nX2   Echó a la mar, quien los perseguía, jinete y caballo, echó a la mar.   X2\n        Em            D              Am                 B\nEchó a la mar los carros del faraón. ¡Hey, Hey!"
+  },
+  {
+    "id": 302,
+    "title": "¿QUIÉN COMO JEHOVÁ?",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 15  |  EBENEZER\nMIX 15  |  EBENEZER\nTROMPETAS\nOirán las naciones lo que hizo, cantaran cuando vean sus prodigios,\nSu pueblo le alabara, con pandero danzara, y dirán quién, quién como Jehová.\nX2    Y dirán quién, quién como Jehová.   X2\nTROMPETAS\n[VERSO 1]:\n                Em                                                  G                            Am     B                     Em\nX4    ¿Quién, quién, quién como Jehová?, que con su poder el mar abrió.   X4\n[CORO]:\n   Am                  B                        Em        Am                            D               G-Em\nOirán las naciones lo que hizo Cantaran cuando vean sus prodigios,\n                       B                                               C                                   D        B                                      Em\nX2     Su pueblo le alabara, con pandero danzara, y dirán quién, quién como Jehová.  X2\nTROMPETAS                           —           VERSO 1   X2    |      CORO   X2\nX2   Y dirán quién, quién como Jehová.  X2"
+  },
+  {
+    "id": 303,
+    "title": "EN EL PRINCIPIO",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 13  |  EBENEZER\nMIX 13  |  EBENEZER\n[VERSO 1]:\n                             Em                                      B                                                Em\nX2     En el principio el Espíritu de Dios, se movía sobre las aguas.     X2\n                                          Am-D                     G-Em                    B             Em\n[CORO]:\nX2     Pero ahora se está moviendo dentro de mi corazón.    X2\nENTRA LA BATERÍA                     —           VERSO 1  X2     |      CORO  X4\nSe movía (Se movía)              —       TROMPETAS          —           CORO   X4"
+  },
+  {
+    "id": 304,
+    "title": "VEN ESPÍRITU DIVINO",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 13  |  EBENEZER\nMIX 13  |  EBENEZER\n[VERSO 1]:\nEm                                 B                                                                  Em\nX2    Ven, ven, ven, Espíritu Divino, Ven, ven, ven, Apodérate de mí.   X2\n[CORO]:\nAm               Em                  B                                  Em\nX4    Apodérate, apodérate, apodérate de todo mi ser.   X4"
+  },
+  {
+    "id": 305,
+    "title": "CUANDO EL PUEBLO",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                 Em\nX2     Cuando el pueblo del Señor alaba a Dios,\n                         B                                                 Em\nSuceden cosas, suceden cosas, maravillosas.  X2\n[CORO]:\n                          Am              Em                                  B                                           Em\nX2      Hay sanidad, liberación, y aquí se siente la presencia del Señor.   X2           SE REPITE TODO"
+  },
+  {
+    "id": 306,
+    "title": "NO PUEDE ESTAR TRISTE",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                      Em                                        C\nX2      No puede estar triste un corazón\n                               B                                                                                                        Em\nQue alaba a Cristo, no puede estar triste un corazón que alaba a Dios.     X2\n[CORO]:\n                                          Am                                    Em\nX2      Yo canto con gozo, yo alabo a mi Cristo,\n                                     B                                                        Em\nNo puede estar triste un corazón que alaba a Dios.   X2"
+  },
+  {
+    "id": 307,
+    "title": "JERUSALÉN",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n               Em         C                            B                                                     Em\nX2    Jerusalén      que bonita eres, calles de oro mar de cristal.  X2\n[CORO]:\n                                 Am                        Em                             B                       Em\nX4    Por esas calles yo voy a caminar calles de oro mar de cristal.    X4         SE REPITE TODO"
+  },
+  {
+    "id": 308,
+    "title": "LOS QUE ESPERAN",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                                  Em                                                        B      Em\nX2      Los que esperan, Los que esperan en Jehová.    X2\n                                      Am-D                         G-Em                B            Em\nX2      Como las águilas, como las águilas, sus alas levantarán.    X2\n[CORO]:\n          D                              G                     D                                  G\n Correrán y no se cansarán, caminarán y no se fatigarán,\n                                 Am          D                               G             Em\nX2      Nuevas fuerzas tendrán, nuevas fuerzas tendrán\n                       B                                                     Em\nLos que esperan, los que esperan en Jehová.       X2"
+  },
+  {
+    "id": 309,
+    "title": "YO ME ALEGRÉ",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS        | Em | B | Em | B |\n[VERSO 1]:\n                           Em                             C        B                                                       Em\nX2  Yo me alegré con los que me decían, a la casa de Jehová iremos…  X2\n[CORO]:\n               Am-D        G-Em           B                               Em\nX4     Yo iré,       tú irás, a la casa de Jehová yo iré…   X4\nTROMPETAS"
+  },
+  {
+    "id": 310,
+    "title": "CONOZCO A UN HOMBRE DE PODER",
+    "compositor": "Tradicional",
+    "tono": "E",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nF# | C# | F# |\nX2   Conozco a un hombre de poder, a un hombre de poder, a un hombre de poder.   X2\n[CORO]:\nB | F# | G#m | C# | F# |\nX2    Es fuerte más que el viento, su gloria es más que el mar\nÉl Nunca me deja de amar, en él puedo yo confiar.    X2"
+  },
+  {
+    "id": 311,
+    "title": "FIESTA CON JESÚS",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | Dm | G | C |\nX2      Estamos de fiesta con Jesús, al cielo queremos ir,\nY  todos reunidos en la fiesta que es Cristo el que va a Servir.  X2\n[CORO]:\nC | G | C | G | C |\n X2     Poderoso es nuestro Dios.  X4"
+  },
+  {
+    "id": 312,
+    "title": "ALLÁ EN EL CIELO",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | F | G | Dm | G | C |\nX2     Allá en el cielo, allá en el cielo, allá en el cielo\nNo habrá más llanto, ni más tristeza, ni más dolor,\nY cuando estemos los redimidos allá en el cielo, Alabaremos al Señor.    X2"
+  },
+  {
+    "id": 313,
+    "title": "ALABARE",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                 C              Am         Dm-G               C\nX4     Alabaré, alabaré, alabaré a mi Señor.   X4\n[CORO]:\n    C\nJuan vio el número de los redimidos y todos alababan\n          G       Dm       G            Dm         G                        Dm           G                   C\nAl Señor unos oraban, otros cantaban, pero todos alababan al Señor.         SE REPITE TODO\n[CORO]:"
+  },
+  {
+    "id": 314,
+    "title": "GOZO EN MI ALMA",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C | Am | G | C |\nX2      Yo tengo gozo en mi alma, gozo en mi alma, gozo en mi alma y en mi ser.\nSon como ríos de agua viva, ríos de agua viva, ríos de agua viva en mi ser.     X2"
+  },
+  {
+    "id": 315,
+    "title": "ESTA IGLESIA",
+    "compositor": "Tradicional",
+    "tono": "E",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nF# | C# |\nEsta iglesia se va de esta tierra porque aquí no está su mansión.\n[CORO]:\nB | F# | G#m | C# | F# |\nX2   Volaremos con gozo a los cielos, donde mora Jesús mi Salvador.   X2"
+  },
+  {
+    "id": 316,
+    "title": "SOLO DIOS",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | F | C |   —    F | C | Dm | G | C |\n X2  Solo Dios hace al hombre feliz, Solo Dios hace al hombre feliz,\nLa vida pasa, todo se acaba, solo Dios hace al hombre feliz.   X2"
+  },
+  {
+    "id": 317,
+    "title": "JEHOVÁ ESTÁ EN SU TEMPLO",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C |\n X2   Jehová está en su templo, alábale que Él vive  X2\n[CORO]:\nF | C | G | C |\n X2    Alábale, Alábale, Alábale que Él vive.    X2\n                                                       G                                              C                                             G                                                C\n¿Quién es el que vive? (Cristo es el que vive) ¿Quién es el que salva? (Cristo es el que salva)\n¿Quién es el que sana? (Cristo es el que sana) ¿Quién es el que viene? (Cristo es el que viene)"
+  },
+  {
+    "id": 318,
+    "title": "NO HAY DIOS TAN GRANDE",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C |\n X2   No hay Dios tan grande como tú, no lo hay, no lo hay.    X2\n[CORO]:\nF | C | Dm | G | C |\n X2   No hay Dios que pueda hacer las obras, como las que haces tú.   X2"
+  },
+  {
+    "id": 319,
+    "title": "PREPÁRATE PARA QUE SIENTAS",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 19  |  EBENEZER\nMIX 19  |  EBENEZER\n[VERSO 1]:\n                   C                                    G                                                      C\nX2    Prepárate para que sientas, prepárate para que sientas,\n                                                                  Dm-G          C\nPrepárate para que sientas el Espíritu de Dios.   X2\n[CORO]:\n                                                  F                                              C\nX2     Y déjalo que se mueva, y déjalo que se mueva, y déjalo que se mueva\n              Dm     G         C\nDentro de tu corazón.   X2                                 SE REPITE TODO"
+  },
+  {
+    "id": 320,
+    "title": "TE ALABARÁN",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | Dm | G | C |\n X2    Te Alabarán oh Jehová todos los reyes, todos los reyes de la tierra,\nPorque han oído los dichos de tu boca, y cantarán de los caminos de Jehová.     X2\n[CORO]:\nF | C | F | Dm | G | C |\n X2    Porque la gloria de Jehová es grande, porque Jehová es excelso en sus caminos\nPorque Jehová atiende al humilde, mas mira de lejos al altivo.    X2"
+  },
+  {
+    "id": 321,
+    "title": "YO SÉ QUE ESTÁS AQUÍ",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS\n[VERSO 1]:\nGm | D | Gm |  —   Cm | Gm | D | Gm |\nX2   Yo sé que estás aquí mi Señor, yo sé que estás aquí.    X2\nX2   Mi alma te alaba, mi alma te alaba, mi alma te alaba, porque sé que estás aquí.   X2"
+  },
+  {
+    "id": 322,
+    "title": "TE EXALTARÉ MI DIOS MI REY",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n          Gm          Cm         Gm               D                   Gm                                        Cm\nTe exaltaré, Señor mi Rey, y bendeciré tu nombre, eternamente y para siempre,\n             D              Gm          Cm                      Gm               Cm                Gm\nCada día te bendeciré, y alabaré tu nombre eternamente y para siempre.\n[CORO]:\nCm | F-Gm | D | Gm |\nGrande es Jehová y digno de suprema alabanza,\nY su grandeza es inescrutable, cada día te bendeciré."
+  },
+  {
+    "id": 323,
+    "title": "¿QUIÉN, QUIÉN COMO JEHOVÁ?",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nGm | D | Gm |\nX2    ¿Quién, quién, quién como Jehová? que con su poder El mar abrió.    X2\n[CORO]:\nOirán las naciones lo que hizo..."
+  },
+  {
+    "id": 324,
+    "title": "CANTARÉ AL SEÑOR POR SIEMPRE",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nGm | F | D | Gm |\nX2    Cantaré a Jehová por siempre, su diestra es todo poder.    X2\n[CORO]:\nGm | D | Gm | D | Gm |\nX2    Echó a la mar a los que le seguían, jinete y caballo, echó a la mar.    X2\nEchó a la mar, los carros de Faraón…  La, la, la, la, la, la."
+  },
+  {
+    "id": 325,
+    "title": "PON ACEITE EN MI LÁMPARA",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS\n[VERSO 1]:\nEm | B | Em | Am | B | Em |\nX2    Pon aceite en mi lámpara Señor...   X2\n[CORO]:\nB | Em | B | Em | Am | Em | B | Em |\nSeñor Jesús, tú eres mi vida..."
+  },
+  {
+    "id": 326,
+    "title": "SATÚRAME SEÑOR CON TU ESPÍRITU",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nEm | B | Em |   —   Am-D | G-Em | B | Em |\nX2    Satúrame Señor con tu espíritu, satúrame Señor con tu Espíritu.     X2\nX2    Y déjame sentir el fuego de tu amor, aquí en mi corazón, oh Dios.   X2"
+  },
+  {
+    "id": 327,
+    "title": "PARA TI OH JEHOVÁ",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nEm | B | Em |   —   Am-D | G-Em | B | Em |\n        X2    Para ti oh Jehová para ti...  X2\nX2    Por tu grande amor...  X2"
+  },
+  {
+    "id": 328,
+    "title": "RECIBIRÉIS PODER",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nEm | B | Em |   —   Am-D | G-Em | B | Em |\nRecibiréis poder, recibiréis poder.\nX2  cuando haya venido sobre vosotros el Espíritu De Dios.   X2\nY testificaréis, y testificaréis.\nX2    En Jerusalén, Judea también, Samaria, y hasta el final.   X2"
+  },
+  {
+    "id": 329,
+    "title": "HE DECIDIDO SEGUIR A CRISTO",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS\n[VERSO 1]:\nG | C | G | D | G |\nHe decidido seguir a Cristo...\nY si me llaman el Aleluya..."
+  },
+  {
+    "id": 330,
+    "title": "EL GOZO DEL SEÑOR",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nG | D | G | C |  D | G |\nEl gozo del Señor, mi fortaleza es...\n G | D | G | C |  D | G |\nSi tienes ese gozo puedes tu cantar, si tienes ese gozo puedes tu orar\nSi tienes ese gozo puedes tu saltar, su gozo sin medida Él me da."
+  },
+  {
+    "id": 331,
+    "title": "HAY VIDA, HAY VIDA EN JESÚS",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nG | D | G |  —   C | D | G |\nX2   Hay vida, hay vida, hay vida en Jesús.  X2\nX2   Yo voy a morar a la patria celestial...    X2        —  Hay gozo..."
+  },
+  {
+    "id": 332,
+    "title": "BENDECIRÉ A JEHOVÁ EN TODO TIEMPO",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nG | D | G | C | G | D | G |\nBendeciré a Jehová en todo tiempo...\n[CORO]:\nC | G | C | D | G | C | G | D | G |\nX2    Engrandeced a Jehová conmigo...   X2"
+  },
+  {
+    "id": 333,
+    "title": "¿QUIÉN DIJO QUE NO QUE NO?",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nG | D | G | C | G | D | G |\nX2     ¿Quién dijo que no? Que no había victoria...     X2"
+  },
+  {
+    "id": 334,
+    "title": "QUE VIVA CRISTO",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nG | D | G | C | G | D | G |   —    D | G | D | G |\nViva la fe, viva la esperanza, viva el amor...\nX2    Que viva Cristo, que viva Cristo que viva Cristo, que viva el Rey.    X2"
+  },
+  {
+    "id": 335,
+    "title": "SI ESTA TIERRA",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nG | D | G | C | G | D | G |\nSi esta tierra ardiera en fuego, ¿a dónde iremos a morar?\nYo iré, yo iré con Jesús allá a morar, yo iré, yo iré con Jesús allá a morar"
+  },
+  {
+    "id": 336,
+    "title": "EL GOZO",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nG | D | G | Em |\nEl gozo que tengo yo, el mundo no me lo dio, el mundo no me lo dio\nY como no me lo dio, no me lo puede quitar, y como no me lo dio, no me lo puede quitar."
+  },
+  {
+    "id": 337,
+    "title": "ASI SE ALABA A DIOS",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nG | D | D | G |\nAsi, asi, asi se alaba a Dios, asi, asi, asi se alaba a Dios\nCon mucha alegría y gozo, con mucha alegría y gozo,\nCon mucha alegría y gozo, así se alaba a Dios.\nAsi, asi, asi se alaba a Dios, asi, asi, asi se alaba a Dios, Asi, asi, asi se alaba a Dios."
+  },
+  {
+    "id": 338,
+    "title": "EN ESTA REUNIÓN",
+    "compositor": "Tradicional",
+    "tono": "E",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nF# | C# | G#m | A#m | C# | B | F# |\nEn esta reunión Cristo está, Pues Él ha prometido estar,\nDonde dos o tres en mi nombre estén, allí estaré, allí estaré, allí estaré\n[CORO]:\nF# | C# | G#m | A#m |\nYo lo siento en mí, yo lo siento en mí, su Espíritu me hace cantar."
+  },
+  {
+    "id": 339,
+    "title": "VENCERE",
+    "compositor": "Tradicional",
+    "tono": "E",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nF# | C# | F# |  B  | G#m | C# | F# |\nX2    Venceré, porque él está conmigo,\nVenceré, porque el conmigo está,\nVenceré, venceré, Vencerás, vencerás,\nVenceremos en el Nombre de Jesús.   X2"
+  },
+  {
+    "id": 340,
+    "title": "LA GLORIA DE JEHOVA",
+    "compositor": "Tradicional",
+    "tono": "E",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nF# | C# | G#m | C# | A#m | D#m | G#m | C# | F# |\nVa bajando ya, va bajando ya, Va bajando la gloria\nDe Jehová, Si este pueblo empieza a orar,\nEl Señor va a contestar, va bajando la gloria de Jehová.\n[VERSO 2]:\nF# | C# | F# |\nLa gloria de Jehová cayó en el Sinaí y aquel monte temblaba porque Dios estaba ahí.\n[CORO]:\nB | F# | G#m | C# | F# |\nX2    Dios estaba ahí, Dios estaba ahí Y aquel monte, temblaba porque Dios estaba ahí.    X2"
+  },
+  {
+    "id": 341,
+    "title": "OH SEÑOR",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                    C                                                                                                                                             F\nX2   Oh Señor quiero que ardas en mi ser, Como la zarza quiero arder con tu poder,\n                           Dm                                                    G                          F                            G               C\nEn nuevas lenguas quiero hablar como señal, Estoy ardiendo con el fuego celestial,\n       C                                                                                                                                          F\nQuiero alabarte y adorarte solo a ti, Como se adora en Espíritu y en Verdad;\n                                                                       C-Am                Dm                     G                        C\nOh Señor quiero que ardas en mi ser, Como la zarza quiero arder con tu poder.    X2"
+  },
+  {
+    "id": 342,
+    "title": "ARDIENDO EN FUEGO",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                                      C                              Dm\nX2    Ardiendo el fuego en mi alma esta,\n                             G                                C\nArdiendo el fuego en mi alma esta, gloriosa llama,\n                                         F              G                               C\nMe limpiará, Oh aleluya ardiendo mi alma está.   X2"
+  },
+  {
+    "id": 343,
+    "title": "TODOS NOSOTROS POR LA FE",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n              C                                      F                      G                  F         C\nX2    Todos nosotros por la fe, nos acercamos Cristo a ti,\n                          A                 Dm                          G                       C\nAunque tu rostro no se ve, sabemos que tú estás aquí.     X2\n[CORO]:\n                                  C                                     G\nX2   Jesús está aquí, pide lo que quieras,\n                        Dm     G                      C\nJesús está aquí, pide lo que quieras,\n                                                   F                               C                          G                       C\nÉl tiene poder, Él te lo dará, Jesús está aquí ¡aleluya! Pide lo que quieras.   X2"
+  },
+  {
+    "id": 344,
+    "title": "YO HE CREÍDO EN UN PODER",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nEm | E7 | Am | D | G | B | Em |\nYo he creído en un poder que no se toca, yo he creído en un poder que no se ve\nYo he creído en un poder que no se toca ni se ve, pero se siento dentro de mi corazón.\nTú has creído     —     Hemos creído"
+  },
+  {
+    "id": 345,
+    "title": "HAY VICTORIA",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS\n[VERSO 1]:\nEm | C-B | Em | Am | D | Em | B | Em |\nX2    Hay victoria, hay victoria, hay victoria en la sangre de Jesús.  X2\nNo podrá el enemigo, dañar a nuestras almas\nPorque hay victoria, hay victoria, hay  victoria en la sangre de Jesús.\nTROMPETAS"
+  },
+  {
+    "id": 346,
+    "title": "YA VIENE LA RECOMPENSA",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 20  |  EBENEZER\nMIX 20  |  EBENEZER\nTROMPETAS    | E | Am | D-G | Em-B |\n[VERSO 1]:\n               Em                                                                       C                B\nX2    Vamos escalando peldaños, vamos llevando la cruz,\n                                                                                                                     Em\nSigamos el camino angosto, que con Cristo es mucho mejor.   X2\n[CORO]:\n                    E                   Am             D                       G\nX2    Ya viene la recompensa, ya no voy a llorar,\n     Em                                  B                                         Em\nTengo a Cristo en mi vida, por eso puedo escalar.    X2\nTROMPETAS\n[VERSO 2]:\n               Em                                                        C             B\nX2   A veces me siento débil, ya no puedo escalar,\n                                                                                                        Em\nAlzo mis manos al cielo, viene Cristo y fuerzas me da.  X2                        CORO"
+  },
+  {
+    "id": 347,
+    "title": "YO TENGO UN AMIGO",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS  | F | C | Dm-G | C |\n[VERSO 1]:\n C                                                     Am               G               C\nYo tengo un amigo que me ama, me ama, me ama,\n                                                                             Dm       G      C\nYo tengo un amigo que me ama su nombre es Jesús…\n[CORO]:\n                               F                         C                       Dm    G                           C\nX2    Que me ama, que me ama, que me ama con su tierno amor.   X2"
+  },
+  {
+    "id": 348,
+    "title": "UNA MIRADA DE FE",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | Dm | G | C |\nX2  Una mirada de fe, una mirada de fe es la que puede salvar al pecador.    X2\n[CORO]:\nF | C | Dm | G | C |\nX2   Y si tú vienes a Cristo Jesús, el te perdonará...   X2"
+  },
+  {
+    "id": 349,
+    "title": "SOLO DIOS HACE AL HOMBRE FELIZ",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | F | C | F | C | Dm | G | C |\nX2   Solo Dios hace al hombre feliz, solo Dios hace al hombre feliz, la vida pasa,\nTodo se acaba, solo Dios hace al hombre feliz.  X2"
+  },
+  {
+    "id": 350,
+    "title": "MIS PECADOS SON BORRADOS YA",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C | F | Dm | G | C |\nX2  Mis pecados son borrados ya, mis pecados son borrados ya\nMi Señor los sepultó en la más profunda mar, mis pecados son borrados ya.  X2"
+  },
+  {
+    "id": 351,
+    "title": "¿CÓMO ESTAS?",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C |\nX2   Y si alguien te pregunta cómo estás\n(cómo estás), cómo estás (cómo estás), cómo estás.   X2\n[CORO]:\nF | C | Dm | G | C |\nX2  Bendecido, bendecido, bendecido porque Cristo vive en mí.   X2"
+  },
+  {
+    "id": 352,
+    "title": "ESTA OBRA NO VA A PARAR",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C | F | Dm | G | C |\nX2   Esta obra no va a parar, no va a parar, esta obra no va a parar, no va a parar,\nEsta obra no va a parar, porque está dentro de mi corazón.   X2\n[CORO]:\nG | C | Dm | G | C |\nX2   El fuego cae, cae, los males salen, salen, y los creyentes alaban al Señor.   X2"
+  },
+  {
+    "id": 353,
+    "title": "NO ES CON ESPADA",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | Dm | G | C |\nX2    No es con espada ni con ejército, más con su Santo Espíritu.   X2\n[CORO]:\nF | C | Dm | G | C |\nY esta iglesia se moverá, y esta iglesia se moverá,\nY esta iglesia se moverá, mas con su Santo Espíritu."
+  },
+  {
+    "id": 354,
+    "title": "ALABAD A JEHOVA",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C | F | C |\nX2   Alabad a Jehová, naciones todas, pueblos todos,\nAlabadle, porque ha engrandecido sobre nosotros su misericordia.\nY la verdad de Jehová, es para siempre Aleluya Amén,\nY la verdad de Jehová, es para siempre Aleluya Amén.    X2"
+  },
+  {
+    "id": 355,
+    "title": "VIVA LA FE",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C | F | C | G | C |  —  G | C | G | C |\nX2   Viva la fe, viva la esperanza, viva el amor...    X2\nX2   Que viva Cristo, que viva Cristo que viva el Rey.    X2\n[CORO]:\nX2   Que viva Cristo, que viva Cristo, que viva Cristo que viva el Rey.   X2"
+  },
+  {
+    "id": 356,
+    "title": "NO HAY DIOS TAN GRANDE COMO TÚ",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                             C                                                              G                 C\nX2     No hay Dios tan grande como tú, no lo hay, no lo hay.    X2\n[CORO]:\n                              F                                                    C                    Dm          G          C\nX2     No hay Dios que pueda hacer las obras, como las que haces tú.   X2                  SE REPITE TODO"
+  },
+  {
+    "id": 357,
+    "title": "ESTE ES EL CRISTO",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | Dm | G | C |\nX2   Este es el Cristo, que yo predico,\nYno me canso de predicar sana a los enfermos,\nReprende a los demonios, y calma la tempestad.   X2\n[CORO]:\nF | C | Dm | G | C |\nX2   Y yo le alabaré, y yo le alabaré, y yo le alabaré, diciendo Gloria a Dios.    X2"
+  },
+  {
+    "id": 358,
+    "title": "YO VINE ALABAR A DIOS",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                      D                                                                  A                            D\nX2   Yo no sé lo que tú has venido, pero yo vine a alabar a Dios.   X2\n[CORO]:\n                 G             D               A                             D\nX2   Yo vine, yo vine, Yo vine a alabar a Dios.  X2"
+  },
+  {
+    "id": 359,
+    "title": "YA LLEGÓ",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                   D              A                                                   D\nX2   Ya llegó, ya llegó, El Espíritu Santo ya llegó,    X2\n                                                                                                  A                                                                               D\nX2   Lo siento en mis manos, lo siento en mis pies, lo siento en mi alma, y en todo mi ser.   X2\n[VERSO 2]:\n                               D         A                                    D\nX2    Como un fueeego, cayendo sobre mí.   X2\n[CORO]:\n         D                                    A                                              D                                              A                                               D\nX2    Y déjalo que se mueva, Y déjalo que se mueva, y déjalo que se mueva, y déjalo que se mueva.     X2\n                                                                      A                                                                    D\nX2    Que quema que quema y quema, que quema, que quema y quema,\n                                                            A                                                                     D\nQue quema que quema y quema, que quema, que quema y quema.     X2"
+  },
+  {
+    "id": 360,
+    "title": "TENGO UN CRISTO DE PODER",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[CORO]:\n                      D                      A                                              D\nX2    Se levantó, se levantó, de la tumba se levantó.    X2\n[VERSO 1]:\n                                                           A                                                         D\nX2    Yo tengo un Cristo de poder, que de la tumba se levantó.    X2"
+  },
+  {
+    "id": 361,
+    "title": "QUE BUENO ES EL SEÑOR",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                                         A                                                           D\nX2     Qué bueno es el Señor, que me ha dado la vida,\n                               A                                              D\nQué bueno es el Señor, que me deja vivir.    X2"
+  },
+  {
+    "id": 362,
+    "title": "SE MUEVE LA MANO DE DIOS",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                                                         A                                    D\nX2   Se mueve la mano de Dios en su palabra viva.  X2\n                   A                                                                    D\nX2   Se mueve, se mueve, Se mueve con poder.  X2\n          A                              D                                                                  D\nX3  Con, con, con poder.   X3   Se mueve la mano de Dios\n            D                A                             D\nX4   Todo es posible si puedes creer.  X4"
+  },
+  {
+    "id": 363,
+    "title": "BIENVENIDO",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C | F | Dm | G | C |\nX2    Bienvenido a esta iglesia que te ama, a la iglesia de Cristo Jesús\nSi tu corazón es como el mío, dame la mano y mi hermano será.    X2\n[CORO]:\nG | C | G | C |\nX2     Dame la mano, querido hermano, dame la mano y mi hermano serás.   X2"
+  },
+  {
+    "id": 364,
+    "title": "SI EN VERDAD ERES SALVO",
+    "compositor": "Tradicional",
+    "tono": "D",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\nC | G | C | F | C | Dm | G | C |\nX2    Si en verdad eres salvo di amén:  AMEN.    X2\n\nSi en verdad eres salvo testifica con tu vida, si en verdad eres salvo di “AMÉN”\nX2    Si en verdad eres salvo di amén ALELUYA.   X2\nSi en verdad eres salvo testifica con tu vida, si en verdad eres salvo di “ALELUYA”\nX2    Si en verdad eres salvo di amén 3 PALMAS .  X2\nSi en verdad eres salvo testifica con tu vida, si en verdad eres salvo  “3 PALMAS”"
+  },
+  {
+    "id": 365,
+    "title": "CUANDO LOS SANTOS",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 18  |  EBENEZER\nMIX 18  |  EBENEZER\n[VERSO 1]:\n                                       C                                                                     G\nX2  Cuando los santos marchen ya hacia la patria celestial\n                        C                     F                                Dm            G          C\nSeñor yo quiero estar allá, cuando los santos marchen ya.   X2\n[CORO]:\n                       C                                                                               Dm                 G                                        C\nX2   Nos vamo a gozar, nos vamos a gozar, a las bodas del Cordero, nos vamos a gozar.  X2\n                 F                                            C                             Dm                    G                              C\nX2    Y luego nos iremos a la patria celestial, a vivir con Jesucristo por la eternidad.   X2"
+  },
+  {
+    "id": 366,
+    "title": "YO LE A ALABO DE CORAZÓN",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 17  |  EBENEZER\nMIX 17  |  EBENEZER\n             C                                               G                                                           C\nX2     Con mi voz o con mis manos, con mis pies  o con mi alma,\n                                                 G                                                           C\nO es que ya me fui con Él... (O es que ya me fui con Él).    X2\n[VERSO 1]:\n                                                G                                                  C\nX2     Yo le alabo de corazón, yo le alabo con mi voz,\n                                      G                                                 C                                     G                                                   C\nYo le alabo de corazón, yo le alabo con mi voz, y si me falta la voz, yo le alabo con las manos,\n                                          G                                                   C                                           G                                               C\nY si me faltan las manos, yo le alabo con los pies, y si me faltan los pies, yo le alabo con el alma,\n                                        G                                                 C\nY si me faltara el alma, es que ya me fui con Él.     X2"
+  },
+  {
+    "id": 367,
+    "title": "HUELE A VICTORIA",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 1  |  EBENEZER\nMIX 1  |  EBENEZER\n                                               Gm                               F                Gm\nX2    A que huele un guerrero… cuando viene de batalla,\n                          Gm                                                                                                        Gm\n(Huele a victoria, Huele a victoria)    X2    Porque Jehová está con él…\nTROMPETAS    | Gm | F | Gm | F |\n[VERSO 1]:\n                 Gm                                      F                          Gm\n X2     Somos como escudos, tres son los valientes,\n                                               F               Gm [D]\nY con su espíritu venceremos siempre.    X2\n                          Gm                                                    F                Gm [D]\n X4     A que huele un guerrero, cuando viene de la batalla.     X4\n                                                   Gm – F                     Eb [D]\n X2      CORO    Huele a victoria, huele a victoria       X2\n[VERSO 2]:\n          Cm                      Dm    Eb                      F [D]\n X2     Si con Dios peleas esto sabe a gloria…                        X2      Pausa pequeñita…\n                                                           Gm – F                         Eb\n X2      CORO    Esto sabe a gloria, esto sabe a gloria…     X2\n                                                  Gm – F                     Eb [D]\n X2      CORO    Huele a victoria, huele a victoria…              X2\nTROMPETAS"
+  },
+  {
+    "id": 368,
+    "title": "JEHOVÁ GIBBOR",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS    | Gm | F | Eb | Cm | D\n[VERSO 1]:\nX2   A la presencia de Jehová...                   X2   | Gm | F | Eb | Cm | D |\n[PRE-CORO]:\nX2  ¿Qué tuviste, oh mar que huiste?      X2   | D | Eb | Cm | D |\n[VERSO 1]:\nX2   A la presencia de Jehová...   X2\n[PRE-CORO]:\nX2  Él convirtió la peña...                X2\n[CORO]:\nD                       Eb                   Cm                       D\nX2   Y ahora salta, ahora salta, ahora salta, Para tu Dios…   X2   Danza  |  Gira  |  Grita  |  Corre"
+  },
+  {
+    "id": 369,
+    "title": "ABRIÓ EL MAR",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "Gm                  Eb                         F                                        Gm\nX4   CORO    Abrió el mar, abrió el Jordán, y a sus enemigos destruyó…    X4    TROMPETAS\n                              Am                     F                           G                                    Am\nX4   CORO    Abrió el mar, abrió el Jordán, y a sus enemigos destruyó...    X4    TROMPETAS"
+  },
+  {
+    "id": 370,
+    "title": "ME GOZARÉ",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 1  |  EBENEZER\nMIX 1  |  EBENEZER\nTROMPETAS  | Am | G | Dm | E7 |T\n[VERSO 1]:\nX2   Cuando el Señor hiciere volver la cautividad…    X2\n                        X2   Mi boca llenará de risa...   X2\n[CORO]:\nX2   Me gozaré, me gozaré, me gozaré...   X2\n[VERSO 2]:\nX2  Así como David cantaba...   X2\n                        X2   Yo cantaré, Yo danzaré...    X2\nTROMPETAS              |        CORO     X2"
+  },
+  {
+    "id": 371,
+    "title": "CANCIÓN FELIZ",
+    "compositor": "Tradicional",
+    "tono": "E",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 25  |  EBENEZER\nMIX 25  |  EBENEZER\nTROMPETAS  | E | B | C#m | A |\n[VERSO 1]:\n                  E         B                       C#m                          A\nX2    Cantaría sin parar, por lo que hiciste en mí,\n       E                 B                 C#m                  A\nDanzaría siempre Dios por tu gran amor.   X2\n[VERSO 2]:\n    E                                B                             C#m                                            A\nArde mi corazón, para poder decir, que me has salvado, borraste mi pasado\n     E                                     B                            C#m                                                A\nSeñor quiero gritar, hacia todo lugar, que si tú estás conmigo ¿quién es contra mí?\n[VERSO 1]:\nX2  Cantaría sin Parar…  X2\n[VERSO 3]:\n             A                                                      E                      A                                                                   E\nY Estamos cantando… somos Felices... Y estamos danzando... pues somos libres....\n      F#m                                        Ab                                         A\nSi te pudiéramos mirar, y contemplar tu sonreír, ver tus ángeles danzar…\n                                                       E                        B                                 C#m -  A\nX4     Porque el gozo está aquí… (Aquí está el gozo del Señor)      X4\nTROMPETAS\n[CORO]:\n1\n            E                             B                            C#m                        A\nX2   Gozo, tenemos gozo, tenemos gozo, tenemos gozo…   X2\n[CORO]:\n2\n         E                                      B                         C#m                                 A\nX2   Yo tengo Gozo yo puedo Cantar… Yo tengo Gozo yo puedo Cantar…   X2\nX2   Yo tengo Gozo yo puedo Saltar… Yo tengo Gozo yo puedo Saltar…       X2\nX2  Yo tengo Gozo yo puedo Gritar… Yo tengo Gozo yo puedo Gritar…         X2\nX2   Yo tengo Gozo yo puedo Reír… Yo tengo Gozo yo puedo Reír…                X2\n[CORO]:\n1   X4  Gozo, tenemos gozo, tenemos gozo, tenemos gozo…     X4"
+  },
+  {
+    "id": 372,
+    "title": "DESIERTO EN PARAÍSO",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 2  |  EBENEZER\nMIX 2  |  EBENEZER\nTROMPETAS  | Gm | Eb | Bb | F |\n[VERSO 1]:\n                     Gm                                Bb                        Cm                                            D\nX2    Mi Desierto en paraíso convirtió, mis tierras secas ahora son huertos de Jehová\n             Gm                                   Bb                   Cm                                          Eb                                        D\nCada una de mis ruinas consoló, de lugares desolados y de oscura soledad él me sacó.    X2"
+  },
+  {
+    "id": 373,
+    "title": "TROMPETAS — VERSO 1",
+    "compositor": "Tradicional",
+    "tono": "Gm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[PRE-CORO]:\n                       Eb                                             Bb                       Dm                                                        Gm – F\nY en Él encontré, mi alegría y mi consuelo, y mi gratitud, me hace darle canto nuevo.\n                                 Eb                                                Bb                          F                              Cm                     D\nPorque en él encontré, mi alegría y mi consuelo, y mi gratitud, me hace darle canto nuevo…\n[CORO]:\n            Gm                                  Eb                       Bb                                           F             D\nX2   ¡Ven y toca hoy mi corazón Señor! ¡Pon tu alegría donde había lamento!\n   Gm                                  Eb                          Bb                                            F             D\n¡Ven y toca hoy mi corazón Señor! ¡Que tu rio fluya donde había desierto! X2\nTROMPETAS                         —             PRE - CORO      |     CORO\n[PUENTE]:\n1\n                                     Eb                                             Bb                                Eb                                               Bb\nX2     Y en un de repente, todo puedes cambiar, en un de repente, haces ríos en la sequedad.    X2\n[PUENTE]:\n2\n                                                       Gm                                                        Bb\nX2      Soplas vida en los huesos secos, cambiaste mi lamento en baile,\n                                Cm                                                                                   D\nTomaste mi corazón de piedra y me diste un corazón de carne.     X2"
+  },
+  {
+    "id": 374,
+    "title": "FUEGO",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 2  |  EBENEZER\nMIX 2  |  EBENEZER\nTROMPETAS      | Am | G | Dm | E7 |\n[VERSO 1]:\n                               Am                                                          G\nX2     Hay una llama que arde en mí, un gran poder que está en ti,\n                          Dm                                                             E7\nMe está quemando su fuego santo, puedo sentirlo está aquí.   X2\n[CORO]:\n               Am                        G\nX2     Fuego (fuego) Fuego del Señor (fuego del Señor)\n   Dm                                                        E\nFuego (fuego) Fuego (fuego)  Fuego purificador.  X2\nTROMPETAS\n                      Am\nX2      Fuego, fuego, fuego, fuego, fuego, fuego, fuego\n     G\nFuego, fuego, fuego, fuego, fuego, fuego, fuego\n   Dm\nFuego, fuego, fuego, fuego, fuego, fuego, fuego\n     E\nFuego purificador.    X2                                —               CORO"
+  },
+  {
+    "id": 375,
+    "title": "¿QUIÉN LO DIRÍA?",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 2  |  EBENEZER\nMIX 2  |  EBENEZER\nTROMPETAS    | Cm | Bb | Ab-Fm | G |\n[VERSO 1]:\n      Cm         Bb            Ab-Fm             G\n¿Quién lo diría? Que yo            danzaría en tu casa, Señor,\n      Cm         Bb             Ab-Fm             G\n¿Quién lo diría? Que yo            abrazaría tu gloria, Señor.\n[CORO]:\n                 Cm                                                          Bb\nVoy a perder la compostura, delante de ti,\n                 Ab                                             Fm                 G\nVoy a cantar, voy a danzar voy a reír, yo lo hago solo para ti.\n                Cm                                                           Bb\nVoy a perder la compostura, delante de ti,\n                       Ab                                         Fm                    G\nQué me importa que me digan aleluya, yo lo hago solo para ti.\nTROMPETAS\n[VERSO 2]:\n| Cm | Bb | Ab-Fm | G |\n                                Cm                                                                                                                              Bb\nX3    Que me importa que critiquen  que no entiendan que me digan que estoy loco,\n   Ab-Fm           G\nSi yo,        lo hago solo para ti.     X3\n                                                                                                                                                                      G\n[CORO]:\n—             X2   Yo lo hago solo para ti.  X2"
+  },
+  {
+    "id": 376,
+    "title": "MOVIMIENTO DE GLORIA",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 4  |  EBENEZER\nMIX 4  |  EBENEZER\nTROMPETAS     | Em | C | D | B |\n[VERSO 1]:\n                        Em                                                   C\nX2    El movimiento de Gloria es como una corriente de agua,\n                                   D                                Em\nQue después crece, y se hace manantial.     X2              —          TROMPETAS\n[VERSO 2]:\n                           Em                      D                C                              D                                   Em\nX2     Y el manantial se convierte en río, después en mar en océano poderoso.  X2            —      TROMPETAS\n[VERSO 3]:\n                   Em                           D                C                                D                          Em\nX2   Y la gloria de Dios cubrirá la Tierra, como las aguas cubren la mar.   X2\n[PRE-CORO]:\n                 Em        C                           D                           Em\nX2    Y Cristo vendrá, por su Iglesia, por su Iglesia.  X2\n TROMPETAS                          —              VERSO 3      |     PRE - CORO\n[CORO]:\n                       Em                                   C                                           D                               B\nX2     Demuestra tu gloria, demuestra tu gloria,  demuestra tu gloria, aquí y ahora.    X2     —      TROMPETAS"
+  },
+  {
+    "id": 377,
+    "title": "EN LA PRESENCIA DEL SEÑOR",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                          Em                                              D               C               B\nX2    En la presencia del Señor hay libertad, libertad, libertad.   X2\n[CORO]:\n                  G                                                                      C [Am]\nX2   Libertad de anunciar las victorias de Cristo.    X2\n                                            B              Am             B\nEn este lugar hay libertad, libertad, libertad.\n                 Em\nX8     Libertad.   X8   Libertad, libertad, libertad, libertad, libertaaaad…"
+  },
+  {
+    "id": 378,
+    "title": "PORQUE MAYOR",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 4  |  EBENEZER\nMIX 4  |  EBENEZER\nTROMPETAS     | Em | C | Am | B7 |\n[VERSO 1]:\n         Em                   G                         C                     Am                    B                  C-D\nEl Señor es mi fuerza es mi escudo, mi fortaleza no temeré, no temeré.\n[CORO]:\n                             Em                                             C\nX2    Porque mayor es el Señor, es poderoso es vencedor\n                 Am                                           B\nEs mi escudo mi protector no temeré.  X2"
+  },
+  {
+    "id": 379,
+    "title": "HEME AQUÍ",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 5  |  EBENEZER\nMIX 5  |  EBENEZER\nVIOLIN    | C | G | B | Em |\n[VERSO 1]:\n                  C                                            G                                                 B                             Em\nFue tu amor y tu poder el que sanó mi corazón, ahora fuerte soy y libre soy.\n                 C                                        G                                                        B                        Em\nMe apartaste para ti pusiste de tu gozo en mí, te ofrendo mi vida en gratitud.\nTROMPETAS     | Am | Em | B | Em |                       —                 VERSO 1\n[CORO]:\n                             Am                  Em                     B                  Em\nX2     Heme aquí, aquí estoy, tú me envías con unción,\n         Am                Em             B                       Em\nTu poder sobre mí, me hace confiar en ti.    X2"
+  },
+  {
+    "id": 380,
+    "title": "GRAN REY",
+    "compositor": "Tradicional",
+    "tono": "Bm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS     | G | F#m7 | Bm |     —    | Bm | A-G | A-Bm | G-F#m-Bm |\n[VERSO 1]:\n                    A       D            G       A-Bm                                                              D                                       A\nNo hay nada que dé más felicidad hoy mi señor, que estar al lado tuyo Dios y contemplar tu grande amor.\n           G                             A      Bm                                               A      D                             A\nSolo tu podías ser aquel gran rey con gran poder, que dejó su deidad para darnos libertad.\n[CORO]:\n                    G                                   A                 Bm                              A           D                                              A\nY veo a miles de naciones que hoy cantan a tu nombre, y me uno a esas voces para darte gloria Rey,\n                        G                      A       Bm              A       G[G-Em]     A               Bm [F#]\nY cantan santo santo santo santo, y dicen santo santo al gran Rey.\nTROMPETAS"
+  },
+  {
+    "id": 381,
+    "title": "MIS ENEMIGOS VOLVIERON ATRÁS",
+    "compositor": "Tradicional",
+    "tono": "G",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS   | Em | Am | G | B  |   —   | Em | C | B-Am-G-D-Em|\n[VERSO 1]:\n                            Em                                                                                               B\nX2     Mis enemigos volvieron atrás, mis enemigos volvieron atrás,\n                                                   Bm                           Em\nCayeron y perecieron delante de ti oh Jehová.     X2\n[CORO]:\n                                 D                      G                               D                      G\nX2     Porque grande eres Jehová, porque grande eres Jehová,\n        B                               Em           B                                 Em\nCreador de toda la tierra, creador de toda la tierra.    X2\nTROMPETAS"
+  },
+  {
+    "id": 382,
+    "title": "TODA RODILLA",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 4  |  EBENEZER\nMIX 4  |  EBENEZER\nTROMPETAS    | Am | F | G | Dm | Am |\n[VERSO 1]:\n  Am                F                                    G                  Dm                                Am        E\nToda rodilla      se doblará ante él, es Jesucristo, Dios por siempre.\n Am                    F                                   G                Dm                                 Am        E\nToda lengua,      confesará ante él, es Jesucristo, Dios por siempre.\n[CORO]:\n          Am                                                                F\nX2     No, no puedo parar de alabarte,  no, no puedo parar de alabarte\n  G                           Dm                               Am     E\n No, no puedo parar de alabarte Cristo.   X2\nTROMPETAS\n   Am                 F                                     G                 Dm                                Am         E\nToda rodilla        se doblará ante él, es Jesucristo, Dios por siempre.\nAm                   F                    G                   Dm                                   Am           E\nÉl es el Alfa         y la Omega, es Jesucristo, Dios por siempre.           —           CORO    X4"
+  },
+  {
+    "id": 383,
+    "title": "DANZA DE AMOR",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS   | C | G | Am | B |\n[VERSO 1]:\n                      Em                                                                  Am\nX2    Las bodas del cordero ya se acercan, estamos a las puertas de esta fiesta\n                C                      Am                     B\nCon vestido de lino fino me presentaré.  X2\n                  Em                            G-Am                                                                                              B\nSin mancha y sin arruga    será mi vestimenta de la mano de mi amado danzaré.\n[CORO]:\n                         C                                          G                               Am                                                B\nEsta es la danza, es la danza de amor, está es la danza, que danzo con mi amado.\n                         C                                          G                               Am                                 B\nEstá es la danza, es la danza de amor, está es la danza, de los enamorados.\nTROMPETAS"
+  },
+  {
+    "id": 384,
+    "title": "GOZO EN LA CASA DE DIOS",
+    "compositor": "Tradicional",
+    "tono": "Bm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 20  |  EBENEZER\nMIX 20  |  EBENEZER\nTROMPETAS\n[VERSO 1]:\n            Bm                                                F# [Bm]\nX8      Gozo, gozo, gozo hay en la casa de Dios.    X8\n[CORO]:\n                       Em              A                   D          Bm       Em                        F#                      Bm\nX4      Y el pueblo de Dios, se puede alegrar, gozar en las victorias que el Señor les da.   X4\n[VERSO 2]:\n                            Em-A                  D-Bm              Em               Bm\nX4      Y el pueeeblo… de Dioooos… se puede Alegraaaaar…   X4"
+  },
+  {
+    "id": 385,
+    "title": "SOY TUYO",
+    "compositor": "Tradicional",
+    "tono": "Bm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS    | Bm | A-D | A | F#m-Bm |\n[CORO]:\n            Bm     A      D          A                     Bm    F#m  Bm      A-D                     A         Bm       F#m\nX2      Soy tuyo Dios esclavo por amor,                tú hermoso llenas mi corazón,\nBm     A           D                    A                           Bm   F#m    Bm      A-D                       A                Bm    F#m\nLengua y nación se postraran a ti Oh Dios,                 al Cordero sea la gloria y el honor.   X2\nTROMPETAS"
+  },
+  {
+    "id": 386,
+    "title": "PORQUE NUESTRO CAPITÁN",
+    "compositor": "Tradicional",
+    "tono": "Bm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS      | G | D | G | D | G | Em | Bm |\n[CORO]:\n                  G                                                      D                     G                                  D\nX2      Porque nuestro Capitán es Cristo, sus huellas estamos siguiendo,\n       G             Em       Bm\nContra nosotros nada se levantará.     X2\n                                                                                                                                  G            Em         Bm\nTROMPETAS            —          SE REPITE TODO        —         X2    Contra nosotros nada se levantará.   X2"
+  },
+  {
+    "id": 387,
+    "title": "CANTOS DE LIBERACIÓN",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 12  |  EBENEZER\nMIX 12  |  EBENEZER\nTROMPETAS    | Cm | Fm7 | Ab7  | G7 |\n[VERSO 1]:\n                  G      Cm                                       Fm7\nX2     ¿Cantos de liberación, son los que me rodearán\n        Ab7                G7                Cm                       Ab7\nAl shofar del jubileo, las cadenas se abren ya.   X2\n[CORO]:\nG    Fm7             Cm            Fm                  Cm              Fm            Cm    Ab      G7\nEl triste tiene vino, el ansioso tiene paz, pues hoy ha llegado tu libertad.\nG    Fm7                     Cm               Fm            Cm                  Fm                  Cm                Ab                   G7\nEl cansado tiene fuerza, el enfermo sanidad, el pecador se arrepiente, y limpio queda ya.\nTROMPETAS"
+  },
+  {
+    "id": 388,
+    "title": "EL RÍO DE DIOS",
+    "compositor": "Tradicional",
+    "tono": "G",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 7  |  EBENEZER\nMIX 7  |  EBENEZER\n                                G                                                                          C         G\nHay un río que hoy fluye, de la puerta del oriente...\n                                                                C             D                             G                           C               D-G\n(Y todo aquel que en él se mueva, vivirá…) Para Siempre… (Es el Río del Señor…)\nTROMPETAS    | D | C | D | C | D | C |\n[VERSO 1]:\n                          C\nX2    Hay un río que hoy fluye, de la puerta del oriente X2\n                           D                     C                             D                       C\nEl que se mueva en ese río, el que se mueva en ese río,\n                            D                     C       D-C                   G\nEl que se mueva en ese río, vivirá para siempre.              —             SE REPITE\nTROMPETAS\n[VERSO 2]:\n                       C\nX2    Y está subiendo a los tobillos, es el río del Señor.   X2\n                              D                  C                   D               C\nA nuestros lomos ha subido, es el río del Señor,\n                                    D                          C                          D              C\nX3      Mira cómo ha crecido el río, que yo he sido sumergido.   X3\nTROMPETAS\n[VERSO 3]:\n                             C                   G                                       C\nX2    Y voy nadando, nadando, en el río del Señor.    X2\n                              D                C                     D              C\nA nuestros lomos ha subido, es el río del Señor,\n                                     D                        C                             D              C\nX3      Mira cómo ha crecido el río, que yo he sido sumergido.   X3"
+  },
+  {
+    "id": 389,
+    "title": "TODA LA NOCHE SIN PARAR",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 17  |  EBENEZER\nMIX 17  |  EBENEZER\nTROMPETAS     | Am | G | F | E |\n[CORO]:\n            Am                                                   G\nX2     Toda la noche sin parar, cantando alabanzas al Señor,\n         F                                          Dm                          E\nDiciendo de su gloria y majestad Él es el Rey.   X2                    —         De Israel.\nTROMPETAS"
+  },
+  {
+    "id": 390,
+    "title": "LAS RIQUEZAS Y LA GLORIA",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 10  |  EBENEZER\nMIX 10  |  EBENEZER\n    TROMPETAS   | Em | B | Em | B | A-B-C-D-E |\n[CORO]:\n                        Em                                                       B                                   Em\nX2    Las riquezas y la gloria proceden de ti y sobre todo dominas,"
+  },
+  {
+    "id": 391,
+    "title": "B A-B-C-D-E SOLO NOTAS",
+    "compositor": "Tradicional",
+    "tono": "G",
+    "album": "Alabanzas de Júbilo",
+    "content": "En tu mano esta la fuerza y el poder y el hacer.  X2\n[VERSO 1]:\n                  Em                                    G              Am                        B\nX2    Es tuya Jehová, la magnificencia, el poder, la gloria y la victoria.    X2\n[VERSO 2]:\n                      Em              Dm                  G         Am                             B\nX2     Las cosas que hay en los cielos y en la tierra son tuyas.   X2           —             CORO\n                                                                                                                                                     C#                                F#\nTROMPETAS       | F# | C# | F# | C# | D |         —         Y el a, Y el a, Y el a, Hacer… ¡El Hacer!"
+  },
+  {
+    "id": 392,
+    "title": "NO HAY SANTO COMO EL SEÑOR",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 9  |  EBENEZER\nMIX 9  |  EBENEZER\nTROMPETAS     | Am | F | G | E |\n[VERSO 1]:\n                      Am                                                                       F\nX2     Mi corazón se regocija en el Señor, mi fortaleza en el Señor se exalta,\n          G                                 E7                                       Am         F-G-Am\nMi boca cantará sin temor contra mis adversarios.   X2\n[PRE-CORO]:\n    G-F                                          G       Am   G         Am      G-F                                        G                       Am-Bm-C-D-C\nPor cuanto me regocijo en su salvación,           diré que no hay Dios como mi Dios.\n          F                                         G       Am   G         Am     G-F                                          G                          E\nPor cuanto me regocijo en su salvación,           diré que no hay Santo como el Señor.\n[CORO]:\n                            Am                                                       F\nX2    No hay santo como el Señor, no hay santo como el Señor,\n                   G                            E7                         Am\nNo hay santo como el Señor, nuestro Dios.   X2"
+  },
+  {
+    "id": 393,
+    "title": "ALGUIEN ESTÁ AQUÍ",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 13  |  EBENEZER\nMIX 13  |  EBENEZER\nVIOLIN   | G | C | G | C |   —   | C | G | C | G | C |\nX5      Es Cristo Oh.    X5         |       TROMPETAS\n[VERSO 1]:\n       C                                                              G\nAlguien está aquí y yo sé que es Cristo,\n                                                                            C\nAlguien está aquí y yo sé que es el Señor.\n                                                                            G\nMe puede bautizar y yo sé que es Cristo,\n                                                                                C\nMe puede bautizar y yo sé que es el Señor.\n[CORO]:\n                        C                                          G\nX2      Yo siento en mi ser a un Cristo de poder,\n                                                                    C\nYo siento en mi ser al Espíritu Santo,\n                                                                               F\nYo siento en mi ser que Ángeles del cielo,\n                                  G                                         C\nAcampan a mi lado y me ayudan a vencer.    X2\n                                                                                                       F                      G                                          C\nVIOLIN         —     SE REPITE TODO      —      X2    Acampan a mi lado y me ayudan a vencer.  X2"
+  },
+  {
+    "id": 394,
+    "title": "LOS ENEMIGOS DE LA FE",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 10  |  EBENEZER\nMIX 10  |  EBENEZER\n                       Ab                                   Eb                     Cm        Ab\nX2    Se burlaban de mí, los enemigos de la fe y clamaban:\n  Fm                 G                                                Ab                                                Eb          Cm\n“No hay salvación para él” Mas yo tomado de su mano, este desierto pasaré,\n               Ab        Fm               G                         Ab      Fm             Cm\nEstoy seguro de mi salvación, estoy seguro de mi salvación.     X2\n[VERSO 1]:\n                                                 Cm\nX2   No me avergüenzo, del evangelio, que ha sido gran poder\n                                                                    Eb                   Fm               G                  Cm\nY libertad en la verdad gracias a él… Hoy levanto el nombre de Jehová.   X2\n[CORO]:\n                                      Ab                  Eb           Bb                     Cm                Ab-Eb    Bb             Cm\nX2     Hoy me encuentro en corros, porque lo que siento, es salvación en mi corazón,\n                  Ab              Eb     Bb             Cm                   Ab-Eb   Bb              Cm\nHoy levanto mis pies, no me cansaré, hay salvación en mi corazón.     X2\n[INSTRUMENTAL]:\n| Ab | Eb | Bb | Cm |\nX4     Bueno es Dios, (Bueno es Dios) Bueno es Dios, (Bueno es Dios)   X4"
+  },
+  {
+    "id": 395,
+    "title": "HAY FIESTA, FIESTA",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "[CORO]:\n1\n                    Em                 Am                                                 D                    G\nX3   Hay fiesta, fiesta, en el pueblo santo, hay fiesta, fiesta, en los desposados,\n            Em                               Am                                  B                                                             Em\nLos niños danzan, los jóvenes y viejos declaramos: que en este lugar hay fiesta.    X3\n[VERSO 1]:\n                                 Em                                                      D\nX2    Quiero alabarle, quiero gozarme, con alegría quiero danzarle,\n                            C                           Am                     Em                                             B\nMi Dios es bueno, todo el tiempo, quiero saltar, dar vueltas sin parar, quiero alabarle.    X2\n[CORO]:\n2\n           Em                                                                     D\nX2    Vivo en victoria cada día (Quiero alabarle), lleno mi vida de alegría,\n                   C                                                 Am                                           B                                                              Em\nQuiero alabar con acciones de gracias, con danza, con júbilo y gozo a mi rey, quiero alabarle.   X2\n[VERSO 2]:\n                  Em              G                  Am                                            B\nX2   A poseer, a poseer, a poseer la tierra que Él nos dio.    X2\n                  Am                   D                         G                  Em           Am                   D                           G                   Em\nX2   La victoria es nuestra en el nombre de Jesús, tomaremos naciones, en el nombre de Jesús,\n                                                          B\nNingún gigante nos podrá frenar.  X2                      —                VERSO 2"
+  },
+  {
+    "id": 396,
+    "title": "ENTONCES LA IGLESIA",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS     | Em | Am-B | Em |\n[VERSO 1]:\n                 Em                                                                                          Am             B                      Em\nX2    Entonces la iglesia se alegrará en la danza, los jóvenes y ancianos juntamente. X2\n[CORO]:\n            Am-D                      G     Em      B                            Em\nX2   Cambiaré su lloro en gozo y los alegraré en él,\n          Am-D                 G   Em                  B                                                   Em\nCambiaré su lloro en gozo, me alegraré, me alegraré en el Señor.   X2\nTROMPETAS"
+  },
+  {
+    "id": 397,
+    "title": "GRITA, CANTA, DANZA",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 11  |  EBENEZER\nMIX 11  |  EBENEZER\nTROMPETAS   | Cm | Ab | Bb | G |\n[CORO]:\n           Cm                                                                                 Ab\nX2    Grita, canta, danza alegremente en su presencia, gira, salta dando vueltas\n               Bb                         G                                                Cm\nPara Cristo, Él vive, vive para siempre, Él es el Rey.     X2"
+  },
+  {
+    "id": 398,
+    "title": "TROMPETAS — CORO",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS\n                          F                            C                               G                   Am\nX4     ¡Mi Cristo, Hey! ¡Mi Cristo, Hey! ¡Mi Cristo es el Mesías!     X4"
+  },
+  {
+    "id": 399,
+    "title": "X2 CORO GRITA… CANTA… DANZA... X2",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS"
+  },
+  {
+    "id": 400,
+    "title": "YO VOY A IR A OTRA DIMENSIÓN",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 21  |  EBENEZER\nMIX 21  |  EBENEZER\n[VERSO 1]:\n         Cm                                                    Eb                                                         Fm\nX2     Yo voy a ir a otra dimensión,     yo voy a ir a otra dimensión,\n                                                                   G\nYo voy a ir a otra dimensión, yo voy, yo voy, yo voy, yo voy, yo voy.    X2\n[CORO]:\n                               Ab                              Eb              Ab                Eb            Fm\nX2    Porque grandes, son sus obras, su poder, maravilloso,\n                                                                  G\nCielos y tierra su nombre glorifica  -  a  -  ar.    X2           —    SE REPITE TODO       |     X2   Glorificar...  X2"
+  },
+  {
+    "id": 401,
+    "title": "El SEÑOR ES MI REY",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS   | Cm | Bb-Cm | Bb-Ab | Eb-Cm-Ab | Eb-Ab | Cm-Ab | Cm-Bb-Cm |\n[CORO]:\n       Cm                                            Bb-Cm                                                  Bb-Ab\nX2      El Señor es mi Rey mi todo,       el Señor es mi luz mi Rey,\n                                                      Eb-Cm-Ab                                        Eb    Ab\nEl que me hace vibrar de gozo,               el que guía mis pasos,\n                                              Cm   Ab                               Cm – Bb – Cm\nEl que extiende sus brazos,      el creador de los ci-e–los…   X2\nTROMPETAS"
+  },
+  {
+    "id": 402,
+    "title": "CAMINO AL CIELO YO VOY",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 11  |  EBENEZER\nMIX 11  |  EBENEZER\nTROMPETAS  | Em | B | Em | B |\n[VERSO 1]:\n             Em                                                                       B\nX2    Estoy contento porque en Él tengo la vida,\n                                                                      Em\nLa Vida eterna que Jesucristo me dio,\n                                                                          B\nYo tengo gozo, tengo paz, tengo alegría, Ca-mi-no al cie-lo yo voy.\n                Em                                                          B\nEsta alegría que yo siento aquí en mi vida,\n                                                                                 Em\nYo no la cambio por la gloria de este mundo\n                                                                       B\nEstaba muerto y Jesús me dio la vida, Ca-mi-no al cie-lo yo voy.\n[CORO]:\n                              Em                      B                                                                                       Em\nX2    Yo tengo gozo, tengo alegría, tengo a Jesús, tengo la paz, tengo la vida,\n                     Em                      B\nYo tengo gozo, tengo alegría Ca-mi-no al cie-lo yo voy.    X2\nTROMPETAS\n                                  B\n[FINAL]:\nX2  Camino al cielo yo voy...  X2"
+  },
+  {
+    "id": 403,
+    "title": "COMO HIZO DAVID",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 26  |  EBENEZER\nMIX 26  |  EBENEZER\nTROMPETAS    | Cm | Gm | Cm | Gm |  | Bb | Cm |\n[VERSO 1]:\n              Cm                    Gm                                  Cm                   Gm         Bb                    Cm        G\nComo hizo David delante de Dios, yo danzaré y me gozaré delante de mí Rey.\n             Cm                                  Gm                   Cm                Gm           Bb                   Cm        G\nComo hizo María con el tamboril, yo aplaudiré y cantaré delante de mí Rey.\n              Cm                             Gm                     Cm                                Gm                  Bb                   Cm        G\nComo hizo Judá cuando fue a pelear, daré un grito de aclamación delante de mí Rey.\n              Cm                    Gm                                  Cm                   Gm         Bb                    Cm        G\nComo hizo Josué en Jericó, gritaré y conquistaré delante de mí Rey.\n[VERSO 2]:\n                Ab             Bb                            Ab               Cm\nAhora puedo yo venir ante ti y alabarte, mi Rey.\n              Ab                Bb             Ab           Cm\nMe postraré y adoraré a Cristo mi Rey.\nTROMPETAS"
+  },
+  {
+    "id": 404,
+    "title": "PODEROSO DE ISRAEL",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 12  |  EBENEZER\nMIX 12  |  EBENEZER\n[VERSO 1]:\n             Cm                                                                                                                 Gm\nY de noche cantaremos, celebrando su poder, con alegría de corazón,\n                                                                                                                                                 Cm\nComo el que va con la flauta, al monte del Señor, celebraremos su poder.\n[CORO]:\n                                  Cm                                                             Gm\nX2     Él es el Poderoso de Israel, el Poderoso de Israel,\n                                                                                                          Cm\nSu voz se oirá, nadie lo detendrá, al Poderoso de Israel.     X2\n[VERSO 2]:\n             Cm                                                                                                                                    Gm\nY los ojos de los ciegos se abrirán y ellos verán, los oídos de los sordos, oirán,\n                                                                                                                                    Cm\nEl cojo saltará, con el arpa danzará, la lengua de los mudos cantará.                 CORO"
+  },
+  {
+    "id": 405,
+    "title": "PON ACEITE",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS   | Em | B | Em | Am | Em | B | Em |\n[VERSO 1]:\n                      Em                                        B                                                                 Em\nX2    Pon aceite en mi lámpara Señor, pon aceite en mi lámpara Señor\n                     E                                  Am                  Em                       B          Em\nQue yo quiero servirte con amor, pon aceite en mi lámpara Señor.   X2\n[CORO]:\n                  B                            Em                    B                             Em\nSeñor Jesús tu eres mi vida, Señor Jesús tu eres mi amor,\n      Am                            Em                                 B                        Em\nsalvaste mi alma perdida, por eso te alabo con el corazón,\n      Am                            Em                                 B                        Em                                                                        B / Em\nsalvaste mi alma perdida, por eso te alabo con el corazón.               X2   con el corazón. X2"
+  },
+  {
+    "id": 406,
+    "title": "MAGNÍFICO",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS   | F#m | D | Am | C | Em |\n[VERSO 1]:\n                   Am                              Dm                             Am        G         C           Dm                                         Am [E]\nX2      Magnífico Dios, mi corazón se regocija en el Señor,       mi espíritu se regocija en Cristo. X2\nTROMPETAS\n[CORO]:\n                                   Dm                                                  Am                               E            Am\nX3   Por que ha hecho grandes cosas es mi Dios tan poderoso     (Magnifico)\n            Dm                                         Am                                          E         Am               Dm                Am        E         Am\nSanto es su nombre, su misericordia es para siempre (Magnifico) Magnífico, Magnífico, (Magnifico)   X3"
+  },
+  {
+    "id": 407,
+    "title": "RÍO DE ALABANZA",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 20  |  EBENEZER\nMIX 20  |  EBENEZER\nTROMPETAS    | D | Em | D | Em | D-C-D | Em |\n[VERSO 1]:\n               Em                                        D                            Em                            D                      Em\nX2    Grande es el Señor maravillosos sus prodigios, y en la fuerza de su mano hay poder\n                    D                     Em                               D   C-D    Em\nY en la fuerza de su mano hay poder, para,        vencer. X2\n[CORO]:\n                 D             Em                          D            Em                                             D                                           Em\nX2    Un río de alabanza daré y solo ante él danzaré, pues ha cambiado mi lamento en baile,\n                           D                                           Em          D       C-D             Em\nPues ha cambiado mi lamento en baile, grande           es el Señor.  X2\nTROMPETAS\n[FINAL]:\nX2  Grande es el Señor…  X2"
+  },
+  {
+    "id": 408,
+    "title": "EL ESPÍRITU Y LA NOVIA",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS   | Em | B | Em | B |\n[VERSO 1]:\n                  Em                                                         B\nX2    Estamos anunciado que Cristo volverá,\n                                                                                     Em\nEstamos celebrando que el rey pronto vendrá,\n                                                                 B\nEstamos esperando al que regresará,\n                                             Em\nY en las nubes nos llevará.    X2\n[CORO]:\n                     Em                                         B\nX2     El Espíritu y la novia dicen Ven Jesús,\n                                                           Em\nEl Espíritu y la novia dicen Ven Jesús,\n                                                            B\nEl Espíritu y la novia dicen Ven Jesús\n                         Em\nVen Señor Jesús.   X2\nTROMPETAS"
+  },
+  {
+    "id": 409,
+    "title": "YO LE ALABO DE CORAZÓN",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 16  |  EBENEZER\nMIX 16  |  EBENEZER\n            C                                                G                                                           C\nX2     Con mi voz o con mis manos, con mis pies  o con mi alma,\n                                                 G                                                          C\nO es que ya me fui con Él... (O es que ya me fui con Él).    X2\n[VERSO 1]:\n                                                G                                                   C\nX2     Yo le alabo de corazón, yo le alabo con mi voz,\n                                      G                                                 C\nYo le alabo de corazón, yo le alabo con mi voz,\n                                 G                                                   C\nY si me falta la voz, yo le alabo con las manos,\n                                          G                                                   C\nY si me faltan las manos, yo le alabo con los pies,\n                                       G                                              C\nY si me faltan los pies, yo le alabo con el alma,\n                                        G                                                 C\nY si me faltara el alma, es que ya me fui con Él.     X2"
+  },
+  {
+    "id": 410,
+    "title": "YESHUA HAMASCHIACH",
+    "compositor": "Tradicional",
+    "tono": "F",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 24  |  NEW WINE\nMIX 24  |  NEW WINE\n[INSTRUMENTAL]:\n|  TROMPETAS   | F | C | G | Am |\n                                                        F                          C                     G              Am\n[CORO]:\nX4    Me gozaré y me alegraré en el Dios de Israel.   X4"
+  },
+  {
+    "id": 411,
+    "title": "TROMPETAS — INSTRUMENTAL",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS\n[CORO]:\n                                      Ab                  Eb           Bb                     Cm                Ab-Eb    Bb             Cm\nX2     Hoy me encuentro en corros, porque lo que siento, es salvación en mi corazón,\n                  Ab              Eb     Bb             Cm                   Ab-Eb   Bb              Cm\nHoy levanto mis pies, no me cansaré, hay salvación en mi corazón.     X2"
+  },
+  {
+    "id": 412,
+    "title": "CAMPAMENTO CELESTIAL",
+    "compositor": "Tradicional",
+    "tono": "F",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 25  |  EBENEZER\nMIX 25  |  EBENEZER\n   F                     G                        Am        F                    G                          Am\nSea al Rey Jesús toda la Gloria, sea al Rey Jesús todo el poder\n         F              G                          Am     F                            Dm                 E\nMuchos temerán y ellos dirán, que Jehová hoy vino fiesta hacer.\nTROMPETAS     | F | G | Am | E |\n[VERSO 1]:\n                      F            G                          C          G    Am             F                   G                        Esus4    E\nX2    Y ángeles bajaron, con nosotros festejaron, somos campamento celestial,\n               F                         G              C              G      Am       F                           G                  Esus4     E\nSe hicieron como niños alabando y danzando, unidos con nosotros sin parar.   X2\n                  Am         F               G                       E-Am\nX4     Aleluya, aleluya, aleluya, sea al rey.     X4\nTROMPETAS"
+  },
+  {
+    "id": 413,
+    "title": "REGOCÍJATE OH MORADORA DE SION",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 22  |  EBENEZER\nMIX 22  |  EBENEZER\nTROMPETAS   | Em | D | C | B |\n[VERSO 1]:\n                 Em         D                                 C                  B\nX4   Regocíjate Oh Moradora de Sion en tu Rey.    X4\n[CORO]:\n                C                                                               D     C                             D                  C\nX2   Grande es el Señor, grande es el Señor,      digno de suprema alabanza,\n                                D       Am                                  B\nGrande es el Señor,           y digno de adoración.    X2\nTROMPETAS"
+  },
+  {
+    "id": 414,
+    "title": "VIOLIN",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "F                      G                                       C\nX2    Acampan a mi lado y me ayudan a vencer.  X2"
+  },
+  {
+    "id": 415,
+    "title": "EN UNA NUBE BLANCA",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n                             C                                         G                                                                C\nX2    En una nube blanca Cristo volverá, Con poder y gloria nos levantará.  X2\n[VERSO 2]:\n                                               G                    C                                               G                     C\nX2    Cristo viene otra vez y nos llevará, Desde el cielo vendrá y nos llevará.   X2\n[VERSO 3]:\n                  F                                                   C                     Dm             G             C\nX2    Oremos hermanos en todo lugar, Y recibiremos el don celestial.   X2        SE REPITE TODO"
+  },
+  {
+    "id": 416,
+    "title": "VA BAJANDO YA",
+    "compositor": "Tradicional",
+    "tono": "C",
+    "album": "Alabanzas de Júbilo",
+    "content": "[VERSO 1]:\n              C                                                                                                     G                         Dm                            G\nVa bajando ya, va bajando ya, va bajando la gloria de Jehová, si esta Iglesia empieza a orar,\n        Em                    Am                   Dm               G                C\nEl Señor va a contestar, va bajando la gloria de Jehová.\n[VERSO 2]:\n                     C                                                                                                                                     Dm     G       C\nX2    La gloria de Jehová cayó en la Profecía y esta iglesia temblaba porque Dios está aquí.  X2\n[CORO]:\n            F                              C                                                                                           Dm    G       C\nX2   Dios está aquí, Dios está aquí y esta iglesia temblaba porque Dios está aquí. X2         SE REPITE TODO"
+  },
+  {
+    "id": 417,
+    "title": "ALELUYEMOS",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS     | Em | C | D | B |\n[VERSO 1]:\n          Em                                                                  D\nAleluyemos con todo nuestro ser, Aleluyemos solo para Él,\n          C                                        Am                B\nAleluyemos con grande honor, si el Dios de los cielos,\nSe ha mudado a mi corazón.\n          Em                                                                  D\nAleluyemos con todo nuestro ser, Aleluyemos solo para Él,\n        C                                       Am                     B\nAleluyemos con grande honor y como no aleluyar,\nSi mi Dios vivo está.\n[CORO]:\n             Em-C-D                                                                       B\nX3    Alelu, Alelu, Alelu, Aleluyemos.    X3     Aleluyemos hoy…\n             Em-C-D                                                                       B\nX3    Alelu, Alelu, Alelu, Aleluyemos.    X3     Aleluyemos hoy…"
+  },
+  {
+    "id": 418,
+    "title": "DANDO VUELTAS SIN PARAR",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS     | Bb | F | Bb | F | Gm | C | Dm |\n[CORO]:\n                              Bb                F                           Bb               F                Gm                  C             Dm\nX2    Dando vueltas sin parar, dando vueltas sin parar, celebrando al Dios de Israel.    X2\n                                                                                                                                               Gm                C            Dm\nTROMPETAS        —             CORO        |      X2   celebrando al Dios de Israel.   X2"
+  },
+  {
+    "id": 419,
+    "title": "LA MESA",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 22  |  EBENEZER\nMIX 22  |  EBENEZER\nTROMPETAS    | Am | G-Am | E |   —    | F | Am | G | Dm |\n[VERSO 1]:\n           Am                                         C          Dm              G          Am              Bb\nReconocerán que Jesús es Dios, toda lengua lo confesará.\n          Am                            C                             Dm                    G                Am\nNo habrá duda ni argumento, esta sentado a la diestra del Señor.\n[VERSO 2]:\n           F           C      G                                        Am           F                         C      E                         Am\nSe levanta hoy,        el canto de los redimidos,       Jesús es Dios,       Mesías escogido.\n[CORO]:\n                          F                                                             Am         G                Dm\nX2     El preparará mesa delante de mis enemigos, yo cenaré y beberé.  X2\nTROMPETAS"
+  },
+  {
+    "id": 420,
+    "title": "LA VOZ DE MI AMADO",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS    | Am | F | E |\n[VERSO 1]:\n                  Am                                                                                         Dm       Am                                   F        G     Am\nX2      La voz de mi amado se oye ya.    X2     |    X2      Ya viene saltando sobre los montes y collados.    X2\n[CORO]:\n            G                              Am             G                        Am         F             G      Am\nMi amado habló y me dijo, Levántate amada mía hermosa mía y ven.\n                         G                                     Am                           G                                  Am\nPorque he aquí ha pasado el invierno, se ha marchado la lluvia se fue.\n                      Dm                                       Am                   Dm                   Am                E\nSe han mostrado las flores del campo, y el tiempo de la canción, ya llegó.\nTROMPETAS"
+  },
+  {
+    "id": 421,
+    "title": "LOS QUE ESPERAN EN JEHOVÁ",
+    "compositor": "Tradicional",
+    "tono": "Em",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS   | Em | B | Em | Am | Em | B | Em |\n[VERSO 1]:\n                               Em                                                         B7\n X2   Los que esperan, los que esperan en Jehová,\n                                                                                 Em\nLos que esperan, los que esperan en Jehová,\n                     Am-D                           G-Em             B            Em\nComo las águilas, como las águilas sus alas levantarán,\n                      Am-D                           G-Em             B            Em\nComo las águilas, como las águilas sus alas levantarán.   X2\n[CORO]:\n         D                              G                      D                               G\nCorrerán y no se cansarán, caminarán, no se fatigarán,\n                          Am-D                        G-Em\nX2   Nuevas fuerzas tendrán, nuevas fuerzas tendrán,\n                         B                                                       Em\nLos que esperan, los que esperan en Jehová.   X2"
+  },
+  {
+    "id": 422,
+    "title": "JEHOVÁ TU TRONO",
+    "compositor": "Tradicional",
+    "tono": "G",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 23  |  EBENEZER\nMIX 23  |  EBENEZER\n[VERSO 1]:\n              Cm                               Fm         Bb[G]             Cm                            G                  Cm\nX2    Jehová eterno es tu poder, desde la eternidad...   X2   Hasta la eternidad…\n[CORO]:\n            Cm         Ab             Bb                                Cm\nX4   Jehová, Jehová, Jehová su trono inamovible es.    X4\n                                                Cm         Ab        Bb              Cm\nSE REPITE TODO                       —        X4  La ra la ra la lara la ra la la.  X4\n[VERSO 1]:\n                     Cm                                              Fm         Bb [G]           Cm                          G                Cm\nX2   Anunciamos tus victorias con honor, exaltando tu poder… X2   Exaltando tu poder…\n                                                Cm         Ab        Bb              Cm\n[CORO]:\nX2                           —           X4  La ra la ra la lara la ra la la.  X4"
+  },
+  {
+    "id": 423,
+    "title": "BUENO ES",
+    "compositor": "Tradicional",
+    "tono": "F",
+    "album": "Alabanzas de Júbilo",
+    "content": "[INSTRUMENTAL]:\nX4    Bueno es, (Bueno es), Bueno es, (Bueno es)    X4\nTROMPETAS\n[VERSO 1]:\nX2   Mi Dios es bueno, y su misericordia es para siempre,\nMi Dios es bueno, y su misericordia es para siempre.     X2\n[CORO]:\nX2     Él es bueno... Él es bueno... Él es bueno... Él es bueno...  X2"
+  },
+  {
+    "id": 424,
+    "title": "EL REY DE GLORIA",
+    "compositor": "Tradicional",
+    "tono": "F",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS\n[VERSO 1]:\nX4      El Rey de Gloria Está vivo, Está vivo, Está vivo...    X4\n[CORO]:\nX2      Vivo está… vivo está… vivo está… vivo está…   X2\nTROMPETAS"
+  },
+  {
+    "id": 425,
+    "title": "TÚ HAS SIDO FIEL",
+    "compositor": "Tradicional",
+    "tono": "F",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 27  |  EBENEZER\nMIX 27  |  EBENEZER\nTROMPETAS    | Gm | Dm | A | Dm |\n[VERSO 1]:\n Dm                                            Bb             A7\nCon tremendas cosas, tú me responderás\n                                                                    Dm\nCon tremendas cosas, tu me saciarás\nDm                                                                    A7\nCon tremendas cosas, muestras fidelidad\n                                                                         Dm\nCon tremendas cosas, tu me sorprenderás\n\n[CORO]:\n                                 Gm                          Dm\nX2    Tú has sido fiel, tú has sido fiel\n                          A                          Dm\nTú has sido fiel, tú has sido fiel.   X2\nTROMPETAS"
+  },
+  {
+    "id": 426,
+    "title": "SUBE, SUBE",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 26  |  EBENEZER\nMIX 26  |  EBENEZER\nTROMPETAS\n[CORO]:\nX2   Sube, sube, sube nuestra alabanza, con manos extendidas y acción de gracias,\nCon todas mis fuerzas, alegría y danza, doy vueltas en el aire y grito alabanzas.    X2\n[VERSO 1]:\nX2     El Tabernáculo caído de David hoy en día lo levantamos\nPara que los hombres busquen al Señor\nUn lugar de danza y alabanza extravagante.    X2                 —             CORO     |    VERSO 1\nTROMPETAS\n[VERSO 2]:\nX2     Yo vengo al Tabernáculo de David, lugar de adoración para todas las naciones\nDonde los ciegos y los cojos se sanan, el pueblo se llena de su unción\nPara llevarla a sus casas.    X2\n[VERSO 3]:\nX2     Un lugar de intimidad con Dios, donde adultos y niños alaban con libertad,\nPureza y luz que quema, donde la oscuridad no se puede quedar,\nUn lugar de revelación y guía.   X2\nTROMPETAS\n[VERSO 4]:\nX2     Jesús está sentado en su trono de autoridad,\nEl fuerte cetro de su Señorío sale desde Sion\nDeclaramos guerra, contrapotestades,\nGobernamos en el poder de resurrección.     X2                —               CORO\nSube, sube, sube, Sube, sube, sube,\nSube, sube, sube, Sube, sube, sube."
+  },
+  {
+    "id": 427,
+    "title": "REMOLINEANDO",
+    "compositor": "Tradicional",
+    "tono": "Cm",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 26  |  EBENEZER\nMIX 26  |  EBENEZER\nTROMPETAS\n[VERSO 1]:\n             Cm                                                                                   Bb                      Cm\nHay muchas formas de alabar tu nombre, y de exaltarte, oh, Jehová\n                               Ab      Bb            Cm                         –Bb-G          Cm\nHay muchas formas de magnificarte, pero ahora lo haré así.\n[VERSO 2]:\n   Cm                                                                      Bb                                Cm\nSacó mi vida del anonimato, me dio corona y un vestido real,\n                  Ab                     Bb           Cm                                      Bb -G                          Cm\nAsí es Jehová, que exalta al pequeño, por causa de Él yo me haré más vil.\n[CORO]:\n                    Cm                                                        Bb               Cm\nX2    Remolineando, remolineando, celebraré a Jehová,\n                                                                                               Bb             G                Cm\nRemolineando, remolineando, me haré más vil por causa de Jehová.  X2\nTROMPETAS"
+  },
+  {
+    "id": 428,
+    "title": "SALGA DE SU CÁMARA",
+    "compositor": "Tradicional",
+    "tono": "F",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS    | Am | G | Am | Am | G | Am |  —   | Dm | Am | F-G-Am |\n[VERSO 1]:\n             Am                                                  G                                    Am\nX2     Salga de su cámara el novio, y de su tálamo la novia.  X2\n             Dm                                  Am       F              G                       Am\nX2     Entre la entrada y el altar, lloren sacerdotes, ministros de Jehová.  X2\n       Am         C                                            Am                                          G                                 Am\nY digan: Perdona, oh Jehová a tu pueblo, no desprecies para siempre su heredad\n                Dm                                        Am                 F           G          Am\nX2     Porque han de decir los pueblos: ¿Dónde está tu Dios?  X2\n                F              G-Am      F    G               Am\nX2     Jehová responderá y dirá a su pueblo.   X2\n         Dm                         Am         F                G                            Am\nHe aquí, yo os envío pan, mosto y aceite, y seréis saciados.\nTROMPETAS"
+  },
+  {
+    "id": 429,
+    "title": "AÑO DEL JUBILEO",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "MIX 27  |  EBENEZER\nMIX 27  |  EBENEZER\nTROMPETAS\n[CORO]:\n            Dm                                                 Bb                  C     F    A\nX2     Aquí     hay     libertad, es el año    del    jubileo,\n Dm                                 Bb    C               Bb        A                Bb        C\nNo hay más cautividad,        hay libertad     , hay libertad.   X2\nTROMPETAS\n[PUENTE]:\n                          Bb        A                      Bb        C\nX2      Hay libertad,          hay libertad.    X2"
+  },
+  {
+    "id": 430,
+    "title": "LIBERTAD",
+    "compositor": "Tradicional",
+    "tono": "Am",
+    "album": "Alabanzas de Júbilo",
+    "content": "TROMPETAS    | G | F | G | F |\n[VERSO 1]:\n              Cm\nX2     Cuando los enemigos nos tenían acorralados\n            F                                                          Cm\nY no Sabíamos, no sabíamos que hacer,\n   G                             F                                              G\nFue allí cuando vino el poder del más grande. X2\n\n[CORO]:\n                                      Cm\nX2      Y el mar se Abrió y el pueblo del Señor cruzó,\n                            F                                           Cm\nY el mar se abrió y todo su pueblo libertó,\n   Eb                      F                                        Bb                     Gm\nNube de día fuego de noche, Dios esta con su pueblo.  X2\nTROMPETAS"
+  }
+];
