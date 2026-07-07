@@ -265,6 +265,39 @@ body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;m
   inset:0;
   pointer-events:none;
 }
+.splash-particles{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.sp-nota, .sp-gota{
+  position:absolute;
+  bottom:-8%;
+  opacity:0;
+  animation-name:spSubir;
+  animation-timing-function:ease-in;
+  animation-iteration-count:infinite;
+}
+.sp-nota{
+  color:var(--gold2);
+  opacity:0;
+  text-shadow:0 0 6px rgba(232,201,122,0.5);
+}
+.sp-gota{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(139,199,255,0.9), rgba(139,199,255,0.05));
+  box-shadow:0 0 6px rgba(139,199,255,0.5);
+}
+@keyframes spSubir{
+  0%{ transform:translateY(0) translateX(0); opacity:0; }
+  10%{ opacity:0.85; }
+  50%{ transform:translateY(-55vh) translateX(10px); opacity:0.6; }
+  90%{ opacity:0; }
+  100%{ transform:translateY(-100vh) translateX(-6px); opacity:0; }
+}
 .ambient-glow{
   inset:-25%;
   background:
@@ -273,106 +306,6 @@ body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;m
     radial-gradient(circle at 55% 80%, rgba(241,130,75,0.06), transparent 30%),
     radial-gradient(circle at 50% 92%, rgba(255,255,255,0.08), transparent 24%);
   animation:glowDrift 16s ease-in-out infinite alternate;
-}
-.splash-waves{
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  opacity:0.95;
-}
-.splash-waves::before,
-.splash-waves::after{
-  content:"";
-  position:absolute;
-  left:-10%;
-  width:120%;
-  height:52%;
-  border-radius:50%;
-  filter:blur(0.2px);
-}
-.splash-waves::before::before,
-.splash-waves::after::before{
-  content:"";
-}
-.splash-waves{
-  background:
-    radial-gradient(circle at 10% 8%, rgba(255,255,255,0.90) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 18% 22%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 30% 12%, rgba(232,201,122,0.72) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 42% 18%, rgba(139,199,255,0.62) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 58% 10%, rgba(255,255,255,0.80) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 72% 16%, rgba(241,130,75,0.52) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 86% 6%, rgba(255,255,255,0.86) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 94% 20%, rgba(255,255,255,0.68) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 8% 86%, rgba(255,255,255,0.84) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 18% 76%, rgba(232,201,122,0.62) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 32% 90%, rgba(255,255,255,0.70) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 46% 82%, rgba(139,199,255,0.60) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 58% 94%, rgba(255,255,255,0.76) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 70% 84%, rgba(241,130,75,0.50) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 84% 92%, rgba(255,255,255,0.82) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 94% 80%, rgba(255,255,255,0.68) 0 1px, transparent 1.2px);
-  background-repeat:no-repeat;
-  background-size:100% 100%;
-  opacity:0.98;
-  animation:starDrift 22s linear infinite;
-}
-.splash-waves::before{
-  bottom:0;
-  background:
-    radial-gradient(circle at 12% 12%, rgba(255,255,255,0.88) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 24% 8%, rgba(255,255,255,0.74) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 36% 14%, rgba(232,201,122,0.72) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 48% 10%, rgba(139,199,255,0.64) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 60% 16%, rgba(255,255,255,0.82) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 72% 10%, rgba(241,130,75,0.52) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 84% 14%, rgba(255,255,255,0.86) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 92% 8%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 10% 50%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 22% 42%, rgba(232,201,122,0.58) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 34% 56%, rgba(255,255,255,0.80) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 46% 44%, rgba(139,199,255,0.62) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 58% 52%, rgba(255,255,255,0.78) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 70% 40%, rgba(241,130,75,0.48) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 82% 54%, rgba(255,255,255,0.84) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 92% 46%, rgba(255,255,255,0.70) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 12% 86%, rgba(255,255,255,0.86) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 24% 92%, rgba(232,201,122,0.66) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 38% 82%, rgba(255,255,255,0.74) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 50% 94%, rgba(139,199,255,0.58) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 62% 84%, rgba(255,255,255,0.80) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 74% 96%, rgba(241,130,75,0.50) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 86% 88%, rgba(255,255,255,0.84) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 96% 94%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px);
-  background-repeat:no-repeat;
-  background-size:100% 100%;
-  opacity:0.92;
-  animation:starDrift 32s linear infinite reverse;
-}
-.splash-waves::after{
-  bottom:0;
-  height:100%;
-  background:
-    radial-gradient(circle at 6% 90%, rgba(255,255,255,0.85) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 16% 84%, rgba(232,201,122,0.62) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 26% 96%, rgba(255,255,255,0.72) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 42% 88%, rgba(139,199,255,0.60) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 58% 94%, rgba(255,255,255,0.78) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 74% 86%, rgba(241,130,75,0.52) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 88% 96%, rgba(255,255,255,0.84) 0 1.2px, transparent 1.5px),
-    radial-gradient(circle at 6% 84%, rgba(255,255,255,0.45) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 20% 92%, rgba(232,201,122,0.26) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 36% 80%, rgba(139,199,255,0.30) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 52% 94%, rgba(255,255,255,0.40) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 70% 86%, rgba(241,130,75,0.26) 0 1px, transparent 1.2px),
-    radial-gradient(circle at 86% 96%, rgba(255,255,255,0.44) 0 1px, transparent 1.2px);
-  background-repeat:no-repeat;
-  background-size:100% 100%;
-  opacity:0.45;
-  animation:starDrift 34s linear infinite reverse;
-}
-.splash-ripples{
-  display:none;
 }
 .scene-header, .song-header{
   position:relative;
@@ -509,7 +442,7 @@ body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;m
   pointer-events:none;
 }
 .splash-content::after{
-  content:"✝";
+  content:"✝\FE0E";
   position:absolute;
   left:50%;
   top:-92px;
@@ -591,6 +524,22 @@ body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;m
 @keyframes splashBounce{
   0%,80%,100%{ transform:scale(0.6); opacity:0.4; }
   40%{ transform:scale(1); opacity:1; }
+}
+.btn-entrar-splash{
+  opacity:0; transform:translateY(8px) scale(0.96); pointer-events:none;
+  transition:opacity 0.5s ease, transform 0.5s ease;
+  background:linear-gradient(135deg,#c9a84c,#e8c97a); color:#1c1c3f;
+  border:none; border-radius:30px; padding:12px 44px; font-size:1rem; font-weight:800;
+  letter-spacing:0.5px; cursor:pointer; margin-top:4px;
+  box-shadow:0 0 0 rgba(232,201,122,0.5);
+}
+.btn-entrar-splash.show{
+  opacity:1; transform:translateY(0) scale(1); pointer-events:auto;
+  animation:entrarPulso 1.8s ease-in-out infinite;
+}
+@keyframes entrarPulso{
+  0%,100%{ box-shadow:0 0 0 0 rgba(232,201,122,0.55); }
+  50%{ box-shadow:0 0 0 12px rgba(232,201,122,0); }
 }
 @keyframes splashPulse{
   0%,100%{ transform:scale(1); opacity:1; }
@@ -732,6 +681,28 @@ z-index: 100;
 .song-item{padding:10px 16px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;border-bottom:1px solid rgba(255,255,255,0.03);}
 .song-item:hover{background:var(--bg3);border-left-color:var(--gold);}
 .song-item.active{background:var(--bg3);border-left-color:var(--gold2);}
+.pdf-card{
+  display:flex; align-items:center; gap:12px; padding:8px; cursor:pointer;
+  background:var(--bg2); border:1px solid var(--border); border-radius:10px;
+  transition:all 0.15s;
+}
+.pdf-card:hover{ border-color:var(--gold); background:var(--bg3); }
+.pdf-card.active{ border-color:var(--gold2); background:var(--bg3); }
+.pdf-card img{
+  width:48px; height:62px; object-fit:cover; border-radius:6px; flex-shrink:0;
+  box-shadow:0 2px 6px rgba(0,0,0,0.4);
+}
+.pdf-card-title{ color:var(--text); font-size:0.85rem; font-weight:600; line-height:1.35; }
+.pdf-list-wrap{
+  height:calc(100vh - 52px); overflow-y:auto; box-sizing:border-box;
+  display:flex; flex-direction:column; align-items:center;
+  padding:28px 16px 40px; background:#111126;
+}
+.pdf-cards-centered{
+  display:flex; flex-direction:column; align-items:stretch;
+  gap:20px; width:100%; max-width:420px;
+}
+.pdf-cards-centered .pdf-card{ width:100%; box-sizing:border-box; }
 
 /* === Vista por Grupos/Artistas (pantalla completa, cuadricula 3 columnas) === */
 .compositores-overlay{
@@ -1084,16 +1055,62 @@ body.light-theme .audio-player .ap-time{color:#7a6a4d;}
   border-color: rgba(232,201,122,0.75);
 }
 
+/* === Pestañas de la pantalla Acerca de === */
+.historia-tab-btn {
+  background: var(--bg2); color: var(--text2); border: 1px solid var(--border);
+  padding: 9px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;
+  cursor: pointer; transition: all 0.2s;
+}
+.historia-tab-btn.active {
+  background: linear-gradient(135deg,#c9a84c,#e8c97a); color: #1c1c3f; border-color: var(--gold2);
+}
+.verso-card {
+  background: var(--bg2); border: 1px solid var(--border); border-left: 3px solid var(--gold);
+  border-radius: 10px; padding: 16px 18px; margin-bottom: 6px;
+}
+.verso-card p {
+  color: var(--text); font-size: 0.88rem; font-style: italic; line-height: 1.6; opacity: 0.92; margin: 0;
+}
+.verso-card span {
+  display: block; color: var(--gold); font-style: normal; font-size: 0.78rem; margin-top: 8px; letter-spacing: 0.5px;
+}
+.btn-abrir-biblia {
+  display: block; text-align: center; text-decoration: none;
+  background: linear-gradient(135deg, #1d2677, #1b2152); color: var(--text);
+  border: 0.2px solid rgba(201,168,76,0.34); padding: 14px; border-radius: 10px;
+  font-size: 0.95rem; font-weight: bold; transition: all 0.2s;
+}
+.btn-abrir-biblia:hover { border-color: rgba(232,201,122,0.75); }
+.galeria-grid{
+  display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
+}
+.galeria-thumb{
+  width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px;
+  border:1px solid var(--border); cursor:pointer; transition:transform 0.15s, border-color 0.15s;
+}
+.galeria-thumb:hover{ border-color:var(--gold); transform:scale(1.02); }
+@media(min-width:520px){
+  .galeria-grid{ grid-template-columns:repeat(3, 1fr); }
+}
+
 /* === Fondo con movimiento sutil en la pantalla de menú === */
 #screen-menu {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(90deg, #f1824b, #1d2677, #3a2a7d, #101038);
   background-size: 300% 100%;
   animation: menuGradientMove 12s ease infinite;
 }
 body.light-theme #screen-menu {
-  background: linear-gradient(-45deg, #f7f2e8, #fbe6b8, #f1ece0, #fff3d6) !important;
-  background-size: 400% 400%;
+  background: linear-gradient(90deg, #f7f2e8, #fbe6b8, #f1ece0, #fff3d6) !important;
+  background-size: 300% 100%;
   animation: menuGradientMove 12s ease infinite;
+}
+
+#screen-menu .network-status,
+#screen-menu .menu-container{
+  position: relative;
+  z-index: 1;
 }
 @keyframes menuGradientMove {
   0%   { background-position: 0% 50%; }
@@ -2548,20 +2565,87 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 <!-- ============================================================ -->
 <!-- === PANTALLA DE CARGA (SPLASH) =============================== -->
 <!-- ============================================================ -->
+<script>
+var VERSOS_DEL_DIA = [
+  {texto:"Porque yo derramaré aguas sobre el sequedal, y ríos sobre la tierra árida; mi Espíritu derramaré sobre tu generación, y mi bendición sobre tus renuevos.", cita:"Isaías 44:3"},
+  {texto:"Dios es Espíritu; y los que le adoran, en espíritu y en verdad es necesario que adoren.", cita:"Juan 4:24"},
+  {texto:"Cantad a Jehová cántico nuevo; cantad a Jehová, toda la tierra.", cita:"Salmos 96:1"},
+  {texto:"Alabadle con panderos y danza; alabadle con cuerdas y flautas.", cita:"Salmos 150:4"},
+  {texto:"En su templo todo proclama su gloria.", cita:"Salmos 29:9"},
+  {texto:"Alzad, oh puertas, vuestras cabezas, y alzaos vosotras, puertas eternas, y entrará el Rey de gloria.", cita:"Salmos 24:7"},
+  {texto:"Entrad por sus puertas con acción de gracias, por sus atrios con alabanza; alabadle, bendecid su nombre.", cita:"Salmos 100:4"},
+  {texto:"Te alabaré con cítara, oh Dios, Dios mío; a ti cantaré yo salmos, y a ti, oh Santo de Israel.", cita:"Salmos 71:22"},
+  {texto:"Alabaré a Jehová con todo mi corazón; contaré todas tus maravillas.", cita:"Salmos 9:1"},
+  {texto:"Yo te alabaré, oh Señor, entre los pueblos; a ti cantaré salmos entre las naciones.", cita:"Salmos 108:3"},
+  {texto:"Cantad alegres a Dios, habitantes de toda la tierra.", cita:"Salmos 100:1"},
+  {texto:"Sea la alabanza de Dios en su boca, y espada de dos filos en su mano.", cita:"Salmos 149:6"},
+  {texto:"Los que confían en Jehová tienen nuevas fuerzas; levantarán alas como las águilas.", cita:"Isaías 40:31"},
+  {texto:"Jehová es mi fortaleza y mi cántico, y ha sido mi salvación.", cita:"Éxodo 15:2"},
+  {texto:"Regocijaos en el Señor siempre. Otra vez lo digo: ¡Regocijaos!", cita:"Filipenses 4:4"},
+  {texto:"Servid a Jehová con alegría; venid ante su presencia con regocijo.", cita:"Salmos 100:2"},
+  {texto:"Bendeciré a Jehová en todo tiempo; su alabanza estará de continuo en mi boca.", cita:"Salmos 34:1"},
+  {texto:"Alaba, oh alma mía, a Jehová, y bendiga todo mi ser su santo nombre.", cita:"Salmos 103:1"},
+  {texto:"Cantaré a Jehová mientras viva; a mi Dios cantaré salmos mientras exista.", cita:"Salmos 104:33"},
+  {texto:"Hablando entre vosotros con salmos, con himnos y cánticos espirituales, cantando y alabando al Señor en vuestros corazones.", cita:"Efesios 5:19"},
+  {texto:"El gozo de Jehová es vuestra fuerza.", cita:"Nehemías 8:10"},
+  {texto:"En su presencia hay plenitud de gozo; delicias a su diestra para siempre.", cita:"Salmos 16:11"},
+  {texto:"Cantad a Jehová, bendecid su nombre; anunciad de día en día su salvación.", cita:"Salmos 96:2"},
+  {texto:"¡Cuán bueno es cantar salmos a nuestro Dios! ¡Cuán agradable y hermosa la alabanza!", cita:"Salmos 147:1"},
+  {texto:"Todo lo que respira alabe a Jehová. Aleluya.", cita:"Salmos 150:6"}
+];
+
+function obtenerVersoDelDia(){
+  var ahora = new Date();
+  var inicioAno = new Date(ahora.getFullYear(), 0, 0);
+  var diferencia = ahora - inicioAno;
+  var diaDelAno = Math.floor(diferencia / 86400000);
+  return VERSOS_DEL_DIA[diaDelAno % VERSOS_DEL_DIA.length];
+}
+
+function pintarVersoDelDia(idTexto, idCita){
+  try {
+    var v = obtenerVersoDelDia();
+    var elTexto = document.getElementById(idTexto);
+    var elCita = document.getElementById(idCita);
+    if (v && elTexto) elTexto.textContent = '\u201C' + v.texto + '\u201D';
+    if (v && elCita) elCita.textContent = '\u2014 ' + v.cita;
+  } catch (e) { /* si algo falla, se queda el verso por defecto ya escrito en el HTML */ }
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  pintarVersoDelDia('splashVersoTexto', 'splashVersoCita');
+  pintarVersoDelDia('versoDelDiaTexto', 'versoDelDiaCita');
+});
+</script>
+
 <div id="splashScreen" class="splash-screen">
   <div class="ambient-glow"></div>
-  <div class="splash-waves"></div>
-  <div class="splash-ripples"></div>
-  <div class="splash-river"></div>
+  <div class="splash-particles">
+    <span class="sp-nota" style="left:8%; font-size:1.1rem; animation-duration:9s; animation-delay:0s;">♪</span>
+    <span class="sp-gota" style="left:16%; animation-duration:7.5s; animation-delay:1.2s;"></span>
+    <span class="sp-nota" style="left:24%; font-size:0.9rem; animation-duration:10.5s; animation-delay:2.5s;">♫</span>
+    <span class="sp-gota" style="left:33%; animation-duration:8s; animation-delay:0.6s;"></span>
+    <span class="sp-nota" style="left:42%; font-size:1.3rem; animation-duration:11s; animation-delay:3.4s;">♪</span>
+    <span class="sp-gota" style="left:50%; animation-duration:9.5s; animation-delay:1.8s;"></span>
+    <span class="sp-nota" style="left:58%; font-size:1rem; animation-duration:8.5s; animation-delay:0.3s;">♩</span>
+    <span class="sp-gota" style="left:67%; animation-duration:7s; animation-delay:2.9s;"></span>
+    <span class="sp-nota" style="left:75%; font-size:1.15rem; animation-duration:10s; animation-delay:1.5s;">♫</span>
+    <span class="sp-gota" style="left:84%; animation-duration:8.8s; animation-delay:0.9s;"></span>
+    <span class="sp-nota" style="left:91%; font-size:0.95rem; animation-duration:9.8s; animation-delay:3.9s;">♪</span>
+    <span class="sp-gota" style="left:5%; animation-duration:8.3s; animation-delay:4.4s;"></span>
+    <span class="sp-nota" style="left:63%; font-size:1.05rem; animation-duration:11.5s; animation-delay:2.1s;">♩</span>
+    <span class="sp-gota" style="left:78%; animation-duration:7.8s; animation-delay:3.6s;"></span>
+  </div>
   <div class="splash-content">
     <img class="splash-logo" src="icon-512.png" alt="Manantial de Alabanza YHWH">
     <h1 class="splash-title"><span>Manantial de Alabanza</span></h1>
     <p class="splash-subtitle">Yhwh</p>
     <div class="splash-verse">
-      “Porque yo derramaré aguas sobre el sequedal, y ríos sobre la tierra árida; mi Espíritu derramaré sobre tu generación, y mi bendición sobre tus renuevos.”
-      <span>— Isaías 44:3</span>
+      <span id="splashVersoTexto">“Porque yo derramaré aguas sobre el sequedal, y ríos sobre la tierra árida; mi Espíritu derramaré sobre tu generación, y mi bendición sobre tus renuevos.”</span>
+      <span id="splashVersoCita">— Isaías 44:3</span>
     </div>
-    <div class="splash-loader"><span></span><span></span><span></span></div>
+    <div class="splash-loader" id="splashLoader"><span></span><span></span><span></span></div>
+    <button id="btnEntrarSplash" class="btn-entrar-splash">Entrar</button>
   </div>
 </div>
 <script>
@@ -2569,26 +2653,39 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   var MIN_SPLASH_MS = 4500; // tiempo mínimo que se muestra la pantalla, en milisegundos
   var inicio = Date.now();
 
-  function ocultarSplash() {
+  function ocultarSplashFinal() {
     var el = document.getElementById('splashScreen');
     if (!el || el.dataset.oculto) return;
     el.dataset.oculto = '1';
+    el.classList.add('splash-hide');
+    document.body.classList.add('run-menu-intro');
+    setTimeout(function () { el.remove(); }, 650);
+  }
+
+  function mostrarBotonEntrar() {
+    var el = document.getElementById('splashScreen');
+    if (!el || el.dataset.botonMostrado) return;
+    el.dataset.botonMostrado = '1';
     var transcurrido = Date.now() - inicio;
     var esperar = Math.max(0, MIN_SPLASH_MS - transcurrido);
     setTimeout(function () {
-      el.classList.add('splash-hide');
-      document.body.classList.add('run-menu-intro');
-      setTimeout(function () { el.remove(); }, 650);
+      var loader = document.getElementById('splashLoader');
+      var boton = document.getElementById('btnEntrarSplash');
+      if (loader) loader.style.display = 'none';
+      if (boton) boton.classList.add('show');
     }, esperar);
   }
 
+  var btnEntrar = document.getElementById('btnEntrarSplash');
+  if (btnEntrar) btnEntrar.addEventListener('click', ocultarSplashFinal);
+
   if (document.readyState === 'complete') {
-    ocultarSplash();
+    mostrarBotonEntrar();
   } else {
-    window.addEventListener('load', ocultarSplash);
+    window.addEventListener('load', mostrarBotonEntrar);
   }
-  // Salvaguarda: si algo tarda demasiado en cargar, la ocultamos igual a los 9s
-  setTimeout(ocultarSplash, 9000);
+  // Salvaguarda: si algo tarda demasiado en cargar, mostramos el boton igual a los 9s
+  setTimeout(mostrarBotonEntrar, 9000);
 })();
 </script>
 
@@ -2601,10 +2698,11 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 <p style="color: var(--text2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.15rem; letter-spacing: 0.2px; margin-bottom: 20px;">Recursos Digitales</p>
           <button class="menu-btn" onclick="showScreen('screen-chords')">🙏🏻 Alabanzas de Adoración</button>
           <button class="menu-btn" onclick="showScreen('screen-jubilo')">💃🏻 Alabanzas de Júbilo</button>
-          <button class="menu-btn" onclick="showScreen('screen-pdfs')">🎤 Cancioneros en PDF</button> 
+          <button class="menu-btn" onclick="showScreen('screen-pdfs')">🎤 Recursos en PDF</button> 
 
          
 <button class="menu-btn" onclick="showScreen('screen-setlist')" id="btnMenuSetlist">📘 Repertorio</button>
+<button class="menu-btn" onclick="showScreen('screen-historia')" id="btnMenuHistoria">📖 Acerca de</button>
 <button class="menu-btn" onclick="toggleAdminLogin()" id="btnAdminLoginMenu">🔑 Admin</button>
 <button id="btnClaroMenu" class="menu-btn" onclick="alternarModoClaroGlobal()" style="background:linear-gradient(135deg,#2a2a45,#1b2152);margin-top:8px;">🌙 Tema: Oscuro</button>
 
@@ -3173,59 +3271,130 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
     <div class="network-status" id="networkStatusPdfs">🌐 En la nube</div>
   </header>
   
-  <div class="layout">
-    <!-- Lista lateral de PDFs -->
-    <div class="sidebar" style="padding: 10px; display: flex; flex-direction: column; gap: 10px;">
+  <div class="pdf-list-wrap">
+    <div class="btn-abrir-biblia" style="max-width:420px; width:100%; margin:0 auto 24px; cursor:default;">📄 Toca un PDF para abrirlo</div>
+
+    <!-- Lista de PDFs, centrada -->
+    <div class="pdf-cards-centered">
       <!-- REEMPLAZA 'archivo1.pdf' POR TUS NOMBRES REALES -->
-    
-    
-      <div class="song-item" onclick="loadPDF('Alabanzas_Letra.pdf')">
-        <div class="snum">#1</div><div class="stitle">Repertorio Alabanzas de Adoración - LETRA</div>
-      </div>
-      
-      <div class="song-item" onclick="loadPDF('Alabanzas_Acordes.pdf')">
-        <div class="snum">#2</div><div class="stitle">Repertorio de Alabanzas de Adoración - Acordes</div>
+
+      <div class="pdf-card" onclick="loadPDF('Alabanzas_Letra.pdf')">
+        <img src="Portadaadoracion.jpeg" alt="Portada Adoración">
+        <div class="pdf-card-title">Repertorio Alabanzas de Adoración — LETRA</div>
       </div>
 
-       <div class="song-item" onclick="loadPDF('Alabanzas_Jub_Letra.pdf')">
-        <div class="snum">#3</div><div class="stitle">Repertorio Alabanzas de Júbilo - LETRA</div>
+      <div class="pdf-card" onclick="loadPDF('Alabanzas_Acordes.pdf')">
+        <img src="Portadaadoracion.jpeg" alt="Portada Adoración">
+        <div class="pdf-card-title">Repertorio de Alabanzas de Adoración — Acordes</div>
       </div>
 
-       <div class="song-item" onclick="loadPDF('Alabanzas_Jub_Acordes.pdf')">
-        <div class="snum">#4</div><div class="stitle">Repertorio Alabanzas de Júbilo - Acordes</div>
+      <div class="pdf-card" onclick="loadPDF('Alabanzas_Jub_Letra.pdf')">
+        <img src="Portadajubilo.jpeg" alt="Portada Júbilo">
+        <div class="pdf-card-title">Repertorio Alabanzas de Júbilo — LETRA</div>
       </div>
-   <!-- PANTALLA 4: REPERTORIO DEL DOMINGO -->
 
-   
+      <div class="pdf-card" onclick="loadPDF('Alabanzas_Jub_Acordes.pdf')">
+        <img src="Portadajubilo.jpeg" alt="Portada Júbilo">
+        <div class="pdf-card-title">Repertorio de Alabanzas de Júbilo — Acordes</div>
+      </div>
 
-
-
-
-
-
+      <div class="pdf-card" onclick="loadPDF('Reglamento_Ministerio_YHWH.pdf')">
+        <img src="Manual.jpeg" alt="Portada Manual del Ministerio">
+        <div class="pdf-card-title">Manual Oficial del Ministerio</div>
+      </div>
 
     </div>
-    
-   
-
-
-    
-    <!-- Contenedor donde se dibuja el PDF -->
-    <div class="main" style="padding: 0; background: #111126;">
-      <div id="pdf-placeholder" style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text2); text-align: center; padding: 20px;">
-        Selecciona un archivo PDF de arriba para comenzar a leer.
-      </div>
-      <embed id="pdf-viewer" style="width: 100%; height: 100%; border: none; display: none;" type="application/pdf"></embed>
-
-
-
-
-</div>
-    </div>
+  </div>
   </div>
 </div>
 
 
+
+
+<!-- PANTALLA: ACERCA DE (con pestañas: Visión y Misión / Historia) -->
+<div id="screen-historia" class="app-screen">
+  <header class="scene-header" style="background: linear-gradient(135deg,#f1824b,#1d2677,#101038); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
+    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+    <div class="logo">&#10022; <span>Acerca de</span> Ministerio YHWH</div>
+  </header>
+
+  <div style="display:flex; gap:8px; justify-content:center; padding:14px 12px 0; flex-wrap:wrap;">
+    <button class="historia-tab-btn active" id="tabBtnVision" onclick="cambiarTabHistoria('vision')">🙏 Visión y Misión</button>
+    <button class="historia-tab-btn" id="tabBtnHistoria" onclick="cambiarTabHistoria('historia')">📜 Historia</button>
+    <button class="historia-tab-btn" id="tabBtnOrganigrama" onclick="cambiarTabHistoria('organigrama')">🗂️ Organigrama</button>
+    <button class="historia-tab-btn" id="tabBtnGaleria" onclick="cambiarTabHistoria('galeria')">📷 Galería</button>
+  </div>
+
+  <div id="tabContentVision" class="historia-tab-content" style="max-width: 720px; margin: 0 auto; padding: 20px 20px 60px; overflow-y: auto;">
+    <h2 style="color: var(--gold2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.5rem; margin-bottom: 16px; text-align:center;">Visión y Misión</h2>
+
+    <p style="color: var(--text); opacity:0.9; line-height:1.6; margin-bottom: 14px;"><span style="color:var(--gold);font-weight:600;">Visión:</span> Nuestra visión es ser un ministerio de alabanza que viva en obediencia y reverencia a Dios, que cuide el altar y que prepare el camino para que Dios se manifieste y obre en medio de Su iglesia, conforme a Su voluntad.</p>
+
+    <p style="color: var(--text); opacity:0.9; line-height:1.6; margin-bottom: 14px;"><span style="color:var(--gold);font-weight:600;">Misión:</span> Nuestra misión es servir a Dios y a la iglesia mediante la alabanza y la adoración, viviendo una vida ordenada delante de Dios y guiando a la congregación a adorarle, dejando espacio para que Él obre y se manifieste.</p>
+
+    <h3 style="color: var(--gold); font-size: 1.05rem; margin: 24px 0 10px; text-align:center;">Verso del día</h3>
+    <div class="verso-card">
+      <p id="versoDelDiaTexto">“Porque yo derramaré aguas sobre el sequedal, y ríos sobre la tierra árida; mi Espíritu derramaré sobre tu generación, y mi bendición sobre tus renuevos.”</p>
+      <span id="versoDelDiaCita">— Isaías 44:3</span>
+    </div>
+
+    <h3 style="color: var(--gold); font-size: 1.05rem; margin: 24px 0 10px; text-align:center;">La Palabra de Dios</h3>
+    <a href="https://www.bible.com/es/bible/103/JHN.1.NBLA" target="_blank" rel="noopener noreferrer" class="btn-abrir-biblia">📖 Abrir la Biblia</a>
+  </div>
+
+  <div id="tabContentHistoria" class="historia-tab-content" style="display:none; max-width: 720px; margin: 0 auto; padding: 20px 20px 60px; overflow-y: auto;">
+    <h2 style="color: var(--gold2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.6rem; margin-bottom: 16px; text-align:center;">Nuestra Historia: El Manantial que Dios hizo brotar</h2>
+
+    <p style="color: var(--text); opacity:0.9; line-height:1.6; margin-bottom: 14px;">Todo comenzó con una oración de fe. Durante mucho tiempo, nuestra congregación local de la Iglesia de Dios de la Profecía anhelaba un equipo de alabanza propio. No había músicos, pero sí un pueblo que clamaba al Señor para que levantara obreros para Su altar.</p>
+
+    <h3 style="color: var(--gold); font-size: 1.05rem; margin: 20px 0 8px;">El Despertar de un Sueño</h3>
+    <p style="color: var(--text); opacity:0.9; line-height:1.6; margin-bottom: 14px;">La respuesta de Dios llegó a través de la disposición y la enseñanza. El Señor puso el sentir en un hermano de una iglesia vecina, quien con un corazón generoso comenzó a instruir a cuatro jóvenes en el piano y la batería. Lo que empezó como simples lecciones de instrumentos, pronto se convirtió en el nacimiento del Ministerio Manantial de Alabanza.</p>
+
+    <h3 style="color: var(--gold); font-size: 1.05rem; margin: 20px 0 8px;">Nuestros Primeros Pasos (2024)</h3>
+    <p style="color: var(--text); opacity:0.9; line-height:1.6; margin-bottom: 14px;">El flujo de este manantial empezó a correr oficialmente el 15 de marzo de 2024. Esa noche, en un vibrante culto de jóvenes, el ministerio dio su primer especial. Con nervios y mucha unción, interpretamos "Te doy Gloria" de En Espíritu y en Verdad, marcando el inicio de nuestra trayectoria.</p>
+
+    <p style="color: var(--gold2); font-weight:600; margin-bottom: 8px;">Ese mismo año, el compromiso creció:</p>
+    <ul style="color: var(--text); opacity:0.9; line-height:1.6; margin: 0 0 14px 20px;">
+      <li>20 de julio: Participamos en nuestra primera vigilia.</li>
+      <li>30 de octubre: Nos unimos nuevamente en oración y adoración en una segunda vigilia de gran bendición.</li>
+    </ul>
+
+    <h3 style="color: var(--gold); font-size: 1.05rem; margin: 20px 0 8px;">Crecimiento y Expansión (2025)</h3>
+    <p style="color: var(--text); opacity:0.9; line-height:1.6; margin-bottom: 14px;">El 2025 ha sido un año de ver la fidelidad de Dios en cada evento y sociedad, especialmente con nuestras hermanas en los cultos unidos de damas. Fechas clave que han marcado nuestro caminar:</p>
+
+    <ul style="color: var(--text); opacity:0.9; line-height:1.6; margin: 0 0 14px 20px;">
+      <li>15 de marzo: Exactamente un año después de nuestro debut, Dios nos permitió salir de nuestras paredes para participar en un culto unido fuera de la iglesia, confirmando Su respaldo.</li>
+      <li>17 de agosto: Vivimos una jornada histórica de servicio, participando en un culto que inició a las 8:00 AM y culminó a las 6:00 PM con el culto local; una maratón de adoración que fortaleció nuestro espíritu.</li>
+      <li>18 de octubre: Cerramos ciclos de intercesión con una poderosa vigilia.</li>
+    </ul>
+  </div>
+
+  <div id="tabContentOrganigrama" class="historia-tab-content" style="display:none; max-width: 720px; margin: 0 auto; padding: 20px 20px 60px; overflow-y: auto;">
+    <h2 style="color: var(--gold2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.5rem; margin-bottom: 16px; text-align:center;">Organigrama del Ministerio</h2>
+    <img src="Organigrama.jpeg" alt="Organigrama del Ministerio YHWH" style="display:block; width:100%; max-width:680px; margin:0 auto; border-radius:10px; border:1px solid var(--border); box-shadow:0 4px 18px rgba(0,0,0,0.4);">
+  </div>
+
+  <div id="tabContentGaleria" class="historia-tab-content" style="display:none; max-width: 720px; margin: 0 auto; padding: 20px 20px 60px; overflow-y: auto;">
+    <h2 style="color: var(--gold2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.5rem; margin-bottom: 16px; text-align:center;">Galería del Ministerio</h2>
+    <div class="galeria-grid">
+      <img class="galeria-thumb" src="foto1.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto1.jpeg')">
+      <img class="galeria-thumb" src="foto2.jpeg" alt="Foto del Ministerio 2" onclick="abrirGaleriaLightbox('foto2.jpeg')">
+      <img class="galeria-thumb" src="foto3.jpeg" alt="Foto del Ministerio 3" onclick="abrirGaleriaLightbox('foto3.jpeg')">
+      <img class="galeria-thumb" src="foto4.jpeg" alt="Foto del Ministerio 4" onclick="abrirGaleriaLightbox('foto4.jpeg')">
+      <img class="galeria-thumb" src="foto5.jpeg" alt="Foto del Ministerio 5" onclick="abrirGaleriaLightbox('foto5.jpeg')">
+      <img class="galeria-thumb" src="foto6.jpeg" alt="Foto del Ministerio 6" onclick="abrirGaleriaLightbox('foto6.jpeg')">
+      <img class="galeria-thumb" src="foto7.jpeg" alt="Foto del Ministerio 7" onclick="abrirGaleriaLightbox('foto7.jpeg')">
+      <img class="galeria-thumb" src="foto8.jpeg" alt="Foto del Ministerio 7" onclick="abrirGaleriaLightbox('foto8.jpeg')">
+      <img class="galeria-thumb" src="foto9.jpeg" alt="Foto del Ministerio 7" onclick="abrirGaleriaLightbox('foto9.jpeg')">
+
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox para ver fotos de la Galería en grande -->
+<div id="galeriaLightbox" onclick="cerrarGaleriaLightbox()" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(8,8,20,0.92); z-index:2000; align-items:center; justify-content:center; padding:24px; box-sizing:border-box; cursor:zoom-out;">
+  <img id="galeriaLightboxImg" src="" alt="Foto del Ministerio" style="max-width:100%; max-height:100%; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,0.6);">
+</div>
 
 
 <script src="canciones-adoracion.js"></script>
@@ -4045,22 +4214,9 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
     mediaContainer.innerHTML = ''; // Limpiamos el contenedor siempre
     var esCantante = document.body.classList.contains('rol-cantante');
 
-    // 1. SI LA CANCIÓN TIENE YOUTUBE, HAY INTERNET, Y EL ROL ES MÚSICO -> PINTA EL VIDEO
-    if (song.youtube && navigator.onLine && !esCantante) {
-      var iframe = document.createElement('iframe');
-      iframe.src = song.youtube;
-      iframe.style.width = '100%';
-      iframe.style.maxWidth = '320px';
-      iframe.style.height = '180px';
-      iframe.style.border = 'none';
-      iframe.style.borderRadius = '8px';
-      iframe.style.marginBottom = '10px'; // Espacio antes del audio
-      iframe.setAttribute('allowfullscreen', 'true');
-      
-      mediaContainer.appendChild(iframe);
-    }
+    // El video de YouTube ya NO se pinta directo arriba del audio.
+    // Ahora solo se accede a él desde el botón "▶️ Ver en YouTube" en más opciones (solo-musico).
     // NOTA: Para cantante nunca se muestra el video de YouTube.
-    // Si no hay internet, tampoco se dibuja el cuadro de YouTube (evita el error feo del navegador).
 
 
     
@@ -7380,7 +7536,9 @@ var PIANO_INTERVAL = {0:'R',1:'b2',2:'2',3:'b3',4:'3',5:'4',
                       6:'b5',7:'5',8:'b6',9:'6',10:'b7',11:'7',14:'9'};
 var PIANO_CHORD_TYPES = {
   '':    [0,4,7],   'm':[0,3,7],
-  'sus4':[0,5,7],   'sus2':[0,2,7]
+  'sus4':[0,5,7],   'sus2':[0,2,7],
+  '7':   [0,4,7,10],'m7':[0,3,7,10],
+  'dim': [0,3,6],    'aug':[0,4,8]
 };
 
 function pianoNormRoot(r){ return PIANO_ENH[r] || r; }
@@ -7464,10 +7622,11 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
   }).join(' · ');
 
   var typeName = {
-    '':'Mayor','m':'menor','sus4':'Sus4','sus2':'Sus2'
+    '':'Mayor','m':'menor','sus4':'Sus4','sus2':'Sus2',
+    '7':'7 (dominante)','m7':'Menor 7','dim':'Disminuido','aug':'Aumentado'
   }[type] || type;
 
-  var variantBtns = ['','m','sus4','sus2'].map(function(t){
+  var variantBtns = ['','m','sus4','sus2','7','m7','dim','aug'].map(function(t){
     var lbl = root + (t||'');
     var active = t === type ? 'background:#7F77DD;color:#fff;border-color:#534AB7;' : '';
     return '<button onclick="abrirPiano(\''+root+t+'\')" style="'+active+
@@ -7484,7 +7643,80 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
       '<div style="display:inline-flex;align-items:flex-start;height:115px;">' + whiteKeys + '</div>' +
     '</div>' +
     '<div style="margin-top:10px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Variaciones:</div>' +
-    '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + variantBtns + '</div>';
+    '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + variantBtns + '</div>' +
+    '<div style="margin-top:12px;display:flex;gap:6px;">' +
+      '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',false)" style="flex:1;background:#3C3489;border:1px solid #534AB7;color:#EEEDFE;border-radius:6px;padding:8px 10px;cursor:pointer;font-size:0.8rem;font-weight:bold;">&#9654; Reproducir</button>' +
+      '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',true)" style="flex:1;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:6px;padding:8px 10px;cursor:pointer;font-size:0.8rem;font-weight:bold;">&#127925; Arpegio</button>' +
+    '</div>';
+}
+
+// ===== AUDIO DEL ACORDE (Web Audio API, sin dependencias, funciona offline) =====
+var pianoAudioCtx = null;
+var HISTORIA_TABS = ['vision','historia','organigrama','galeria'];
+function cambiarTabHistoria(tab){
+  for (var i = 0; i < HISTORIA_TABS.length; i++) {
+    var t = HISTORIA_TABS[i];
+    var content = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
+    var btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (content) content.style.display = (t === tab) ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', t === tab);
+  }
+}
+
+function abrirGaleriaLightbox(src){
+  var lb = document.getElementById('galeriaLightbox');
+  var img = document.getElementById('galeriaLightboxImg');
+  if (!lb || !img) return;
+  img.src = src;
+  lb.style.display = 'flex';
+}
+function cerrarGaleriaLightbox(){
+  var lb = document.getElementById('galeriaLightbox');
+  if (lb) lb.style.display = 'none';
+}
+
+function pianoGetAudioCtx(){
+  if (!pianoAudioCtx) {
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    pianoAudioCtx = new Ctx();
+  }
+  if (pianoAudioCtx.state === 'suspended') pianoAudioCtx.resume();
+  return pianoAudioCtx;
+}
+
+function pianoMidiToFreq(midi){
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function pianoPlayNote(ctx, freq, startTime, duration){
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.05);
+}
+
+function pianoReproducirAcorde(root, type, modoArpegio){
+  var ctx = pianoGetAudioCtx();
+  if (!ctx) { mostrarToast('⚠️ Tu navegador no soporta audio.'); return; }
+  var semis = pianoGetSemis(root, type);
+  var now = ctx.currentTime + 0.03;
+  if (modoArpegio) {
+    semis.forEach(function(m, i){
+      pianoPlayNote(ctx, pianoMidiToFreq(m), now + i * 0.16, 0.85);
+    });
+  } else {
+    semis.forEach(function(m){
+      pianoPlayNote(ctx, pianoMidiToFreq(m), now, 1.1);
+    });
+  }
 }
 
 function abrirPiano(chordStr){
