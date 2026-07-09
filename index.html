@@ -6826,6 +6826,7 @@ function renderJubiloSongCard(song, index, cadena){
   var key = jubiloStateKey(cadena.id, index, song.id);
   var st = getJubiloCardState(song, key);
   var currentLabel = st.latino ? lineToLatino(st.key) : st.key;
+  var tieneEdicionLocal = jubiloTieneEdicionLocal(song.id);
   return '<section class="jubilo-song-card" id="jubiloCard_' + key + '">' +
 
     '<div class="jubilo-card-tools" style="display:flex;flex-direction:column;gap:4px;right:6px;top:6px;align-items:stretch;">' +
@@ -6838,6 +6839,13 @@ function renderJubiloSongCard(song, index, cadena){
         'class="jubilo-card-edit-btn" style="background:#2d304e;border:1px solid #c9a84c;color:#f3c641;border-radius:999px;padding:5px 10px;font-size:0.72rem;cursor:pointer;white-space:nowrap;">' +
         '✏️ Editar' +
       '</button>' +
+      (window.esAdmin && tieneEdicionLocal ?
+        '<button onclick="restaurarJubilo(' + song.id + ',\'' + key + '\')" ' +
+          'title="Borra la edición local guardada y vuelve al contenido original del archivo" ' +
+          'style="background:#2d304e;border:1px solid #e0946a;color:#e0946a;border-radius:999px;padding:5px 10px;font-size:0.72rem;cursor:pointer;white-space:nowrap;">' +
+          '↩ Restaurar' +
+        '</button>'
+      : '') +
     '</div>' +
 
   // --- BLOQUE 2: TÍTULO ---
@@ -6845,6 +6853,9 @@ function renderJubiloSongCard(song, index, cadena){
   '<div class="jubilo-song-title" style="margin-bottom:0; font-size:0.8rem; font-weight:bold; color:#f3c641; text-transform:uppercase; white-space:normal; word-break:normal; overflow-wrap:break-word; padding-right:0;">' + 
     escH(song.title) + 
   '</div>' +
+  (tieneEdicionLocal ?
+    '<div style="font-size:0.65rem;color:var(--text2);margin-top:3px;font-weight:600;">✏️ Tiene una edición local guardada (puede no coincidir con el archivo de canciones)</div>'
+  : '') +
 '</div>' +
 
     '<div class="jubilo-semitone-ctrl">' +
@@ -7237,6 +7248,22 @@ function activarEditorJubilo(key, songId) {
   if (ta) ta.focus();
 }
 
+function sincronizarEdicionesJubiloFirebase() {
+  if (!(window.esAdmin && window.fbDb)) return;
+  var editData = {};
+  SONGS_JUBILO.forEach(function(s) {
+    var guardado = localStorage.getItem(getJubiloEditKey(s.id));
+    if (guardado !== null) editData[s.id] = guardado;
+  });
+  // fbSet reemplaza todo el nodo 'jubilo_ediciones', así que las canciones
+  // restauradas (sin entrada en localStorage) quedan fuera automáticamente.
+  window.fbSet(window.fbRef(window.fbDb, 'jubilo_ediciones'), editData);
+}
+
+function jubiloTieneEdicionLocal(songId) {
+  return localStorage.getItem(getJubiloEditKey(songId)) !== null;
+}
+
 function guardarEdicionJubilo(key, songId) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var ta = document.getElementById('editorJubilo_' + key);
@@ -7244,14 +7271,7 @@ function guardarEdicionJubilo(key, songId) {
   var nuevoContenido = ta.value;
   localStorage.setItem(getJubiloEditKey(songId), nuevoContenido);
 
-  if (window.esAdmin && window.fbDb) {
-    var editData = {};
-    SONGS_JUBILO.forEach(function(s) {
-      var guardado = localStorage.getItem(getJubiloEditKey(s.id));
-      if (guardado !== null) editData[s.id] = guardado;
-    });
-    window.fbSet(window.fbRef(window.fbDb, 'jubilo_ediciones'), editData);
-  }
+  sincronizarEdicionesJubiloFirebase();
 
   var song = getJubiloSong(songId);
   var st = jubiloState[key];
@@ -7274,9 +7294,11 @@ function cancelarEditorJubilo(key, songId) {
 }
 
 function restaurarJubilo(songId, key) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var song = getJubiloSong(songId);
   if (!song || !confirm('¿Restaurar "' + song.title + '" al contenido original?')) return;
   localStorage.removeItem(getJubiloEditKey(songId));
+  sincronizarEdicionesJubiloFirebase();
   var st = jubiloState[key];
   var contenido = document.getElementById('jubiloContent_' + key);
   if (contenido && st) {

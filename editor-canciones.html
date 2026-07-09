@@ -83,11 +83,124 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
 
 .status{font-size:0.75rem;color:var(--gold2);padding:0 18px 10px;min-height:18px;}
 
+.resultados-busqueda{
+  display:none;position:absolute;top:calc(100% + 4px);left:0;width:340px;max-height:320px;
+  overflow-y:auto;background:var(--bg2);border:1px solid var(--border);border-radius:9px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:50;
+}
+.resultados-busqueda.visible{display:block;}
+.resultado-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);}
+.resultado-item:last-child{border-bottom:none;}
+.resultado-item:hover{background:var(--bg3);}
+.resultado-item .r-titulo{color:var(--gold2);font-weight:700;font-size:0.85rem;}
+.resultado-item .r-snippet{color:var(--text2);font-size:0.72rem;margin-top:2px;line-height:1.3;}
+.resultado-item .r-snippet mark{background:var(--gold);color:#111;border-radius:2px;padding:0 1px;}
+.resultado-vacio{padding:12px;color:var(--text2);font-size:0.78rem;text-align:center;}
+
 @media(max-width:900px){
   .layout{flex-direction:column;}
   .panel-form{max-width:none;border-right:none;border-bottom:1px solid var(--border);}
   .field textarea{min-height:260px;}
 }
+
+/* ============================================================
+   MARCO DE VISTA MÓVIL
+   Simula el ancho real de un teléfono y reproduce las mismas
+   reglas responsivas que usa index.html en pantallas pequeñas,
+   incluyendo la diferencia real entre vista cantante y músico.
+   ============================================================ */
+.panel-preview.modo-movil{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.device-select{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.mobile-frame{
+  width:390px;max-width:100%;
+  background:#0f0f29;
+  border:8px solid #111;
+  border-radius:34px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.6);
+  overflow:hidden;
+  transition:width 0.15s ease;
+}
+.mobile-frame .preview-card{border-radius:0;border:none;}
+.mobile-frame-label{font-size:0.68rem;color:var(--text2);text-align:center;letter-spacing:0.5px;}
+
+/* Reglas responsivas reales copiadas de index.html (@media max-width:640px/580px) — SOLO aplican a Adoración */
+.mobile-frame .song-content:not(.tipo-jubilo){font-size:0.75rem;}
+.mobile-frame .song-content:not(.tipo-jubilo) .lc,
+.mobile-frame .song-content:not(.tipo-jubilo) .ll,
+.mobile-frame .song-content:not(.tipo-jubilo) .ls{font-size:0.7rem;}
+
+/* Vista cantante real de Adoración usa body.singer-view: pre-wrap + line-height 1.62, sin scroll horizontal */
+.mobile-frame.vista-cantante .song-content:not(.tipo-jubilo){
+  white-space:pre-wrap;
+  overflow-x:visible;
+  padding:0 4px 40px;
+}
+.mobile-frame.vista-cantante .song-content:not(.tipo-jubilo) .ll,
+.mobile-frame.vista-cantante .song-content:not(.tipo-jubilo) .ls{
+  line-height:1.62 !important;
+  white-space:pre-wrap;
+  text-align:left;
+}
+.mobile-frame.vista-cantante .song-content:not(.tipo-jubilo) .ls{
+  text-align:center;
+  margin:18px 0 10px;
+  text-transform:uppercase;
+}
+.mobile-frame.vista-cantante .song-content:not(.tipo-jubilo) .lb{height:10px;}
+
+/* ============================================================
+   VISTA JÚBILO — copiada 1:1 de .jubilo-content en index.html
+   Diferencias reales frente a Adoración:
+   - fuente monospace de base, con salto de línea (pre-wrap) SIEMPRE,
+     no solo en móvil (Adoración usa Arial + scroll horizontal en PC).
+   - line-height 1.55 (1.62 en vista cantante para letra/secciones).
+   - tamaño de letra en PX fijo controlado por rol (12px músico / 14px
+     cantante), NO cambia por ancho de pantalla como en Adoración.
+   - el resaltado de letra NO pone en rojo automáticamente las
+     palabras en mayúsculas (solo X2/X4 y TROMPETAS/VIOLIN).
+   ============================================================ */
+.song-content.tipo-jubilo{
+  font-family:'Consolas',monospace;
+  white-space:pre-wrap;
+  line-height:1.55;
+  overflow-x:visible;
+  margin-top:10px;
+}
+.mobile-frame .song-content.tipo-jubilo{font-size:inherit;} /* el tamaño lo fija JS en px, no el ancho */
+.song-content.tipo-jubilo .lc,
+.song-content.tipo-jubilo .ll,
+.song-content.tipo-jubilo .ls,
+.song-content.tipo-jubilo .lm{font-size:inherit;} /* Júbilo fija el tamaño en px por rol (12/14px), no en rem fijo */
+.song-content.tipo-jubilo.vista-cantante-jubilo .ll,
+.song-content.tipo-jubilo.vista-cantante-jubilo .ls{
+  line-height:1.62 !important;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+/* Tarjeta y título reales de Júbilo vistos con un rol activo (cantante/músico) —
+   el CSS de rol (body.jubilo-singer-view / jubilo-musician-view) pisa con !important
+   el tamaño y la alineación del título en línea de renderJubiloSongCard():
+   queda centrado y más grande, pero conserva el color/negrita/mayúsculas en línea. */
+.preview-card.tipo-jubilo-card{
+  background:transparent;
+  border:none;
+  border-radius:0;
+  /* 12px arriba/abajo de .jubilo-song-card + 8px(.jubilo-main) + 10px(.jubilo-song-card) = 18px a los lados */
+  padding:12px 18px;
+}
+.preview-title.tipo-jubilo-title{
+  text-align:center;
+  font-size:1.05rem;
+  font-weight:bold;
+  color:#f3c641;
+  text-transform:uppercase;
+  white-space:normal;
+  margin-bottom:15px;
+}
+.preview-meta.oculto-jubilo{display:none;}
+.aviso-jubilo{font-size:0.68rem;color:var(--text2);opacity:0.8;margin:-6px 0 10px;font-style:italic;}
 </style>
 </head>
 <body>
@@ -106,10 +219,20 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
       <button id="btnVerMusico" class="active" onclick="cambiarVistaPreview('musico')">🎸 Vista Músico</button>
       <button id="btnVerCantante" onclick="cambiarVistaPreview('cantante')">🎤 Vista Cantante</button>
     </div>
+    <div class="role-toggle">
+      <button id="btnVerPC" onclick="cambiarModoDispositivo(false)">🖥️ PC</button>
+      <button id="btnVerMovil" class="active" onclick="cambiarModoDispositivo(true)">📱 Móvil</button>
+    </div>
   </div>
 </header>
 
-<div class="toolbar">
+<div class="toolbar" style="position:relative;">
+  <label>Buscar</label>
+  <div style="position:relative;">
+    <input type="text" id="inputBuscar" style="width:260px" placeholder="Nombre o letra de la canción..." oninput="buscarCancionTexto()" onkeydown="if(event.key==='Enter') cargarPrimerResultado();">
+    <div id="resultadosBusqueda" class="resultados-busqueda"></div>
+  </div>
+
   <label>Alabanza</label>
   <select id="selectorCanciones" onchange="cargarDesdeSelector()"></select>
 
@@ -176,12 +299,30 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
     </div>
   </div>
 
-  <div class="panel panel-preview">
-    <div class="preview-card">
-      <div class="preview-title" id="pTitle">Título de la alabanza</div>
-      <div class="preview-meta" id="pMeta">Compositor · Tono · Álbum</div>
-      <div class="song-content" id="pContent"></div>
+  <div class="panel panel-preview" id="panelPreview">
+    <div class="device-select" id="deviceSelectWrap" style="display:none;">
+      <label style="font-size:0.72rem;color:var(--text2);font-weight:700;text-transform:uppercase;">Ancho</label>
+      <select id="selectorDispositivo" onchange="cambiarAnchoDispositivo()">
+        <option value="360">360px — Android compacto</option>
+        <option value="390">390px — iPhone estándar (13/14/15/16)</option>
+        <option value="393">393px — iPhone 15/16 Pro</option>
+        <option value="414">414px — iPhone Plus/Max (8 Plus, XR, 11)</option>
+        <option value="428">428px — iPhone Pro Max (12–14)</option>
+        <option value="430">430px — iPhone 15/16 Pro Max</option>
+        <option value="375" selected>375px — iPhone SE / 6-8 / X/XS/11 Pro</option>
+        <option value="custom">✏️ Personalizado...</option>
+      </select>
+      <input type="number" id="inputAnchoCustom" style="width:70px;display:none;" placeholder="px" oninput="aplicarAnchoCustom()">
     </div>
+    <div id="marcoPreview">
+      <div class="preview-card" id="previewCard">
+        <div class="preview-title" id="pTitle">Título de la alabanza</div>
+        <div class="preview-meta" id="pMeta">Compositor · Tono · Álbum</div>
+        <div class="aviso-jubilo" id="avisoJubilo" style="display:none;">ℹ️ En la tarjeta real de Júbilo esta info no se muestra (solo título y letra/acordes).</div>
+        <div class="song-content" id="pContent"></div>
+      </div>
+    </div>
+    <div class="mobile-frame-label" id="marcoLabel" style="display:none;"></div>
   </div>
 </div>
 
@@ -205,6 +346,8 @@ function cambiarBiblioteca(nombre){
   bibliotecaActiva = nombre;
   document.getElementById('btnBibAdoracion').classList.toggle('active', nombre === 'adoracion');
   document.getElementById('btnBibJubilo').classList.toggle('active', nombre === 'jubilo');
+  document.getElementById('inputBuscar').value = '';
+  document.getElementById('resultadosBusqueda').classList.remove('visible');
   poblarSelector();
   nuevaCancion();
   setStatus('Ahora estás editando: ' + (nombre === 'adoracion' ? 'Adoración' : 'Júbilo'));
@@ -244,6 +387,14 @@ function resaltarTextoConMelodia(raw){
     });
 }
 
+// Júbilo usa un resaltado más simple: NO pinta en rojo las palabras en mayúsculas
+// automáticamente (solo X2/X4 y TROMPETAS/VIOLIN) — copiado 1:1 de resaltarTextoCantante() en index.html
+function resaltarTextoCantanteJubilo(raw){
+  return escH(raw)
+    .replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>')
+    .replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>');
+}
+
 function resaltarMarcadores(raw){
   var html = escH(raw);
   if (/\bINTRO\b/i.test(raw)) {
@@ -270,6 +421,10 @@ function renderContentPreview(content){
       continue;
     }
     if (isChordLine(raw)) {
+      // En el index real, Vista Cantante oculta los acordes por defecto
+      // (toggleVistaCantante() fuerza ocultarAcordes=true en Adoración,
+      // y aplicarVistaJubilo('cantante') fuerza setJubiloChordsGlobal(true) en Júbilo).
+      if (vistaCantante) continue;
       var tl = escH(raw);
       tl = tl.replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');
       tl = tl.replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>');
@@ -279,7 +434,8 @@ function renderContentPreview(content){
       for (var j = 0; j < partes.length; j++) {
         var parte = partes[j];
         var clase = vistaCantante && esLineaSeccionCantante(parte) ? 'ls' : 'll';
-        out += '<span class="' + clase + '">' + (clase === 'ls' ? resaltarMarcadores(parte) : resaltarTextoConMelodia(parte)) + '</span>';
+        var resaltador = bibliotecaActiva === 'jubilo' ? resaltarTextoCantanteJubilo : resaltarTextoConMelodia;
+        out += '<span class="' + clase + '">' + (clase === 'ls' ? resaltarMarcadores(parte) : resaltador(parte)) + '</span>';
       }
     }
   }
@@ -301,13 +457,97 @@ function renderPreview(){
     '<strong>Álbum:</strong> ' + escH(album) +
     (version ? ' &nbsp;|&nbsp; <strong>Versión:</strong> ' + escH(version) : '');
   document.getElementById('pContent').innerHTML = renderContentPreview(content);
+  aplicarEstiloBiblioteca();
+}
+
+// Aplica en la vista previa las diferencias reales entre Adoración y Júbilo:
+// Júbilo = fuente monospace + salto de línea (pre-wrap) + tamaño fijo en PX por rol
+// (12px músico / 14px cantante, igual que aplicarFuenteJubilo() en index.html);
+// Adoración = Arial + scroll horizontal + tamaño en rem controlado por CSS/ancho.
+function aplicarEstiloBiblioteca(){
+  var pContent = document.getElementById('pContent');
+  var pTitle = document.getElementById('pTitle');
+  var pMeta = document.getElementById('pMeta');
+  var previewCard = document.getElementById('previewCard');
+  var avisoJubilo = document.getElementById('avisoJubilo');
+  var esJubilo = bibliotecaActiva === 'jubilo';
+
+  pContent.classList.toggle('tipo-jubilo', esJubilo);
+  pContent.classList.toggle('vista-cantante-jubilo', esJubilo && vistaCantante);
+  previewCard.classList.toggle('tipo-jubilo-card', esJubilo);
+  pTitle.classList.toggle('tipo-jubilo-title', esJubilo);
+  pMeta.classList.toggle('oculto-jubilo', esJubilo);
+  avisoJubilo.style.display = esJubilo ? 'block' : 'none';
+
+  if (esJubilo) {
+    var pxTamano = vistaCantante ? 14 : 12;
+    pContent.style.fontSize = pxTamano + 'px';
+  } else {
+    pContent.style.fontSize = '';
+  }
 }
 
 function cambiarVistaPreview(rol){
   vistaCantante = rol === 'cantante';
   document.getElementById('btnVerMusico').classList.toggle('active', !vistaCantante);
   document.getElementById('btnVerCantante').classList.toggle('active', vistaCantante);
+  actualizarClasesMarco();
   renderPreview();
+}
+
+// ---- Vista móvil: simula el ancho real del teléfono y aplica las mismas
+// reglas responsivas (@media) y de vista cantante/músico que usa index.html ----
+var vistaMovil = true;
+
+function cambiarModoDispositivo(esMovil){
+  vistaMovil = esMovil;
+  document.getElementById('btnVerPC').classList.toggle('active', !esMovil);
+  document.getElementById('btnVerMovil').classList.toggle('active', esMovil);
+  document.getElementById('deviceSelectWrap').style.display = esMovil ? 'flex' : 'none';
+  document.getElementById('marcoLabel').style.display = esMovil ? 'block' : 'none';
+  document.getElementById('panelPreview').classList.toggle('modo-movil', esMovil);
+  var marco = document.getElementById('marcoPreview');
+  marco.className = '';
+  if (esMovil) {
+    marco.classList.add('mobile-frame');
+    cambiarAnchoDispositivo();
+  }
+  actualizarClasesMarco();
+}
+
+function cambiarAnchoDispositivo(){
+  var sel = document.getElementById('selectorDispositivo');
+  var inputCustom = document.getElementById('inputAnchoCustom');
+  if (sel.value === 'custom') {
+    inputCustom.style.display = 'inline-block';
+    inputCustom.focus();
+    aplicarAnchoCustom();
+    return;
+  }
+  inputCustom.style.display = 'none';
+  var ancho = sel.value;
+  var marco = document.getElementById('marcoPreview');
+  // El marco tiene border:8px (16px en total) con box-sizing:border-box,
+  // así que ese borde le resta 16px al área de contenido real si no se compensa.
+  // Sumamos ese borde para que "375px" en el selector sea 375px reales de contenido,
+  // igual que el número que muestra DevTools o un teléfono real.
+  marco.style.width = (Number(ancho) + 16) + 'px';
+  var opt = sel.selectedOptions[0];
+  document.getElementById('marcoLabel').textContent = opt ? opt.textContent : '';
+}
+
+function aplicarAnchoCustom(){
+  var inputCustom = document.getElementById('inputAnchoCustom');
+  var ancho = Number(inputCustom.value) || 390;
+  var marco = document.getElementById('marcoPreview');
+  marco.style.width = (ancho + 16) + 'px';
+  document.getElementById('marcoLabel').textContent = ancho + 'px — personalizado';
+}
+
+function actualizarClasesMarco(){
+  var marco = document.getElementById('marcoPreview');
+  if (!vistaMovil) return;
+  marco.classList.toggle('vista-cantante', vistaCantante);
 }
 
 // ---- Cargar / poblar selector ----
@@ -364,6 +604,95 @@ function cargarPorId(){
   if (song) { cargarCancion(song); }
   else { setStatus('⚠️ No existe ninguna alabanza con id ' + id); }
 }
+
+// ---- Buscador por nombre o letra (no solo ID) ----
+function quitarAcentos(s){
+  return (s || '').toString().normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+var resultadosBusquedaActuales = [];
+
+function buscarCancionTexto(){
+  var q = quitarAcentos(document.getElementById('inputBuscar').value.trim());
+  var caja = document.getElementById('resultadosBusqueda');
+  if (!q) { caja.classList.remove('visible'); caja.innerHTML=''; resultadosBusquedaActuales=[]; return; }
+
+  var lista = listaActiva();
+  var resultados = [];
+  lista.forEach(function(song){
+    var titulo = quitarAcentos(song.title);
+    var contenido = quitarAcentos(song.content);
+    var compositor = quitarAcentos(song.compositor);
+    var enTitulo = titulo.indexOf(q) !== -1;
+    var enCompositor = compositor.indexOf(q) !== -1;
+    var idxContenido = contenido.indexOf(q);
+    if (enTitulo || enCompositor || idxContenido !== -1) {
+      var snippet = '';
+      if (idxContenido !== -1) {
+        var lineas = (song.content || '').split('\n');
+        for (var i = 0; i < lineas.length; i++) {
+          if (quitarAcentos(lineas[i]).indexOf(q) !== -1) { snippet = lineas[i].trim(); break; }
+        }
+      }
+      resultados.push({ song: song, snippet: snippet, enTitulo: enTitulo });
+    }
+  });
+
+  // Prioriza coincidencias en el título sobre las de la letra
+  resultados.sort(function(a,b){ return (b.enTitulo - a.enTitulo); });
+  resultadosBusquedaActuales = resultados.map(function(r){ return r.song; });
+
+  if (!resultados.length) {
+    caja.innerHTML = '<div class="resultado-vacio">Sin resultados para "' + escH(document.getElementById('inputBuscar').value) + '"</div>';
+    caja.classList.add('visible');
+    return;
+  }
+
+  var html = '';
+  resultados.slice(0, 12).forEach(function(r, i){
+    var titulo = escH(r.song.title || '(sin título)');
+    var snippetHtml = '';
+    if (r.snippet) {
+      snippetHtml = '<div class="r-snippet">' + resaltarCoincidencia(r.snippet, document.getElementById('inputBuscar').value) + '</div>';
+    } else if (r.song.compositor) {
+      snippetHtml = '<div class="r-snippet">' + escH(r.song.compositor) + '</div>';
+    }
+    html += '<div class="resultado-item" onclick="cargarResultadoBusqueda(' + i + ')">' +
+              '<div class="r-titulo">' + titulo + '</div>' + snippetHtml +
+            '</div>';
+  });
+  caja.innerHTML = html;
+  caja.classList.add('visible');
+}
+
+function resaltarCoincidencia(texto, query){
+  var esc = escH(texto);
+  if (!query) return esc;
+  var qEsc = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  try {
+    return esc.replace(new RegExp('(' + qEsc + ')', 'ig'), '<mark>$1</mark>');
+  } catch(e) { return esc; }
+}
+
+function cargarResultadoBusqueda(i){
+  var song = resultadosBusquedaActuales[i];
+  if (!song) return;
+  cargarCancion(song);
+  document.getElementById('resultadosBusqueda').classList.remove('visible');
+  document.getElementById('inputBuscar').value = '';
+}
+
+function cargarPrimerResultado(){
+  if (resultadosBusquedaActuales.length) cargarResultadoBusqueda(0);
+}
+
+document.addEventListener('click', function(e){
+  var caja = document.getElementById('resultadosBusqueda');
+  var input = document.getElementById('inputBuscar');
+  if (caja && input && !caja.contains(e.target) && e.target !== input) {
+    caja.classList.remove('visible');
+  }
+});
 
 function nuevaCancion(){
   editandoId = null;
@@ -453,6 +782,7 @@ function setStatus(msg){
 // ---- Inicio ----
 poblarSelector();
 renderPreview();
+cambiarModoDispositivo(true);
 </script>
 </body>
 </html>

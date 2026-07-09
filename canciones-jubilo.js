@@ -1,11 +1,13 @@
-var SONGS_JUBILO = [
+var SONGS_JUBILO = 
+[
   {
-    "id": 300,
+    "num": null,
     "title": "GRANDE ES EL SEÑOR",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n              Em                                                                              Am\nX2    Grande es el Señor, creador del universo, canta y danza al Rey que viene pronto,\n  Em                                                                       B\nQue felicidad el corazón nos llena, grande es el Señor.   X2\n[CORO]:\nEm | D | Em | B |\n            Em                                                  D\nX2     Ohh, Hosanna al Altísimo, Ohh, Hosanna al Altísimo,\n   Em                                                    B\nOhh, Hosanna al Altísimo, grande es el Señor.  X2"
+    "content": "[VERSO 1]:\n           Em                                                             Am\nX2    Grande es el Señor, creador del universo, canta \n\nY danza al Rey que viene pronto,\n Em                                                      B\nQue felicidad el corazón nos llena, grande es el Señor.  X2\n[CORO]:\n          Em                                      D\nX2     Ohh, Hosanna al Altísimo, Ohh, Hosanna al Altísimo,\n Em                                        B\nOhh, Hosanna al Altísimo, grande es el Señor.  X2",
+    "id": 300
   },
   {
     "id": 301,
@@ -80,76 +82,85 @@ var SONGS_JUBILO = [
     "content": "TROMPETAS        | Em | B | Em | B |\n[VERSO 1]:\n                           Em                             C        B                                                       Em\nX2  Yo me alegré con los que me decían, a la casa de Jehová iremos…  X2\n[CORO]:\n               Am-D        G-Em           B                               Em\nX4     Yo iré,       tú irás, a la casa de Jehová yo iré…   X4\nTROMPETAS"
   },
   {
-    "id": 310,
+    "num": null,
     "title": "CONOZCO A UN HOMBRE DE PODER",
     "compositor": "Tradicional",
-    "tono": "E",
+    "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nF# | C# | F# |\nX2   Conozco a un hombre de poder, a un hombre de poder, a un hombre de poder.   X2\n[CORO]:\nB | F# | G#m | C# | F# |\nX2    Es fuerte más que el viento, su gloria es más que el mar\nÉl Nunca me deja de amar, en él puedo yo confiar.    X2"
+    "content": "[VERSO 1]:\n              C                                                                      \nX2   Conozco a un hombre de poder, \n                              G\nA un hombre de poder, \n                             C\nA un hombre de poder.   X2\n[CORO]:\n                 F                                                                              \nX2    Es fuerte más que el viento, \n                                        C\nSu gloria es más que el mar\n       Em                       Am       Dm           G     C\nÉl Nunca me deja de amar, en él puedo yo confiar.    X2",
+    "id": 310
   },
   {
-    "id": 311,
+    "num": null,
     "title": "FIESTA CON JESÚS",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | Dm | G | C |\nX2      Estamos de fiesta con Jesús, al cielo queremos ir,\nY  todos reunidos en la fiesta que es Cristo el que va a Servir.  X2\n[CORO]:\nC | G | C | G | C |\n X2     Poderoso es nuestro Dios.  X4"
+    "content": "[VERSO 1]:\n                 C                                                                   G               \nX2      Estamos de fiesta con Jesús, al cielo queremos ir,\nY  todos reunidos en la fiesta \n               Dm             G        C\nQue es Cristo el que va a Servir.  X2\n[CORO]:\n                                               G      C\n X2     Poderoso es nuestro Dios.  X4",
+    "id": 311
   },
   {
-    "id": 312,
+    "num": null,
     "title": "ALLÁ EN EL CIELO",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | F | G | Dm | G | C |\nX2     Allá en el cielo, allá en el cielo, allá en el cielo\nNo habrá más llanto, ni más tristeza, ni más dolor,\nY cuando estemos los redimidos allá en el cielo, Alabaremos al Señor.    X2"
+    "content": "[VERSO 1]:\n                           C\nX2     Allá en el cielo, allá en el cielo, allá en el cielo\n                                                                          G\nNo habrá más llanto, ni más tristeza, ni más dolor,\n                       F                                              G     \nY cuando estemos los redimidos allá en el cielo, \n     Dm         G     C\nAlabaremos al Señor.    X2",
+    "id": 312
   },
   {
-    "id": 313,
+    "num": null,
     "title": "ALABARE",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                 C              Am         Dm-G               C\nX4     Alabaré, alabaré, alabaré a mi Señor.   X4\n[CORO]:\n    C\nJuan vio el número de los redimidos y todos alababan\n          G       Dm       G            Dm         G                        Dm           G                   C\nAl Señor unos oraban, otros cantaban, pero todos alababan al Señor.         SE REPITE TODO\n[CORO]:"
+    "content": "[VERSO 1]:\n               C          Am      Dm-G             C\nX4     Alabaré, alabaré, alabaré a mi Señor.   X4\n[CORO]:\n    C\nJuan vio el número de los redimidos y todos alababan\n        G     Dm     G        Dm       G                 \nAl Señor unos oraban, otros cantaban, \n          Dm         G              C\nPero todos alababan al Señor.         SE REPITE TODO\n[CORO]:",
+    "id": 313
   },
   {
-    "id": 314,
+    "num": null,
     "title": "GOZO EN MI ALMA",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | C | Am | G | C |\nX2      Yo tengo gozo en mi alma, gozo en mi alma, gozo en mi alma y en mi ser.\nSon como ríos de agua viva, ríos de agua viva, ríos de agua viva en mi ser.     X2"
+    "content": "[VERSO 1]:\n                         C\nX2   Yo tengo gozo en mi alma, gozo en mi alma, \n                                         G\nGozo en mi alma y en mi ser.\n                   C                           G\nSon como ríos de agua viva, ríos de agua viva,  \n  F                    G              C\nRíos de agua viva en mi ser.     X2",
+    "id": 314
   },
   {
-    "id": 315,
+    "num": null,
     "title": "ESTA IGLESIA",
     "compositor": "Tradicional",
-    "tono": "E",
+    "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nF# | C# |\nEsta iglesia se va de esta tierra porque aquí no está su mansión.\n[CORO]:\nB | F# | G#m | C# | F# |\nX2   Volaremos con gozo a los cielos, donde mora Jesús mi Salvador.   X2"
+    "content": "[VERSO 1]:\n            C\nEsta iglesia se va de esta tierra \n                                           G\nPorque aquí no está su mansión.\n[CORO]:\n                F                                   C       \nX2   Volaremos con gozo a los cielos, \n             Dm     G                C\nDonde mora Jesús mi Salvador.   X2",
+    "id": 315
   },
   {
-    "id": 316,
+    "num": null,
     "title": "SOLO DIOS",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | F | C |   —    F | C | Dm | G | C |\n X2  Solo Dios hace al hombre feliz, Solo Dios hace al hombre feliz,\nLa vida pasa, todo se acaba, solo Dios hace al hombre feliz.   X2"
+    "content": "[VERSO 1]:\n                  C                               G\nX2   Solo Dios hace al hombre feliz, \n           F                     G       C                  F \nSolo Dios hace al hombre feliz, la vida pasa,\n                 C                G                              C\nTodo se acaba, solo Dios hace al hombre feliz.  X2",
+    "id": 316
   },
   {
-    "id": 317,
+    "num": null,
     "title": "JEHOVÁ ESTÁ EN SU TEMPLO",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | C |\n X2   Jehová está en su templo, alábale que Él vive  X2\n[CORO]:\nF | C | G | C |\n X2    Alábale, Alábale, Alábale que Él vive.    X2\n                                                       G                                              C                                             G                                                C\n¿Quién es el que vive? (Cristo es el que vive) ¿Quién es el que salva? (Cristo es el que salva)\n¿Quién es el que sana? (Cristo es el que sana) ¿Quién es el que viene? (Cristo es el que viene)"
+    "content": "[VERSO 1]:\n              C                                        G                 C\n X2   Jehová está en su templo, alábale que Él vive  X2\n[CORO]:\n               F           C           G                  C \n X2    Alábale, Alábale, Alábale que Él vive.    X2\n\n\n\n\n\n¿Quién es el que vive? (Cristo es el que vive) \n\n¿Quién es el que salva? (Cristo es el que salva)\n\n¿Quién es el que sana? (Cristo es el que sana) \n\n¿Quién es el que viene? (Cristo es el que viene)",
+    "id": 317
   },
   {
-    "id": 318,
+    "num": null,
     "title": "NO HAY DIOS TAN GRANDE",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | C |\n X2   No hay Dios tan grande como tú, no lo hay, no lo hay.    X2\n[CORO]:\nF | C | Dm | G | C |\n X2   No hay Dios que pueda hacer las obras, como las que haces tú.   X2"
+    "content": "[VERSO 1]:\n                        C              \nX2     No hay Dios tan grande como tú, \n           G             C\nNo lo hay, no lo hay.    X2\n[CORO]:\n                         F                                        C                    \nX2     No hay Dios que pueda hacer las obras, \n          Dm           G    C\nComo las que haces tú.   X2     ",
+    "id": 318
   },
   {
     "id": 319,
@@ -160,12 +171,13 @@ var SONGS_JUBILO = [
     "content": "MIX 19  |  EBENEZER\nMIX 19  |  EBENEZER\n[VERSO 1]:\n                   C                                    G                                                      C\nX2    Prepárate para que sientas, prepárate para que sientas,\n                                                                  Dm-G          C\nPrepárate para que sientas el Espíritu de Dios.   X2\n[CORO]:\n                                                  F                                              C\nX2     Y déjalo que se mueva, y déjalo que se mueva, y déjalo que se mueva\n              Dm     G         C\nDentro de tu corazón.   X2                                 SE REPITE TODO"
   },
   {
-    "id": 320,
+    "num": null,
     "title": "TE ALABARÁN",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | Dm | G | C |\n X2    Te Alabarán oh Jehová todos los reyes, todos los reyes de la tierra,\nPorque han oído los dichos de tu boca, y cantarán de los caminos de Jehová.     X2\n[CORO]:\nF | C | F | Dm | G | C |\n X2    Porque la gloria de Jehová es grande, porque Jehová es excelso en sus caminos\nPorque Jehová atiende al humilde, mas mira de lejos al altivo.    X2"
+    "content": "[VERSO 1]:\n                   C\n X2    Te Alabarán oh Jehová todos los reyes, \n                                     G\nTodos los reyes de la tierra,\nPorque han oído los dichos de tu boca, \n          F                       G               C \nY cantarán de los caminos de Jehová.     X2\n[CORO]:\n                           F\nX2  Porque la gloria de Jehová es grande, \n                                                             C\nPorque Jehová es excelso en sus caminos\n                Em                       Am\nPorque Jehová atiende al humilde, \n        Dm         G          C\nMas mira de lejos al altivo.  X2",
+    "id": 320
   },
   {
     "id": 321,
@@ -240,12 +252,13 @@ var SONGS_JUBILO = [
     "content": "TROMPETAS\n[VERSO 1]:\nG | C | G | D | G |\nHe decidido seguir a Cristo...\nY si me llaman el Aleluya..."
   },
   {
-    "id": 330,
+    "num": null,
     "title": "EL GOZO DEL SEÑOR",
     "compositor": "Tradicional",
-    "tono": "Gm",
+    "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nG | D | G | C |  D | G |\nEl gozo del Señor, mi fortaleza es...\n G | D | G | C |  D | G |\nSi tienes ese gozo puedes tu cantar, si tienes ese gozo puedes tu orar\nSi tienes ese gozo puedes tu saltar, su gozo sin medida Él me da."
+    "content": "[VERSO 1]:\n       C                                         G\nEl gozo del Señor, mi fortaleza es,\n                                                 C\nEl gozo del Señor, mi fortaleza es,\n                                                 F\nEl gozo del Señor, mi fortaleza es,\n        C              G                C  \nSu gozo sin medida Él me da...\n      C                                          G\nSi tienes ese gozo puedes tu cantar, \n                                                C\nsi tienes ese gozo puedes tu orar\n                                                  F\nSi tienes ese gozo puedes tu saltar, \n       C              G                C  \nSu gozo sin medida Él me da.",
+    "id": 330
   },
   {
     "id": 331,
@@ -272,12 +285,13 @@ var SONGS_JUBILO = [
     "content": "[VERSO 1]:\nG | D | G | C | G | D | G |\nX2     ¿Quién dijo que no? Que no había victoria...     X2"
   },
   {
-    "id": 334,
+    "num": null,
     "title": "QUE VIVA CRISTO",
     "compositor": "Tradicional",
-    "tono": "Gm",
+    "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nG | D | G | C | G | D | G |   —    D | G | D | G |\nViva la fe, viva la esperanza, viva el amor...\nX2    Que viva Cristo, que viva Cristo que viva Cristo, que viva el Rey.    X2"
+    "content": "[VERSO 1]:\n            C                                              G\nViva la fe, viva la esperanza, viva el amor,\n                                                            C\nViva la fe, viva la esperanza, viva el amor\n                                                             F\nViva la fe, viva la esperanza, viva el amor\n                            C                      G\nX2    Que viva Cristo, que viva Cristo que viva Cristo, \n                     C\nQue viva el Rey.    X2",
+    "id": 334
   },
   {
     "id": 335,
@@ -392,12 +406,13 @@ var SONGS_JUBILO = [
     "content": "[VERSO 1]:\nC | Dm | G | C |\nX2  Una mirada de fe, una mirada de fe es la que puede salvar al pecador.    X2\n[CORO]:\nF | C | Dm | G | C |\nX2   Y si tú vienes a Cristo Jesús, el te perdonará...   X2"
   },
   {
-    "id": 349,
+    "num": null,
     "title": "SOLO DIOS HACE AL HOMBRE FELIZ",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | F | C | F | C | Dm | G | C |\nX2   Solo Dios hace al hombre feliz, solo Dios hace al hombre feliz, la vida pasa,\nTodo se acaba, solo Dios hace al hombre feliz.  X2"
+    "content": "[VERSO 1]:\n                  C                               G\nX2   Solo Dios hace al hombre feliz, \n           F                     G       C                  F \nSolo Dios hace al hombre feliz, la vida pasa,\n                 C                G                              C\nTodo se acaba, solo Dios hace al hombre feliz.  X2",
+    "id": 349
   },
   {
     "id": 350,
@@ -448,12 +463,13 @@ var SONGS_JUBILO = [
     "content": "[VERSO 1]:\nC | G | C | F | C | G | C |  —  G | C | G | C |\nX2   Viva la fe, viva la esperanza, viva el amor...    X2\nX2   Que viva Cristo, que viva Cristo que viva el Rey.    X2\n[CORO]:\nX2   Que viva Cristo, que viva Cristo, que viva Cristo que viva el Rey.   X2"
   },
   {
-    "id": 356,
+    "num": null,
     "title": "NO HAY DIOS TAN GRANDE COMO TÚ",
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                             C                                                              G                 C\nX2     No hay Dios tan grande como tú, no lo hay, no lo hay.    X2\n[CORO]:\n                              F                                                    C                    Dm          G          C\nX2     No hay Dios que pueda hacer las obras, como las que haces tú.   X2                  SE REPITE TODO"
+    "content": "[VERSO 1]:\n                        C              \nX2     No hay Dios tan grande como tú, \n           G             C\nNo lo hay, no lo hay.    X2\n[CORO]:\n                         F                                        C                    \nX2     No hay Dios que pueda hacer las obras, \n          Dm           G    C\nComo las que haces tú.   X2                 ",
+    "id": 356
   },
   {
     "id": 357,
@@ -608,36 +624,40 @@ var SONGS_JUBILO = [
     "content": "MIX 2  |  EBENEZER\nMIX 2  |  EBENEZER\nTROMPETAS    | Cm | Bb | Ab-Fm | G |\n[VERSO 1]:\n      Cm         Bb            Ab-Fm             G\n¿Quién lo diría? Que yo            danzaría en tu casa, Señor,\n      Cm         Bb             Ab-Fm             G\n¿Quién lo diría? Que yo            abrazaría tu gloria, Señor.\n[CORO]:\n                 Cm                                                          Bb\nVoy a perder la compostura, delante de ti,\n                 Ab                                             Fm                 G\nVoy a cantar, voy a danzar voy a reír, yo lo hago solo para ti.\n                Cm                                                           Bb\nVoy a perder la compostura, delante de ti,\n                       Ab                                         Fm                    G\nQué me importa que me digan aleluya, yo lo hago solo para ti.\nTROMPETAS\n[VERSO 2]:\n| Cm | Bb | Ab-Fm | G |\n                                Cm                                                                                                                              Bb\nX3    Que me importa que critiquen  que no entiendan que me digan que estoy loco,\n   Ab-Fm           G\nSi yo,        lo hago solo para ti.     X3\n                                                                                                                                                                      G\n[CORO]:\n—             X2   Yo lo hago solo para ti.  X2"
   },
   {
-    "id": 376,
+    "num": null,
     "title": "MOVIMIENTO DE GLORIA",
-    "compositor": "Tradicional",
+    "compositor": "New Wine",
     "tono": "Em",
-    "album": "Alabanzas de Júbilo",
-    "content": "MIX 4  |  EBENEZER\nMIX 4  |  EBENEZER\nTROMPETAS     | Em | C | D | B |\n[VERSO 1]:\n                        Em                                                   C\nX2    El movimiento de Gloria es como una corriente de agua,\n                                   D                                Em\nQue después crece, y se hace manantial.     X2              —          TROMPETAS\n[VERSO 2]:\n                           Em                      D                C                              D                                   Em\nX2     Y el manantial se convierte en río, después en mar en océano poderoso.  X2            —      TROMPETAS\n[VERSO 3]:\n                   Em                           D                C                                D                          Em\nX2   Y la gloria de Dios cubrirá la Tierra, como las aguas cubren la mar.   X2\n[PRE-CORO]:\n                 Em        C                           D                           Em\nX2    Y Cristo vendrá, por su Iglesia, por su Iglesia.  X2\n TROMPETAS                          —              VERSO 3      |     PRE - CORO\n[CORO]:\n                       Em                                   C                                           D                               B\nX2     Demuestra tu gloria, demuestra tu gloria,  demuestra tu gloria, aquí y ahora.    X2     —      TROMPETAS"
+    "album": "Un amor sobrenatural",
+    "content": "TROMPETAS     | Em | C | D | B |\n[VERSO 1]:\n                   Em                                       C\nX2    El movimiento de Gloria es como una corriente \n                                         D                          Em\nDe agua, que después crece, y se hace manantial.  X2              \n         \n \n\nTROMPETAS\n[VERSO 2]:\n                     Em                 D             C        \nX2     Y el manantial se convierte en río, \n                      D                         Em\nDespués en mar en océano poderoso.  X2            \n\n\nTROMPETAS\n[VERSO 3]:\n                 Em                   D             C\nX2   Y la gloria de Dios cubrirá la Tierra, \n                    D                     Em\nComo las aguas cubren la mar.   X2\n[PRE-CORO]:\n              Em        C                    D                    Em\nX2    Y Cristo vendrá, por su Iglesia, por su Iglesia.  X2\n\n\nTROMPETAS                             \n[VERSO 3]:     |     PRE - CORO\n[CORO]:\n     Em                              C                                D\nX2     Demuestra tu gloria, demuestra tu gloria,  \n                                    B\nDemuestra tu gloria, aquí y ahora.    X2     \n\n\nTROMPETAS",
+    "id": 376
   },
   {
-    "id": 377,
+    "num": null,
     "title": "EN LA PRESENCIA DEL SEÑOR",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer HN",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                          Em                                              D               C               B\nX2    En la presencia del Señor hay libertad, libertad, libertad.   X2\n[CORO]:\n                  G                                                                      C [Am]\nX2   Libertad de anunciar las victorias de Cristo.    X2\n                                            B              Am             B\nEn este lugar hay libertad, libertad, libertad.\n                 Em\nX8     Libertad.   X8   Libertad, libertad, libertad, libertad, libertaaaad…"
+    "content": "[VERSO 1]:\n                      Em                                   D        \nX2    En la presencia del Señor hay libertad, \n      C           B\nLibertad, libertad.   X2\n[CORO]:\n            G                                                  C-G   [Am]\nX2   Libertad de anunciar las victorias de Cristo. X2\n                                 B          Am          B\nEn este lugar hay libertad, libertad, libertad.\n             Em\nX8     Libertad.   X8   Libertad, libertad, libertad, libertad, libertaaaad…",
+    "id": 377
   },
   {
-    "id": 378,
+    "num": null,
     "title": "PORQUE MAYOR",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer San Francisco",
     "tono": "Em",
-    "album": "Alabanzas de Júbilo",
-    "content": "MIX 4  |  EBENEZER\nMIX 4  |  EBENEZER\nTROMPETAS     | Em | C | Am | B7 |\n[VERSO 1]:\n         Em                   G                         C                     Am                    B                  C-D\nEl Señor es mi fuerza es mi escudo, mi fortaleza no temeré, no temeré.\n[CORO]:\n                             Em                                             C\nX2    Porque mayor es el Señor, es poderoso es vencedor\n                 Am                                           B\nEs mi escudo mi protector no temeré.  X2"
+    "album": "De Gloria en Gloria",
+    "content": "TROMPETAS     | Em | C | Am | B7 |\n[VERSO 1]:\n      Em                G                   C           \nEl Señor es mi fuerza es mi escudo, \n        Am               B              C-D  \nMi fortaleza no temeré, no temeré.\n[CORO]:\n                       Em          \nX2    Porque mayor es el Señor, \n            C\nEs poderoso es vencedor\n             Am                                 B\nEs mi escudo mi protector no temeré.  X2",
+    "id": 378
   },
   {
-    "id": 379,
+    "num": null,
     "title": "HEME AQUÍ",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer San Francisco",
     "tono": "Em",
-    "album": "Alabanzas de Júbilo",
-    "content": "MIX 5  |  EBENEZER\nMIX 5  |  EBENEZER\nVIOLIN    | C | G | B | Em |\n[VERSO 1]:\n                  C                                            G                                                 B                             Em\nFue tu amor y tu poder el que sanó mi corazón, ahora fuerte soy y libre soy.\n                 C                                        G                                                        B                        Em\nMe apartaste para ti pusiste de tu gozo en mí, te ofrendo mi vida en gratitud.\nTROMPETAS     | Am | Em | B | Em |                       —                 VERSO 1\n[CORO]:\n                             Am                  Em                     B                  Em\nX2     Heme aquí, aquí estoy, tú me envías con unción,\n         Am                Em             B                       Em\nTu poder sobre mí, me hace confiar en ti.    X2"
+    "album": "De Gloria en Gloria",
+    "content": "VIOLIN    | C | G | B | Em |\n[VERSO 1]:\n              C                                  G                                             \nFue tu amor y tu poder el que sanó mi corazón, \n              B                     Em\nAhora fuerte soy y libre soy.\n            C                               G                                                      \nMe apartaste para ti pusiste de tu gozo en mí, \n                   B                 Em\nTe ofrendo mi vida en gratitud.\n[CORO]:\n                     Am           Em                 B               Em\nX2     Heme aquí, aquí estoy, tú me envías con unción,\n      Am             Em         B                   Em\nTu poder sobre mí, me hace confiar en ti.    X2\n\nTROMPETAS     | Am | Em | B | Em | \n\n[VERSO 1]:         |         [CORO]: X2",
+    "id": 379
   },
   {
     "id": 380,
@@ -648,12 +668,13 @@ var SONGS_JUBILO = [
     "content": "TROMPETAS     | G | F#m7 | Bm |     —    | Bm | A-G | A-Bm | G-F#m-Bm |\n[VERSO 1]:\n                    A       D            G       A-Bm                                                              D                                       A\nNo hay nada que dé más felicidad hoy mi señor, que estar al lado tuyo Dios y contemplar tu grande amor.\n           G                             A      Bm                                               A      D                             A\nSolo tu podías ser aquel gran rey con gran poder, que dejó su deidad para darnos libertad.\n[CORO]:\n                    G                                   A                 Bm                              A           D                                              A\nY veo a miles de naciones que hoy cantan a tu nombre, y me uno a esas voces para darte gloria Rey,\n                        G                      A       Bm              A       G[G-Em]     A               Bm [F#]\nY cantan santo santo santo santo, y dicen santo santo al gran Rey.\nTROMPETAS"
   },
   {
-    "id": 381,
+    "num": null,
     "title": "MIS ENEMIGOS VOLVIERON ATRÁS",
-    "compositor": "Tradicional",
-    "tono": "G",
+    "compositor": "Ebenezer HN",
+    "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS   | Em | Am | G | B  |   —   | Em | C | B-Am-G-D-Em|\n[VERSO 1]:\n                            Em                                                                                               B\nX2     Mis enemigos volvieron atrás, mis enemigos volvieron atrás,\n                                                   Bm                           Em\nCayeron y perecieron delante de ti oh Jehová.     X2\n[CORO]:\n                                 D                      G                               D                      G\nX2     Porque grande eres Jehová, porque grande eres Jehová,\n        B                               Em           B                                 Em\nCreador de toda la tierra, creador de toda la tierra.    X2\nTROMPETAS"
+    "content": "TROMPETAS   | Em | Am | G | B  |   \n                         | Em | C | B-Am-G-D-Em|\n[VERSO 1]:\n                     Em                                                                                               \nX2     Mis enemigos volvieron atrás, \n                                         B\nMis enemigos volvieron atrás,\n                                      Bm                    Em\nCayeron y perecieron delante de ti oh Jehová.     X2\n[CORO]:\n                           D                  G                              \nX2     Porque grande eres Jehová, \n                 D                  G\nPorque grande eres Jehová,\n      B                       Em        B                         Em\nCreador de toda la tierra, creador de toda la tierra.    X2\n\nTROMPETAS\n\n[VERSO 1]:  X2    |      [CORO]:  X2",
+    "id": 381
   },
   {
     "id": 382,
