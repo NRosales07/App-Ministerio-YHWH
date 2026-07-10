@@ -26,12 +26,13 @@ var SONGS_JUBILO =
     "content": "MIX 15  |  EBENEZER\nMIX 15  |  EBENEZER\nTROMPETAS\nOirán las naciones lo que hizo, cantaran cuando vean sus prodigios,\nSu pueblo le alabara, con pandero danzara, y dirán quién, quién como Jehová.\nX2    Y dirán quién, quién como Jehová.   X2\nTROMPETAS\n[VERSO 1]:\n                Em                                                  G                            Am     B                     Em\nX4    ¿Quién, quién, quién como Jehová?, que con su poder el mar abrió.   X4\n[CORO]:\n   Am                  B                        Em        Am                            D               G-Em\nOirán las naciones lo que hizo Cantaran cuando vean sus prodigios,\n                       B                                               C                                   D        B                                      Em\nX2     Su pueblo le alabara, con pandero danzara, y dirán quién, quién como Jehová.  X2\nTROMPETAS                           —           VERSO 1   X2    |      CORO   X2\nX2   Y dirán quién, quién como Jehová.  X2"
   },
   {
-    "id": 303,
+    "num": null,
     "title": "EN EL PRINCIPIO",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 13  |  EBENEZER\nMIX 13  |  EBENEZER\n[VERSO 1]:\n                             Em                                      B                                                Em\nX2     En el principio el Espíritu de Dios, se movía sobre las aguas.     X2\n                                          Am-D                     G-Em                    B             Em\n[CORO]:\nX2     Pero ahora se está moviendo dentro de mi corazón.    X2\nENTRA LA BATERÍA                     —           VERSO 1  X2     |      CORO  X4\nSe movía (Se movía)              —       TROMPETAS          —           CORO   X4"
+    "content": "TROMPETAS\n[VERSO 1]:\n                      Em                             B                                                \nX2     En el principio el Espíritu de Dios, \n                                  Em\nSe movía sobre las aguas.     X2\n\n[CORO]:\n                  Am-D              G-Em\nX2     Pero ahora se está moviendo \n             B          Em\nDentro de mi corazón.    X2\n\n\n\nTROMPETAS\n[CORO]:  X4\n",
+    "id": 303
   },
   {
     "id": 304,
@@ -647,7 +648,7 @@ var SONGS_JUBILO =
     "compositor": "Ebenezer San Francisco",
     "tono": "Em",
     "album": "De Gloria en Gloria",
-    "content": "TROMPETAS     | Em | C | Am | B7 |\n[VERSO 1]:\n      Em                G                   C           \nEl Señor es mi fuerza es mi escudo, \n        Am               B              C-D  \nMi fortaleza no temeré, no temeré.\n[CORO]:\n                       Em          \nX2    Porque mayor es el Señor, \n            C\nEs poderoso es vencedor\n             Am                                 B\nEs mi escudo mi protector no temeré.  X2",
+    "content": "TROMPETAS     | Em | C | Am | B7 |\n\n\n\n[VERSO 1]:\n      Em                G                   C           \nEl Señor es mi fuerza es mi escudo, \n        Am               B              C-D  \nMi fortaleza no temeré, no temeré.\n[CORO]:\n                       Em          \nX2    Porque mayor es el Señor, \n            C\nEs poderoso es vencedor\n             Am                                 B\nEs mi escudo mi protector no temeré.  X2\n\n\n\n\n\n\nTROMPETAS     \n[VERSO 1]:        |       [CORO]:  X2",
     "id": 378
   },
   {
@@ -656,7 +657,7 @@ var SONGS_JUBILO =
     "compositor": "Ebenezer San Francisco",
     "tono": "Em",
     "album": "De Gloria en Gloria",
-    "content": "VIOLIN    | C | G | B | Em |\n[VERSO 1]:\n              C                                  G                                             \nFue tu amor y tu poder el que sanó mi corazón, \n              B                     Em\nAhora fuerte soy y libre soy.\n            C                               G                                                      \nMe apartaste para ti pusiste de tu gozo en mí, \n                   B                 Em\nTe ofrendo mi vida en gratitud.\n[CORO]:\n                     Am           Em                 B               Em\nX2     Heme aquí, aquí estoy, tú me envías con unción,\n      Am             Em         B                   Em\nTu poder sobre mí, me hace confiar en ti.    X2\n\nTROMPETAS     | Am | Em | B | Em | \n\n[VERSO 1]:         |         [CORO]: X2",
+    "content": "VIOLIN    | C | G | B | Em |\n[VERSO 1]:\n              C                                  G                                             \nFue tu amor y tu poder el que sanó mi corazón, \n              B                     Em\nAhora fuerte soy y libre soy.\n            C                               G                                                      \nMe apartaste para ti pusiste de tu gozo en mí, \n                   B                 Em\nTe ofrendo mi vida en gratitud.\n[CORO]:\n                     Am           Em                 B               Em\nX2     Heme aquí, aquí estoy, tú me envías con unción,\n      Am             Em         B                   Em\nTu poder sobre mí, me hace confiar en ti.    X2\n\n\n\n\nTROMPETAS     | Am | Em | B | Em | \n\n[VERSO 1]:         |         [CORO]: X2",
     "id": 379
   },
   {
@@ -673,7 +674,7 @@ var SONGS_JUBILO =
     "compositor": "Ebenezer HN",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS   | Em | Am | G | B  |   \n                         | Em | C | B-Am-G-D-Em|\n[VERSO 1]:\n                     Em                                                                                               \nX2     Mis enemigos volvieron atrás, \n                                         B\nMis enemigos volvieron atrás,\n                                      Bm                    Em\nCayeron y perecieron delante de ti oh Jehová.     X2\n[CORO]:\n                           D                  G                              \nX2     Porque grande eres Jehová, \n                 D                  G\nPorque grande eres Jehová,\n      B                       Em        B                         Em\nCreador de toda la tierra, creador de toda la tierra.    X2\n\nTROMPETAS\n\n[VERSO 1]:  X2    |      [CORO]:  X2",
+    "content": "TROMPETAS   | Em | Am | G | B  |   \n                         | Em | C | B-Am-G-D-Em|\n\n\n[VERSO 1]:\n                     Em                                                                                               \nX2     Mis enemigos volvieron atrás, \n                                         B\nMis enemigos volvieron atrás,\n                                      Bm                    Em\nCayeron y perecieron delante de ti oh Jehová.     X2\n\n\n[CORO]:\n                           D                  G                              \nX2     Porque grande eres Jehová, \n                 D                  G\nPorque grande eres Jehová,\n      B                       Em        B                         Em\nCreador de toda la tierra, creador de toda la tierra.    X2\n\n\n\n\n\nTROMPETAS\n\n[VERSO 1]:  X2    |      [CORO]:  X2",
     "id": 381
   },
   {
