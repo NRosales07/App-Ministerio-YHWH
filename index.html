@@ -4052,13 +4052,31 @@ function actualizarTransicionActual() {
   var listaRepertorioAdoracion = Array.isArray(setlistDOM)
     ? setlistDOM.filter(function(item) { return (item.fuente || 'adoracion') === 'adoracion'; })
     : [];
-  var listaActiva = listaRepertorioAdoracion.length > 0 ? listaRepertorioAdoracion : (Array.isArray(SONGS) ? SONGS : []);
 
   var idx = -1;
-  for (var i = 0; i < listaActiva.length; i++) {
-    if (String(listaActiva[i].id) === String(currentSong.id)) {
-      idx = i;
-      break;
+  var listaActiva = [];
+
+  // 1) ¿La canción actual está en el repertorio del domingo? Si sí, la
+  //    transición se calcula ahí adentro.
+  if (listaRepertorioAdoracion.length > 0) {
+    for (var i = 0; i < listaRepertorioAdoracion.length; i++) {
+      if (String(listaRepertorioAdoracion[i].id) === String(currentSong.id)) {
+        idx = i;
+        break;
+      }
+    }
+    if (idx !== -1) listaActiva = listaRepertorioAdoracion;
+  }
+
+  // 2) Si no está en el repertorio (o no hay repertorio armado), se busca
+  //    en el listado general de alabanzas de Adoración.
+  if (idx === -1) {
+    listaActiva = Array.isArray(SONGS) ? SONGS : [];
+    for (var j = 0; j < listaActiva.length; j++) {
+      if (String(listaActiva[j].id) === String(currentSong.id)) {
+        idx = j;
+        break;
+      }
     }
   }
 
