@@ -3987,28 +3987,48 @@ function ocultarTransicionSugerida() {
 function alternarTransicionSugerida() {
   transicionOculta = !transicionOculta;
   localStorage.setItem(TRANSICION_OCULTA_KEY, transicionOculta ? '1' : '0');
-  var btn = document.getElementById('btnTransicionToggle');
-  if (btn) btn.textContent = transicionOculta ? 'Ver transición' : 'Ocultar transición';
   if (transicionOculta) {
     var box = document.getElementById('transitionBox');
     if (box) box.style.display = 'none';
+    var btn = document.getElementById('btnTransicionToggle');
+    if (btn) btn.textContent = 'Ver transición';
   } else {
+    // El texto del botón y la visibilidad de la caja los decide
+    // actualizarTransicionActual()/mostrarTransicionSugerida() según si
+    // realmente hay datos que mostrar, para no dejar el botón diciendo
+    // "Ocultar transición" cuando en realidad no hay nada mostrado.
     actualizarTransicionActual();
   }
+}
+
+// Deja todo en estado "cerrado" y opcionalmente avisa por qué no hay
+// transición disponible, en vez de fallar en silencio.
+function noHayTransicionDisponible(motivo) {
+  transicionOculta = true;
+  localStorage.setItem(TRANSICION_OCULTA_KEY, '1');
+  var box = document.getElementById('transitionBox');
+  if (box) box.style.display = 'none';
+  var btn = document.getElementById('btnTransicionToggle');
+  if (btn) btn.textContent = 'Ver transición';
+  if (motivo) mostrarToast(motivo);
 }
 
 function mostrarTransicionSugerida(prevSong, nextSong) {
   var box = document.getElementById('transitionBox');
   var text = document.getElementById('transitionText');
   if (!box || !text) return;
-  if (transicionOculta || !prevSong || !nextSong) {
+  if (transicionOculta) {
     box.style.display = 'none';
+    return;
+  }
+  if (!prevSong || !nextSong) {
+    noHayTransicionDisponible('⚠️ No hay una siguiente alabanza para calcular la transición.');
     return;
   }
 
   var contenido = buildTransitionText(prevSong, nextSong);
   if (!contenido) {
-    box.style.display = 'none';
+    noHayTransicionDisponible('⚠️ Falta el tono de "' + (prevSong.title || '') + '" o "' + (nextSong.title || '') + '" para calcular la transición.');
     return;
   }
 
@@ -4042,9 +4062,12 @@ function actualizarTransicionActual() {
     }
   }
 
-  if (idx === -1 || idx + 1 >= listaActiva.length) {
-    var box2 = document.getElementById('transitionBox');
-    if (box2) box2.style.display = 'none';
+  if (idx === -1) {
+    if (!transicionOculta) noHayTransicionDisponible('⚠️ No se pudo ubicar esta alabanza en la lista para calcular la transición.');
+    return;
+  }
+  if (idx + 1 >= listaActiva.length) {
+    if (!transicionOculta) noHayTransicionDisponible('⚠️ Estás en la última alabanza de la lista, no hay siguiente.');
     return;
   }
 
