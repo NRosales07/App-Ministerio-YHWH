@@ -4143,7 +4143,7 @@ tlEscapada = tlEscapada.replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion"
 tlEscapada = tlEscapada.replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>');
 var tlClickable = tlEscapada.replace(
   /((?:Do|Re|Mi|Fa|Sol|La|Si|[A-G])[b#]?(?:m(?:aj)?7?|7|dim7?|aug|sus[24]?|add9|9|m9|6|5)?)/g,
-  '<span onclick="abrirPiano(chordLatinoToAmericano(\'$1\'))" style="cursor:pointer;text-decoration:none;" title="Ver acorde en piano">$1</span>'
+  '<span onclick="abrirPiano(chordLatinoToAmericano(\'$1\'), this)" style="cursor:pointer;text-decoration:none;" title="Ver acorde en piano">$1</span>'
 );
 out += '<span class="lc' + (cifradoLatino ? ' latino-shift' : '') + '">' + tlClickable + '</span>';
     } else {
@@ -4718,6 +4718,7 @@ function alternarCifrado() {
   if (currentSong) buildKeySelector(currentSong);
   renderContent();
   actualizarTransicionActual();
+  pianoActualizarSiAbierto();
 }
 
 
@@ -6522,6 +6523,7 @@ function toggleJubiloLatinoGlobal() {
     rerenderJubiloActive();
   }
   aplicarFuenteJubilo();
+  pianoActualizarSiAbierto();
 }
 
 function toggleJubiloChordsGlobal() {
@@ -7126,7 +7128,7 @@ getJubiloContent(song).split('\n').forEach(function(raw){    var s = raw.trim();
       line = line.replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, '<span class="word-red">$1</span>');
      var lineClickable = line.replace(
   /((?:Do|Re|Mi|Fa|Sol|La|Si|[A-G])[b#]?(?:m(?:aj)?7?|7|dim7?|aug|sus[24]?|add9|9|m9|6|5)?)/g,
-  '<span onclick="abrirPiano(chordLatinoToAmericano(\'$1\'))" style="cursor:pointer;text-decoration:none;" title="Ver acorde en piano">$1</span>'
+  '<span onclick="abrirPiano(chordLatinoToAmericano(\'$1\'), this)" style="cursor:pointer;text-decoration:none;" title="Ver acorde en piano">$1</span>'
 );
 out += '<span class="lc' + (st.latino ? ' latino-shift' : '') + '">' + lineClickable + '</span>';
     } else {
@@ -7732,6 +7734,76 @@ var PIANO_CHORD_TYPES = {
 function pianoNormRoot(r){ return PIANO_ENH[r] || r; }
 function pianoSemiOf(r){ return PIANO_SEMIS.indexOf(pianoNormRoot(r)); }
 
+// ¿El modal del piano debe mostrar los nombres en cifrado latino (Do, Re, Mi...)?
+// Revisa tanto el cifrado global de las canciones como el de Júbilo.
+function pianoUsaLatino(){
+  return !!cifradoLatino || (typeof jubiloGlobalLatino !== 'undefined' && !!jubiloGlobalLatino);
+}
+function pianoLabelRoot(root){
+  if (!pianoUsaLatino()) return root;
+  var m = String(root||'').match(/^([A-G])(#|b)?$/);
+  if (!m) return root;
+  var base = DICCIONARIO_LATINO[m[1]] || m[1];
+  return base + (m[2] || '');
+}
+function pianoLabelChord(root, type){
+  return pianoLabelRoot(root) + (type || '');
+}
+
+// Recuerda el acorde que está mostrando el modal para poder refrescarlo
+// (por ejemplo, si el usuario cambia el cifrado a Latino mientras está abierto).
+var pianoModalActual = null;
+function pianoActualizarSiAbierto(){
+  if (!pianoModalActual) return;
+  var modal = document.getElementById('pianoModal');
+  if (!modal || modal.style.display === 'none') return;
+  abrirPiano(pianoModalActual.root + pianoModalActual.type);
+}
+
+// ===== Acordes usados en la alabanza que se está viendo (Adoración/Júbilo) =====
+// Se actualiza solo cuando el piano se abre desde un acorde clickeado dentro
+// de una canción; se conserva mientras el usuario navega por el filtro/las
+// variaciones dentro del propio modal (o cuando solo se refresca el idioma).
+var pianoContextoCancion = null;
+
+function pianoExtraerAcordesDeTexto(contenido, semitonos){
+  var chords = [];
+  var vistos = {};
+  String(contenido || '').split('\n').forEach(function(raw){
+    if (!isChordLine(raw)) return;
+    var linea = semitonos ? transposeChordLine(raw, semitonos) : raw;
+    var tokens = linea.match(/[A-G][b#]?(?:m(?:aj)?|M|dim|aug|sus[24]?|add[0-9]?|[679]|[24])?/g) || [];
+    tokens.forEach(function(tok){
+      var parsed = pianoParseChord(tok);
+      if (!parsed) return;
+      var clave = pianoNormRoot(parsed.root) + parsed.type;
+      if (!vistos[clave]) { vistos[clave] = true; chords.push(tok); }
+    });
+  });
+  return chords;
+}
+
+function pianoDetectarAcordesDesdeElemento(el){
+  if (!el || !el.closest) return null;
+  var cont = el.closest('#viewContent, [id^="jubiloContent_"]');
+  if (!cont) return null;
+  if (cont.id === 'viewContent') {
+    if (!currentSong) return null;
+    return pianoExtraerAcordesDeTexto(currentSong.content, currentSemitones || 0);
+  }
+  if (cont.id.indexOf('jubiloContent_') === 0) {
+    var key = cont.id.slice('jubiloContent_'.length);
+    var st = jubiloState[key];
+    if (!st) return null;
+    var partes = key.split('_');
+    var songId = partes[partes.length - 1];
+    var song = getJubiloSong(songId);
+    if (!song) return null;
+    return pianoExtraerAcordesDeTexto(getJubiloContent(song), st.semitones || 0);
+  }
+  return null;
+}
+
 function pianoParseChord(str){
   str = str.trim();
   var rm = str.match(/^([A-G][b#]?)/);
@@ -7806,7 +7878,7 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
   }).join(' ');
 
   var noteNames = pianoGetSemis(root, type).map(function(m){
-    return PIANO_SEMIS[m%12];
+    return pianoLabelRoot(PIANO_SEMIS[m%12]);
   }).join(' · ');
 
   var typeName = {
@@ -7815,7 +7887,7 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
   }[type] || type;
 
   var variantBtns = ['','m','sus4','sus2','7','m7','dim','aug'].map(function(t){
-    var lbl = root + (t||'');
+    var lbl = pianoLabelChord(root, t);
     var active = t === type ? 'background:#7F77DD;color:#fff;border-color:#534AB7;' : '';
     return '<button onclick="abrirPiano(\''+root+t+'\')" style="'+active+
       'background:'+(active?'#7F77DD':'#42426e')+';border:1px solid #2a2a45;color:#e8e6f0;'+
@@ -7823,14 +7895,44 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
       lbl+'</button>';
   }).join('');
 
+  // Filtro con los 12 acordes (raíces) posibles, conservando la variante actual
+  var rootActualNorm = pianoNormRoot(root);
+  var rootBtns = PIANO_SEMIS.map(function(r){
+    var active = r === rootActualNorm;
+    return '<button onclick="abrirPiano(\''+r+type+'\')" style="'+
+      (active ? 'background:#c9a84c;color:#1a1a2e;border-color:#c9a84c;' : 'background:#2a2a45;color:#e8e6f0;border-color:#42426e;') +
+      'border:1px solid;border-radius:6px;padding:4px 9px;cursor:pointer;font-size:0.72rem;font-weight:bold;margin:2px;">'+
+      pianoLabelRoot(r)+'</button>';
+  }).join('');
+
+  // Fila con los acordes propios de la alabanza que se está viendo (si se detectó alguna)
+  var songChordsHTML = '';
+  if (pianoContextoCancion && pianoContextoCancion.length){
+    var songBtns = pianoContextoCancion.map(function(tok){
+      var p = pianoParseChord(tok);
+      if (!p) return '';
+      var active = pianoNormRoot(p.root) === rootActualNorm && p.type === type;
+      var tokEscapado = tok.replace(/'/g, "\\'");
+      return '<button onclick="abrirPiano(\''+tokEscapado+'\')" style="'+
+        (active ? 'background:#3ddc84;color:#0c2b1c;border-color:#3ddc84;' : 'background:#2a2a45;color:#e8e6f0;border-color:#42426e;') +
+        'border:1px solid;border-radius:6px;padding:4px 9px;cursor:pointer;font-size:0.72rem;font-weight:bold;margin:2px;">'+
+        pianoLabelChord(p.root, p.type)+'</button>';
+    }).join('');
+    songChordsHTML = '<div style="margin-top:6px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Acordes de esta alabanza:</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">' + songBtns + '</div>';
+  }
+
   return '<div style="font-size:0.8rem;color:#e0946a;margin-bottom:6px;">' +
-    '<strong style="color:#e8c97a;font-size:1rem;">'+root+type+'</strong> &nbsp;' + typeName + 
+    '<strong style="color:#e8c97a;font-size:1rem;">'+pianoLabelChord(root,type)+'</strong> &nbsp;' + typeName + 
     ' &nbsp;|&nbsp; ' + noteNames + '</div>' +
     '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">' + intervalHTML + '</div>' +
     '<div style="overflow-x:auto;padding-bottom:4px;">' +
       '<div style="display:inline-flex;align-items:flex-start;height:115px;">' + whiteKeys + '</div>' +
     '</div>' +
-    '<div style="margin-top:10px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Variaciones:</div>' +
+    '<div style="margin-top:10px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Acordes (toca para ver otro):</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">' + rootBtns + '</div>' +
+    songChordsHTML +
+    '<div style="margin-top:6px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Variaciones:</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + variantBtns + '</div>' +
     '<div style="margin-top:12px;display:flex;gap:6px;">' +
       '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',false)" style="flex:1;background:#3C3489;border:1px solid #534AB7;color:#EEEDFE;border-radius:6px;padding:8px 10px;cursor:pointer;font-size:0.8rem;font-weight:bold;">&#9654; Reproducir</button>' +
@@ -7877,47 +7979,153 @@ function pianoMidiToFreq(midi){
   return 440 * Math.pow(2, (midi - 69) / 12);
 }
 
-function pianoPlayNote(ctx, freq, startTime, duration){
-  var osc = ctx.createOscillator();
+// Nodo compartido que suaviza el volumen cuando suenan varias notas del
+// acorde a la vez, para que no se sature/distorsione.
+function pianoGetMasterOut(ctx){
+  if (!ctx._pianoMasterOut) {
+    var comp = ctx.createDynamicsCompressor();
+    comp.threshold.value = -18;
+    comp.knee.value = 20;
+    comp.ratio.value = 8;
+    comp.attack.value = 0.003;
+    comp.release.value = 0.25;
+    comp.connect(ctx.destination);
+    ctx._pianoMasterOut = comp;
+  }
+  return ctx._pianoMasterOut;
+}
+
+// ===== SAMPLES REALES DE PIANO (mp3, notas C3 a C5) =====
+// Los archivos viven en piano-samples/, se cachean offline vía sw.js.
+var PIANO_SAMPLE_MIN = 48; // C3
+var PIANO_SAMPLE_MAX = 72; // C5
+var PIANO_SAMPLE_NOMBRES = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+var pianoBufferCache = {}; // nombre de nota -> { buffer, promise }
+
+function pianoMidiToSampleName(midi){
+  var octava = Math.floor(midi / 12) - 1;
+  var nota = PIANO_SAMPLE_NOMBRES[((midi % 12) + 12) % 12];
+  return nota + octava;
+}
+
+function pianoLoadBuffer(ctx, midi){
+  var midiClamp = Math.max(PIANO_SAMPLE_MIN, Math.min(PIANO_SAMPLE_MAX, midi));
+  var nombre = pianoMidiToSampleName(midiClamp);
+  if (pianoBufferCache[nombre]) return pianoBufferCache[nombre].promise;
+  var entry = { buffer: null, promise: null };
+  entry.promise = fetch('piano-samples/' + nombre + '.mp3')
+    .then(function(res){ return res.arrayBuffer(); })
+    .then(function(arrBuf){ return ctx.decodeAudioData(arrBuf); })
+    .then(function(audioBuffer){ entry.buffer = audioBuffer; return audioBuffer; });
+  pianoBufferCache[nombre] = entry;
+  return entry.promise;
+}
+
+function pianoPlayNoteSample(ctx, midiObjetivo, startTime, duration){
+  var midi = Math.max(PIANO_SAMPLE_MIN, Math.min(PIANO_SAMPLE_MAX, midiObjetivo));
+  // Si la nota pedida se sale del rango de samples que tenemos, la tocamos
+  // con el sample más cercano y le ajustamos la velocidad de reproducción
+  // para afinarla (esto casi nunca debería pasar con los acordes actuales).
+  var playbackRate = Math.pow(2, (midiObjetivo - midi) / 12);
+  var nombre = pianoMidiToSampleName(midi);
+  var entry = pianoBufferCache[nombre];
+  var buffer = entry && entry.buffer;
+  if (!buffer) return;
+
+  var masterOut = pianoGetMasterOut(ctx);
+  var src = ctx.createBufferSource();
+  src.buffer = buffer;
+  src.playbackRate.value = playbackRate;
+
+  // ===== Calidez / "menos brillante" =====
+  // Los samples de piano digital suelen sonar duros o metálicos por exceso
+  // de agudos. Estos dos filtros suavizan esos agudos y refuerzan un poco
+  // el cuerpo (graves/medios), para un timbre más cálido y natural.
+  // Ajustar aquí si se quiere más o menos brillo:
+  //  - warmthShelf.gain más negativo = menos brillo (más apagado/oscuro)
+  //  - bodyPeak.gain más alto = más cuerpo/calidez en los medios-graves
+  var warmthShelf = ctx.createBiquadFilter();
+  warmthShelf.type = 'highshelf';
+  warmthShelf.frequency.value = 3200;
+  warmthShelf.gain.value = -9;
+
+  var bodyPeak = ctx.createBiquadFilter();
+  bodyPeak.type = 'peaking';
+  bodyPeak.frequency.value = 300;
+  bodyPeak.Q.value = 0.8;
+  bodyPeak.gain.value = 3;
+
   var gain = ctx.createGain();
-  osc.type = 'triangle';
-  osc.frequency.value = freq;
   gain.gain.setValueAtTime(0.0001, startTime);
-  gain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.9, startTime + 0.005);
   gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.start(startTime);
-  osc.stop(startTime + duration + 0.05);
+
+  src.connect(warmthShelf);
+  warmthShelf.connect(bodyPeak);
+  bodyPeak.connect(gain);
+  gain.connect(masterOut);
+  src.start(startTime);
+  src.stop(startTime + duration + 0.05);
 }
 
 function pianoReproducirAcorde(root, type, modoArpegio){
   var ctx = pianoGetAudioCtx();
   if (!ctx) { mostrarToast('⚠️ Tu navegador no soporta audio.'); return; }
-  var semis = pianoGetSemis(root, type);
-  var now = ctx.currentTime + 0.03;
-  if (modoArpegio) {
-    semis.forEach(function(m, i){
-      pianoPlayNote(ctx, pianoMidiToFreq(m), now + i * 0.16, 0.85);
-    });
-  } else {
-    semis.forEach(function(m){
-      pianoPlayNote(ctx, pianoMidiToFreq(m), now, 1.1);
-    });
-  }
+  // Todas las notas del acorde suenan dentro de la MISMA octava, partiendo
+  // del Do que está una octava por debajo del Do central (C4 → C3 = MIDI 48).
+  // El teclado visual sigue mostrando las teclas en su posición real/completa;
+  // esto solo afecta cómo se escucha el acorde.
+  var PIANO_OCTAVA_SONIDO = 48; // C3
+  var rootPc = pianoSemiOf(root);
+  var ints = PIANO_CHORD_TYPES[type] || PIANO_CHORD_TYPES[''];
+  var semis = ints.map(function(i){
+    return PIANO_OCTAVA_SONIDO + ((rootPc + i) % 12);
+  });
+
+  // Precargamos (o reutilizamos del cache) los samples que hacen falta
+  // antes de programar la reproducción, así el timing queda preciso.
+  var cargas = semis.map(function(m){ return pianoLoadBuffer(ctx, m); });
+
+  Promise.all(cargas).then(function(){
+    var now = ctx.currentTime + 0.03;
+    if (modoArpegio) {
+      semis.forEach(function(m, i){
+        pianoPlayNoteSample(ctx, m, now + i * 0.16, 0.9);
+      });
+    } else {
+      semis.forEach(function(m){
+        pianoPlayNoteSample(ctx, m, now, 1.1);
+      });
+    }
+  }).catch(function(err){
+    console.error('Error cargando sonido de piano:', err);
+    mostrarToast('⚠️ No se pudo cargar el sonido del piano.');
+  });
 }
 
-function abrirPiano(chordStr){
+function abrirPiano(chordStr, sourceEl){
   chordStr = chordLatinoToAmericano(chordStr);
   var parsed = pianoParseChord(chordStr);
   if (!parsed) return;
   var modal = document.getElementById('pianoModal');
   var title = document.getElementById('pianoModalTitle');
   var content = document.getElementById('pianoModalContent');
+  if (sourceEl) {
+    pianoContextoCancion = pianoDetectarAcordesDesdeElemento(sourceEl);
+  }
   if (!modal) return;
-  title.textContent = '🎹 ' + parsed.root + parsed.type;
+  pianoModalActual = parsed;
+  title.textContent = '🎹 ' + pianoLabelChord(parsed.root, parsed.type);
   content.innerHTML = pianoRenderHTML(parsed.root, parsed.type);
   modal.style.display = 'block';
+
+  // Precargamos ya los samples de este acorde para que "Reproducir" /
+  // "Arpegio" respondan al toque, sin esperar la descarga.
+  var ctxPre = pianoGetAudioCtx();
+  if (ctxPre) {
+    pianoGetSemis(parsed.root, parsed.type).map(function(m){ return m - 12; })
+      .forEach(function(m){ pianoLoadBuffer(ctxPre, m); });
+  }
 }
 
 function cerrarPiano(){
