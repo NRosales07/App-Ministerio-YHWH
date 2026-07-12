@@ -1457,18 +1457,18 @@ var SONGS =
     "num": 5,
     "title": "LEVÁNTATE OH DÉBORA",
     "compositor": "Ninoska de Ponce",
-    "tono": "C",
+    "tono": "D",
     "album": "Nuestro Legado - 2004",
-    "content": "[INTRO]: MELODÍA\n                                           | D | A | G | A | \n                                     | D | G | D | Em7 | A |\n        [VERSO 1]: \n        D       A       G         Am7            G      D         Em7      Asus4-A\nX2   Oíd, oh, reyes, escuchad, oh, príncipes, yo cantaré a Jehová.\n        D      A     G         Am7             G     D         Em7       Asus4-A\nOíd, oh, reyes, escuchad, oh, príncipes,       yo cantaré a Jehová.\n        D A               G       D-G                  Asus4-Em7\nCantaré salmos a su no - mbre,       avanza pueblo mí - o,\n        Asus4       Em7,                 Gsus2          Asus4\nQue se unan las estre - llas,   \nC\nQue Jehová, la victo - ria ha dado ya.   X2\n        [CORO]: \n        D A            Bm7 Am7 -G            Em7         Asus2\nX4   Levántate,   oh, Débora,          entona cántico a Jehová,\n        A                D A              Bm7 - Am7 D-G\nLos que te aman    como el sol brillarán,\n        Asus4         D        Bm7-A\nResplandece en mí, Jehová.   X4",
+    "content": "[INTRO]: MELODÍA\n                                           | D | A | G | A | \n                                     | D | G | D | Em7 | A |\n        [VERSO 1]: \n D            A          G         Am7                  G           D         \nX2   Oíd,     oh, reyes, escuchad, oh, príncipes,       \n           Em7         Asus4-A\nYo cantaré a Jehová.\nD           A           G         Am7                  G            D         \n     Oíd,      oh, reyes, escuchad, oh, príncipes,       \n           Em7         Asus4-A\nYo cantaré a Jehová.\n          D       A                G          D-G                         Asus4-Em7\nCantaré salmos a su no - mbre,       avanza pueblo mí - o,\n                                Asus4       Em7                 \nQue se unan las estre - llas,   \n                            Gsus2             Asus4\nQue Jehová, la victo - ria ha dado ya.   X2\n        [CORO]: \n              D        A         Bm7   Am7-G              Em7        Asus2\nX4   Levántate,   oh, Débora,             entona cántico a Jehová,\nA                       D    A                 Bm7 - Am7      D-G\n    Los que te aman    como el sol brillarán,\n      Asus4                     D        Bm7-A\nResplandece en mí, Jehová.   X4",
     "id": 139
   },
   {
     "num": 6,
     "title": "ALZAD OH PUERTAS",
     "compositor": "Ninoska de Ponce",
-    "tono": "C",
+    "tono": "E",
     "album": "Nuestro Legado - 2004",
-    "content": "[INTRO]:\n                           | E | F#m7 | E | Asus2 | C#m7 | \n                             | Bsus4 | F#m7 | Bsus4 | E |\n        [VERSO 1]: \n        E                F#m            E          Asus2\nX2   Vengo a declararme en peligro de extinción,\n        C#m                   Bsus4      F#m7-Bsus4\nSi no abres las puertas de mi corazón,\n        A            E           F#m7         E\nAbrelas Señor con las llaves de tu amor,\n        Asus2             E            F#m Bsus4        E\nRompe los cerrojos, pero entra      por favor.   X2\n        [CORO 1]:\n  Bsus4              E                   F#m7                 E               Asus2\nX3   Alzad oh puertas (Alzad oh puertas), \nC\nvuestras cabezas, (vuestras cabezas)\n        E F#m            Bsus4\nQue el Rey de gloria    está por llegar,\n        E                  F#m7             E          A\nÚnanse ángeles (Únanse ángeles), para adorar, (para adorar)\n        E       F#m A E\nEsta vez lo haremos en espíritu y verdad...   X3\n        [VERSO 1] X2             |             [CORO] X2",
+    "content": "[INTRO]:\n                           | E | F#m7 | E | Asus2 | C#m7 | \n                             | Bsus4 | F#m7 | Bsus4 | E |\n        [VERSO 1]: \nE                         F#m               E             Asus2       C#m\nX2   Vengo a declararme en peligro de extinción,\n                         Bsus4        F#m7-Bsus4         A\nSi no abres las puertas de mi corazón,\n                 E                 F#m7             E             A\nAbrelas Señor con las llaves de tu amor, \n                       E                F#m    Bsus4          E\nRompe los cerrojos, pero entra               por favor.   X2\n        [CORO 1]:\nBsus4                E                        F#m7                \nX3   Alzad oh puertas (Alzad oh puertas), \n                    E                        Asus2\nvuestras cabezas, (vuestras cabezas)\n                           E   F#m          Bsus4\nQue el Rey de gloria    está por llegar,\n                   E                       F#m7                E                   A\nÚnanse ángeles (Únanse ángeles), para adorar, (para adorar)\n                         E              F#m   A     E\nEsta vez lo haremos en espíritu y verdad...   X3\n        [VERSO 1] X2             |             [CORO] X2",
     "id": 140
   },
   {
@@ -1476,20 +1476,20 @@ var SONGS =
     "title": "COSAS QUE OJO NO VIÓ",
     "compositor": "Ebenezer HN",
     "tono": "E",
-    "youtube": "https://www.youtube.com/embed/",
     "album": "Campamento Celestial - 2008",
-    "content": "[INTRO]: MELODIA\n                                         | C#m | A | E7 | B |\n        [VERSO 1]: \n        G#m - C#m        B      Asus2-C#m             B      Asus2\nX2   Confesare tú Palabra,      y lo que tú harás en mi,\n        C#m           B        Asus2              G#m-F#m\nPacientemente esperare tus promesas,\n        E        Bsus4\nY sé que seguro harás.   X2\n        [CORO]: \n        F#m            E Bsus4 F#m                 C#m7 Bsus4\nX2   Cosas que ojo no vio,         cosas que oido no oyó,\n        F#m               E           Bsus4\nCosas que nadie jamas,           imaginó\n        C#m Bsus4\n¡Son las que viviré Yo!   X2\n        \nMELODIA\n         [VERSO 1] X2         |         [CORO] X2 ",
-    "id": 141
+    "content": "[INTRO]: MELODIA\n                                         | C#m | A | E7 | B |\n        [VERSO 1]: \nG#m - C#m               B         Asus2-C#m          B        Asus2     C#m\nX2                Confesaré tú Palabra,      y lo que tú harás en mi,\n               B              Asus2                     G#m-F#m\nPacientemente esperaré tus promesas,\n                 E       Bsus4\nY sé que seguro harás.   X2\n        [CORO]: \nF#m                   E      Bsus4-F#m             C#m7   Bsus4       F#m\nX2   Cosas que ojo no vio,         cosas que oido no oyó,\n                     E               Bsus4\nCosas que nadie jamas,           imaginó\n                    C#m   Bsus4\n¡Son las que viviré Yo!   X2\n        \nMELODIA\n         [VERSO 1] X2         |         [CORO] X2 ",
+    "id": 141,
+    "youtube": "https://www.youtube.com/embed/"
   },
   {
     "num": 8,
     "title": "TE AMO MÁS QUE A ESTOS",
     "compositor": "Ebenezer HN",
     "tono": "G",
-    "youtube": "https://www.youtube.com/embed/",
     "album": "Campamento Celestial - 2008",
-    "content": "[INTRO]: MELODIA\n                                     | C | G | E | Am | F | G |\n        [VERSO 1]: \n        C                      G                     Am\nX2 Te amo más que a estos, te amo más que a nadie,\n        F          G          C\nTe amo más que a todos, Dios mira mi corazón. X2\n        [CORO]: \n        G E Am7            F     C\nX2   ¿Que si te a – a – amo? Yo si te a – amo…   X2\n        [VERSO 1] X2           |        [CORO] X2 ",
-    "id": 142
+    "content": "[INTRO]: MELODIA\n                                     | C | G | E | Am | F | G |\n        [VERSO 1]: \n C                                       G                                   Am\nX2    Te amo más que a estos, te amo más que a nadie,\n                                  F                G             C\nTe amo más que a todos, Dios mira mi corazón.     X2\n        [CORO]: \n                        G    E    Am7               F     C\nX2   ¿Que si te a – a – amo? Yo si te a – amo…   X2\n        [VERSO 1] X2           |        [CORO] X2 ",
+    "id": 142,
+    "youtube": "https://www.youtube.com/embed/"
   },
   {
     "num": 9,
@@ -1497,16 +1497,16 @@ var SONGS =
     "compositor": "Ebenezer HN",
     "tono": "C",
     "album": "Campamento Celestial - 2008",
-    "content": "[INTRO]:\n                                         | C | Em | C | G | \n                                       | Am7 | Dsus2 | D |\n        [VERSO 1]:\n      D     G                             Am7    C G                           C\n¿Quién soy yo si tu no estas conmigo?      \nC\nNo soy nadie si no estas aqui,\n        G      C        D        C    G     C      G Dsus4\nEste corazón no puede mas vivir sin tu a - mor.\n        D         G                      Am7\nY, ¿Qué seria de mi sin tu Perdón?\n        G                      Am7\nNo habria esperanza mas en mi corazón,\n        C            D          C         G     C       G Dsus4 D\nTus misericordias son lo que enamora más y más mi corazón.\n        [CORO]: | Full Grv.\n        G    Am                   G\nX2   Mi corazon es tuyo,     todo mi amor te pertenece;\n        C       G     Am Dsus4\nYo soy tuyo y tú eres mio.   X2\n        [VERSO 1]:       |        [CORO] X2",
+    "content": "[INTRO]:\n                                         | C | Em | C | G | \n                                       | Am7 | Dsus2 | D |\n        [VERSO 1]:\nD        G                                         Am7        C                            \n     ¿Quién soy yo si tu no estas conmigo?      \nG                                        C        G\nNo soy nadie si no estas aqui,\n   C        D               C      G     C        G   Dsus4-D\nEste corazón no puede mas vivir sin tu a - mor.\n                G                          Am7\nY, ¿Qué seria de mi sin tu Perdón?\n         G                                  Am7\nNo habria esperanza mas en mi corazón,\n                  C          D                 C           G         C      G-Dsus4     D\nTus misericordias son lo que enamora más y más mi corazón.\n        [CORO]: | Full Grv.\n                                 G    Am                              G\nX2   Mi corazon es tuyo,         todo mi amor te pertenece;\nC           G     Am     Dsus4\nYo soy tuyo y tú eres mio.   X2\n        [VERSO 1]:       |        [CORO] X2",
     "id": 143
   },
   {
     "num": 10,
     "title": "SE OYEN ÁNGELES",
     "compositor": "Ebenezer HN",
-    "tono": "C",
+    "tono": "D",
     "album": "Campamento Celestial - 2008",
-    "content": "[INTRO]: MELODIA\n                                  | G | C | G | C | G | F | Am |\n        [VERSO 1]:\n        D      Bm     D     G               A\nX2    Estad quietos Jehová está en su templo,\n        Bm D G                 A\nEstad quietos entró su majestad.   X2\n        [CORO 1]: \n        F#m G Asus2             D C Am       B         Em\nX2   Bendito seas       oh Jehova, sea exaltado en majestad,\n        D     G Asus4            Bm\nÉl es el único    el gran Yo soy,\n        Asus4          Em      A       D    Am-D-G\nBendito seas      Oh Jehová...   X2\nC\nBendito seas Oh Jehová...\n        [CORO 2]:\n        D              G      Asus4\nX2   Se oyen Ángeles, han rodeado este lugar\n        F#m      B7          Em       A7    D     Asus4\nY se unen a nosotros, en un can - to celestial.   X2\n             [CORO 1] X2",
+    "content": "[INTRO]: MELODIA\n                                  | G | C | G | C | G | F | Am |\n        [VERSO 1]:\n D           Bm      D        G                         A\nX2    Estad quietos Jehová está en su templo,\n           Bm - D    G                A\nEstad quietos entró su majestad.   X2\n        [CORO 1]: \n          F#m     G   Asus2         D   C   Am       B                Em\nX2   Bendito seas       oh Jehova,      sea exaltado en majestad,\n     D        G    Asus4               Bm     Asus4\nÉl es el único          el gran Yo soy,\n              Em    A            D          Am-D-G\nBendito seas      Oh Jehová...   X2\n\nBendito seas Oh Jehová...\n        [CORO 2]:\n                            D                   G             Asus4\nX2   Se oyen Ángeles, han rodeado este lugar\n        F#m          B7                Em        A7      D        Asus4\nY se unen a nosotros, en un can - to      celestial.   X2\n             [CORO 1] X2",
     "id": 144
   },
   {

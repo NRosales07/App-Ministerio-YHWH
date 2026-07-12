@@ -235,6 +235,12 @@ window.dificultadDB = window.dificultadDB || JSON.parse(localStorage.getItem('yh
   --text:#e8e6f0;--text2:#e0946a;--chord:#e8824a;
   --section:#8bc7ff;
 }
+
+/* Transición suave de tema, solo activa mientras se cambia */
+body.theme-transitioning,
+body.theme-transitioning * {
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease !important;
+}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;}
 
@@ -679,6 +685,25 @@ z-index: 100;
 
 .sidebar{width:280px;min-width:240px;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;flex-shrink:0;}
 .song-item{padding:10px 16px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;border-bottom:1px solid rgba(255,255,255,0.03);}
+@keyframes setlistItemIn {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.setlist-item-new {
+  animation: setlistItemIn 0.32s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .setlist-item-new { animation: none; }
+}
+@keyframes counterBounce {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.05); }
+  65% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+.counter-bounce {
+  animation: counterBounce 0.35s ease;
+}
 .song-item:hover{background:var(--bg3);border-left-color:var(--gold);}
 .song-item.active{background:var(--bg3);border-left-color:var(--gold2);}
 .pdf-card{
@@ -903,6 +928,11 @@ body.light-theme .audio-player .ap-time{color:#7a6a4d;}
   -webkit-overflow-scrolling: touch;
   white-space: pre;
   padding-bottom: 40px;
+  transition: opacity 0.12s ease;
+}
+.song-content.chord-fade-out,
+.song-content.chord-fade-in{
+  opacity: 0.25;
 }
 
 /* ALL lines get IDENTICAL display properties - only color differs */
@@ -1026,6 +1056,26 @@ body.light-theme .audio-player .ap-time{color:#7a6a4d;}
 }
 .app-screen.active {
   display: flex;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.app-screen.active.screen-in {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.app-screen.screen-out {
+  display: flex;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-screen.active,
+  .app-screen.active.screen-in,
+  .app-screen.screen-out {
+    transition: none !important;
+  }
 }
 .menu-container {
   margin: auto;
@@ -3316,6 +3366,11 @@ document.addEventListener('DOMContentLoaded', function(){
                font-size:0.9rem;font-weight:bold;cursor:pointer;border-radius:8px;flex:1;min-width:140px;">
         📄 Exportar PDF / Imagen
       </button>
+      <button onclick="abrirRecomendador()"
+        style="background:linear-gradient(135deg,#8e44ad,#af7ac5);color:#fff;border:none;padding:10px 18px;
+               font-size:0.9rem;font-weight:bold;cursor:pointer;border-radius:8px;flex:1;min-width:140px;">
+        🎯 Sugerir cierre
+      </button>
     </div>
     </div>
     
@@ -4195,7 +4250,7 @@ function selectKey(key){
   currentKey=key;
   setActiveKey(key);
   updateSemDisplay();
-  renderContent();
+  animarCambioAcordes();
     localStorage.setItem('yhwh_tono_' + currentSong.id, key);
 
 }
@@ -4203,7 +4258,29 @@ function selectKey(key){
 function shiftSemitone(delta){
   currentSemitones=((currentSemitones+delta)%12+12)%12;
   updateSemDisplay();
-  renderContent();
+  animarCambioAcordes();
+}
+
+// Aplica un fade rápido al contenido de la canción cuando cambian los acordes
+// (transposición), en vez de un cambio instantáneo.
+function animarCambioAcordes(){
+  var el = document.getElementById('viewContent');
+  var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!el || sinMovimiento) {
+    renderContent();
+    return;
+  }
+  el.classList.add('chord-fade-out');
+  setTimeout(function () {
+    renderContent();
+    el.classList.remove('chord-fade-out');
+    el.classList.add('chord-fade-in');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        el.classList.remove('chord-fade-in');
+      });
+    });
+  }, 90);
 }
 
 function buildKeySelector(song){
@@ -4832,6 +4909,13 @@ var THEME_PREF_KEY = 'yhwh_theme_pref';
 var modoClaro = false;
 
 function aplicarTemaClaro(activar, guardar) {
+  if (guardar) {
+    document.body.classList.add('theme-transitioning');
+    clearTimeout(window._themeTransTimer);
+    window._themeTransTimer = setTimeout(function () {
+      document.body.classList.remove('theme-transitioning');
+    }, 450);
+  }
   modoClaro = !!activar;
   document.body.classList.toggle('light-theme', modoClaro);
   var btn = document.getElementById('btnClaro');
@@ -4868,20 +4952,42 @@ window.addEventListener('DOMContentLoaded', function() {
   aplicarTemaClaro(modoClaro, false);
 });
 
-// Función para ocultar pantallas y mostrar la seleccionada
+// Función para ocultar pantallas y mostrar la seleccionada (con transición)
 function showScreen(screenId) {
   if (screenId !== 'screen-jubilo' && typeof detenerAutoScrollJubilo === 'function') {
     detenerAutoScrollJubilo();
   }
   var screens = document.querySelectorAll('.app-screen');
-  for (var i = 0; i < screens.length; i++) {
-    screens[i].classList.remove('active');
-  }
+  var current = document.querySelector('.app-screen.active');
   var target = document.getElementById(screenId);
-  if (target) target.classList.add('active');
-  if (screenId === 'screen-setlist') renderSetlist();
-  // Actualizar contador
-  actualizarContadorRepertorio();
+  if (!target) return;
+
+  var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function activarPantalla() {
+    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active', 'screen-in', 'screen-out');
+    target.classList.add('active');
+    if (screenId === 'screen-setlist') renderSetlist();
+    actualizarContadorRepertorio();
+  }
+
+  if (!current || current === target || sinMovimiento) {
+    activarPantalla();
+    return;
+  }
+
+  // 1. Se desvanece la pantalla actual
+  current.classList.add('screen-out');
+  setTimeout(function () {
+    activarPantalla();
+    // 2. La nueva pantalla arranca invisible y luego entra
+    target.classList.add('screen-in');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        target.classList.remove('screen-in');
+      });
+    });
+  }, 220);
 }
 
 function actualizarContadorRepertorio() {
@@ -4895,9 +5001,17 @@ function actualizarContadorRepertorio() {
     }
     return sum;
   }, 0);
-  btn.textContent = total > 0
+  var nuevoTexto = total > 0
     ? '📋 Repertorio (' + total + ')'
     : '📋 Repertorio';
+  if (btn.textContent !== nuevoTexto) {
+    btn.textContent = nuevoTexto;
+    if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+      btn.classList.remove('counter-bounce');
+      void btn.offsetWidth; // fuerza reflow para poder reiniciar la animación
+      btn.classList.add('counter-bounce');
+    }
+  }
 }
 
 // Función para cambiar el archivo del visor PDF
@@ -5152,7 +5266,7 @@ function cambiarDiaRepertorio(dia) {
 function agregarAlRepertorio() {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!currentSong) {
-    alert('Primero abre una canci�n.');
+    alert('Primero abre una canción.');
     return;
   }
   pedirFechaRepertorio(function(fecha){
@@ -5188,6 +5302,7 @@ function agregarItemAlRepertorio(item, dia) {
   repertorioMesActivo = dia.slice(0, 7);
   setlistDOM = getRepertorioFecha(repertorioFechaActiva);
   guardarRepertorios();
+  window._recienAgregadoSetlist = { id: item.id, fuente: fuente };
 
   mostrarToast('✅ "' + item.title + '" añadida al repertorio de ' + getDiaLabel(dia) + '.');
   actualizarContadorRepertorio();
@@ -5237,7 +5352,7 @@ function renderSetlist() {
   for (var i = 0; i < setlistDOM.length; i++) {
     var s = setlistDOM[i];
     html +=
-      '<div class="song-item" data-id="' + s.id + '" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px; gap:6px;">' +
+      '<div class="song-item setlist-item' + (window._recienAgregadoSetlist && String(window._recienAgregadoSetlist.id) === String(s.id) && (window._recienAgregadoSetlist.fuente || 'adoracion') === (s.fuente || 'adoracion') ? ' setlist-item-new' : '') + '" data-id="' + s.id + '" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px; gap:6px;">' +
         '<div style="flex:1; display:flex; align-items:center; gap:10px; padding: 6px 8px; min-width:0;" onclick="abrirDesdeRepertorio(' + i + ')">' +
           '<div class="snum">#' + (i + 1) + '</div>' +
           '<div class="sbody" style="flex:1; min-width:0;">' +
@@ -5254,6 +5369,7 @@ function renderSetlist() {
   }
 
   cont.innerHTML = html;
+  window._recienAgregadoSetlist = null;
   renderCalendarioRepertorio();
 
   if (divTiempo) {
@@ -5452,11 +5568,36 @@ function cambiarMesRepertorio(delta) {
 }
 function eliminarDelRepertorio(index) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
-  setlistDOM.splice(index, 1);
-  guardarRepertorios();
-  renderSetlist();
-  mostrarToast('🗑️ Canción eliminada del repertorio.');
-  actualizarContadorRepertorio();
+
+  function finalizarEliminacion() {
+    setlistDOM.splice(index, 1);
+    guardarRepertorios();
+    renderSetlist();
+    mostrarToast('🗑️ Canción eliminada del repertorio.');
+    actualizarContadorRepertorio();
+  }
+
+  var cont = document.getElementById('setlistContent');
+  var items = cont ? cont.querySelectorAll('.setlist-item') : null;
+  var el = items ? items[index] : null;
+  var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!el || sinMovimiento) {
+    finalizarEliminacion();
+    return;
+  }
+
+  el.style.overflow = 'hidden';
+  el.style.transition = 'max-height 0.24s ease, opacity 0.22s ease, transform 0.22s ease, margin-bottom 0.24s ease';
+  el.style.maxHeight = el.offsetHeight + 'px';
+  el.offsetHeight; // forzar reflow para que la transición arranque desde este valor
+  requestAnimationFrame(function () {
+    el.style.maxHeight = '0px';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(70px)';
+    el.style.marginBottom = '0px';
+  });
+  setTimeout(finalizarEliminacion, 240);
 }
 
 
@@ -5591,13 +5732,32 @@ window.rerenderJubiloActive = function() {
 window.aplicarFuenteJubilo = aplicarFuenteJubilo;
 
 // REGISTRO DEL SERVICE WORKER (Para funcionamiento sin internet)
+// No se registra en local (Live Server / localhost / IP de red local) para
+// que siempre veas los archivos frescos mientras pruebas. Si ya había un
+// service worker viejo registrado ahí (de una sesión anterior), lo limpia.
+var esEntornoLocal = ['localhost', '127.0.0.1', ''].includes(location.hostname)
+  || location.hostname.startsWith('192.168.')
+  || location.hostname.startsWith('10.')
+  || location.hostname.endsWith('.local');
+
 if ('serviceWorker' in navigator) {
+  if (esEntornoLocal) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+      }).catch(() => {});
+      if (window.caches && caches.keys) {
+        caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
+      }
+    });
+  } else {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js') // Cambia 'sw.js' por el nombre real de tu archivo
         .then(reg => console.log('Service Worker registrado con éxito', reg))
         .catch(err => console.error('Error al registrar el Service Worker', err));
     });
   }
+}
 
 // ============================================================
 // === BUSCAR ACTUALIZACIONES (boton manual en el menu) =======
@@ -6301,11 +6461,13 @@ function setDificultad(nivel) {
   var clave = 'yhwh_dif_' + currentSong.id;
   var actual = localStorage.getItem(clave);
 
+  var nuevoNivel = null;
   if (actual === nivel) {
     localStorage.removeItem(clave);
     mostrarToast('Dificultad eliminada');
   } else {
     localStorage.setItem(clave, nivel);
+    nuevoNivel = nivel;
     var nombres = {
       facil: '🟢 Fácil',
       media: '🟡 Media',
@@ -6318,18 +6480,14 @@ function setDificultad(nivel) {
 
   if (window.esAdmin && window.fbDb) {
 
-      var difData = {};
+      // Partimos de la última foto conocida de Firebase (no solo de este dispositivo)
+      // para no borrar dificultades guardadas desde otros celulares/computadoras.
+      var difData = Object.assign({}, window.dificultadDB || {});
 
-      for (var i = 0; i < SONGS.length; i++) {
-
-          var songId = SONGS[i].id;
-
-          var nivelGuardado =
-              localStorage.getItem('yhwh_dif_' + songId);
-
-          if (nivelGuardado) {
-              difData[songId] = nivelGuardado;
-          }
+      if (nuevoNivel) {
+          difData[currentSong.id] = nuevoNivel;
+      } else {
+          delete difData[currentSong.id];
       }
 
       window.fbSet(
@@ -6364,24 +6522,42 @@ function obtenerBadgeDificultad(id) {
 
 
 
+// Los id 'ofertorio', 'jubilo' y 'navidad' quedaron de nombres viejos que ya
+// no coinciden con el texto visible (Fe, Amor, Presencia). ETIQUETAS_MIGRACION_IDS
+// traduce esos id antiguos a los nuevos para que las canciones ya etiquetadas
+// no pierdan su etiqueta al abrir la app.
+var ETIQUETAS_MIGRACION_IDS = { ofertorio: 'fe', jubilo: 'amor', navidad: 'presencia' };
+
+function remapEtiquetasIds(arr) {
+  if (!Array.isArray(arr)) return arr;
+  return arr.map(function(id) { return ETIQUETAS_MIGRACION_IDS[id] || id; });
+}
+
 var ETIQUETAS_DISPONIBLES = [
   { id: 'alabanza',      texto: 'Alabanza',      color: '#2980b9', bg: '#1a3a4a' },
   { id: 'adoracion',     texto: 'Adoración',      color: '#8e44ad', bg: '#3a1a4a' },
   { id: 'arrepentimiento', texto: 'Arrepentimiento', color: '#c0392b', bg: '#4a1a1a' },
   { id: 'comunion',      texto: 'Comunión',       color: '#27ae60', bg: '#1a4a2a' },
-  { id: 'ofertorio',     texto: 'Fe',      color: '#d35400', bg: '#4a2a00' },
+  { id: 'fe',            texto: 'Fe',      color: '#d35400', bg: '#4a2a00' },
   { id: 'cruz',          texto: 'Cruz',           color: '#7f8c8d', bg: '#2a2a2a' },
-  { id: 'jubilo',        texto: 'Amor',         color: '#f39c12', bg: '#4a3a00' },
-  { id: 'navidad',       texto: 'Presencia',        color: '#27ae60', bg: '#1a4a1a' },
+  { id: 'amor',          texto: 'Amor',         color: '#f39c12', bg: '#4a3a00' },
+  { id: 'presencia',     texto: 'Presencia',        color: '#27ae60', bg: '#1a4a1a' },
   { id: 'espiritu',      texto: 'Espíritu Santo', color: '#3498db', bg: '#1a2a4a' },
-  { id: 'sanidad',       texto: 'Sanidad',        color: '#1abc9c', bg: '#1a3a3a' }
+  { id: 'sanidad',       texto: 'Sanidad',        color: '#1abc9c', bg: '#1a3a3a' },
+  { id: 'consagracion',  texto: 'Consagración',   color: '#9b59b6', bg: '#2e1a3d' },
+  { id: 'restauracion',  texto: 'Restauración',   color: '#16a085', bg: '#0e3d35' },
+  { id: 'perdon',        texto: 'Perdón',         color: '#e74c3c', bg: '#4a1f1f' },
+  { id: 'anhelo',        texto: 'Anhelo',         color: '#af7ac5', bg: '#33204a' },
+  { id: 'avivamiento',   texto: 'Avivamiento',    color: '#e67e22', bg: '#4a2a10' },
+  { id: 'victoria',      texto: 'Victoria',       color: '#f1c40f', bg: '#4a3f10' },
+  { id: 'gratitud',      texto: 'Gratitud',       color: '#2ecc71', bg: '#123d1f' }
 ];
 
 function getEtiquetasCancion(id) {
   if (window.etiquetasDB && window.etiquetasDB[id]) {
-    return window.etiquetasDB[id];
+    return remapEtiquetasIds(window.etiquetasDB[id]);
   }
-  return JSON.parse(localStorage.getItem('yhwh_etiq_' + id) || '[]');
+  return remapEtiquetasIds(JSON.parse(localStorage.getItem('yhwh_etiq_' + id) || '[]'));
 }
 
 function getDificultadCancion(id) {
@@ -6389,6 +6565,182 @@ function getDificultadCancion(id) {
     return window.dificultadDB[id];
   }
   return localStorage.getItem('yhwh_dif_' + id);
+}
+
+// ===== SUGERIDOR DE CANCIÓN DE CIERRE (IA — Google Gemini, capa gratuita) =====
+var GEMINI_KEY_STORAGE = 'yhwh_gemini_api_key';
+
+function abrirRecomendador() {
+  var modal = document.getElementById('recomendadorModal');
+  var apiKeyWrap = document.getElementById('recomendadorApiKeyWrap');
+  var estado = document.getElementById('recomendadorEstado');
+  var resultado = document.getElementById('recomendadorResultado');
+  if (!modal) return;
+  estado.textContent = '';
+  resultado.style.display = 'none';
+  resultado.textContent = '';
+  var keyGuardada = localStorage.getItem(GEMINI_KEY_STORAGE);
+  apiKeyWrap.style.display = keyGuardada ? 'none' : 'block';
+  modal.style.display = 'flex';
+}
+
+function cerrarRecomendador() {
+  var modal = document.getElementById('recomendadorModal');
+  if (modal) modal.style.display = 'none';
+}
+
+// Permite pegar una clave nueva si la guardada está mal (ej: se pegó por error
+// otro texto en vez de la clave) sin tener que tocar el almacenamiento del navegador.
+function cambiarClaveGemini() {
+  localStorage.removeItem(GEMINI_KEY_STORAGE);
+  var apiKeyWrap = document.getElementById('recomendadorApiKeyWrap');
+  var apiKeyInput = document.getElementById('recomendadorApiKeyInput');
+  var estado = document.getElementById('recomendadorEstado');
+  if (apiKeyInput) apiKeyInput.value = '';
+  if (apiKeyWrap) apiKeyWrap.style.display = 'block';
+  if (estado) estado.textContent = 'Pegá tu nueva clave de Gemini abajo.';
+}
+
+// Google tiene dos formatos de clave en uso: las viejas empiezan con "AIza",
+// las nuevas ("auth keys") empiezan con "AQ.". En vez de atarnos a un prefijo
+// que puede volver a cambiar, solo validamos que no tenga espacios/saltos de
+// línea y tenga un largo razonable — así detectamos igual si alguien pega
+// código o texto largo por error, sin bloquear claves nuevas válidas.
+function esClaveGeminiValida(valor) {
+  var v = valor.trim();
+  return v.length >= 20 && v.length <= 200 && /^[A-Za-z0-9._-]+$/.test(v);
+}
+
+// Arma un texto compacto "Título — etiqueta1, etiqueta2" con TODO el repertorio
+// disponible, para que la IA elija en base a las mismas etiquetas que ya usás.
+// Saca los acordes (líneas cortas con letras tipo "C  G  Am", típicas arriba
+// de cada línea de letra en tus cifrados) para quedarnos solo con texto de
+// letra real, y así no "gastar" espacio del mensaje en notación musical.
+function extraerFragmentoLetra(content, maxChars) {
+  if (!content) return '';
+  var lineas = content.split('\n');
+  var soloLetra = lineas.filter(function(linea) {
+    var limpia = linea.trim();
+    if (!limpia) return false;
+    // Una línea de acordes son solo notas/símbolos cortos separados por espacios
+    // (ej: "C  G  Am7  F"), sin palabras largas de letra real.
+    var pareceAcordes = /^[A-G0-9#bmsuspadimoj\/\s.\-]+$/.test(limpia) && limpia.length < 40;
+    return !pareceAcordes;
+  });
+  var texto = soloLetra.join(' ').replace(/\s+/g, ' ').trim();
+  return texto.length > maxChars ? texto.slice(0, maxChars) + '…' : texto;
+}
+
+function construirListaRepertorioParaIA() {
+  if (typeof SONGS === 'undefined' || !Array.isArray(SONGS)) return '';
+  var lineas = [];
+  for (var i = 0; i < SONGS.length; i++) {
+    var s = SONGS[i];
+    var idsEtiquetas = getEtiquetasCancion(s.id) || [];
+    var textosEtiquetas = idsEtiquetas.map(function(id) {
+      var found = ETIQUETAS_DISPONIBLES.find(function(e) { return e.id === id; });
+      return found ? found.texto : id;
+    });
+    var fragmento = extraerFragmentoLetra(s.content, 140);
+    var linea = s.title +
+      (textosEtiquetas.length ? ' — etiquetas: ' + textosEtiquetas.join(', ') : ' — sin etiquetas') +
+      (fragmento ? ' — letra: "' + fragmento + '"' : '');
+    lineas.push(linea);
+  }
+  return lineas.join('\n');
+}
+
+async function generarRecomendacionCierre() {
+  var apiKeyInput = document.getElementById('recomendadorApiKeyInput');
+  var apiKeyWrap = document.getElementById('recomendadorApiKeyWrap');
+  var temaInput = document.getElementById('recomendadorTemaInput');
+  var estado = document.getElementById('recomendadorEstado');
+  var resultado = document.getElementById('recomendadorResultado');
+  var btn = document.getElementById('btnGenerarRecomendacion');
+
+  var apiKey = localStorage.getItem(GEMINI_KEY_STORAGE);
+
+  // Si hay algo guardado pero no tiene pinta de clave real (ej: quedó de un
+  // error anterior), lo descartamos y pedimos que la pegue de nuevo.
+  if (apiKey && !esClaveGeminiValida(apiKey)) {
+    localStorage.removeItem(GEMINI_KEY_STORAGE);
+    apiKey = null;
+  }
+
+  if (!apiKey && apiKeyInput && apiKeyInput.value.trim()) {
+    var valorPegado = apiKeyInput.value.trim();
+    if (!esClaveGeminiValida(valorPegado)) {
+      estado.textContent = '⚠️ Eso no parece una clave de Gemini válida. Debe empezar con "AIza" y no tener espacios. Verificá qué pegaste.';
+      return;
+    }
+    apiKey = valorPegado;
+    localStorage.setItem(GEMINI_KEY_STORAGE, apiKey);
+  }
+  if (!apiKey) {
+    apiKeyWrap.style.display = 'block';
+    estado.textContent = '⚠️ Pegá tu clave de Gemini para continuar.';
+    return;
+  }
+
+  var tema = temaInput.value.trim();
+  if (!tema) {
+    estado.textContent = '⚠️ Escribí el tema o llamado del culto de hoy.';
+    return;
+  }
+
+  var repertorioTexto = construirListaRepertorioParaIA();
+  if (!repertorioTexto) {
+    estado.textContent = '⚠️ No encontré canciones cargadas para comparar.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '🙏 Pensando...';
+  estado.textContent = '';
+  resultado.style.display = 'none';
+
+  var prompt = 'Eres un asistente de un ministerio de alabanza cristiano evangélico (Ministerio YHWH). ' +
+    'Te doy una lista de canciones disponibles (con sus etiquetas temáticas y un fragmento de la letra de cada una, cuando esté disponible) y el tema o llamado del culto de hoy. ' +
+    'Tu tarea: recomendar la MEJOR canción para cerrar el culto (momento de invitación al altar / respuesta), ' +
+    'y una segunda opción alternativa, ambas de la lista dada (no inventes canciones que no estén en la lista). ' +
+    'Explica brevemente por qué cada una encaja con el tema, en 2-3 líneas cada una. ' +
+    'Responde en español, tono cálido y pastoral, sin encabezados markdown, texto plano.\n\n' +
+    'TEMA O LLAMADO DE HOY: ' + tema + '\n\n' +
+    'REPERTORIO DISPONIBLE:\n' + repertorioTexto;
+
+  try {
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=' + encodeURIComponent(apiKey);
+    var response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    var data = await response.json();
+
+    if (data.error) {
+      throw new Error(data.error.message || 'Error de la API');
+    }
+
+    var texto = (data.candidates && data.candidates[0] && data.candidates[0].content &&
+      data.candidates[0].content.parts && data.candidates[0].content.parts[0] &&
+      data.candidates[0].content.parts[0].text) || '';
+
+    if (!texto) throw new Error('Respuesta vacía');
+
+    resultado.textContent = texto;
+    resultado.style.display = 'block';
+    apiKeyWrap.style.display = 'none';
+  } catch (err) {
+    estado.textContent = '❌ ' + (err.message === 'Error de la API' || !err.message ? 'Hubo un problema. Revisa tu clave o intenta de nuevo.' : err.message);
+    // Si la clave falló, permitir corregirla
+    if (String(err.message || '').toLowerCase().indexOf('key') !== -1 || String(err.message || '').toLowerCase().indexOf('api') !== -1) {
+      localStorage.removeItem(GEMINI_KEY_STORAGE);
+      apiKeyWrap.style.display = 'block';
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Sugerir';
+  }
 }
 
 function toggleEtiqueta(etiquetaId) {
@@ -6409,24 +6761,14 @@ function toggleEtiqueta(etiquetaId) {
 
  if (window.esAdmin && window.fbDb) {
 
-  var etData = {};
+  // Partimos de la última foto conocida de Firebase (no solo de este dispositivo)
+  // para no borrar etiquetas guardadas desde otros celulares/computadoras.
+  var etData = Object.assign({}, window.etiquetasDB || {});
 
-  for (var i = 0; i < SONGS.length; i++) {
-
-    var songId = SONGS[i].id;
-
-    try {
-
-      var etiquetasCancion =
-        JSON.parse(
-          localStorage.getItem('yhwh_etiq_' + songId) || '[]'
-        );
-
-      if (etiquetasCancion.length > 0) {
-        etData[songId] = etiquetasCancion;
-      }
-
-    } catch(e) {}
+  if (etiquetas.length > 0) {
+    etData[currentSong.id] = etiquetas;
+  } else {
+    delete etData[currentSong.id];
   }
 
   window.fbSet(
@@ -8469,6 +8811,55 @@ function aplicarAjusteJubilo() {
   </div>
 </div>
 
+
+<!-- ===== MODAL SUGERIDOR DE CANCIÓN DE CIERRE (IA) ===== -->
+<div id="recomendadorModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
+  background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;">
+  <div style="max-width:420px;width:100%;max-height:88vh;overflow-y:auto;background:#1c1c3f;border-radius:14px;
+    border:1px solid #2a2a45;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:2rem;margin-bottom:6px;">🎯</div>
+      <div style="color:#c9a84c;font-weight:bold;font-size:1.05rem;">¿Cuál canción cierra el culto?</div>
+      <div style="color:#8888aa;font-size:0.78rem;margin-top:4px;">Contame el tema o el llamado de hoy y te sugiero la mejor opción de tu repertorio.</div>
+    </div>
+
+    <div id="recomendadorApiKeyWrap" style="display:none;margin-bottom:14px;">
+      <label style="display:block;color:#af7ac5;font-size:0.75rem;margin-bottom:5px;">🔑 Clave de Gemini (solo una vez, queda guardada en este dispositivo)</label>
+      <input id="recomendadorApiKeyInput" type="password" placeholder="Pegá tu API key de Google AI Studio…"
+        style="width:100%;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;
+               border-radius:8px;padding:10px 12px;font-size:0.85rem;outline:none;box-sizing:border-box;">
+      <div style="color:#8888aa;font-size:0.7rem;margin-top:5px;">Sacala gratis, sin tarjeta, en aistudio.google.com/apikey</div>
+    </div>
+
+    <label style="display:block;color:#af7ac5;font-size:0.75rem;margin-bottom:5px;">🎯 Tema o llamado del culto de hoy</label>
+    <input id="recomendadorTemaInput" type="text" placeholder="Ej: restauración después de una caída…"
+      style="width:100%;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;
+             border-radius:8px;padding:12px 14px;font-size:0.9rem;outline:none;
+             box-sizing:border-box;margin-bottom:6px;"
+      onkeydown="if(event.key==='Enter') generarRecomendacionCierre()">
+
+    <div style="text-align:right;margin-bottom:10px;">
+      <a href="#" onclick="cambiarClaveGemini();return false;" style="color:#8888aa;font-size:0.72rem;text-decoration:underline;">🔄 Cambiar clave de Gemini</a>
+    </div>
+
+    <div id="recomendadorEstado" style="color:#8888aa;font-size:0.78rem;min-height:18px;margin-bottom:6px;text-align:center;"></div>
+    <div id="recomendadorResultado" style="display:none;background:rgba(174,122,197,0.1);border:1px solid rgba(175,122,197,0.35);
+      border-radius:10px;padding:14px;margin-bottom:14px;white-space:pre-wrap;line-height:1.5;font-size:0.86rem;color:#e8e6f0;"></div>
+
+    <div style="display:flex;gap:10px;">
+      <button onclick="cerrarRecomendador()"
+        style="flex:1;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;
+               border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">
+        Cerrar
+      </button>
+      <button id="btnGenerarRecomendacion" onclick="generarRecomendacionCierre()"
+        style="flex:1;background:linear-gradient(135deg,#8e44ad,#af7ac5);border:none;color:#fff;
+               border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">
+        ✨ Sugerir
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== MODAL SELECCIÓN DE ROL (Cantante / Músico) ===== -->
 <div id="rolModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;

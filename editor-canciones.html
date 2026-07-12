@@ -1,6 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script>
+  if (location.protocol !== 'file:' && 'serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(reg) { reg.unregister(); });
+      }).catch(function() {});
+      if (window.caches && caches.keys) {
+        caches.keys().then(function(keys) {
+          return Promise.all(keys.map(function(key) { return caches.delete(key); }));
+        }).catch(function() {});
+      }
+    });
+  }
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Editor de Alabanzas — Adoración</title>
@@ -122,7 +139,82 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
   overflow:hidden;
   transition:width 0.15s ease;
 }
-.mobile-frame .preview-card{border-radius:0;border:none;}
+.mobile-frame.visor-directo{
+  background:#000;
+  padding:0;
+}
+.preview-iframe{
+  display:block;
+  width:100%;
+  height:100%;
+  min-height:760px;
+  border:0;
+  background:#0f0f29;
+}
+.mobile-frame .preview-card{
+  border-radius:0;
+  border:none;
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
+}
+.mobile-shell{
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+}
+.mock-app-header{
+  background:linear-gradient(135deg,#f1824b,#1d2677,#101038);
+  border-bottom:1px solid var(--border);
+  padding:12px 12px 10px;
+  text-align:center;
+}
+.mock-app-kicker{
+  font-size:0.68rem;
+  color:#ffe9c8;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  opacity:0.9;
+}
+.mock-app-title{
+  margin-top:3px;
+  font-size:1rem;
+  color:var(--gold2);
+  font-weight:700;
+}
+.mock-controls{
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  padding:8px 10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.mock-row{
+  display:flex;
+  gap:6px;
+}
+.mock-btn{
+  flex:1;
+  border:1px solid var(--border);
+  background:var(--bg3);
+  color:var(--text);
+  border-radius:7px;
+  padding:7px 8px;
+  font-size:0.72rem;
+  font-weight:700;
+}
+.mock-btn.active{
+  background:var(--gold);
+  color:#111;
+  border-color:var(--gold);
+}
+.mobile-frame .preview-title{
+  margin:0 0 4px;
+  font-size:1.15rem;
+  text-align:center;
+}
+.mobile-frame .song-content{flex:1;}
 .mobile-frame-label{font-size:0.68rem;color:var(--text2);text-align:center;letter-spacing:0.5px;}
 
 /* Reglas responsivas reales copiadas de index.html (@media max-width:640px/580px) — SOLO aplican a Adoración */
@@ -150,6 +242,59 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
 }
 .mobile-frame.vista-cantante .song-content:not(.tipo-jubilo) .lb{height:10px;}
 
+/* Móvil: en Adoración la app real centra el bloque de letra dentro de un ancho mayor
+   y conserva la sensación de pantalla completa; este ajuste reduce la diferencia visual
+   con el teléfono sin cambiar la lógica del contenido. */
+.mobile-frame .preview-card:not(.tipo-jubilo-card){
+  padding:14px 12px 18px;
+}
+.mobile-frame.vista-cantante .preview-card:not(.tipo-jubilo-card){
+  padding-top:12px;
+}
+
+/* En el teléfono real el bloque de canción ocupa toda la pantalla útil, con el título
+   separado del cuerpo. Esta regla aproxima esa composición en el editor. */
+.mobile-frame .preview-meta{
+  display:none;
+}
+.mobile-frame .preview-card:not(.tipo-jubilo-card) .song-header{
+  margin-bottom:12px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+  background:#1b2152;
+  margin-left:-12px;
+  margin-right:-12px;
+  padding-left:12px;
+  padding-right:12px;
+}
+/* Júbilo real NO usa .song-header (esa caja con fondo y línea divisoria es
+   exclusiva de la tarjeta de Adoración, ver #viewTitle en index.html). La
+   tarjeta de Júbilo (.jubilo-song-title-wrap) no tiene fondo ni borde: el
+   título flota directo sobre el fondo oscuro. Esta es la diferencia visual
+   real que antes hacía que Júbilo se viera "con caja de encabezado" cuando
+   la app real no la tiene. */
+.mobile-frame .preview-card.tipo-jubilo-card .song-header{
+  background:none;
+  border-bottom:none;
+  margin:0;
+  padding:0;
+}
+.mobile-frame .song-title{
+  font-family:'Inter',Helvetica,serif;
+  font-size:1.08rem;
+  color:var(--gold2);
+  text-align:center;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.mobile-frame .song-content{
+  margin-top:10px;
+}
+.mobile-frame .mock-controls,
+.mobile-frame .mock-app-header{
+  flex:0 0 auto;
+}
+
 /* ============================================================
    VISTA JÚBILO — copiada 1:1 de .jubilo-content en index.html
    Diferencias reales frente a Adoración:
@@ -167,28 +312,63 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
   line-height:1.55;
   overflow-x:visible;
   margin-top:10px;
+  max-width:760px;
+  margin-left:auto;
+  margin-right:auto;
 }
 .mobile-frame .song-content.tipo-jubilo{font-size:inherit;} /* el tamaño lo fija JS en px, no el ancho */
 .song-content.tipo-jubilo .lc,
 .song-content.tipo-jubilo .ll,
 .song-content.tipo-jubilo .ls,
-.song-content.tipo-jubilo .lm{font-size:inherit;} /* Júbilo fija el tamaño en px por rol (12/14px), no en rem fijo */
+.song-content.tipo-jubilo .lm{font-size:inherit;font-family:Arial,Helvetica,sans-serif;} /* Júbilo fija el tamaño en px por rol (12/14px), no en rem fijo. La fuente SIEMPRE es Arial en la app real (igual que Adoración), aunque el contenedor .jubilo-content declare monospace — eso nunca se ve porque cada línea va en su propio span con Arial forzado. */
+/* Los marcadores de sección ([CORO], [VERSO]...) van en mayúsculas y con más
+   separación en Júbilo SIEMPRE que hay un rol activo (músico o cantante),
+   no solo en cantante — copiado 1:1 de body.jubilo-singer-view/musician-view
+   #screen-jubilo .jubilo-content .ls en index.html. */
+.song-content.tipo-jubilo .ls{
+  margin:18px 0 10px;
+  text-transform:uppercase;
+}
 .song-content.tipo-jubilo.vista-cantante-jubilo .ll,
 .song-content.tipo-jubilo.vista-cantante-jubilo .ls{
   line-height:1.62 !important;
   font-family:Arial,Helvetica,sans-serif;
 }
+.song-content.tipo-jubilo.vista-cantante-jubilo .lb{height:10px;}
 
+/* Júbilo en móvil real: la app oculta los bloques de control, así que en el preview
+   hacemos que la tarjeta respire más y el texto quede centrado, como en index.html.
+   El padding horizontal real es 36px (no 18px) porque en index.html el ancho del
+   texto se reduce en TRES capas apiladas, no dos:
+     8px  → .jubilo-main
+   + 10px → .jubilo-song-card
+   + 18px → .song-content (regla genérica de línea ~2141, que también aplica aquí
+             porque el div real lleva las clases "song-content jubilo-content" a
+             la vez, no solo "jubilo-content")
+   = 36px por lado.
+   Antes solo sumábamos las primeras dos capas (8+10=18) y se nos olvidó la tercera,
+   porque en el simulador el equivalente a .song-content no trae padding horizontal
+   propio (solo padding-bottom). Con 18px el texto tenía 18px de más de ancho
+   disponible por lado, lo que hacía que los acordes se ajustaran (wrap) en un punto
+   distinto al del teléfono real. */
+.mobile-frame .preview-card.tipo-jubilo-card{
+  padding:10px 36px 18px;
+}
 /* Tarjeta y título reales de Júbilo vistos con un rol activo (cantante/músico) —
    el CSS de rol (body.jubilo-singer-view / jubilo-musician-view) pisa con !important
    el tamaño y la alineación del título en línea de renderJubiloSongCard():
    queda centrado y más grande, pero conserva el color/negrita/mayúsculas en línea. */
 .preview-card.tipo-jubilo-card{
   background:transparent;
-  border:none;
+  border:1px solid var(--border);
   border-radius:0;
-  /* 12px arriba/abajo de .jubilo-song-card + 8px(.jubilo-main) + 10px(.jubilo-song-card) = 18px a los lados */
-  padding:12px 18px;
+  /* Copiado 1:1 de body.jubilo-singer-view/musician-view .jubilo-song-card:
+     el fondo se vuelve transparente y las esquinas cuadradas, pero el borde
+     de 1px SÍ se conserva — cada alabanza de la cadena queda separada por
+     esa línea, tal como se ve en el teléfono real. */
+  max-width:820px;
+  margin:0 auto 16px;
+  padding:12px 10px;
 }
 .preview-title.tipo-jubilo-title{
   text-align:center;
@@ -201,6 +381,57 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
 }
 .preview-meta.oculto-jubilo{display:none;}
 .aviso-jubilo{font-size:0.68rem;color:var(--text2);opacity:0.8;margin:-6px 0 10px;font-style:italic;}
+
+/* ============================================================
+   BARRA DE CONTROLES DE JÚBILO EN VISTA DE ROL — copiada 1:1 de
+   #jubiloControlsBar en index.html cuando el body tiene
+   jubilo-singer-view / jubilo-musician-view (pantalla completa):
+   fondo #1b2152, sin el header normal, y en ese orden exacto:
+   Tamaño -> Vista cantante/músico -> Volver al Repertorio ->
+   Scroll automático -> Cifrado (solo músico) — ver líneas
+   2471-2508 de index.html.
+   ============================================================ */
+.jubilo-mock-controls{
+  background:#1b2152;
+  border-bottom:1px solid var(--border);
+  padding:8px 0 0;
+  display:flex;
+  flex-direction:column;
+}
+.jm-font-row{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:0 14px 8px;
+}
+.jm-font-row span{
+  font-size:0.75rem;color:var(--text2);font-weight:700;
+  letter-spacing:0.5px;text-transform:uppercase;margin-right:4px;
+}
+.jm-font-btn{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  width:30px;height:30px;border-radius:6px;cursor:pointer;font-weight:bold;
+  font-size:0.8rem;display:flex;align-items:center;justify-content:center;
+}
+.jm-font-btn:hover{border-color:var(--gold);color:var(--gold);}
+.jm-font-display{font-family:monospace;font-size:0.85rem;min-width:36px;text-align:center;color:var(--gold2);}
+.jm-row{display:flex;gap:8px;padding:0 14px 8px;}
+.jm-btn{
+  flex:1;height:32px;padding:0 12px;font-size:0.75rem;font-weight:bold;
+  border-radius:5px;cursor:pointer;text-align:center;
+}
+.jm-btn-view{background:var(--gold);color:#000;border:none;}
+.jm-btn-view.jm-inactive{background:var(--bg3);color:var(--text);border:1px solid var(--border);}
+.jm-btn-outline{background:var(--bg3);color:var(--gold2);border:1px solid var(--gold2);}
+.jm-btn-square{flex:0 0 34px;background:var(--bg3);color:var(--text);border:1px solid var(--border);font-size:0.9rem;font-weight:bold;}
+.jm-scroll-display{display:flex;align-items:center;justify-content:center;min-width:36px;color:var(--text2);font-size:0.72rem;}
+.jm-cifrado-row{
+  width:100%;padding:6px 14px;box-sizing:border-box;display:flex;
+  justify-content:center;align-items:center;border-top:1px solid var(--border);
+}
+.jm-cifrado-btn{
+  background:var(--bg3);border:1px solid var(--border);color:var(--text);
+  border-radius:5px;padding:6px 9px;font-size:0.72rem;font-weight:bold;
+  cursor:pointer;min-height:32px;
+}
 </style>
 </head>
 <body>
@@ -222,6 +453,10 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
     <div class="role-toggle">
       <button id="btnVerPC" onclick="cambiarModoDispositivo(false)">🖥️ PC</button>
       <button id="btnVerMovil" class="active" onclick="cambiarModoDispositivo(true)">📱 Móvil</button>
+    </div>
+    <div class="role-toggle">
+      <button id="btnModoSimulador" class="active" onclick="cambiarModoVisor('simulador')">🧪 Simulador</button>
+      <button id="btnModoDirecto" onclick="cambiarModoVisor('directo')">📲 Visor directo</button>
     </div>
   </div>
 </header>
@@ -315,11 +550,63 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
       <input type="number" id="inputAnchoCustom" style="width:70px;display:none;" placeholder="px" oninput="aplicarAnchoCustom()">
     </div>
     <div id="marcoPreview">
+      <iframe id="previewFrame" class="preview-iframe" style="display:none;" title="Vista previa directa"></iframe>
       <div class="preview-card" id="previewCard">
-        <div class="preview-title" id="pTitle">Título de la alabanza</div>
-        <div class="preview-meta" id="pMeta">Compositor · Tono · Álbum</div>
-        <div class="aviso-jubilo" id="avisoJubilo" style="display:none;">ℹ️ En la tarjeta real de Júbilo esta info no se muestra (solo título y letra/acordes).</div>
-        <div class="song-content" id="pContent"></div>
+        <div class="mobile-shell">
+          <div class="mock-app-header" id="mockAppHeader">
+            <div class="mock-app-kicker" id="mockKicker">Alabanzas</div>
+            <div class="mock-app-title" id="mockAppTitle">Vista previa móvil</div>
+          </div>
+          <div class="mock-controls" id="mockControlsAdoracion">
+            <div class="mock-row">
+              <button class="mock-btn active" id="mockBtnMusico">Vista músico</button>
+              <button class="mock-btn" id="mockBtnCantante">Vista cantante</button>
+            </div>
+            <div class="mock-row" id="mockExtraRow">
+              <button class="mock-btn" id="mockBtnPrev">Ant.</button>
+              <button class="mock-btn" id="mockBtnNext">Sig.</button>
+            </div>
+          </div>
+          <!-- En la app real, al abrir una cadena a pantalla completa el header normal
+               desaparece por completo (body.jubilo-singer/musician-view #screen-jubilo header
+               {display:none}) y solo queda esta barra de controles: vistas rápidas,
+               "Volver al Repertorio", scroll automático y (solo músico) cifrado. -->
+          <div class="jubilo-mock-controls" id="mockControlsJubilo" style="display:none;">
+            <!-- Fila 1: Tamaño de fuente — igual que #jubiloFontDisplay en index.html -->
+            <div class="jm-font-row">
+              <span>Tamaño</span>
+              <button class="jm-font-btn" onclick="cambiarFuenteJubiloMock(-1)">A −</button>
+              <div class="jm-font-display" id="mockJubiloFontDisplay">12px</div>
+              <button class="jm-font-btn" onclick="cambiarFuenteJubiloMock(1)">A +</button>
+            </div>
+            <!-- Fila 2: Vistas rápidas -->
+            <div class="jm-row">
+              <button class="jm-btn jm-btn-view" id="mockJubiloCantante">Vista cantante</button>
+              <button class="jm-btn jm-btn-view" id="mockJubiloMusico">Vista músico</button>
+            </div>
+            <!-- Fila 3: Volver al Repertorio -->
+            <div class="jm-row">
+              <button class="jm-btn jm-btn-outline" style="flex:1;">📖 Volver al Repertorio</button>
+            </div>
+            <!-- Fila 4: Scroll automático -->
+            <div class="jm-row">
+              <button class="jm-btn jm-btn-outline" style="flex:2;">▶ Scroll automático</button>
+              <button class="jm-btn jm-btn-square">−</button>
+              <div class="jm-scroll-display">5px/seg</div>
+              <button class="jm-btn jm-btn-square">+</button>
+            </div>
+            <!-- Fila 5: Cifrado (solo vista músico) -->
+            <div class="jm-cifrado-row" id="mockJubiloCifradoRow" style="display:none;">
+              <button class="jm-cifrado-btn">Cifrado: Americano</button>
+            </div>
+          </div>
+          <div class="song-header">
+            <div class="preview-title song-title" id="pTitle">Título de la alabanza</div>
+            <div class="preview-meta" id="pMeta">Compositor · Tono · Álbum</div>
+          </div>
+          <div class="aviso-jubilo" id="avisoJubilo" style="display:none;">ℹ️ En la tarjeta real de Júbilo esta info no se muestra (solo título y letra/acordes).</div>
+          <div class="song-content" id="pContent"></div>
+        </div>
       </div>
     </div>
     <div class="mobile-frame-label" id="marcoLabel" style="display:none;"></div>
@@ -346,6 +633,11 @@ function cambiarBiblioteca(nombre){
   bibliotecaActiva = nombre;
   document.getElementById('btnBibAdoracion').classList.toggle('active', nombre === 'adoracion');
   document.getElementById('btnBibJubilo').classList.toggle('active', nombre === 'jubilo');
+  // Nota: el tamaño de fuente de Júbilo NO depende de la vista cantante/músico
+  // en la app real (aplicarVistaJubilo() nunca llama a aplicarFuenteJubilo());
+  // depende del rol de la cuenta y de los botones A−/A+, así que aquí solo
+  // reseteamos al tamaño base 12px al entrar a Júbilo, sin mirar vistaCantante.
+  if (nombre === 'jubilo' && typeof jubiloFontSizeMock !== 'undefined') jubiloFontSizeMock = 12;
   document.getElementById('inputBuscar').value = '';
   document.getElementById('resultadosBusqueda').classList.remove('visible');
   poblarSelector();
@@ -354,6 +646,7 @@ function cambiarBiblioteca(nombre){
 }
 
 var vistaCantante = false;
+var modoVisor = 'simulador';
 var editandoId = null; // null = canción nueva sin id asignado todavía
 
 // ---- Helpers de renderizado (copiados 1:1 de la app para que la vista previa sea fiel) ----
@@ -458,6 +751,7 @@ function renderPreview(){
     (version ? ' &nbsp;|&nbsp; <strong>Versión:</strong> ' + escH(version) : '');
   document.getElementById('pContent').innerHTML = renderContentPreview(content);
   aplicarEstiloBiblioteca();
+  renderizarVisorDirecto();
 }
 
 // Aplica en la vista previa las diferencias reales entre Adoración y Júbilo:
@@ -470,6 +764,15 @@ function aplicarEstiloBiblioteca(){
   var pMeta = document.getElementById('pMeta');
   var previewCard = document.getElementById('previewCard');
   var avisoJubilo = document.getElementById('avisoJubilo');
+  var mockAppHeader = document.getElementById('mockAppHeader');
+  var mockControlsAdoracion = document.getElementById('mockControlsAdoracion');
+  var mockControlsJubilo = document.getElementById('mockControlsJubilo');
+  var mockBtnMusico = document.getElementById('mockBtnMusico');
+  var mockBtnCantante = document.getElementById('mockBtnCantante');
+  var mockExtraRow = document.getElementById('mockExtraRow');
+  var mockJubiloCantante = document.getElementById('mockJubiloCantante');
+  var mockJubiloMusico = document.getElementById('mockJubiloMusico');
+  var mockJubiloCifradoRow = document.getElementById('mockJubiloCifradoRow');
   var esJubilo = bibliotecaActiva === 'jubilo';
 
   pContent.classList.toggle('tipo-jubilo', esJubilo);
@@ -479,20 +782,84 @@ function aplicarEstiloBiblioteca(){
   pMeta.classList.toggle('oculto-jubilo', esJubilo);
   avisoJubilo.style.display = esJubilo ? 'block' : 'none';
 
+  // Adoración: header normal con logo + vista músico/cantante + Ant./Sig.
+  // Júbilo: al abrir una cadena a pantalla completa, la app REAL oculta
+  // el header por completo (body.jubilo-singer-view/musician-view #screen-jubilo
+  // header{display:none}) y solo deja la barra de controles con las vistas
+  // rápidas, "Volver al Repertorio" y el scroll automático — copiado 1:1.
+  if (mockAppHeader) mockAppHeader.style.display = esJubilo ? 'none' : '';
+  var mockKicker = document.getElementById('mockKicker');
+  var mockAppTitle = document.getElementById('mockAppTitle');
+  if (mockKicker) mockKicker.textContent = esJubilo ? 'Júbilo' : 'Adoración';
+  if (mockAppTitle) mockAppTitle.textContent = vistaCantante ? 'Vista cantante' : 'Vista músico';
+  if (mockControlsAdoracion) mockControlsAdoracion.style.display = esJubilo ? 'none' : 'flex';
+  if (mockControlsJubilo) mockControlsJubilo.style.display = esJubilo ? 'flex' : 'none';
+
+  if (mockBtnMusico && mockBtnCantante) {
+    mockBtnMusico.classList.toggle('active', !vistaCantante);
+    mockBtnCantante.classList.toggle('active', vistaCantante);
+  }
+  if (mockExtraRow) mockExtraRow.style.display = 'flex';
+  if (mockJubiloCantante && mockJubiloMusico) {
+    // Copiado 1:1 de actualizarBotonesVistaJubilo() en index.html: el botón
+    // de la vista ACTIVA queda dorado y dice "Salir vista X"; el de la vista
+    // contraria se apaga a gris y vuelve a decir "Vista X".
+    mockJubiloCantante.classList.toggle('jm-inactive', !vistaCantante);
+    mockJubiloCantante.textContent = vistaCantante ? 'Salir vista cantante' : 'Vista cantante';
+    mockJubiloMusico.classList.toggle('jm-inactive', vistaCantante);
+    mockJubiloMusico.textContent = !vistaCantante ? 'Salir vista músico' : 'Vista músico';
+  }
+  if (mockJubiloCifradoRow) mockJubiloCifradoRow.style.display = (esJubilo && !vistaCantante) ? 'flex' : 'none';
+
   if (esJubilo) {
-    var pxTamano = vistaCantante ? 14 : 12;
-    pContent.style.fontSize = pxTamano + 'px';
+    pContent.style.fontSize = jubiloFontSizeMock + 'px';
+    var mockJubiloFontDisplay = document.getElementById('mockJubiloFontDisplay');
+    if (mockJubiloFontDisplay) mockJubiloFontDisplay.textContent = jubiloFontSizeMock + 'px';
   } else {
     pContent.style.fontSize = '';
   }
+}
+
+// Tamaño de fuente de Júbilo en la vista previa — igual que aplicarFuenteJubilo()
+// en index.html: 12px por defecto en vista músico, 14px en vista cantante,
+// ajustable con A−/A+ (botón "Tamaño" copiado de #jubiloControlsBar).
+var jubiloFontSizeMock = 12;
+function cambiarFuenteJubiloMock(delta){
+  jubiloFontSizeMock = Math.max(8, Math.min(28, jubiloFontSizeMock + delta));
+  aplicarEstiloBiblioteca();
 }
 
 function cambiarVistaPreview(rol){
   vistaCantante = rol === 'cantante';
   document.getElementById('btnVerMusico').classList.toggle('active', !vistaCantante);
   document.getElementById('btnVerCantante').classList.toggle('active', vistaCantante);
+  // El tamaño de fuente de Júbilo NO se toca aquí: en index.html real,
+  // aplicarVistaJubilo('cantante'/'musico') solo oculta acordes y cambia el
+  // line-height (clase jubilo-singer-view). El tamaño de fuente es un ajuste
+  // aparte, ligado al rol de la cuenta y a los botones A−/A+, así que la
+  // única diferencia visual entre vista cantante y músico debe ser: los
+  // acordes desaparecen y el interlineado se agranda un poco — nada más.
   actualizarClasesMarco();
   renderPreview();
+}
+
+function cambiarModoVisor(modo){
+  modoVisor = modo === 'directo' ? 'directo' : 'simulador';
+  document.getElementById('btnModoSimulador').classList.toggle('active', modoVisor === 'simulador');
+  document.getElementById('btnModoDirecto').classList.toggle('active', modoVisor === 'directo');
+  var marco = document.getElementById('marcoPreview');
+  var frame = document.getElementById('previewFrame');
+  var card = document.getElementById('previewCard');
+  if (modoVisor === 'directo') {
+    marco.classList.add('visor-directo');
+    frame.style.display = 'block';
+    card.style.display = 'none';
+  } else {
+    marco.classList.remove('visor-directo');
+    frame.style.display = 'none';
+    card.style.display = 'block';
+  }
+  renderizarVisorDirecto();
 }
 
 // ---- Vista móvil: simula el ancho real del teléfono y aplica las mismas
@@ -508,6 +875,9 @@ function cambiarModoDispositivo(esMovil){
   document.getElementById('panelPreview').classList.toggle('modo-movil', esMovil);
   var marco = document.getElementById('marcoPreview');
   marco.className = '';
+  if (modoVisor === 'directo') {
+    marco.classList.add('visor-directo');
+  }
   if (esMovil) {
     marco.classList.add('mobile-frame');
     cambiarAnchoDispositivo();
@@ -548,6 +918,75 @@ function actualizarClasesMarco(){
   var marco = document.getElementById('marcoPreview');
   if (!vistaMovil) return;
   marco.classList.toggle('vista-cantante', vistaCantante);
+}
+
+function generarHTMLVisorDirecto(){
+  var titulo = document.getElementById('fTitle').value || 'Título de la alabanza';
+  var compositor = document.getElementById('fCompositor').value || '-';
+  var tono = document.getElementById('fTono').value || '-';
+  var album = document.getElementById('fAlbum').value || '-';
+  var version = document.getElementById('fVersion').value || '';
+  var content = document.getElementById('fContent').value || '';
+  var esJubilo = bibliotecaActiva === 'jubilo';
+  var claseVista = vistaCantante ? 'singer-view' : 'musician-view';
+  var bodyClass = esJubilo ? 'jubilo ' + (vistaCantante ? 'jubilo-singer-view' : 'jubilo-musician-view') : claseVista;
+  var metaHtml = esJubilo ? '' : (
+    '<div class="preview-meta"><strong>Compositor:</strong> ' + escH(compositor) +
+    ' &nbsp;|&nbsp; <strong>Tono:</strong> ' + escH(tono) + '<br>' +
+    '<strong>Álbum:</strong> ' + escH(album) + (version ? ' &nbsp;|&nbsp; <strong>Versión:</strong> ' + escH(version) : '') +
+    '</div>'
+  );
+  var css = `
+    :root{--bg:#0d0d14;--bg2:#1c1c3f;--border:#2a2a45;--gold:#c9a84c;--gold2:#e8c97a;--text:#e8e6f0;--text2:#e0946a;--chord:#e8824a;--section:#8bc7ff;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;min-height:100%;background:#0f0f29;color:var(--text);font-family:Arial,Helvetica,sans-serif;overflow-x:hidden;}
+    body{padding:0;}
+    body:not(.jubilo) .song-header{border-bottom:none;margin:0;padding:10px 14px 8px;background:#1b2152;width:auto;box-sizing:border-box;}
+    .song-title{font-family:'Inter',Helvetica,serif;font-size:1.15rem;color:var(--gold2);text-align:center;font-weight:700;margin-top:6px;margin-bottom:4px;}
+    .preview-meta{color:var(--text2);text-align:center;font-size:0.8rem;margin-bottom:0;}
+    .song-content{font-family:Arial,Helvetica,sans-serif;font-size:0.75rem;line-height:1.5;overflow-x:auto;white-space:pre;padding:0 10px 60px;max-width:760px;margin:0 auto;}
+    .song-content .lc{font-family:Arial,Helvetica,sans-serif;color:var(--chord);font-weight:bold;display:block;font-size:0.7rem;text-align:left;}
+    .song-content .ll{font-family:Arial,Helvetica,sans-serif;color:var(--text);font-size:0.7rem;text-align:left;display:block;}
+    .song-content .ls{font-family:Arial,Helvetica,sans-serif;color:var(--section);text-align:center;font-weight:bold;display:block;margin-top:10px;margin-bottom:10px;font-size:0.7rem;letter-spacing:0.5px;}
+    .song-content .lm{font-family:Arial,Helvetica,sans-serif;color:var(--text2);display:block;text-align:center;font-size:0.85rem;font-weight:bold;white-space:pre-line;}
+    .song-content .lb{display:block;height:10px;}
+    .song-content.tipo-jubilo{font-family:'Consolas',monospace;white-space:pre-wrap;line-height:1.55;overflow-x:visible;margin-top:10px;max-width:760px;margin-left:auto;margin-right:auto;padding-left:0;padding-right:0;}
+    .song-content.tipo-jubilo .lc,.song-content.tipo-jubilo .ll,.song-content.tipo-jubilo .ls,.song-content.tipo-jubilo .lm{font-size:inherit;font-family:Arial,Helvetica,sans-serif;}
+    .song-content.tipo-jubilo .ls{margin:18px 0 10px;text-transform:uppercase;}
+    .song-content.tipo-jubilo.vista-cantante-jubilo .ll,.song-content.tipo-jubilo.vista-cantante-jubilo .ls{line-height:1.62 !important;font-family:Arial,Helvetica,sans-serif;}
+    .song-content.tipo-jubilo.vista-cantante-jubilo .lb{height:10px;}
+    .word-red{color:#ff4a4a !important;font-weight:bold;}
+    .word-repeticion{color:#f1c40f;font-weight:bold;}
+    .preview-card{border:none;border-radius:0;background:transparent;padding:0;min-height:100vh;}
+    /* Júbilo real: sin caja de encabezado, tarjeta max-width:820px centrada,
+       título centrado/uppercase en #f3c641 (copiado 1:1 de renderJubiloSongCard()
+       + body.jubilo-singer-view/jubilo-musician-view .jubilo-song-card) */
+    body.jubilo .song-header{background:none;border-bottom:none;margin:0;padding:0;}
+    body.jubilo .preview-card{max-width:820px;margin:0 auto 16px;padding:12px 18px;border:1px solid var(--border);}
+    body.jubilo .song-title{font-size:1.05rem;color:#f3c641;text-transform:uppercase;margin-top:0;margin-bottom:15px;}
+    body.singer-view .song-content{white-space:pre-wrap;overflow-x:visible;padding:0 10px 60px;max-width:760px;margin:0 auto;}
+    body.singer-view .song-content .ll, body.singer-view .song-content .ls{line-height:1.62 !important;white-space:pre-wrap;text-align:left;}
+    body.singer-view .song-content .ls{text-align:center;margin:18px 0 10px;text-transform:uppercase;}
+    body.singer-view .song-content .lb{height:10px;}
+    body.musician-view .song-content{padding:0 10px 60px;}
+    body.musician-view .song-header{margin:0 0 0;background:#1b2152;}
+    body.light-theme.singer-view .song-header,body.light-theme.musician-view .song-header{background:#fffaf0 !important;border-bottom:1px solid #d8cdb8 !important;}
+    body.light-theme{background:#fffaf0;color:#111;}
+  `;
+  var contentHtml = renderContentPreview(content);
+  var contentClass = 'song-content';
+  var contentStyle = '';
+  if (esJubilo) {
+    contentClass += ' tipo-jubilo' + (vistaCantante ? ' vista-cantante-jubilo' : '');
+    contentStyle = 'font-size:' + jubiloFontSizeMock + 'px;';
+  }
+  return '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes"><style>' + css + '<\/style><\/head><body class="' + bodyClass + '"><div class="preview-card"><div class="song-header"><div class="song-title">' + escH(titulo) + '</div>' + metaHtml + '</div><div class="' + contentClass + '" style="' + contentStyle + '">' + contentHtml + '</div></div><\/body><\/html>';
+}
+
+function renderizarVisorDirecto(){
+  var frame = document.getElementById('previewFrame');
+  if (!frame || modoVisor !== 'directo') return;
+  frame.srcdoc = generarHTMLVisorDirecto();
 }
 
 // ---- Cargar / poblar selector ----

@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alabanzas-v71';
-const DATA_CACHE_NAME = 'alabanzas-data-v11';
+const CACHE_NAME = 'alabanzas-v74';
+const DATA_CACHE_NAME = 'alabanzas-data-v14';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -20,7 +20,32 @@ self.addEventListener('install', (e) => {
         'Alabanzas_Letra.pdf',
         'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js',
         'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js',
-        'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'
+        'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js',
+        'piano-samples/C3.mp3',
+        'piano-samples/Db3.mp3',
+        'piano-samples/D3.mp3',
+        'piano-samples/Eb3.mp3',
+        'piano-samples/E3.mp3',
+        'piano-samples/F3.mp3',
+        'piano-samples/Gb3.mp3',
+        'piano-samples/G3.mp3',
+        'piano-samples/Ab3.mp3',
+        'piano-samples/A3.mp3',
+        'piano-samples/Bb3.mp3',
+        'piano-samples/B3.mp3',
+        'piano-samples/C4.mp3',
+        'piano-samples/Db4.mp3',
+        'piano-samples/D4.mp3',
+        'piano-samples/Eb4.mp3',
+        'piano-samples/E4.mp3',
+        'piano-samples/F4.mp3',
+        'piano-samples/Gb4.mp3',
+        'piano-samples/G4.mp3',
+        'piano-samples/Ab4.mp3',
+        'piano-samples/A4.mp3',
+        'piano-samples/Bb4.mp3',
+        'piano-samples/B4.mp3',
+        'piano-samples/C5.mp3'
       ];
 
       return cache.addAll(criticos).then(() => {
@@ -40,7 +65,7 @@ self.addEventListener('activate', (e) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
+          .filter(key => key !== CACHE_NAME && key !== DATA_CACHE_NAME)
           .map(key => caches.delete(key))
       );
     })
@@ -60,10 +85,10 @@ self.addEventListener('fetch', (e) => {
       fetch(e.request)
         .then((response) => {
           const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put('index.html', copy));
+          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, copy));
           return response;
         })
-        .catch(() => caches.match('index.html'))
+        .catch(() => caches.match(e.request).then((cached) => cached || caches.match('index.html')))
     );
     return;
   }
