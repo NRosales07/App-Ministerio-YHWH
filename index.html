@@ -65,11 +65,20 @@
   // Detectar si eres admin
   onAuthStateChanged(auth, function(user) {
     window.esAdmin = !!(user && user.email === 'rosalesjrnain07@gmail.com');
-    var btnAdmin = document.getElementById('btnAdminLogin');
-    if (btnAdmin) btnAdmin.textContent = window.esAdmin ? '🔓 Admin' : '🔑 Admin';
-    var btnAdminJubilo = document.getElementById('btnAdminLoginJubilo');
-    if (btnAdminJubilo) btnAdminJubilo.textContent = window.esAdmin ? '🔓 Admin' : '🔑 Admin';
+    actualizarBotonesAdmin();
   });
+
+  // Refresca texto y estilo (activado/desactivado) de todos los botones "Admin" de la app
+  function actualizarBotonesAdmin() {
+    var ids = ['btnAdminLoginMenu', 'btnAdminLogin', 'btnAdminLoginJubilo', 'btnAdminLoginSetlist'];
+    ids.forEach(function(id) {
+      var btn = document.getElementById(id);
+      if (!btn) return;
+      btn.textContent = window.esAdmin ? '🔓 Admin activo' : '🔑 Admin';
+      btn.classList.toggle('admin-active', !!window.esAdmin);
+    });
+  }
+  window.actualizarBotonesAdmin = actualizarBotonesAdmin;
 
   window.addEventListener('online', actualizarEstadoConexion);
   window.addEventListener('offline', actualizarEstadoConexion);
@@ -738,6 +747,19 @@ z-index: 100;
 body.light-theme .header-menu-dropdown { background: #fff; border-color: #d8d4c8; }
 body.light-theme .header-menu-item:hover { background: #f1ede0; }
 
+/* === Botón Admin: estilo distinto cuando el modo admin está activado === */
+.header-menu-item.admin-active {
+  background: var(--gold);
+  color: #1a1a1a;
+}
+.header-menu-item.admin-active:hover { background: var(--gold); color: #1a1a1a; }
+.menu-secondary-btn.admin-active {
+  background: var(--gold);
+  color: #1a1a1a;
+  border-color: var(--gold);
+}
+.menu-secondary-btn.admin-active:hover { color: #1a1a1a; border-color: var(--gold); }
+
 @media(max-width: 600px) {
   .search-wrap {
     flex: 1 0 100%;    /* Forza al buscador a ocupar todo el ancho disponible abajo */
@@ -1276,6 +1298,82 @@ body.light-theme .audio-player .ap-time{color:#7a6a4d;}
 .galeria-grid{
   display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
 }
+
+/* === Pantalla Teoría de Acordes y Escalas === */
+#screen-teoria{ --minor:#3ddc84; }
+body.light-theme #screen-teoria{ --minor:#1a8f57; }
+.teoria-card-grid{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:10px; margin-bottom:6px;
+}
+.teoria-card{
+  background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+  padding:12px 14px; cursor:pointer; transition:border-color .15s, transform .15s;
+}
+.teoria-card:hover{ border-color:var(--gold); }
+.teoria-card:active{ transform:scale(0.97); }
+.teoria-card .tc-name{ color:var(--gold2); font-weight:700; font-size:0.95rem; }
+.teoria-card .tc-sym{ font-family:monospace; color:var(--chord); font-size:0.8rem; margin-top:2px; }
+.teoria-card .tc-deg{ color:var(--text); opacity:0.75; font-size:0.78rem; margin-top:8px; }
+.teoria-card .tc-tap{ color:var(--gold); opacity:0.85; font-size:0.7rem; margin-top:10px; }
+.teoria-tabla-wrap{
+  overflow-x:auto; border:1px solid var(--border); border-radius:12px; background:var(--bg2);
+}
+table.teoria-tabla{ width:100%; border-collapse:collapse; font-size:0.85rem; min-width:640px; }
+table.teoria-tabla th{
+  text-align:center; font-size:0.68rem; letter-spacing:0.5px; text-transform:uppercase;
+  color:var(--gold); border-bottom:1px solid var(--border); padding:9px 6px; white-space:nowrap;
+}
+table.teoria-tabla td{ padding:7px 6px; border-bottom:1px solid rgba(255,255,255,0.05); text-align:center; }
+table.teoria-tabla td.tk-root{ color:var(--gold2); font-weight:700; text-align:left; padding-left:12px; }
+table.teoria-tabla tr:hover td{ background:rgba(201,168,76,0.06); }
+.tk-chip{
+  display:inline-block; background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  border-radius:7px; padding:4px 8px; font-size:0.78rem; font-weight:600; cursor:pointer;
+}
+.tk-chip:hover{ border-color:var(--gold); }
+/* Vista de tarjetas para Tonalidades en móvil (la tabla se oculta y esto la reemplaza) */
+.teoria-tonalidades-mobile{ display:none; flex-direction:column; gap:10px; }
+.tk-card{
+  background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:12px 14px;
+}
+.tk-card .tk-card-root{ color:var(--gold2); font-weight:700; font-size:0.95rem; margin-bottom:10px; }
+.tk-card .tk-card-chips{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px 6px; }
+.tk-chip-wrap{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+.tk-chip-wrap .tk-chip-deg{ font-size:0.62rem; letter-spacing:0.3px; text-transform:uppercase; color:var(--text); opacity:0.55; }
+.tk-chip-wrap .tk-chip{ width:100%; text-align:center; box-sizing:border-box; }
+@media(max-width:640px){
+  .teoria-tabla-wrap{ display:none; }
+  .teoria-tonalidades-mobile{ display:flex; }
+}
+.teoria-circle-panel{
+  display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start; justify-content:center;
+}
+.teoria-circle-svg{ flex:0 0 auto; }
+.teoria-key-node{ cursor:pointer; }
+.teoria-key-node circle{ transition:fill .2s, stroke .2s; }
+.teoria-key-node text{ pointer-events:none; font-weight:700; }
+.teoria-circle-info{ flex:1 1 230px; min-width:220px; }
+.teoria-circle-info h3{ margin:0 0 4px; color:var(--gold2); font-size:1.1rem; }
+.teoria-circle-info .tci-sig{ color:var(--text); opacity:0.7; font-size:0.78rem; margin-bottom:14px; }
+/* Brillo suave en las teclas que forman el acorde mostrado en el piano */
+.pk-key.pk-active{ animation: pkGlow 1.7s ease-in-out infinite; }
+@keyframes pkGlow{
+  0%,100%{ box-shadow:none; }
+  50%{ box-shadow:0 0 12px 3px rgba(127,119,221,0.65); }
+}
+@media (prefers-reduced-motion: reduce){
+  .pk-key.pk-active{ animation:none; }
+}
+.tci-row{
+  display:flex; justify-content:space-between; align-items:center; padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06); font-size:0.85rem;
+}
+.tci-row .tci-label{ color:var(--text); opacity:0.7; display:flex; align-items:center; }
+.tci-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:7px; flex-shrink:0; }
+.tci-row .tci-val{ font-weight:700; cursor:pointer; }
+.tci-legend{ display:flex; gap:12px; flex-wrap:wrap; margin-top:14px; font-size:0.72rem; color:var(--text); opacity:0.65; }
+.tci-legend span{ display:flex; align-items:center; }
 .galeria-thumb{
   width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px;
   border:1px solid var(--border); cursor:pointer; transition:transform 0.15s, border-color 0.15s;
@@ -2090,7 +2188,14 @@ body.light-theme .toast {
 }
 
 /* === TOAST DE CONFIRMACIÓN PARA SALIR DE LA APP === */
+/* Centrado en pantalla (no abajo como el toast normal) y con aparición
+   inmediata: solo se anima la opacidad (sin translateY), para que en
+   iPhone se sienta instantáneo en vez de una animación lenta de deslizado. */
 .toast-confirm {
+  top: 50%;
+  bottom: auto;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2100,9 +2205,12 @@ body.light-theme .toast {
   padding: 16px 20px;
   pointer-events: none;
   max-width: 280px;
+  transition: opacity 0.12s ease;
 }
 .toast-confirm.visible {
   pointer-events: auto;
+  opacity: 1;
+  transform: translate(-50%, -50%);
 }
 .toast-confirm-btns {
   display: flex;
@@ -3181,6 +3289,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <div class="menu-secondary-row">
 <button class="menu-secondary-btn" onclick="showScreen('screen-historia')" id="btnMenuHistoria">📖 Acerca de</button>
+<button class="menu-secondary-btn" onclick="showScreen('screen-teoria')" id="btnMenuTeoria">🎼 Teoría</button>
 <button class="menu-secondary-btn" onclick="toggleAdminLogin()" id="btnAdminLoginMenu">🔑 Admin</button>
 <button class="menu-secondary-btn" onclick="buscarActualizaciones()" id="btnActualizarMenu">🔄 Actualizar</button>
 <button class="menu-secondary-btn" onclick="mostrarTutorial(true)" id="btnAyudaMenu">❓ Ayuda</button>
@@ -3689,10 +3798,21 @@ document.addEventListener('DOMContentLoaded', function(){
 <div id="screen-setlist" class="app-screen">
   <header class="scene-header" style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);
     border-bottom:1px solid #2a2a45; padding:12px 16px;
-    display:flex; align-items:center; gap:15px; flex-shrink:0;">
-    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
-    <div class="logo">&#10022; <span>Repertorio</span></div>
-    <div class="network-status" id="networkStatusSetlist">🌐 En la nube</div>
+    display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:15px;">
+      <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+      <div class="logo">&#10022; <span>Repertorio</span></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div class="network-status" id="networkStatusSetlist">🌐 En la nube</div>
+      <div class="header-menu" id="headerMenuSetlist">
+        <button type="button" class="header-menu-toggle" title="Más opciones" aria-label="Más opciones" onclick="toggleHeaderMenu('headerMenuSetlist')">⋯</button>
+      </div>
+    </div>
+
+    <div class="header-menu-dropdown" id="headerMenuSetlist-dropdown">
+      <button id="btnAdminLoginSetlist" class="header-menu-item" onclick="toggleAdminLogin();cerrarHeaderMenus();">🔑 Admin</button>
+    </div>
   </header>
   <div style="flex:1; padding:16px; overflow-y:auto;">
     <div style="display:flex;gap:8px;justify-content:center;margin:0 auto 14px;flex-wrap:wrap;width:100%;max-width:420px;">
@@ -3874,6 +3994,64 @@ document.addEventListener('DOMContentLoaded', function(){
       <img class="galeria-thumb" src="foto8.jpeg" alt="Foto del Ministerio 7" onclick="abrirGaleriaLightbox('foto8.jpeg')">
       <img class="galeria-thumb" src="foto9.jpeg" alt="Foto del Ministerio 7" onclick="abrirGaleriaLightbox('foto9.jpeg')">
 
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- === PANTALLA: TEORÍA DE ACORDES Y ESCALAS ===================== -->
+<!-- ============================================================ -->
+<div id="screen-teoria" class="app-screen">
+  <header class="scene-header" style="background: linear-gradient(135deg,#1d2677,#101038,#1c1c3f); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
+    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+    <div class="logo">&#10022; <span>Teoría</span> de Acordes y Escalas</div>
+  </header>
+
+  <div style="display:flex; gap:8px; justify-content:center; padding:14px 12px 0; flex-wrap:wrap;">
+    <button class="historia-tab-btn active" id="tabBtnTeoAcordes" onclick="cambiarTabTeoria('acordes')">🎹 Acordes</button>
+    <button class="historia-tab-btn" id="tabBtnTeoTonalidades" onclick="cambiarTabTeoria('tonalidades')">🎵 Tonalidades</button>
+    <button class="historia-tab-btn" id="tabBtnTeoCirculo" onclick="cambiarTabTeoria('circulo')">🔵 Círculo de quintas</button>
+  </div>
+
+  <!-- TAB: ACORDES -->
+  <div id="tabContentTeoAcordes" class="historia-tab-content" style="max-width: 780px; margin: 0 auto; padding: 20px 20px 60px; overflow-y: auto;">
+    <h2 style="color: var(--gold2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.5rem; margin-bottom: 6px; text-align:center;">Cómo se arman los acordes</h2>
+    <p style="color: var(--text); opacity:0.75; font-size:0.85rem; text-align:center; max-width:560px; margin:0 auto 18px;">Cada acorde tiene una fórmula fija en semitonos desde su raíz. Toca cualquier tarjeta para verlo y escucharlo en el piano.</p>
+    <div class="teoria-card-grid" id="teoriaCardGrid"></div>
+  </div>
+
+  <!-- TAB: TONALIDADES -->
+  <div id="tabContentTeoTonalidades" class="historia-tab-content" style="display:none; max-width: 780px; margin: 0 auto; padding: 20px 20px 60px; overflow-y: auto;">
+    <h2 style="color: var(--gold2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.5rem; margin-bottom: 6px; text-align:center;">Acordes de cada tonalidad</h2>
+    <p style="color: var(--text); opacity:0.75; font-size:0.85rem; text-align:center; max-width:560px; margin:0 auto 18px;">Los 7 acordes que nacen naturalmente de cada tonalidad mayor (I · ii · iii · IV · V · vi · vii°). Toca un acorde para verlo en el piano.</p>
+    <div class="teoria-tabla-wrap">
+      <table class="teoria-tabla">
+        <thead><tr><th>Tono</th><th>I</th><th>ii</th><th>iii</th><th>IV</th><th>V</th><th>vi</th><th>vii°</th></tr></thead>
+        <tbody id="teoriaTonalidadesBody"></tbody>
+      </table>
+    </div>
+    <div class="teoria-tonalidades-mobile" id="teoriaTonalidadesMobile"></div>
+  </div>
+
+  <!-- TAB: CÍRCULO DE QUINTAS -->
+  <div id="tabContentTeoCirculo" class="historia-tab-content" style="display:none; max-width: 780px; margin: 0 auto; padding: 20px 20px 60px; overflow-y: auto;">
+    <h2 style="color: var(--gold2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.5rem; margin-bottom: 6px; text-align:center;">Círculo de quintas</h2>
+    <p style="color: var(--text); opacity:0.75; font-size:0.85rem; text-align:center; max-width:560px; margin:0 auto 18px;">Toca cualquier tonalidad para ver su subdominante (IV), dominante (V) y relativa menor (vi).</p>
+    <div class="teoria-circle-panel">
+      <div class="teoria-circle-svg" id="teoriaCircleHolder"></div>
+      <div class="teoria-circle-info">
+        <h3 id="teoCircleKeyName">Do mayor</h3>
+        <div class="tci-sig" id="teoCircleKeySig">Armadura: 0 alteraciones</div>
+        <div class="tci-row"><span class="tci-label"><span class="tci-dot" style="background:var(--section)"></span><span id="teoLabelIV">Subdominante (IV)</span></span><span class="tci-val" id="teoValIV">—</span></div>
+        <div class="tci-row"><span class="tci-label"><span class="tci-dot" style="background:var(--chord)"></span><span id="teoLabelV">Dominante (V)</span></span><span class="tci-val" id="teoValV">—</span></div>
+        <div class="tci-row"><span class="tci-label"><span class="tci-dot" style="background:var(--minor)"></span><span id="teoLabelVI">Relativa menor (vi)</span></span><span class="tci-val" id="teoValVI">—</span></div>
+        <div class="tci-legend">
+          <span><span class="tci-dot" style="background:var(--gold)"></span>Tónica</span>
+          <span><span class="tci-dot" style="background:var(--section)"></span>Subdominante</span>
+          <span><span class="tci-dot" style="background:var(--chord)"></span>Dominante</span>
+          <span><span class="tci-dot" style="background:var(--minor)"></span>Relativa menor</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -5366,6 +5544,10 @@ function showScreen(screenId) {
     for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active', 'screen-in', 'screen-out');
     target.classList.add('active');
     if (screenId === 'screen-setlist') renderSetlist();
+    if (screenId === 'screen-teoria' && !teoriaInicializada && typeof inicializarTeoria === 'function') {
+      inicializarTeoria();
+      teoriaInicializada = true;
+    }
     actualizarContadorRepertorio();
   }
 
@@ -8924,7 +9106,8 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
     var isLit  = semisOn.indexOf(m) !== -1 && !isRoot;
     var wBg = isRoot ? rootColor : isLit ? litColor : bgWhite;
     var wColor = (isRoot||isLit) ? litText : '#555';
-    whiteKeys += '<div style="position:relative;width:30px;height:110px;flex-shrink:0;' +
+    var wActiveClass = (isRoot||isLit) ? ' pk-active' : '';
+    whiteKeys += '<div class="pk-key'+wActiveClass+'" style="position:relative;width:30px;height:110px;flex-shrink:0;' +
       'border:1px solid #aaa;border-radius:0 0 4px 4px;background:'+wBg+';' +
       'margin-right:2px;display:flex;align-items:flex-end;justify-content:center;' +
       'padding-bottom:3px;font-size:9px;color:'+wColor+';">' +
@@ -8936,7 +9119,8 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
       var bLit  = semisOn.indexOf(bMidi) !== -1 && !bRoot;
       var bBg   = bRoot ? rootColor : bLit ? litColor : bgBlack;
       var bColor= (bRoot||bLit) ? litText : 'transparent';
-      whiteKeys += '<div style="position:absolute;top:0;left:20px;width:20px;height:68px;' +
+      var bActiveClass = (bRoot||bLit) ? ' pk-active' : '';
+      whiteKeys += '<div class="pk-key'+bActiveClass+'" style="position:absolute;top:0;left:20px;width:20px;height:68px;' +
         'background:'+bBg+';border-radius:0 0 3px 3px;z-index:2;display:flex;' +
         'align-items:flex-end;justify-content:center;padding-bottom:2px;' +
         'font-size:8px;color:'+bColor+';">' +
@@ -9026,6 +9210,222 @@ function cambiarTabHistoria(tab){
     if (content) content.style.display = (t === tab) ? 'block' : 'none';
     if (btn) btn.classList.toggle('active', t === tab);
   }
+}
+
+// ============================================================
+// === PANTALLA TEORÍA: pestañas, tarjetas de acordes, tabla de
+// === tonalidades y círculo de quintas (usa el mismo modal de
+// === piano — abrirPiano() — que el resto de la app).
+// ============================================================
+var TEORIA_TABS = ['acordes','tonalidades','circulo'];
+var TEORIA_TAB_ID = {acordes:'TeoAcordes', tonalidades:'TeoTonalidades', circulo:'TeoCirculo'};
+var teoriaInicializada = false;
+
+function cambiarTabTeoria(tab){
+  TEORIA_TABS.forEach(function(t){
+    var suf = TEORIA_TAB_ID[t];
+    var content = document.getElementById('tabContent' + suf);
+    var btn = document.getElementById('tabBtn' + suf);
+    if (content) content.style.display = (t === tab) ? 'block' : 'none';
+    if (btn) btn.classList.toggle('active', t === tab);
+  });
+  if (!teoriaInicializada) { inicializarTeoria(); teoriaInicializada = true; }
+}
+
+var TEORIA_CHORDS = [
+  {name:'Mayor',            sym:'',     deg:'1 – 3 – 5',          type:''},
+  {name:'menor',             sym:'m',    deg:'1 – ♭3 – 5',        type:'m'},
+  {name:'disminuido',        sym:'dim',  deg:'1 – ♭3 – ♭5',       type:'dim'},
+  {name:'aumentado',         sym:'aum',  deg:'1 – 3 – #5',         type:'aug'},
+  {name:'suspendido 2',      sym:'sus2', deg:'1 – 2 – 5',          type:'sus2'},
+  {name:'suspendido 4',      sym:'sus4', deg:'1 – 4 – 5',          type:'sus4'},
+  {name:'séptima dominante', sym:'7',    deg:'1 – 3 – 5 – ♭7',    type:'7'},
+  {name:'menor séptima',     sym:'m7',   deg:'1 – ♭3 – 5 – ♭7',   type:'m7'}
+];
+
+function renderTeoriaAcordes(){
+  var grid = document.getElementById('teoriaCardGrid');
+  if (!grid) return;
+  grid.innerHTML = TEORIA_CHORDS.map(function(c){
+    var label = pianoLabelChord('C', c.type);
+    return '<div class="teoria-card" onclick="abrirPiano(\'C'+c.type+'\', null, true)">' +
+      '<div class="tc-name">'+c.name+'</div>' +
+      '<div class="tc-sym">ej.: '+label+'</div>' +
+      '<div class="tc-deg">Grados: '+c.deg+'</div>' +
+      '<div class="tc-tap">🎹 Toca para ver en el piano</div>' +
+      '</div>';
+  }).join('');
+}
+
+// Fórmula diatónica de la escala mayor: grado -> [semitonos, tipo de acorde]
+var TEORIA_GRADOS = [
+  {semi:0,  type:''},    // I
+  {semi:2,  type:'m'},   // ii
+  {semi:4,  type:'m'},   // iii
+  {semi:5,  type:''},    // IV
+  {semi:7,  type:''},    // V
+  {semi:9,  type:'m'},   // vi
+  {semi:11, type:'dim'}  // vii°
+];
+
+var TEORIA_GRADO_LABELS = ['I','ii','iii','IV','V','vi','vii°'];
+
+function renderTeoriaTonalidades(){
+  var body = document.getElementById('teoriaTonalidadesBody');
+  var mobile = document.getElementById('teoriaTonalidadesMobile');
+  if (!body && !mobile) return;
+  var rows = '', cards = '';
+  for (var r = 0; r < 12; r++){
+    var rootLabel = pianoLabelRoot(PIANO_SEMIS[r]);
+    rows += '<tr><td class="tk-root">'+rootLabel+'</td>';
+    var chipsHtml = '';
+    TEORIA_GRADOS.forEach(function(g, gi){
+      var root = PIANO_SEMIS[(r + g.semi) % 12];
+      var chordStr = root + g.type;
+      var chordEscapado = chordStr.replace(/'/g,"\\'");
+      var chipLabel = pianoLabelChord(root, g.type);
+      rows += '<td><span class="tk-chip" onclick="abrirPiano(\''+chordEscapado+'\', null, true)">'+chipLabel+'</span></td>';
+      chipsHtml += '<div class="tk-chip-wrap"><span class="tk-chip-deg">'+TEORIA_GRADO_LABELS[gi]+'</span>' +
+        '<span class="tk-chip" onclick="abrirPiano(\''+chordEscapado+'\', null, true)">'+chipLabel+'</span></div>';
+    });
+    rows += '</tr>';
+    cards += '<div class="tk-card"><div class="tk-card-root">'+rootLabel+' mayor</div>' +
+      '<div class="tk-card-chips">'+chipsHtml+'</div></div>';
+  }
+  if (body) body.innerHTML = rows;
+  if (mobile) mobile.innerHTML = cards;
+}
+
+// ----- Círculo de quintas -----
+var TEORIA_ORDER = []; // pitch classes en orden de quintas, empezando en C
+(function(){
+  var idx = 0;
+  for (var i = 0; i < 12; i++){ TEORIA_ORDER.push(idx); idx = (idx + 7) % 12; }
+})();
+var TEORIA_KEY_SIG = {0:'0 alteraciones',7:'1 sostenido',2:'2 sostenidos',9:'3 sostenidos',4:'4 sostenidos',
+  11:'5 sostenidos',6:'6 sostenidos / 6 bemoles',1:'7 sostenidos / 5 bemoles',8:'4 bemoles',3:'3 bemoles',
+  10:'2 bemoles',5:'1 bemol'};
+
+function teoriaCirclePos(i, r, cx, cy){
+  var theta = i * (Math.PI / 6);
+  return { x: cx + r * Math.sin(theta), y: cy - r * Math.cos(theta) };
+}
+
+function renderCirculoQuintas(){
+  var holder = document.getElementById('teoriaCircleHolder');
+  if (!holder) return;
+  var cx = 190, cy = 190, R1 = 152, R2 = 98, NR1 = 25, NR2 = 21;
+  var svg = '<svg viewBox="0 0 380 380" width="100%" style="max-width:380px;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg">';
+  svg += '<circle cx="'+cx+'" cy="'+cy+'" r="'+R1+'" fill="none" stroke="var(--border)" stroke-width="1"/>';
+  svg += '<circle cx="'+cx+'" cy="'+cy+'" r="'+R2+'" fill="none" stroke="var(--border)" stroke-width="1"/>';
+  for (var i = 0; i < 12; i++){
+    var a = teoriaCirclePos(i, R1, cx, cy), b = teoriaCirclePos((i+1)%12, R1, cx, cy);
+    svg += '<line id="teoEdge_'+i+'" x1="'+a.x+'" y1="'+a.y+'" x2="'+b.x+'" y2="'+b.y+'" stroke="var(--border)" stroke-width="2"/>';
+  }
+  for (var i2 = 0; i2 < 12; i2++){
+    var oPos = teoriaCirclePos(i2, R1, cx, cy), iPos = teoriaCirclePos(i2, R2, cx, cy);
+    svg += '<line id="teoSpoke_'+i2+'" x1="'+oPos.x+'" y1="'+oPos.y+'" x2="'+iPos.x+'" y2="'+iPos.y+'" stroke="var(--border)" stroke-width="2"/>';
+  }
+  for (var i3 = 0; i3 < 12; i3++){
+    var pc = TEORIA_ORDER[i3], p = teoriaCirclePos(i3, R1, cx, cy);
+    svg += '<g class="teoria-key-node" onclick="teoriaSelectKey('+i3+', false)">' +
+      '<circle cx="'+p.x+'" cy="'+p.y+'" r="'+NR1+'" fill="var(--bg2)" stroke="var(--border)" stroke-width="1.5" id="teoOuterC_'+i3+'"/>' +
+      '<text x="'+p.x+'" y="'+(p.y+5)+'" font-size="14" text-anchor="middle" fill="var(--text)">'+pianoLabelRoot(PIANO_SEMIS[pc])+'</text>' +
+      '</g>';
+  }
+  for (var i4 = 0; i4 < 12; i4++){
+    var pcMaj = TEORIA_ORDER[i4], pcMin = (pcMaj + 9) % 12, p2 = teoriaCirclePos(i4, R2, cx, cy);
+    svg += '<g class="teoria-key-node" onclick="teoriaSelectKey('+i4+', true)">' +
+      '<circle cx="'+p2.x+'" cy="'+p2.y+'" r="'+NR2+'" fill="var(--bg3)" stroke="var(--border)" stroke-width="1.5" id="teoInnerC_'+i4+'"/>' +
+      '<text x="'+p2.x+'" y="'+(p2.y+4)+'" font-size="10.5" text-anchor="middle" fill="var(--text)" opacity="0.8">'+pianoLabelRoot(PIANO_SEMIS[pcMin])+'m</text>' +
+      '</g>';
+  }
+  svg += '</svg>';
+  holder.innerHTML = svg;
+  teoriaSelectKey(0, false);
+}
+
+function teoriaResetCircleColors(){
+  for (var i = 0; i < 12; i++){
+    var oc = document.getElementById('teoOuterC_' + i);
+    var ic = document.getElementById('teoInnerC_' + i);
+    if (oc) { oc.setAttribute('fill','var(--bg2)'); oc.setAttribute('stroke','var(--border)'); }
+    if (ic) { ic.setAttribute('fill','var(--bg3)'); ic.setAttribute('stroke','var(--border)'); }
+    var e = document.getElementById('teoEdge_' + i); if (e) { e.setAttribute('stroke','var(--border)'); e.setAttribute('stroke-width','2'); }
+    var s = document.getElementById('teoSpoke_' + i); if (s) { s.setAttribute('stroke','var(--border)'); s.setAttribute('stroke-width','2'); }
+  }
+}
+
+function teoriaSelectKey(i, isMinor){
+  teoriaResetCircleColors();
+
+  if (!isMinor){
+    // ----- Se tocó una tonalidad MAYOR (anillo exterior) -----
+    var pcTonic = TEORIA_ORDER[i];
+    var iV = (i + 1) % 12, iIV = (i - 1 + 12) % 12;
+    var pcV = TEORIA_ORDER[iV], pcIV = TEORIA_ORDER[iIV];
+    var pcMinor = (pcTonic + 9) % 12;
+
+    var tc = document.getElementById('teoOuterC_' + i); tc.setAttribute('fill','var(--gold)'); tc.setAttribute('stroke','var(--gold2)');
+    var tic = document.getElementById('teoInnerC_' + i); tic.setAttribute('fill','var(--minor)'); tic.setAttribute('stroke','var(--gold2)');
+    var vc = document.getElementById('teoOuterC_' + iV); vc.setAttribute('fill','var(--chord)'); vc.setAttribute('stroke','var(--gold2)');
+    var ivc = document.getElementById('teoOuterC_' + iIV); ivc.setAttribute('fill','var(--section)'); ivc.setAttribute('stroke','var(--gold2)');
+    document.getElementById('teoEdge_' + i).setAttribute('stroke','var(--chord)'); document.getElementById('teoEdge_' + i).setAttribute('stroke-width','3');
+    document.getElementById('teoEdge_' + iIV).setAttribute('stroke','var(--section)'); document.getElementById('teoEdge_' + iIV).setAttribute('stroke-width','3');
+    document.getElementById('teoSpoke_' + i).setAttribute('stroke','var(--minor)'); document.getElementById('teoSpoke_' + i).setAttribute('stroke-width','3');
+
+    document.getElementById('teoCircleKeyName').textContent = pianoLabelRoot(PIANO_SEMIS[pcTonic]) + ' mayor';
+    document.getElementById('teoCircleKeySig').textContent = 'Armadura: ' + TEORIA_KEY_SIG[pcTonic];
+    document.getElementById('teoLabelIV').textContent = 'Subdominante (IV)';
+    document.getElementById('teoLabelV').textContent = 'Dominante (V)';
+    document.getElementById('teoLabelVI').textContent = 'Relativa menor (vi)';
+    document.getElementById('teoValIV').textContent = pianoLabelRoot(PIANO_SEMIS[pcIV]);
+    document.getElementById('teoValV').textContent = pianoLabelRoot(PIANO_SEMIS[pcV]);
+    document.getElementById('teoValVI').textContent = pianoLabelRoot(PIANO_SEMIS[pcMinor]) + 'm';
+
+    document.getElementById('teoValIV').onclick = function(){ abrirPiano(PIANO_SEMIS[pcIV], null, true); };
+    document.getElementById('teoValV').onclick = function(){ abrirPiano(PIANO_SEMIS[pcV], null, true); };
+    document.getElementById('teoValVI').onclick = function(){ abrirPiano(PIANO_SEMIS[pcMinor] + 'm', null, true); };
+    document.getElementById('teoCircleKeyName').onclick = function(){ abrirPiano(PIANO_SEMIS[pcTonic], null, true); };
+    document.getElementById('teoCircleKeyName').style.cursor = 'pointer';
+  } else {
+    // ----- Se tocó un acorde MENOR (anillo interior) -----
+    // Las tonalidades menores del anillo interior también avanzan en
+    // quintas, así que su iv y su v son, respectivamente, los nodos
+    // interiores vecinos (i-1) e (i+1).
+    var pcMajRel = TEORIA_ORDER[i];        // mayor relativa (misma armadura)
+    var pcTonicM = (pcMajRel + 9) % 12;    // tónica menor tocada
+    var iIVm = (i - 1 + 12) % 12, iVm = (i + 1) % 12;
+    var pcIVm = (TEORIA_ORDER[iIVm] + 9) % 12;
+    var pcVm  = (TEORIA_ORDER[iVm]  + 9) % 12;
+
+    var ticSel = document.getElementById('teoInnerC_' + i); ticSel.setAttribute('fill','var(--gold)'); ticSel.setAttribute('stroke','var(--gold2)');
+    var tcSel = document.getElementById('teoOuterC_' + i); tcSel.setAttribute('fill','var(--minor)'); tcSel.setAttribute('stroke','var(--gold2)');
+    var vicSel = document.getElementById('teoInnerC_' + iVm); vicSel.setAttribute('fill','var(--chord)'); vicSel.setAttribute('stroke','var(--gold2)');
+    var ivicSel = document.getElementById('teoInnerC_' + iIVm); ivicSel.setAttribute('fill','var(--section)'); ivicSel.setAttribute('stroke','var(--gold2)');
+    document.getElementById('teoSpoke_' + i).setAttribute('stroke','var(--minor)'); document.getElementById('teoSpoke_' + i).setAttribute('stroke-width','3');
+
+    document.getElementById('teoCircleKeyName').textContent = pianoLabelRoot(PIANO_SEMIS[pcTonicM]) + ' menor';
+    document.getElementById('teoCircleKeySig').textContent = 'Armadura: ' + TEORIA_KEY_SIG[pcMajRel] + ' (igual que su relativa mayor)';
+    document.getElementById('teoLabelIV').textContent = 'Subdominante (iv)';
+    document.getElementById('teoLabelV').textContent = 'Dominante (v)';
+    document.getElementById('teoLabelVI').textContent = 'Relativa mayor (III)';
+    document.getElementById('teoValIV').textContent = pianoLabelRoot(PIANO_SEMIS[pcIVm]) + 'm';
+    document.getElementById('teoValV').textContent = pianoLabelRoot(PIANO_SEMIS[pcVm]) + 'm';
+    document.getElementById('teoValVI').textContent = pianoLabelRoot(PIANO_SEMIS[pcMajRel]);
+
+    document.getElementById('teoValIV').onclick = function(){ abrirPiano(PIANO_SEMIS[pcIVm] + 'm', null, true); };
+    document.getElementById('teoValV').onclick = function(){ abrirPiano(PIANO_SEMIS[pcVm] + 'm', null, true); };
+    document.getElementById('teoValVI').onclick = function(){ abrirPiano(PIANO_SEMIS[pcMajRel], null, true); };
+    document.getElementById('teoCircleKeyName').onclick = function(){ abrirPiano(PIANO_SEMIS[pcTonicM] + 'm', null, true); };
+    document.getElementById('teoCircleKeyName').style.cursor = 'pointer';
+  }
+}
+
+function inicializarTeoria(){
+  renderTeoriaAcordes();
+  renderTeoriaTonalidades();
+  renderCirculoQuintas();
 }
 
 function abrirGaleriaLightbox(src){
@@ -9178,15 +9578,20 @@ function pianoReproducirAcorde(root, type, modoArpegio){
   });
 }
 
-function abrirPiano(chordStr, sourceEl){
+function abrirPiano(chordStr, sourceEl, autoPlay){
   chordStr = chordLatinoToAmericano(chordStr);
   var parsed = pianoParseChord(chordStr);
   if (!parsed) return;
   var modal = document.getElementById('pianoModal');
   var title = document.getElementById('pianoModalTitle');
   var content = document.getElementById('pianoModalContent');
+  var modalYaAbierto = modal && modal.style.display === 'block';
   if (sourceEl) {
     pianoContextoCancion = pianoDetectarAcordesDesdeElemento(sourceEl);
+  } else if (!modalYaAbierto) {
+    // Apertura "limpia" (p.ej. desde Teoría): no arrastrar el contexto
+    // de una canción que se haya visto antes en otra pantalla del piano.
+    pianoContextoCancion = null;
   }
   if (!modal) return;
   pianoModalActual = parsed;
@@ -9200,6 +9605,10 @@ function abrirPiano(chordStr, sourceEl){
   if (ctxPre) {
     pianoGetSemis(parsed.root, parsed.type).map(function(m){ return m - 12; })
       .forEach(function(m){ pianoLoadBuffer(ctxPre, m); });
+  }
+
+  if (autoPlay) {
+    pianoReproducirAcorde(parsed.root, parsed.type, false);
   }
 }
 
