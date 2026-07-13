@@ -1518,7 +1518,7 @@ body.light-theme .dashboard-hero-chip { color: #31424f; background: rgba(23,107,
 .menu-card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 4px;
   background: linear-gradient(135deg, #1d2677, #1b2152);
   color: var(--text);
@@ -2571,11 +2571,13 @@ body.light-theme .dif-dificil {
   flex-wrap: wrap;          /* 3. Si hay muchas etiquetas y no caben en la pantalla, las baja al siguiente renglón de forma ordenada */
   gap: 8px;                 /* 4. Separa de forma idéntica los botones tanto de lado como de arriba/abajo */
   width: 100%;              /* 5. Asegura que la caja use todo el ancho disponible para poder calcular el centro */
+  padding: 10px;             /* 6. Agrega un pequeño margen interno a los lados para que no se peguen al borde de la pantalla */
 }
 
 .etiquetas-panel {
   text-align: center;       /* Centra los textos o títulos que estén dentro de este bloque */
   width: 100%;
+  padding: 5px;             /* Agrega un pequeño margen interno a los lados para que no se peguen al borde de la pantalla */
 }
 
 
@@ -3585,7 +3587,7 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 <div class="more-actions" id="difficultyOptions"> <div style="display:flex; align-items:center; text-align:center; gap:6px; margin-top:8px; width:100%; justify-content:center;">
-<div style="display:flex;align-items:center; text-align:center;gap:6px;margin-top:8px;width:100%;justify-content:center;">
+<div style="display:flex;align-items:center; text-align:center;gap:6px;width:100%;justify-content:center;">
   <span style="font-size:0.75rem;color:var(--text2);font-weight:bold;">Dificultad:</span>
   <button onclick="setDificultad('facil')" id="difFacil"
     style="background:#1a4a1a;color:#4caf50;border:1px solid #4caf50;
@@ -3637,7 +3639,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 
   <header class="scene-header" style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:15px;">
+    <div style="display:flex;align-items:center;gap:100px;">
       <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
       <div class="logo">🎹 <span>Alabanzas</span> de Júbilo</div>
     </div>
@@ -3799,7 +3801,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <header class="scene-header" style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);
     border-bottom:1px solid #2a2a45; padding:12px 16px;
     display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
-    <div style="display:flex;align-items:center;gap:15px;">
+    <div style="display:flex;align-items:center;gap:175px;">
       <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
       <div class="logo">&#10022; <span>Repertorio</span></div>
     </div>
