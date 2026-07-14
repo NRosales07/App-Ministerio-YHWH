@@ -251,7 +251,7 @@ body.theme-transitioning * {
   transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease !important;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;}
 
 /* === ANTI-ZOOM EN iOS ===
    1) Safari hace zoom automático al enfocar cualquier input/select/textarea
@@ -653,14 +653,23 @@ body.light-theme .ambient-glow{
 body.light-theme #screen-menu::before{
   opacity:0.7;
   background:
-    radial-gradient(circle at 12% 20%, rgba(127,95,25,0.16), transparent 7%),
-    radial-gradient(circle at 82% 14%, rgba(23,107,106,0.14), transparent 6%),
-    radial-gradient(circle at 24% 72%, rgba(184,92,56,0.12), transparent 7%),
-    radial-gradient(circle at 76% 68%, rgba(127,95,25,0.10), transparent 7%),
-    radial-gradient(circle at 50% 46%, rgba(255,255,255,0.28), transparent 5%);
+    radial-gradient(circle at 12% 20%, rgba(127,95,25,0.18), transparent 7%),
+    radial-gradient(circle at 82% 14%, rgba(23,107,106,0.18), transparent 6%),
+    radial-gradient(circle at 24% 72%, rgba(23,107,106,0.13), transparent 7%),
+    radial-gradient(circle at 76% 68%, rgba(127,95,25,0.13), transparent 7%),
+    radial-gradient(circle at 50% 46%, rgba(255,255,255,0.34), transparent 5%);
 }
 body.light-theme #screen-menu::after{
   opacity:0.75;
+  background:
+    radial-gradient(circle at 18% 32%, rgba(255,255,255,0.8), transparent 1.8px),
+    radial-gradient(circle at 36% 18%, rgba(127,95,25,0.6), transparent 1.6px),
+    radial-gradient(circle at 63% 26%, rgba(23,107,106,0.6), transparent 1.8px),
+    radial-gradient(circle at 78% 48%, rgba(255,255,255,0.65), transparent 1.5px),
+    radial-gradient(circle at 24% 82%, rgba(127,95,25,0.55), transparent 1.7px),
+    radial-gradient(circle at 54% 72%, rgba(23,107,106,0.5), transparent 1.6px),
+    radial-gradient(circle at 88% 82%, rgba(255,255,255,0.6), transparent 1.5px);
+  background-size:100% 100%;
 }
 header, .compositores-header, .comparador-header, .teleprompter-header {
   background: linear-gradient(135deg, #f1824b, #1d2677, #101038);
@@ -845,6 +854,9 @@ body.light-theme .header-menu-item:hover { background: #f1ede0; }
   height:calc(100vh - 52px); overflow-y:auto; box-sizing:border-box;
   display:flex; flex-direction:column; align-items:center;
   padding:28px 16px 40px; background:#111126;
+}
+body.light-theme .pdf-list-wrap{
+  background:#f7f2e8 !important;
 }
 .pdf-cards-centered{
   display:flex; flex-direction:column; align-items:stretch;
@@ -1183,18 +1195,24 @@ body.light-theme .audio-player .ap-time{color:#7a6a4d;}
 .app-screen.active {
   display: flex;
   opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.28s ease, transform 0.28s ease;
+  transform: translateX(0);
+  transition: opacity 0.28s ease, transform 0.3s cubic-bezier(.32,.72,0,1);
 }
 .app-screen.active.screen-in {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateX(32px);
+}
+.app-screen.active.screen-in.dir-back {
+  transform: translateX(-32px);
 }
 .app-screen.screen-out {
   display: flex;
   opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transform: translateX(-32px);
+  transition: opacity 0.22s ease, transform 0.24s cubic-bezier(.32,.72,0,1);
+}
+.app-screen.screen-out.dir-back {
+  transform: translateX(32px);
 }
 @media (prefers-reduced-motion: reduce) {
   .app-screen.active,
@@ -1295,6 +1313,11 @@ body.light-theme .audio-player .ap-time{color:#7a6a4d;}
   font-size: 0.95rem; font-weight: bold; transition: all 0.2s;
 }
 .btn-abrir-biblia:hover { border-color: rgba(232,201,122,0.75); }
+body.light-theme .btn-abrir-biblia {
+  background: linear-gradient(135deg, #176b6a, #0e574f) !important;
+  color: #ffffff !important;
+  border-color: rgba(127,95,25,0.45) !important;
+}
 .galeria-grid{
   display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;
 }
@@ -1392,8 +1415,8 @@ table.teoria-tabla tr:hover td{ background:rgba(201,168,76,0.06); }
   animation: menuGradientMove 12s ease infinite;
 }
 body.light-theme #screen-menu {
-  background: linear-gradient(90deg, #f7f2e8, #fbe6b8, #f1ece0, #fff3d6) !important;
-  background-size: 300% 100%;
+  background: linear-gradient(90deg, #0e8f7c, #e35a2b, #c4870a, #7f5f19) !important;
+  background-size: 300% 100% !important;
   animation: menuGradientMove 12s ease infinite;
 }
 
@@ -1646,6 +1669,14 @@ body.light-theme .theme-fab {
   background: rgba(0,0,0,0.05);
   border-color: rgba(127,95,25,0.45);
 }
+body.light-theme .btn-guardar-cadena {
+  color: #ffffff !important;
+}
+.verso-fab {
+  left: 14px;
+  right: auto;
+  font-size: 1.15rem;
+}
 
 /* ============================================================ */
 /* === MODALES: overlay y tarjeta unificados ==================== */
@@ -1895,8 +1926,8 @@ body.light-theme .jubilo-add-btn {
   border-color: rgba(127,95,25,0.28) !important;
 }
 body.light-theme .logo{
-  font-family:'Parisienne','Inter',Arial,serif;
-  font-size:1.15rem;
+  font-family:'Inter',Arial,serif;
+  font-size:0.8rem;
   letter-spacing:0.2px;
 }
 body.light-theme .semiphone-ctrl,
@@ -3172,6 +3203,7 @@ function pintarVersoDelDia(idTexto, idCita){
 document.addEventListener('DOMContentLoaded', function(){
   pintarVersoDelDia('splashVersoTexto', 'splashVersoCita');
   pintarVersoDelDia('versoDelDiaTexto', 'versoDelDiaCita');
+  pintarVersoDelDia('menuVersoTexto', 'menuVersoCita');
 });
 </script>
 
@@ -3255,6 +3287,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div id="screen-menu" class="app-screen active">
       <button id="btnClaroMenu" class="theme-fab" onclick="alternarModoClaroGlobal()" title="Cambiar tema">🌙</button>
+      <button id="btnVersoMenu" class="theme-fab verso-fab" onclick="abrirVersoModal()" title="Verso del día">📖</button>
       <div class="network-status network-top" id="networkStatusMenu" style="margin: 10px auto 4px;">🌐 En la nube</div>
       <div class="menu-container">
       <h2 style="color: var(--gold); margin-bottom: 4px; font-family:'Parisienne','Inter',Arial,serif; font-weight:700;"><span style="color:var(--gold2)">Manantial de Alabanza</span></h2>
@@ -5541,9 +5574,10 @@ function showScreen(screenId) {
   if (!target) return;
 
   var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var esVolver = (screenId === 'screen-menu');
 
   function activarPantalla() {
-    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active', 'screen-in', 'screen-out');
+    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active', 'screen-in', 'screen-out', 'dir-back');
     target.classList.add('active');
     if (screenId === 'screen-setlist') renderSetlist();
     if (screenId === 'screen-teoria' && !teoriaInicializada && typeof inicializarTeoria === 'function') {
@@ -5558,15 +5592,17 @@ function showScreen(screenId) {
     return;
   }
 
-  // 1. Se desvanece la pantalla actual
+  // 1. Se desvanece/desliza la pantalla actual (hacia la izquierda al avanzar, hacia la derecha al volver)
   current.classList.add('screen-out');
+  if (esVolver) current.classList.add('dir-back');
   setTimeout(function () {
     activarPantalla();
-    // 2. La nueva pantalla arranca invisible y luego entra
+    // 2. La nueva pantalla arranca desplazada (desde la derecha al avanzar, desde la izquierda al volver) y luego entra
     target.classList.add('screen-in');
+    if (esVolver) target.classList.add('dir-back');
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        target.classList.remove('screen-in');
+        target.classList.remove('screen-in', 'dir-back');
       });
     });
   }, 220);
@@ -8085,7 +8121,7 @@ function renderJubiloCadena(grupoId, cadenaId){
       '<span class="jubilo-chain-chip">✦ ' + (cadena.alabanzas || []).length + ' alabanzas</span>' +
     '</div>' +
     '<div class="jubilo-chain-head-actions">' +
-      '<button onclick="agregarCadenaJubiloAlRepertorio()" style="background:var(--gold);border:1px solid var(--gold);color:#111111;border-radius:999px;padding:8px 14px;font-size:0.78rem;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(201,168,76,0.22);">✅ Guardar cadena</button>' +
+      '<button class="btn-guardar-cadena" onclick="agregarCadenaJubiloAlRepertorio()" style="background:var(--gold);border:1px solid var(--gold);color:#111111;border-radius:999px;padding:8px 14px;font-size:0.78rem;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(201,168,76,0.22);">✅ Guardar cadena</button>' +
       '<button onclick="duplicarCadenaJubilo(\'' + found.grupo.id + '\',\'' + cadena.id + '\')" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 14px;font-size:0.78rem;font-weight:bold;cursor:pointer;">📄 Duplicar</button>' +
     '</div>' +
     '</div>';
@@ -9351,10 +9387,10 @@ function teoriaResetCircleColors(){
   for (var i = 0; i < 12; i++){
     var oc = document.getElementById('teoOuterC_' + i);
     var ic = document.getElementById('teoInnerC_' + i);
-    if (oc) { oc.setAttribute('fill','var(--bg2)'); oc.setAttribute('stroke','var(--border)'); }
-    if (ic) { ic.setAttribute('fill','var(--bg3)'); ic.setAttribute('stroke','var(--border)'); }
-    var e = document.getElementById('teoEdge_' + i); if (e) { e.setAttribute('stroke','var(--border)'); e.setAttribute('stroke-width','2'); }
-    var s = document.getElementById('teoSpoke_' + i); if (s) { s.setAttribute('stroke','var(--border)'); s.setAttribute('stroke-width','2'); }
+    if (oc) { oc.style.fill = 'var(--bg2)'; oc.style.stroke = 'var(--border)'; }
+    if (ic) { ic.style.fill = 'var(--bg3)'; ic.style.stroke = 'var(--border)'; }
+    var e = document.getElementById('teoEdge_' + i); if (e) { e.style.stroke = 'var(--border)'; e.setAttribute('stroke-width','2'); }
+    var s = document.getElementById('teoSpoke_' + i); if (s) { s.style.stroke = 'var(--border)'; s.setAttribute('stroke-width','2'); }
   }
 }
 
@@ -9368,13 +9404,13 @@ function teoriaSelectKey(i, isMinor){
     var pcV = TEORIA_ORDER[iV], pcIV = TEORIA_ORDER[iIV];
     var pcMinor = (pcTonic + 9) % 12;
 
-    var tc = document.getElementById('teoOuterC_' + i); tc.setAttribute('fill','var(--gold)'); tc.setAttribute('stroke','var(--gold2)');
-    var tic = document.getElementById('teoInnerC_' + i); tic.setAttribute('fill','var(--minor)'); tic.setAttribute('stroke','var(--gold2)');
-    var vc = document.getElementById('teoOuterC_' + iV); vc.setAttribute('fill','var(--chord)'); vc.setAttribute('stroke','var(--gold2)');
-    var ivc = document.getElementById('teoOuterC_' + iIV); ivc.setAttribute('fill','var(--section)'); ivc.setAttribute('stroke','var(--gold2)');
-    document.getElementById('teoEdge_' + i).setAttribute('stroke','var(--chord)'); document.getElementById('teoEdge_' + i).setAttribute('stroke-width','3');
-    document.getElementById('teoEdge_' + iIV).setAttribute('stroke','var(--section)'); document.getElementById('teoEdge_' + iIV).setAttribute('stroke-width','3');
-    document.getElementById('teoSpoke_' + i).setAttribute('stroke','var(--minor)'); document.getElementById('teoSpoke_' + i).setAttribute('stroke-width','3');
+    var tc = document.getElementById('teoOuterC_' + i); tc.style.fill = 'var(--gold)'; tc.style.stroke = 'var(--gold2)';
+    var tic = document.getElementById('teoInnerC_' + i); tic.style.fill = 'var(--minor)'; tic.style.stroke = 'var(--gold2)';
+    var vc = document.getElementById('teoOuterC_' + iV); vc.style.fill = 'var(--chord)'; vc.style.stroke = 'var(--gold2)';
+    var ivc = document.getElementById('teoOuterC_' + iIV); ivc.style.fill = 'var(--section)'; ivc.style.stroke = 'var(--gold2)';
+    document.getElementById('teoEdge_' + i).style.stroke = 'var(--chord)'; document.getElementById('teoEdge_' + i).setAttribute('stroke-width','3');
+    document.getElementById('teoEdge_' + iIV).style.stroke = 'var(--section)'; document.getElementById('teoEdge_' + iIV).setAttribute('stroke-width','3');
+    document.getElementById('teoSpoke_' + i).style.stroke = 'var(--minor)'; document.getElementById('teoSpoke_' + i).setAttribute('stroke-width','3');
 
     document.getElementById('teoCircleKeyName').textContent = pianoLabelRoot(PIANO_SEMIS[pcTonic]) + ' mayor';
     document.getElementById('teoCircleKeySig').textContent = 'Armadura: ' + TEORIA_KEY_SIG[pcTonic];
@@ -9401,11 +9437,11 @@ function teoriaSelectKey(i, isMinor){
     var pcIVm = (TEORIA_ORDER[iIVm] + 9) % 12;
     var pcVm  = (TEORIA_ORDER[iVm]  + 9) % 12;
 
-    var ticSel = document.getElementById('teoInnerC_' + i); ticSel.setAttribute('fill','var(--gold)'); ticSel.setAttribute('stroke','var(--gold2)');
-    var tcSel = document.getElementById('teoOuterC_' + i); tcSel.setAttribute('fill','var(--minor)'); tcSel.setAttribute('stroke','var(--gold2)');
-    var vicSel = document.getElementById('teoInnerC_' + iVm); vicSel.setAttribute('fill','var(--chord)'); vicSel.setAttribute('stroke','var(--gold2)');
-    var ivicSel = document.getElementById('teoInnerC_' + iIVm); ivicSel.setAttribute('fill','var(--section)'); ivicSel.setAttribute('stroke','var(--gold2)');
-    document.getElementById('teoSpoke_' + i).setAttribute('stroke','var(--minor)'); document.getElementById('teoSpoke_' + i).setAttribute('stroke-width','3');
+    var ticSel = document.getElementById('teoInnerC_' + i); ticSel.style.fill = 'var(--gold)'; ticSel.style.stroke = 'var(--gold2)';
+    var tcSel = document.getElementById('teoOuterC_' + i); tcSel.style.fill = 'var(--minor)'; tcSel.style.stroke = 'var(--gold2)';
+    var vicSel = document.getElementById('teoInnerC_' + iVm); vicSel.style.fill = 'var(--chord)'; vicSel.style.stroke = 'var(--gold2)';
+    var ivicSel = document.getElementById('teoInnerC_' + iIVm); ivicSel.style.fill = 'var(--section)'; ivicSel.style.stroke = 'var(--gold2)';
+    document.getElementById('teoSpoke_' + i).style.stroke = 'var(--minor)'; document.getElementById('teoSpoke_' + i).setAttribute('stroke-width','3');
 
     document.getElementById('teoCircleKeyName').textContent = pianoLabelRoot(PIANO_SEMIS[pcTonicM]) + ' menor';
     document.getElementById('teoCircleKeySig').textContent = 'Armadura: ' + TEORIA_KEY_SIG[pcMajRel] + ' (igual que su relativa mayor)';
@@ -9675,6 +9711,17 @@ function abrirAdminModal() {
 
 function cerrarAdminModal() {
   var modal = document.getElementById('adminLoginModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function abrirVersoModal() {
+  var modal = document.getElementById('versoModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+}
+
+function cerrarVersoModal() {
+  var modal = document.getElementById('versoModal');
   if (modal) modal.style.display = 'none';
 }
 
@@ -10046,6 +10093,25 @@ function aplicarAjusteJubilo() {
         Entrar
       </button>
     </div>
+  </div>
+</div>
+
+<!-- ===== MODAL VERSO DEL DÍA (pantalla principal) ===== -->
+<div id="versoModal" class="modal-overlay">
+  <div class="modal-card" style="max-width:380px;">
+    <div style="text-align:center;margin-bottom:14px;">
+      <div style="font-size:1.7rem;margin-bottom:4px;">📖</div>
+      <div style="color:#c9a84c;font-weight:bold;font-size:1.05rem;">Verso del día</div>
+    </div>
+    <div class="verso-card" style="margin:0;">
+      <p id="menuVersoTexto">"Porque yo derramaré aguas sobre el sequedal, y ríos sobre la tierra árida; mi Espíritu derramaré sobre tu generación, y mi bendición sobre tus renuevos."</p>
+      <span id="menuVersoCita">— Isaías 44:3</span>
+    </div>
+    <button onclick="cerrarVersoModal()"
+      style="width:100%;margin-top:16px;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;
+             border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">
+      Cerrar
+    </button>
   </div>
 </div>
 
