@@ -1068,5 +1068,50 @@ var SONGS_JUBILO =
     "tono": "Am",
     "album": "Alabanzas de Júbilo",
     "content": "TROMPETAS    | G | F | G | F |\n[VERSO 1]:\n              Cm\nX2     Cuando los enemigos nos tenían acorralados\n            F                                                          Cm\nY no Sabíamos, no sabíamos que hacer,\n   G                             F                                              G\nFue allí cuando vino el poder del más grande. X2\n\n[CORO]:\n                                      Cm\nX2      Y el mar se Abrió y el pueblo del Señor cruzó,\n                            F                                           Cm\nY el mar se abrió y todo su pueblo libertó,\n   Eb                      F                                        Bb                     Gm\nNube de día fuego de noche, Dios esta con su pueblo.  X2\nTROMPETAS"
+  },
+  {
+    "num": 1,
+    "title": "LIBRE",
+    "compositor": "Juan Carlos Alvarado",
+    "tono": "A",
+    "album": "Fuego",
+    "content": "TROMPETAS    | A | E-F#m | D | E |\n[VERSO 1]: \n          A                F#m  \nX2   Libre, yo soy libre, \n                                                         E\nLas cadenas del pecado han sido rotas, \n  A                F#m\nLibre, yo soy libre, \n            D                  E                 A\nPara cantar, para danzar, para gozar…   X2 \n\n[CORO]:\n                   F#m              E\nX2   Yo he vencido, al enemigo, \n            Bm7               E                     A           E\nPor la sangre de Jesucristo yo soy libre…    X2\n\n\n\n\nTROMPETAS \n[VERSO 1]:   X2      |     [CORO]:   X2",
+    "id": 431
+  },
+  {
+    "num": 2,
+    "title": "RESPLANDECE",
+    "compositor": "Juan Carlos Alvarado",
+    "tono": "D",
+    "album": "Fuego",
+    "content": "TROMPETAS    | G | Em | G | Bm7 | G | Em7 | D|\n[VERSO 1]:\n                   D                                         \nX2    Resplandece pues ha venido tu luz, \n                                                   Am - D\nResplandece pues ha venido tu luz...    X2\n[CORO]:\n        G                             Em             \nLa gloria de Jehová ha nacido, \n        G                        A   Bm7\nLa gloria de Jehová está aquí, \n        G                             Em7     A   D\nLa gloria de Jehová ha venido sobre ti…   \n                       \n\n\n\n\nSE REPITE TODO\n\n\n\n\n\nTROMPETAS \n[VERSO 1]:  X2     |   [CORO]:  X2\n",
+    "id": 432
+  },
+  {
+    "num": 3,
+    "title": "YA HA LLEGADO",
+    "compositor": "Juan Carlos Alvarado",
+    "tono": "Bb",
+    "album": "Fuego",
+    "content": "TROMPETAS    | Bb | Eb | - | Bb | Eb |\n                          | Gm | F | Eb | F | Eb-F | Bb | \n[VERSO 1]:\n       Bb                           Eb              \nX2   Ya ha llegado el momento de...\nBb                           Eb   \nYa ha llegado el momento de...\nBb                           Eb   \nYa ha llegado el momento de...\n \n  Gm             F          Eb              F\nAlabar su nombre, Adorar su nombre, \n  Eb              F            Eb – F                 Bb          F\nExaltar su nombre, Jesucristo, Él es el Rey…    X2\n\nTROMPETAS \n\n[VERSO 1]:   X2\n",
+    "id": 433
+  },
+  {
+    "num": 4,
+    "title": "ME GOZARÉ",
+    "compositor": "Juan Carlos Alvarado",
+    "tono": "Dm",
+    "album": "Fuego",
+    "content": "TROMPETAS     | Bb | F | Bb-F | Bb | F | Bb-F |\n                           | Gm | A |\n[VERSO 1]:  \n         Dm                Gm                                  \nMe gozare en tu presencia Jehová, \n         Dm                          A\nCon todas mis fuerzas gritaré ¡Hey!, \n         Dm                Gm     \nMe gozare en tu presencia Jehová, \n         Dm\nCon todas mis fuerzas gritaré... \n[CORO]:\n\n         Bb               F       Bb - F\nX2   Ante ti con gozo, palmeare,\n          Bb         F       Bb - F       Gm                 A\nCon alegre danza, celebrare, Saltare y me gozare.  X2\n\n\n\n\nSE REPITE TODO\n\n\n\n\nTROMPETAS\n\n[VERSO 1]:     |     [CORO]:  X2 ",
+    "id": 434
+  },
+  {
+    "num": 5,
+    "title": "LEVÁNTATE",
+    "compositor": "Juan Carlos Alvarado",
+    "tono": "Ab",
+    "album": "Fuego",
+    "content": "TROMPETAS\n[VERSO 1]:\n          Ab - Eb         Bb        Cm      Ab                    \nX2    Levántate, levántate, Señor,     \n                     Eb           Bb                  Cm\nY que tus enemigos, huyan delante de ti,   \n\n  \nAb - Eb         Bb        Cm       Ab                    \nLevántate, levántate, Señor,     \n                     Eb           Bb                  Cm\nY que tus enemigos, huyan delante de ti...\n[CORO]:   \n                      Ab             Eb\nX2  Mas los justos se alegrarán, \n     Bb                Cm\nCantarán con regocijo, \n       Ab                   Eb \nEl Señor se ha levantado, \n          Bb              Cm\nHa triunfado con poder…  X2\n\n\n\nTROMPETAS\n[VERSO 1]:  X2      |      [CORO]:  X2\n",
+    "id": 435
   }
 ];

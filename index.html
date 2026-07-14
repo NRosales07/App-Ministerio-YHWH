@@ -1474,7 +1474,7 @@ body.run-menu-intro #screen-menu .menu-btn:nth-of-type(6) { animation-delay: 0.8
 /* ============================================================ */
 .dashboard-hero {
   position: relative;
-  text-align: left;
+  text-align: center;
   background: linear-gradient(160deg, rgba(201,168,76,0.14), rgba(29,38,119,0.55));
   border: 1px solid rgba(201,168,76,0.4);
   border-radius: 14px;
@@ -1504,6 +1504,7 @@ body.run-menu-intro #screen-menu .menu-btn:nth-of-type(6) { animation-delay: 0.8
 .dashboard-hero-meta {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
   margin-top: 10px;
 }
@@ -1556,7 +1557,7 @@ body.light-theme .dashboard-hero-chip { color: #31424f; background: rgba(23,107,
 .menu-card:active { transform: scale(0.96); }
 .menu-card-icon { font-size: 1.4rem; line-height: 1; }
 .menu-card-title { font-size: 0.88rem; font-weight: 700; }
-.menu-card-sub { font-size: 0.68rem; color: var(--text2); opacity: 0.85; line-height: 1.3; }
+.menu-card-sub { font-size: 0.68rem; color: var(--text2); opacity: 0.85; line-height: 1.3; text-align: center; }
 body.light-theme .menu-card {
   background: linear-gradient(135deg, #176b6a, #7f5f19) !important;
   color: #ffffff !important;
@@ -4039,7 +4040,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <div id="screen-teoria" class="app-screen">
   <header class="scene-header" style="background: linear-gradient(135deg,#1d2677,#101038,#1c1c3f); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
     <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
-    <div class="logo">&#10022; <span>Teoría</span> de Acordes y Escalas</div>
+    <div class="logo">&#10022; <span>Teoría</span> de Acordes </div>
   </header>
 
   <div style="display:flex; gap:8px; justify-content:center; padding:14px 12px 0; flex-wrap:wrap;">
@@ -5613,19 +5614,20 @@ function actualizarContadorRepertorio() {
   var badge = document.getElementById('btnMenuSetlistCount');
   var btn = document.getElementById('btnMenuSetlist');
   if (!badge || !btn) return;
-  var rango = rangoSemana(repertorioFechaActiva || hoyISO());
-  var total = Object.keys(repertorios).reduce(function(sum, key) {
-    var d = fechaLocalDesdeISO(key);
-    if (d >= rango.inicio && d <= rango.fin) {
-      return sum + (Array.isArray(repertorios[key]) ? repertorios[key].length : 0);
-    }
-    return sum;
-  }, 0);
-  var nuevoTexto = total > 0
-    ? total + (total === 1 ? ' canción esta semana' : ' canciones esta semana')
-    : 'Arma el setlist';
-  if (badge.textContent !== nuevoTexto) {
-    badge.textContent = nuevoTexto;
+  // Ya no cuenta "esta semana": cuenta lo que hay para el próximo culto con repertorio.
+  var iso = proximaFechaServicio();
+  var lista = getRepertorioFecha(iso) || [];
+  var totalAdoracion = 0, totalCadenas = 0;
+  lista.forEach(function(item) {
+    if (item.fuente === 'cadena_jubilo') totalCadenas++;
+    else totalAdoracion++;
+  });
+  var partes = [];
+  if (totalAdoracion > 0) partes.push(totalAdoracion + (totalAdoracion === 1 ? ' de Adoración' : ' de Adoración'));
+  if (totalCadenas > 0) partes.push(totalCadenas + (totalCadenas === 1 ? ' Cadena de Júbilo' : ' Cadenas de Júbilo'));
+  var nuevoTexto = partes.length > 0 ? partes.join('<br>') : 'Arma el setlist';
+  if (badge.innerHTML !== nuevoTexto) {
+    badge.innerHTML = nuevoTexto;
     if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
       btn.classList.remove('counter-bounce');
       void btn.offsetWidth; // fuerza reflow para poder reiniciar la animación
@@ -5909,8 +5911,7 @@ function renderDashboardResumen() {
   var iso = proximaFechaServicio();
   var culto = getTipoCultoDia(iso) || 'Servicio';
   var horario = getHorarioCultoDia(iso);
-  var lista = getRepertorioFecha(iso);
-  var cantidad = Array.isArray(lista) ? lista.length : 0;
+  var lista = getRepertorioFecha(iso) || [];
   var esHoy = iso === hoyISO();
 
   titulo.textContent = culto;
@@ -5920,9 +5921,23 @@ function renderDashboardResumen() {
   if (horario) {
     chips += '<span class="dashboard-hero-chip">🕐 ' + horario.split('\n')[0] + '</span>';
   }
-  chips += cantidad > 0
-    ? '<span class="dashboard-hero-chip">🎵 ' + cantidad + (cantidad === 1 ? ' canción lista' : ' canciones listas') + '</span>'
-    : '<span class="dashboard-hero-chip">📋 Repertorio pendiente</span>';
+
+  var totalAdoracionHero = 0, totalCadenasHero = 0;
+  lista.forEach(function(item) {
+    if (item.fuente === 'cadena_jubilo') totalCadenasHero++;
+    else totalAdoracionHero++;
+  });
+  if (totalAdoracionHero > 0) {
+    chips += '<span class="dashboard-hero-chip">🎤 ' + totalAdoracionHero +
+      (totalAdoracionHero === 1 ? ' Alabanza de Adoración' : ' Alabanzas de Adoración') + '</span>';
+  }
+  if (totalCadenasHero > 0) {
+    chips += '<span class="dashboard-hero-chip">🎶 ' + totalCadenasHero +
+      (totalCadenasHero === 1 ? ' Cadena de Júbilo' : ' Cadenas de Júbilo') + '</span>';
+  }
+  if (totalAdoracionHero === 0 && totalCadenasHero === 0) {
+    chips += '<span class="dashboard-hero-chip">📋 Repertorio pendiente</span>';
+  }
 
   meta.innerHTML = chips;
 }
@@ -6023,7 +6038,7 @@ function renderSetlist(animarCalendario) {
           '<div class="sbody" style="flex:1; min-width:0;">' +
             '<div class="stitle">' + escH(s.title) + '</div>' +
           '</div>' +
-        '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? 'Cadena Jubilo' : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
+        '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? escH(nombreGrupoDeItemRepertorio(s)) : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
         '</div>' +
         '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' +
           '<button onclick="eliminarDelRepertorio(' + i + ');event.stopPropagation();" title="Eliminar" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
@@ -6581,8 +6596,20 @@ window.buscarActualizaciones = async function() {
     btn.innerHTML = '🔄 Buscando...';
   }
 
+  var yaRecargo = false;
+  function recargarUnaVez() {
+    if (yaRecargo) return;
+    yaRecargo = true;
+    if (btn) btn.innerHTML = '✅ Listo';
+    setTimeout(function() { location.reload(); }, 300);
+  }
+
   try {
     if ('serviceWorker' in navigator) {
+      // Si hay un Service Worker nuevo tomando control de verdad, este
+      // evento se dispara justo cuando ya terminó de activarse.
+      // Recién ahí recargamos, en vez de adivinar con un tiempo fijo.
+      navigator.serviceWorker.addEventListener('controllerchange', recargarUnaVez, { once: true });
       var reg = await navigator.serviceWorker.getRegistration();
       if (reg) {
         await reg.update();
@@ -6592,13 +6619,10 @@ window.buscarActualizaciones = async function() {
     console.error('Error buscando actualizaciones:', err);
   }
 
-  if (btn) {
-    btn.innerHTML = '✅ Listo';
-  }
-
-  setTimeout(function() {
-    location.reload();
-  }, 500);
+  // Red de seguridad: si no había Service Worker, no había ninguna
+  // actualización nueva disponible, o algo falló, "controllerchange"
+  // nunca se dispara. No dejamos al usuario esperando para siempre.
+  setTimeout(recargarUnaVez, 2500);
 };
 
 // ============================================================
@@ -7998,6 +8022,14 @@ function renderJubiloSidebar(){
     html += '</details>';
   });
   list.innerHTML = html;
+}
+
+function nombreGrupoDeItemRepertorio(item) {
+  if (item && item.fuente === 'cadena_jubilo' && item.grupoId && item.cadenaId) {
+    var found = buscarGrupoCadena(item.grupoId, item.cadenaId);
+    if (found && found.grupo && found.grupo.nombre) return found.grupo.nombre;
+  }
+  return 'Cadena de Júbilo';
 }
 
 function buscarGrupoCadena(grupoId, cadenaId){
