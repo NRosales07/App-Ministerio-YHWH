@@ -1711,6 +1711,22 @@ body.light-theme .btn-guardar-cadena {
   margin: 0 auto;
 }
 
+/* === Animación de apertura para modales (fade + zoom suave) ===
+   Se activa via JS (ver observarAperturaModales) agregando/quitando
+   estas clases justo cuando un modal pasa de display:none a visible,
+   sin tener que tocar cada función que abre un modal por separado. */
+.modal-overlay, #pianoModal { transition: opacity 0.22s ease; }
+.modal-card, #pianoModal > div { transition: transform 0.22s ease; }
+.modal-overlay.modal-pop-start, #pianoModal.modal-pop-start { opacity: 0; }
+.modal-overlay.modal-pop-start .modal-card,
+#pianoModal.modal-pop-start > div { transform: scale(0.94); }
+.modal-overlay.modal-pop-in, #pianoModal.modal-pop-in { opacity: 1; }
+.modal-overlay.modal-pop-in .modal-card,
+#pianoModal.modal-pop-in > div { transform: scale(1); }
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay, #pianoModal, .modal-card, #pianoModal > div { transition: none !important; }
+}
+
 .back-btn {
   background: var(--bg3);
   color: var(--text);
@@ -3464,7 +3480,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <p>Selecciona una cancion para ver su letra con acordes. Usa el transpositor para cambiar la tonalidad.</p>
     </div>
     <div class="song-view" id="songView">
-         <div class="song-header">
+         <div class="song-header" id="viewHeader">
   <div class="song-title" id="viewTitle"></div>
   <div class="song-meta" id="viewMeta"></div>
   <button id="btnVolverRepertorioAdoracion" class="volver-repertorio-btn" onclick="showScreen('screen-setlist')" style="display:none;">&#128214; Volver al Repertorio</button>
@@ -4746,7 +4762,7 @@ function initTransitionUI() {
 }
 
 
-function renderContent(){
+function renderContent(retrasoMs){
   if(!currentSong) return;
   var lines=currentSong.content.split('\n');
   var st=currentSemitones;
@@ -4801,7 +4817,7 @@ out += '<span class="lc' + (cifradoLatino ? ' latino-shift' : '') + '">' + tlCli
     }
   }
   document.getElementById('viewContent').innerHTML=out;
-  animarEntradaContenido('viewContent');
+  animarEntradaContenido('viewContent', retrasoMs || 0);
   
   var tonoMuestreo = currentKey || getOrigKey(currentSong);
   if (cifradoLatino) {
@@ -4926,19 +4942,25 @@ function buildKeySelector(song){
 // requestAnimationFrame que ya usa animarCambioAcordes() para el fade de
 // acordes, en vez del truco de "reflow" (offsetWidth), que en Safari/iOS
 // no siempre reinicia animaciones CSS de forma confiable.
-function animarEntradaContenido(elOrId) {
+// delayMs (opcional): retraso antes de arrancar, para armar una cascada
+// escalonada entre varios contenedores (header -> barra -> letra).
+function animarEntradaContenido(elOrId, delayMs) {
   var el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
   if (!el) return;
   var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (sinMovimiento) return;
   el.classList.remove('content-fade-in');
   el.classList.add('content-fade-start');
-  requestAnimationFrame(function () {
+  function dispararEntrada() {
     requestAnimationFrame(function () {
-      el.classList.remove('content-fade-start');
-      el.classList.add('content-fade-in');
+      requestAnimationFrame(function () {
+        el.classList.remove('content-fade-start');
+        el.classList.add('content-fade-in');
+      });
     });
-  });
+  }
+  if (delayMs) setTimeout(dispararEntrada, delayMs);
+  else dispararEntrada();
 }
 
 function loadSong(id){
@@ -4978,7 +5000,9 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
 
   buildKeySelector(song);
   updateSemDisplay();
-  renderContent();
+  animarEntradaContenido('viewHeader', 0);
+  animarEntradaContenido('adoracionControlsBar', 90);
+  renderContent(180);
   var vieneDeRepertorio = origenRepertorioPendiente;
   origenRepertorioPendiente = false;
   var btnVolverRep = document.getElementById('btnVolverRepertorioAdoracion');
@@ -8144,6 +8168,7 @@ function renderJubiloCadena(grupoId, cadenaId){
   // Mostrar barra de controles globales
   var bar = document.getElementById('jubiloControlsBar');
   if (bar) bar.style.display = 'flex';
+  if (esAperturaNueva) animarEntradaContenido('jubiloControlsBar', 0);
   if (esAperturaNueva && window.aplicarVistaSegunRolJubilo) aplicarVistaSegunRolJubilo();
 
   var cadena = found.cadena;
@@ -8175,7 +8200,7 @@ html += (jubiloAddBoxAbierto ? '' : '<button class="jubilo-add-btn" onclick="mos
   '</div>' +
   '<div id="jubiloAddBox"></div>';
   main.innerHTML = html;
-  animarEntradaContenido(main);
+  animarEntradaContenido(main, esAperturaNueva ? 90 : 0);
   aplicarFuenteJubilo();
   if (jubiloAddBoxAbierto) mostrarBuscadorJubilo();
 
@@ -10296,6 +10321,46 @@ function aplicarAjusteJubilo() {
 </div>
 
 <script>
+// ============================================================
+// === ANIMACIÓN DE APERTURA AUTOMÁTICA PARA TODOS LOS MODALES ==
+// ============================================================
+// En vez de tocar cada función que abre un modal (login admin, rol,
+// tutorial, exportar, PDF, piano, etc.), observamos el atributo
+// "style" de cada uno: en cuanto detectamos que pasó de oculto a
+// visible, disparamos un fade + zoom suave (mismo patrón de doble
+// requestAnimationFrame que ya usa animarEntradaContenido()).
+(function() {
+  var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (sinMovimiento) return;
+
+  function animarAperturaModal(el) {
+    el.classList.remove('modal-pop-in');
+    el.classList.add('modal-pop-start');
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        el.classList.remove('modal-pop-start');
+        el.classList.add('modal-pop-in');
+      });
+    });
+  }
+
+  function esVisible(el) {
+    var d = el.style.display;
+    return d === 'flex' || d === 'block';
+  }
+
+  var modales = document.querySelectorAll('.modal-overlay, #pianoModal');
+  modales.forEach(function(el) {
+    var estabaVisible = esVisible(el);
+    var obs = new MutationObserver(function() {
+      var visible = esVisible(el);
+      if (visible && !estabaVisible) animarAperturaModal(el);
+      estabaVisible = visible;
+    });
+    obs.observe(el, { attributes: true, attributeFilter: ['style'] });
+  });
+})();
+
 // ============================================================
 // === EXPORTAR SETLIST COMO PDF / IMAGEN =====================
 // ============================================================
