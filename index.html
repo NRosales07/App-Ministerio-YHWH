@@ -1589,6 +1589,20 @@ body.light-theme .menu-card-sub { color: #f1ece0 !important; opacity: 0.85; }
 .menu-secondary-btn:active { transform: scale(0.95); }
 body.light-theme .menu-secondary-btn { color: #55616f; border-color: rgba(127,95,25,0.45); }
 
+/* === Un poco más compacto en móvil: menos padding y textos/botones levemente más chicos === */
+@media (max-width: 480px) {
+  .menu-container { padding: 20px 16px; }
+  .dashboard-hero { padding: 13px 14px; margin-bottom: 16px; }
+  .dashboard-hero-title { font-size: 0.98rem; }
+  .menu-grid { gap: 8px; margin-bottom: 6px; }
+  .menu-card { padding: 11px 9px; gap: 3px; }
+  .menu-card-icon { font-size: 1.22rem; }
+  .menu-card-title { font-size: 0.8rem; }
+  .menu-card-sub { font-size: 0.62rem; }
+  .menu-secondary-row { gap: 6px; margin-top: 10px; }
+  .menu-secondary-btn { padding: 7px 8px; font-size: 0.7rem; min-width: 88px; }
+}
+
 /* Feedback táctil consistente en toda la app */
 .menu-btn:active, .action-btn:active, .historia-tab-btn:active, .btn-abrir-biblia:active {
   transform: scale(0.97);
@@ -5638,18 +5652,17 @@ function actualizarContadorRepertorio() {
   var badge = document.getElementById('btnMenuSetlistCount');
   var btn = document.getElementById('btnMenuSetlist');
   if (!badge || !btn) return;
-  // Ya no cuenta "esta semana": cuenta lo que hay para el próximo culto con repertorio.
-  var iso = proximaFechaServicio();
-  var lista = getRepertorioFecha(iso) || [];
-  var totalAdoracion = 0, totalCadenas = 0;
-  lista.forEach(function(item) {
-    if (item.fuente === 'cadena_jubilo') totalCadenas++;
-    else totalAdoracion++;
+  var totalAdoracion = (typeof SONGS !== 'undefined' && Array.isArray(SONGS)) ? SONGS.length : 0;
+  // Total de Mix (cadenas de Júbilo) que existen en toda la app.
+  var totalMix = 0;
+  var gruposJubilo = (window.jubiloGrupos && Array.isArray(window.jubiloGrupos)) ? window.jubiloGrupos : [];
+  gruposJubilo.forEach(function(grupo) {
+    if (grupo && Array.isArray(grupo.cadenas)) totalMix += grupo.cadenas.length;
   });
-  var partes = [];
-  if (totalAdoracion > 0) partes.push(totalAdoracion + (totalAdoracion === 1 ? ' de Adoración' : ' de Adoración'));
-  if (totalCadenas > 0) partes.push(totalCadenas + (totalCadenas === 1 ? ' Cadena de Júbilo' : ' Cadenas de Júbilo'));
-  var nuevoTexto = partes.length > 0 ? partes.join('<br>') : 'Arma el setlist';
+  var partesBadge = [];
+  if (totalAdoracion > 0) partesBadge.push(totalAdoracion + ' alabanzas');
+  if (totalMix > 0) partesBadge.push(totalMix + ' Mix de Júbilo');
+  var nuevoTexto = partesBadge.length > 0 ? partesBadge.join('<br>') : 'Arma el setlist';
   if (badge.innerHTML !== nuevoTexto) {
     badge.innerHTML = nuevoTexto;
     if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
@@ -7819,6 +7832,7 @@ function guardarJubiloGrupos(){
     window.fbSet(window.fbRef(window.fbDb, 'jubilo'), jubiloGrupos);
   }
   renderJubiloSidebar(); // forzar re-render inmediato sin esperar Firebase
+  if (typeof actualizarContadorRepertorio === 'function') actualizarContadorRepertorio();
 }
 function getJubiloSong(id){ return SONGS_JUBILO.find(function(s){ return String(s.id) === String(id); }); }
 function getJubiloEditKey(id){ return 'yhwh_jubilo_edit_' + id; }
