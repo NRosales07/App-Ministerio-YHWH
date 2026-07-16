@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alabanzas-v81';
-const DATA_CACHE_NAME = 'alabanzas-data-v21';
+const CACHE_NAME = 'alabanzas-v83';
+const DATA_CACHE_NAME = 'alabanzas-data-v23';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -79,8 +79,13 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   const isSameOrigin = url.origin === self.location.origin;
   const isHtmlNav = e.request.mode === 'navigate' || (e.request.headers.get('accept') || '').includes('text/html');
+  // .js/.json (canciones-adoracion.js, canciones-jubilo.js, manifest, etc.):
+  // deben tratarse como "código de la app", igual que el HTML, para que
+  // las actualizaciones de canciones lleguen de verdad y no se queden
+  // pegadas en un caché viejo.
+  const isAppCode = isSameOrigin && /\.(js|json)(\?.*)?$/.test(url.pathname);
 
-  if (isHtmlNav) {
+  if (isHtmlNav || isAppCode) {
     e.respondWith(
       fetch(e.request)
         .then((response) => {
@@ -88,7 +93,7 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(e.request, copy));
           return response;
         })
-        .catch(() => caches.match(e.request).then((cached) => cached || caches.match('index.html')))
+        .catch(() => caches.match(e.request).then((cached) => cached || (isHtmlNav ? caches.match('index.html') : undefined)))
     );
     return;
   }
@@ -100,6 +105,8 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
+  // Recursos pesados que rara vez cambian (PDFs, samples de piano):
+  // caché primero para no gastar datos de más, refrescando en segundo plano.
   e.respondWith(
     caches.open(DATA_CACHE_NAME).then(async (cache) => {
       const cached = await cache.match(e.request);

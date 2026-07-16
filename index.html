@@ -1717,9 +1717,9 @@ body.light-theme .btn-guardar-cadena {
 }
 .modal-card {
   width: 100%;
-  background: #1c1c3f;
+  background: var(--bg2);
   border-radius: 14px;
-  border: 1px solid #2a2a45;
+  border: 1px solid var(--border);
   padding: 24px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.6);
   margin: 0 auto;
@@ -6633,33 +6633,59 @@ window.buscarActualizaciones = async function() {
     btn.innerHTML = '🔄 Buscando...';
   }
 
-  var yaRecargo = false;
-  function recargarUnaVez() {
-    if (yaRecargo) return;
-    yaRecargo = true;
-    if (btn) btn.innerHTML = '✅ Listo';
+  var yaResolvio = false;
+  function terminarConExito() {
+    if (yaResolvio) return;
+    yaResolvio = true;
+    if (btn) btn.innerHTML = '✅ Actualizado';
     setTimeout(function() { location.reload(); }, 300);
+  }
+  function terminarSinNovedad(mensaje) {
+    if (yaResolvio) return;
+    yaResolvio = true;
+    if (btn) btn.innerHTML = mensaje;
+    setTimeout(function() {
+      if (btn) { btn.innerHTML = textoOriginal; btn.disabled = false; }
+    }, 2200);
   }
 
   try {
-    if ('serviceWorker' in navigator) {
-      // Si hay un Service Worker nuevo tomando control de verdad, este
-      // evento se dispara justo cuando ya terminó de activarse.
-      // Recién ahí recargamos, en vez de adivinar con un tiempo fijo.
-      navigator.serviceWorker.addEventListener('controllerchange', recargarUnaVez, { once: true });
-      var reg = await navigator.serviceWorker.getRegistration();
-      if (reg) {
-        await reg.update();
-      }
+    if (!('serviceWorker' in navigator)) {
+      terminarSinNovedad('⚠️ No disponible');
+      return;
+    }
+
+    // Si un Service Worker nuevo termina de tomar control de verdad,
+    // ahí sí hubo una actualización real: recién ahí recargamos.
+    navigator.serviceWorker.addEventListener('controllerchange', terminarConExito, { once: true });
+
+    var reg = await navigator.serviceWorker.getRegistration();
+    if (!reg) {
+      terminarSinNovedad('⚠️ No disponible');
+      return;
+    }
+
+    await reg.update();
+
+    if (reg.waiting) {
+      // Ya se descargó una versión nueva pero quedó "esperando" (típico
+      // cuando hay otra pestaña abierta). Le pedimos que se active ya.
+      if (btn) btn.innerHTML = '⬇️ Instalando...';
+      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      setTimeout(function() { terminarConExito(); }, 3000);
+    } else if (reg.installing) {
+      // Se está descargando una versión nueva ahora mismo.
+      if (btn) btn.innerHTML = '⬇️ Instalando...';
+      setTimeout(function() { terminarConExito(); }, 3500);
+    } else {
+      // reg.update() no encontró ninguna versión nueva: no fingimos que
+      // "actualizamos" algo que no existía.
+      terminarSinNovedad('✔️ Ya tienes la última versión');
     }
   } catch (err) {
     console.error('Error buscando actualizaciones:', err);
+    terminarSinNovedad('⚠️ Error al buscar');
   }
-
-  // Red de seguridad: si no había Service Worker, no había ninguna
-  // actualización nueva disponible, o algo falló, "controllerchange"
-  // nunca se dispara. No dejamos al usuario esperando para siempre.
-  setTimeout(recargarUnaVez, 2500);
 };
 
 // ============================================================
@@ -10172,14 +10198,14 @@ function aplicarAjusteJubilo() {
   <div class="modal-card" style="max-width:380px;">
     <div style="text-align:center;margin-bottom:14px;">
       <div style="font-size:1.7rem;margin-bottom:4px;">📖</div>
-      <div style="color:#c9a84c;font-weight:bold;font-size:1.05rem;">Verso del día</div>
+      <div style="color:var(--gold);font-weight:bold;font-size:1.05rem;">Verso del día</div>
     </div>
     <div class="verso-card" style="margin:0;">
       <p id="menuVersoTexto">"Porque yo derramaré aguas sobre el sequedal, y ríos sobre la tierra árida; mi Espíritu derramaré sobre tu generación, y mi bendición sobre tus renuevos."</p>
       <span id="menuVersoCita">— Isaías 44:3</span>
     </div>
     <button onclick="cerrarVersoModal()"
-      style="width:100%;margin-top:16px;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;
+      style="width:100%;margin-top:16px;background:var(--bg3);border:1px solid var(--border);color:var(--text);
              border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">
       Cerrar
     </button>
