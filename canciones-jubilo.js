@@ -115,7 +115,7 @@ var SONGS_JUBILO =
     "compositor": "Tradicional",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n               C          Am      Dm-G             C\nX4     Alabaré, alabaré, alabaré a mi Señor.   X4\n[CORO]:\n    C\nJuan vio el número de los redimidos y todos alababan\n        G     Dm     G        Dm       G                 \nAl Señor unos oraban, otros cantaban, \n          Dm         G              C\nPero todos alababan al Señor.         SE REPITE TODO\n[CORO]:",
+    "content": "[VERSO 1]:\n               C          Am      Dm-G             C\nX4     Alabaré, alabaré, alabaré a mi Señor.   X4\n[CORO]:\n    C\nJuan vio el número de los redimidos y todos alababan\n        G     Dm     G        Dm       G                 \nAl Señor unos oraban, otros cantaban, \n          Dm         G              C\nPero todos alababan al Señor.         \n\n\n\n\nSE REPITE TODO\n",
     "id": 313
   },
   {
@@ -164,12 +164,13 @@ var SONGS_JUBILO =
     "id": 318
   },
   {
-    "id": 319,
+    "num": null,
     "title": "PREPÁRATE PARA QUE SIENTAS",
-    "compositor": "Tradicional",
+    "compositor": "COROS",
     "tono": "C",
-    "album": "Alabanzas de Júbilo",
-    "content": "MIX 19  |  EBENEZER\nMIX 19  |  EBENEZER\n[VERSO 1]:\n                   C                                    G                                                      C\nX2    Prepárate para que sientas, prepárate para que sientas,\n                                                                  Dm-G          C\nPrepárate para que sientas el Espíritu de Dios.   X2\n[CORO]:\n                                                  F                                              C\nX2     Y déjalo que se mueva, y déjalo que se mueva, y déjalo que se mueva\n              Dm     G         C\nDentro de tu corazón.   X2                                 SE REPITE TODO"
+    "album": "",
+    "content": "[VERSO 1]:\n               C                          G                                                      \nX2    Prepárate para que sientas, \n                                    C\nPrepárate para que sientas,\n                                                Dm-G          C\nPrepárate para que sientas el Espíritu de Dios.   X2\n[CORO]:\n                                        F                                   C\nX2     Y déjalo que se mueva, y déjalo que se mueva, \n                                         Dm    G         C\nY déjalo que se mueva, dentro de tu corazón.   X2 \n\n\n\n\n         \nSE REPITE TODO",
+    "id": 319
   },
   {
     "num": null,
@@ -391,12 +392,13 @@ var SONGS_JUBILO =
     "content": "MIX 20  |  EBENEZER\nMIX 20  |  EBENEZER\nTROMPETAS    | E | Am | D-G | Em-B |\n[VERSO 1]:\n               Em                                                                       C                B\nX2    Vamos escalando peldaños, vamos llevando la cruz,\n                                                                                                                     Em\nSigamos el camino angosto, que con Cristo es mucho mejor.   X2\n[CORO]:\n                    E                   Am             D                       G\nX2    Ya viene la recompensa, ya no voy a llorar,\n     Em                                  B                                         Em\nTengo a Cristo en mi vida, por eso puedo escalar.    X2\nTROMPETAS\n[VERSO 2]:\n               Em                                                        C             B\nX2   A veces me siento débil, ya no puedo escalar,\n                                                                                                        Em\nAlzo mis manos al cielo, viene Cristo y fuerzas me da.  X2                        CORO"
   },
   {
-    "id": 347,
+    "num": null,
     "title": "YO TENGO UN AMIGO",
-    "compositor": "Tradicional",
+    "compositor": "Coros",
     "tono": "C",
-    "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS  | F | C | Dm-G | C |\n[VERSO 1]:\n C                                                     Am               G               C\nYo tengo un amigo que me ama, me ama, me ama,\n                                                                             Dm       G      C\nYo tengo un amigo que me ama su nombre es Jesús…\n[CORO]:\n                               F                         C                       Dm    G                           C\nX2    Que me ama, que me ama, que me ama con su tierno amor.   X2"
+    "album": "",
+    "content": "[VERSO 1]:\n C                                       Am            G             C\nYo tengo un amigo que me ama, me ama, me ama,\n                                                           Dm      G    C\nYo tengo un amigo que me ama su nombre es Jesús…\n[CORO]:\n                         F                   C                       \nX2    Que me ama, que me ama, \n                      Dm         G       C\nQue me ama con su tierno amor...   \n                 F                   C                       \nQue me ama, que me ama, \n        Dm     G     C\nSu nombre es Jesús.    X2",
+    "id": 347
   },
   {
     "id": 348,
@@ -545,12 +547,13 @@ var SONGS_JUBILO =
     "content": "MIX 18  |  EBENEZER\nMIX 18  |  EBENEZER\n[VERSO 1]:\n                                       C                                                                     G\nX2  Cuando los santos marchen ya hacia la patria celestial\n                        C                     F                                Dm            G          C\nSeñor yo quiero estar allá, cuando los santos marchen ya.   X2\n[CORO]:\n                       C                                                                               Dm                 G                                        C\nX2   Nos vamo a gozar, nos vamos a gozar, a las bodas del Cordero, nos vamos a gozar.  X2\n                 F                                            C                             Dm                    G                              C\nX2    Y luego nos iremos a la patria celestial, a vivir con Jesucristo por la eternidad.   X2"
   },
   {
-    "id": 366,
+    "num": null,
     "title": "YO LE A ALABO DE CORAZÓN",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 17  |  EBENEZER\nMIX 17  |  EBENEZER\n             C                                               G                                                           C\nX2     Con mi voz o con mis manos, con mis pies  o con mi alma,\n                                                 G                                                           C\nO es que ya me fui con Él... (O es que ya me fui con Él).    X2\n[VERSO 1]:\n                                                G                                                  C\nX2     Yo le alabo de corazón, yo le alabo con mi voz,\n                                      G                                                 C                                     G                                                   C\nYo le alabo de corazón, yo le alabo con mi voz, y si me falta la voz, yo le alabo con las manos,\n                                          G                                                   C                                           G                                               C\nY si me faltan las manos, yo le alabo con los pies, y si me faltan los pies, yo le alabo con el alma,\n                                        G                                                 C\nY si me faltara el alma, es que ya me fui con Él.     X2"
+    "content": "[VERSO 1]:\n C                                             G                                                       \nX2     Con mi voz o con mis manos, \n                                        C\nCon mis pies  o con mi alma,\n                                      G                                                       \nO es que ya me fui con Él... \n                                       C\n(O es que ya me fui con Él).    X2\n[CORO]:\n                                     G                                        C\nX2     Yo le alabo de corazón, yo le alabo con mi voz,\n                            G                                       C              \nYo le alabo de corazón, yo le alabo con mi voz, \n                          G                                      C\nY si me falta la voz, yo le alabo con las manos,\n                                G                                      C\nY si me faltan las manos, yo le alabo con los pies, \n                              G                                    C\nY si me faltan los pies, yo le alabo con el alma,\n                               G                                      C\nY si me faltara el alma, es que ya me fui con Él.     X2",
+    "id": 366
   },
   {
     "id": 367,
@@ -585,12 +588,13 @@ var SONGS_JUBILO =
     "content": "MIX 1  |  EBENEZER\nMIX 1  |  EBENEZER\nTROMPETAS  | Am | G | Dm | E7 |T\n[VERSO 1]:\nX2   Cuando el Señor hiciere volver la cautividad…    X2\n                        X2   Mi boca llenará de risa...   X2\n[CORO]:\nX2   Me gozaré, me gozaré, me gozaré...   X2\n[VERSO 2]:\nX2  Así como David cantaba...   X2\n                        X2   Yo cantaré, Yo danzaré...    X2\nTROMPETAS              |        CORO     X2"
   },
   {
-    "id": 371,
+    "num": null,
     "title": "CANCIÓN FELIZ",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "E",
-    "album": "Alabanzas de Júbilo",
-    "content": "MIX 25  |  EBENEZER\nMIX 25  |  EBENEZER\nTROMPETAS  | E | B | C#m | A |\n[VERSO 1]:\n                  E         B                       C#m                          A\nX2    Cantaría sin parar, por lo que hiciste en mí,\n       E                 B                 C#m                  A\nDanzaría siempre Dios por tu gran amor.   X2\n[VERSO 2]:\n    E                                B                             C#m                                            A\nArde mi corazón, para poder decir, que me has salvado, borraste mi pasado\n     E                                     B                            C#m                                                A\nSeñor quiero gritar, hacia todo lugar, que si tú estás conmigo ¿quién es contra mí?\n[VERSO 1]:\nX2  Cantaría sin Parar…  X2\n[VERSO 3]:\n             A                                                      E                      A                                                                   E\nY Estamos cantando… somos Felices... Y estamos danzando... pues somos libres....\n      F#m                                        Ab                                         A\nSi te pudiéramos mirar, y contemplar tu sonreír, ver tus ángeles danzar…\n                                                       E                        B                                 C#m -  A\nX4     Porque el gozo está aquí… (Aquí está el gozo del Señor)      X4\nTROMPETAS\n[CORO]:\n1\n            E                             B                            C#m                        A\nX2   Gozo, tenemos gozo, tenemos gozo, tenemos gozo…   X2\n[CORO]:\n2\n         E                                      B                         C#m                                 A\nX2   Yo tengo Gozo yo puedo Cantar… Yo tengo Gozo yo puedo Cantar…   X2\nX2   Yo tengo Gozo yo puedo Saltar… Yo tengo Gozo yo puedo Saltar…       X2\nX2  Yo tengo Gozo yo puedo Gritar… Yo tengo Gozo yo puedo Gritar…         X2\nX2   Yo tengo Gozo yo puedo Reír… Yo tengo Gozo yo puedo Reír…                X2\n[CORO]:\n1   X4  Gozo, tenemos gozo, tenemos gozo, tenemos gozo…     X4"
+    "album": "",
+    "content": "TROMPETAS     | E | B | C#m | A |  X2\n[VERSO 1]:\n              E        B               C#m                       A\nX2    Cantaría sin parar, por lo que hiciste en mí,\n      E            B             C#m               A\nDanzaría siempre Dios por tu gran amor.   X2\n[VERSO 2]:\n  E                        B                            C#m                                           \nArde mi corazón,    para poder decir, \n                                         A\nQue me has salvado, borraste mi pasado\n   E                          B                              C#m  \nSeñor quiero gritar,     hacia todo lugar, \n                                              A\nQue si tú estás conmigo ¿quién es contra mí?\n[VERSO 1]:\nX2  Cantaría sin Parar…  X2\n[VERSO 3]:\n       A                                            E\nY Estamos cantando… somos Felices... \n       A                                                   E\nY estamos danzando... pues somos libres....\n   F#m                                    Ab     \nSi te pudiéramos mirar, y contemplar tu sonreír, \n A                    \nVer tus ángeles danzar…\n                                            A\nX4     Porque el gozo está aquí… \n     E    B                      C#m  -  A  \n(Aquí está el gozo del Señor)      X4\n\n\n\n\nTROMPETAS\n[CORO]:\n          E                      B                    C#m  \nX2   Gozo, tenemos gozo, tenemos gozo, \n                  A\ntenemos gozo…   X2\n[CORO]:\n       E                              B      \nX2   Yo tengo Gozo yo puedo Cantar… \nC#m                         A\nYo tengo Gozo yo puedo Cantar…   X2\n\n| Saltar |  Gritar |  Reír |\n[CORO]:\nX4  Gozo, tenemos gozo, tenemos gozo, \ntenemos gozo…     X4",
+    "id": 371
   },
   {
     "id": 372,
@@ -766,12 +770,13 @@ var SONGS_JUBILO =
     "content": "MIX 9  |  EBENEZER\nMIX 9  |  EBENEZER\nTROMPETAS     | Am | F | G | E |\n[VERSO 1]:\n                      Am                                                                       F\nX2     Mi corazón se regocija en el Señor, mi fortaleza en el Señor se exalta,\n          G                                 E7                                       Am         F-G-Am\nMi boca cantará sin temor contra mis adversarios.   X2\n[PRE-CORO]:\n    G-F                                          G       Am   G         Am      G-F                                        G                       Am-Bm-C-D-C\nPor cuanto me regocijo en su salvación,           diré que no hay Dios como mi Dios.\n          F                                         G       Am   G         Am     G-F                                          G                          E\nPor cuanto me regocijo en su salvación,           diré que no hay Santo como el Señor.\n[CORO]:\n                            Am                                                       F\nX2    No hay santo como el Señor, no hay santo como el Señor,\n                   G                            E7                         Am\nNo hay santo como el Señor, nuestro Dios.   X2"
   },
   {
-    "id": 393,
+    "num": null,
     "title": "ALGUIEN ESTÁ AQUÍ",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "C",
-    "album": "Alabanzas de Júbilo",
-    "content": "MIX 13  |  EBENEZER\nMIX 13  |  EBENEZER\nVIOLIN   | G | C | G | C |   —   | C | G | C | G | C |\nX5      Es Cristo Oh.    X5         |       TROMPETAS\n[VERSO 1]:\n       C                                                              G\nAlguien está aquí y yo sé que es Cristo,\n                                                                            C\nAlguien está aquí y yo sé que es el Señor.\n                                                                            G\nMe puede bautizar y yo sé que es Cristo,\n                                                                                C\nMe puede bautizar y yo sé que es el Señor.\n[CORO]:\n                        C                                          G\nX2      Yo siento en mi ser a un Cristo de poder,\n                                                                    C\nYo siento en mi ser al Espíritu Santo,\n                                                                               F\nYo siento en mi ser que Ángeles del cielo,\n                                  G                                         C\nAcampan a mi lado y me ayudan a vencer.    X2\n                                                                                                       F                      G                                          C\nVIOLIN         —     SE REPITE TODO      —      X2    Acampan a mi lado y me ayudan a vencer.  X2"
+    "album": "",
+    "content": "VIOLIN   | G | C | G | C |   —   | C | G | C | G | C |\nX5      Es Cristo Oh.    X5         |       TROMPETAS\n[VERSO 1]:\n       C                                              G\nAlguien está aquí y yo sé que es Cristo,\n                                                            C\nAlguien está aquí y yo sé que es el Señor.\n                                                           G\nMe puede bautizar y yo sé que es Cristo,\n                                                             C\nMe puede bautizar y yo sé que es el Señor.\n[CORO]:\n                  C                                G\nX2      Yo siento en mi ser a un Cristo de poder,\n                                                    C\nYo siento en mi ser al Espíritu Santo,\n                                                             F\nYo siento en mi ser que Ángeles del cielo,\n                          G                                C\nAcampan a mi lado y me ayudan a vencer.    X2\n      \n\n\n                                                                                               \nVIOLIN         —     SE REPITE TODO      —      X2    \n\n\n\n\nAcampan a mi lado y me ayudan a vencer.  X2",
+    "id": 393
   },
   {
     "id": 394,
@@ -942,12 +947,13 @@ var SONGS_JUBILO =
     "content": "F                      G                                       C\nX2    Acampan a mi lado y me ayudan a vencer.  X2"
   },
   {
-    "id": 415,
+    "num": null,
     "title": "EN UNA NUBE BLANCA",
-    "compositor": "Tradicional",
+    "compositor": "Coros",
     "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                             C                                         G                                                                C\nX2    En una nube blanca Cristo volverá, Con poder y gloria nos levantará.  X2\n[VERSO 2]:\n                                               G                    C                                               G                     C\nX2    Cristo viene otra vez y nos llevará, Desde el cielo vendrá y nos llevará.   X2\n[VERSO 3]:\n                  F                                                   C                     Dm             G             C\nX2    Oremos hermanos en todo lugar, Y recibiremos el don celestial.   X2        SE REPITE TODO"
+    "content": "[VERSO 1]:\n               C                                        \nX2    En una nube blanca Cristo volverá, \n                        G                 C\nCon poder y gloria nos levantará.  X2\n[VERSO 2]:\n            C                      G                 C     \nX2    Cristo viene otra vez y nos llevará, \n                            G                   C\nDesde el cielo vendrá y nos llevará.   X2\n[VERSO 3]:\n              F                                      C                  \nX2    Oremos hermanos en todo lugar, \n         Dm             G        C\nY recibiremos el don celestial.   X2        \n\n\n\n\nSE REPITE TODO",
+    "id": 415
   },
   {
     "id": 416,
@@ -1113,5 +1119,68 @@ var SONGS_JUBILO =
     "album": "Fuego",
     "content": "TROMPETAS\n[VERSO 1]:\n          Ab - Eb         Bb        Cm      Ab                    \nX2    Levántate, levántate, Señor,     \n                     Eb           Bb                  Cm\nY que tus enemigos, huyan delante de ti,   \n\n  \nAb - Eb         Bb        Cm       Ab                    \nLevántate, levántate, Señor,     \n                     Eb           Bb                  Cm\nY que tus enemigos, huyan delante de ti...\n[CORO]:   \n                      Ab             Eb\nX2  Mas los justos se alegrarán, \n     Bb                Cm\nCantarán con regocijo, \n       Ab                   Eb \nEl Señor se ha levantado, \n          Bb              Cm\nHa triunfado con poder…  X2\n\n\n\nTROMPETAS\n[VERSO 1]:  X2      |      [CORO]:  X2\n",
     "id": 435
+  },
+  {
+    "num": 6,
+    "title": "ALABARÉ",
+    "compositor": "Ebenezer",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n               C          Am      Dm-G             C\nX4     Alabaré, alabaré, alabaré a mi Señor.   X4\n[CORO]:\n    C\nJuan vio el número de los redimidos y todos alababan\n        G     Dm     G        Dm       G                 \nAl Señor unos oraban, otros cantaban, \n          Dm         G              C\nPero todos alababan al Señor.         \n\n\n\n\nSE REPITE TODO",
+    "id": 436
+  },
+  {
+    "num": 7,
+    "title": "CUANDO LOS SANTOS MARCHEN YA",
+    "compositor": "Ebenezer",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n                              C       \nX2  Cuando los santos marchen ya \n                             G\nHacia la patria celestial\n                   C               F   \nSeñor yo quiero estar allá, \n                     Dm         G        C         \nCuando los santos marchen ya.   X2\n[CORO]:\n                   C                                                                                                                  \nX2   Nos vamos a gozar, nos vamos a gozar, \n             F               G                                C\nA las bodas del Cordero, nos vamos a gozar.  X2\n               F                                  C                             \nX2    Y luego nos iremos a la patria celestial, \n   Dm                G                        C                           \nA vivir con Jesucristo por la eternidad.   X2\n\n\n\nSE REPITE TODO",
+    "id": 437
+  },
+  {
+    "num": 8,
+    "title": "YO TENGO UN AMIGO QUE ME AMA",
+    "compositor": "Ebenezer",
+    "tono": "C",
+    "album": "",
+    "content": "TROMPETAS  \n[VERSO 1]:\n C                                       Am            G             C\nYo tengo un amigo que me ama, me ama, me ama,\n                                                           Dm      G    C\nYo tengo un amigo que me ama su nombre es Jesús…\n[CORO]:\n                         F                   C                       \nX2    Que me ama, que me ama, \n                      Dm         G       C\nQue me ama con su tierno amor...   \n                 F                   C                       \nQue me ama, que me ama, \n        Dm     G     C\nSu nombre es Jesús.    X2\n\n\n\n\n\nTROMPETAS\n\n[CORO].",
+    "id": 438
+  },
+  {
+    "num": 9,
+    "title": "EN UNA NUBE BLANCA",
+    "compositor": "Ebenezer",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n               C                                        \nX2    En una nube blanca Cristo volverá, \n                        G                 C\nCon poder y gloria nos levantará.  X2\n[VERSO 2]:\n            C                      G                 C     \nX2    Cristo viene otra vez y nos llevará, \n                            G                   C\nDesde el cielo vendrá y nos llevará.   X2\n[VERSO 3]:\n              F                                      C                  \nX2    Oremos hermanos en todo lugar, \n         Dm             G        C\nY recibiremos el don celestial.   X2        \n\n\n\n\nSE REPITE TODO",
+    "id": 439
+  },
+  {
+    "num": 10,
+    "title": "VA BAJANDO YA",
+    "compositor": "Ebenezer",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n          C\nVa bajando ya, va bajando ya, \n                                          G\nVa bajando la gloria de Jehová, \n               Dm                      G              \nSi esta Iglesia empieza a orar,\n     Em                Am              Dm            G             C\nEl Señor va a contestar, va bajando la gloria de Jehová.\n[VERSO 2]:\n                 C                                                                                                                    \nX2    La gloria de Jehová cayó en la Profecía \n             Dm          G                                     C\nY esta iglesia temblaba porque Dios está aquí.  X2\n[CORO]:\n          F                       C          \nX2   Dios está aquí, Dios está aquí \n                                                    Dm   G     C\nY esta iglesia temblaba porque Dios está aquí.   X2         \n\n\n\n\n\n\nSE REPITE TODO",
+    "id": 440
+  },
+  {
+    "num": 11,
+    "title": "PREPÁRATE PARA QUE SIENTAS",
+    "compositor": "Ebenezer",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n               C                          G                                                      \nX2    Prepárate para que sientas, \n                                    C\nPrepárate para que sientas,\n                                                Dm-G          C\nPrepárate para que sientas el Espíritu de Dios.   X2\n[CORO]:\n                                        F                                   C\nX2     Y déjalo que se mueva, y déjalo que se mueva, \n                                         Dm    G         C\nY déjalo que se mueva, dentro de tu corazón.   X2 \n\n",
+    "id": 441
+  },
+  {
+    "num": 12,
+    "title": "CUANDO ALLÁ SE PASE LISTA",
+    "compositor": "Ebenezer",
+    "tono": "C",
+    "album": "",
+    "content": "[CORO]:\n                       C\nX3   Cuando allá se pase  lista, \n               G\nCuando allá se pase  lista,\n               C                    F    \nCuando allá se pase  lista...\n           Dm           G           C \nA mi nombre yo feliz responderé.     X3 ",
+    "id": 442
   }
 ];

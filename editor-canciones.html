@@ -472,10 +472,13 @@ button.danger{border-color:#c0392b;color:#ff7a6a;}
   <select id="selectorCanciones" onchange="cargarDesdeSelector()"></select>
 
   <label>ID directo</label>
-  <input type="number" id="inputId" style="width:80px" placeholder="ej. 5">
+  <input type="number" id="inputId" step="1" style="width:80px" placeholder="ej. 5">
   <button onclick="cargarPorId()">Cargar por ID</button>
+  <button onclick="navegarId(-1)" title="Alabanza anterior por ID">◀ Ant. ID</button>
+  <button onclick="navegarId(1)" title="Siguiente alabanza por ID">Sig. ID ▶</button>
 
   <button onclick="nuevaCancion()">➕ Nueva alabanza</button>
+  <button onclick="eliminarCancionActual()" style="border-color:#a03a3a;color:#ff9d9d;">🗑️ Eliminar</button>
   <span style="flex:1"></span>
   <button class="primary" onclick="aplicarCambios()">✅ Aplicar cambios a la lista</button>
   <button onclick="copiarJSON()">📋 Copiar JSON de esta canción</button>
@@ -994,8 +997,7 @@ function poblarSelector(){
   var sel = document.getElementById('selectorCanciones');
   sel.innerHTML = '<option value="">— Elegir alabanza —</option>';
   var ordenadas = listaActiva().slice().sort(function(a,b){
-    if (a.num != null && b.num != null) return a.num - b.num;
-    return (a.title||'').localeCompare(b.title||'');
+    return (a.title||'').localeCompare(b.title||'', 'es', { sensitivity: 'base' });
   });
   ordenadas.forEach(function(s){
     var opt = document.createElement('option');
@@ -1042,6 +1044,32 @@ function cargarPorId(){
   var song = buscarPorId(id);
   if (song) { cargarCancion(song); }
   else { setStatus('⚠️ No existe ninguna alabanza con id ' + id); }
+}
+
+// Navega de una alabanza a otra siguiendo el orden real de IDs existentes,
+// avanzando exactamente una posición por clic (sin saltos).
+function navegarId(direccion){
+  var lista = listaActiva().slice().sort(function(a,b){ return Number(a.id) - Number(b.id); });
+  if (!lista.length) return;
+
+  var idActual = editandoId != null ? editandoId : document.getElementById('inputId').value;
+  var idx = lista.findIndex(function(s){ return s.id == idActual; });
+
+  var siguienteIdx;
+  if (idx === -1) {
+    siguienteIdx = direccion > 0 ? 0 : lista.length - 1;
+  } else {
+    siguienteIdx = idx + direccion;
+  }
+
+  if (siguienteIdx < 0 || siguienteIdx >= lista.length) {
+    setStatus(direccion > 0 ? '⚠️ Ya estás en la última alabanza por ID.' : '⚠️ Ya estás en la primera alabanza por ID.');
+    return;
+  }
+
+  var song = lista[siguienteIdx];
+  document.getElementById('inputId').value = song.id;
+  cargarCancion(song);
 }
 
 // ---- Buscador por nombre o letra (no solo ID) ----
@@ -1150,6 +1178,74 @@ function nuevaCancion(){
   document.getElementById('selectorCanciones').value = '';
   renderPreview();
   setStatus('Nueva alabanza lista para escribir (id sugerido ' + (maxId + 1) + ')');
+}
+
+var ultimaEliminada = null; // { song, index, biblioteca } — para poder deshacer
+
+function eliminarCancionActual(){
+  var idActual = editandoId != null ? editandoId : document.getElementById('inputId').value;
+  if (idActual == null || idActual === '') {
+    setStatus('⚠️ Primero elige una alabanza para eliminar.');
+    return;
+  }
+  var song = buscarPorId(idActual);
+  if (!song) {
+    setStatus('⚠️ No hay ninguna alabanza cargada para eliminar.');
+    return;
+  }
+
+  var confirmado = window.confirm('¿Seguro que deseas eliminar "' + song.title + '" (id ' + song.id + ')?\n\nEsta acción se puede deshacer justo después de eliminar.');
+  if (!confirmado) return;
+
+  var lista = listaActiva();
+  var idx = lista.findIndex(function(s){ return s.id == song.id; });
+  if (idx === -1) return;
+
+  lista.splice(idx, 1);
+  ultimaEliminada = { song: song, index: idx, biblioteca: bibliotecaActiva };
+
+  editandoId = null;
+  document.getElementById('fNum').value = '';
+  document.getElementById('fId').value = '';
+  document.getElementById('fTitle').value = '';
+  document.getElementById('fCompositor').value = '';
+  document.getElementById('fTono').value = '';
+  document.getElementById('fAlbum').value = '';
+  document.getElementById('fVersion').value = '';
+  document.getElementById('fYoutube').value = '';
+  document.getElementById('fContent').value = '';
+  document.getElementById('inputId').value = '';
+  document.getElementById('selectorCanciones').value = '';
+  renderPreview();
+  poblarSelector();
+  setStatusConDeshacer('🗑️ Eliminada: "' + song.title + '" (id ' + song.id + '). Recuerda descargar el archivo actualizado.');
+}
+
+function deshacerEliminacion(){
+  if (!ultimaEliminada) return;
+  var info = bibliotecas[ultimaEliminada.biblioteca];
+  if (!info) return;
+  var lista = info.lista;
+  var indice = Math.min(ultimaEliminada.index, lista.length);
+  lista.splice(indice, 0, ultimaEliminada.song);
+
+  if (ultimaEliminada.biblioteca === bibliotecaActiva) {
+    poblarSelector();
+    cargarCancion(ultimaEliminada.song);
+  }
+  setStatus('↩️ Restaurada: "' + ultimaEliminada.song.title + '" (id ' + ultimaEliminada.song.id + ').');
+  ultimaEliminada = null;
+}
+
+function setStatusConDeshacer(msg){
+  var status = document.getElementById('status');
+  status.innerHTML = '';
+  status.appendChild(document.createTextNode(msg + '  '));
+  var btn = document.createElement('button');
+  btn.textContent = '↩️ Rehacer / Deshacer eliminación';
+  btn.onclick = deshacerEliminacion;
+  btn.style.marginLeft = '6px';
+  status.appendChild(btn);
 }
 
 function leerFormulario(){
