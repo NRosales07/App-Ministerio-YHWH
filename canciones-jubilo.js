@@ -35,28 +35,31 @@ var SONGS_JUBILO =
     "id": 303
   },
   {
-    "id": 304,
+    "num": null,
     "title": "VEN ESPÍRITU DIVINO",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 13  |  EBENEZER\nMIX 13  |  EBENEZER\n[VERSO 1]:\nEm                                 B                                                                  Em\nX2    Ven, ven, ven, Espíritu Divino, Ven, ven, ven, Apodérate de mí.   X2\n[CORO]:\nAm               Em                  B                                  Em\nX4    Apodérate, apodérate, apodérate de todo mi ser.   X4"
+    "content": "[VERSO 1]:\nEm                                            B \nX2    Ven, ven, ven, Espíritu Divino, \n                                             Em\nVen, ven, ven, Apodérate de mí.   X2\n[CORO]:\n            Am-D         G-Em   \nX4    Apodérate, apodérate, \n        B                        Em\nApodérate de todo mi ser.   X4",
+    "id": 304
   },
   {
-    "id": 305,
+    "num": null,
     "title": "CUANDO EL PUEBLO",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                 Em\nX2     Cuando el pueblo del Señor alaba a Dios,\n                         B                                                 Em\nSuceden cosas, suceden cosas, maravillosas.  X2\n[CORO]:\n                          Am              Em                                  B                                           Em\nX2      Hay sanidad, liberación, y aquí se siente la presencia del Señor.   X2           SE REPITE TODO"
+    "content": "[VERSO 1]:\n            Em\nX2     Cuando el pueblo del Señor alaba a Dios,\n                  B                                      Em\nSuceden cosas, suceden cosas, maravillosas.  X2\n[CORO]:\n                   Am-D      G-Em                         B                          \nX2      Hay sanidad, liberación, y aquí se siente \n                             Em\nLa presencia del Señor.   X2           ",
+    "id": 305
   },
   {
-    "id": 306,
+    "num": null,
     "title": "NO PUEDE ESTAR TRISTE",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                      Em                                        C\nX2      No puede estar triste un corazón\n                               B                                                                                                        Em\nQue alaba a Cristo, no puede estar triste un corazón que alaba a Dios.     X2\n[CORO]:\n                                          Am                                    Em\nX2      Yo canto con gozo, yo alabo a mi Cristo,\n                                     B                                                        Em\nNo puede estar triste un corazón que alaba a Dios.   X2"
+    "content": "[VERSO 1]:\n                  Em                              C\nX2      No puede estar triste un corazón\n                       B                      \nQue alaba a Cristo, no puede estar triste \n                                       Em\nUn corazón que alaba a Dios.     X2\n[CORO]:\n                                 Am                           Em\nX2      Yo canto con gozo, yo alabo a mi Cristo,\n                            B                                           Em\nNo puede estar triste un corazón que alaba a Dios.   X2",
+    "id": 306
   },
   {
     "id": 307,
@@ -67,12 +70,13 @@ var SONGS_JUBILO =
     "content": "[VERSO 1]:\n               Em         C                            B                                                     Em\nX2    Jerusalén      que bonita eres, calles de oro mar de cristal.  X2\n[CORO]:\n                                 Am                        Em                             B                       Em\nX4    Por esas calles yo voy a caminar calles de oro mar de cristal.    X4         SE REPITE TODO"
   },
   {
-    "id": 308,
+    "num": null,
     "title": "LOS QUE ESPERAN",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                                  Em                                                        B      Em\nX2      Los que esperan, Los que esperan en Jehová.    X2\n                                      Am-D                         G-Em                B            Em\nX2      Como las águilas, como las águilas, sus alas levantarán.    X2\n[CORO]:\n          D                              G                     D                                  G\n Correrán y no se cansarán, caminarán y no se fatigarán,\n                                 Am          D                               G             Em\nX2      Nuevas fuerzas tendrán, nuevas fuerzas tendrán\n                       B                                                     Em\nLos que esperan, los que esperan en Jehová.       X2"
+    "content": "[VERSO 1]:\n                        Em                                            B     Em\nX2  Los que esperan, Los que esperan en Jehová. X2\n                           Am-D                   G-Em\nX2      Como las águilas, como las águilas, \n         B         Em\nSus alas levantarán.    X2\n[CORO]:\n       D                         G    \n Correrán y no se cansarán, \n        D                         G\nCaminarán y no se fatigarán,\n                     Am-D                              G-Em\nX2   Nuevas fuerzas tendrán, nuevas fuerzas tendrán\n                   B                                          Em\nLos que esperan, los que esperan en Jehová.   X2",
+    "id": 308
   },
   {
     "id": 309,
@@ -368,28 +372,31 @@ var SONGS_JUBILO =
     "content": "[VERSO 1]:\n              C                                      F                      G                  F         C\nX2    Todos nosotros por la fe, nos acercamos Cristo a ti,\n                          A                 Dm                          G                       C\nAunque tu rostro no se ve, sabemos que tú estás aquí.     X2\n[CORO]:\n                                  C                                     G\nX2   Jesús está aquí, pide lo que quieras,\n                        Dm     G                      C\nJesús está aquí, pide lo que quieras,\n                                                   F                               C                          G                       C\nÉl tiene poder, Él te lo dará, Jesús está aquí ¡aleluya! Pide lo que quieras.   X2"
   },
   {
-    "id": 344,
+    "num": null,
     "title": "YO HE CREÍDO EN UN PODER",
-    "compositor": "Tradicional",
+    "compositor": "Coros",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nEm | E7 | Am | D | G | B | Em |\nYo he creído en un poder que no se toca, yo he creído en un poder que no se ve\nYo he creído en un poder que no se toca ni se ve, pero se siento dentro de mi corazón.\nTú has creído     —     Hemos creído"
+    "content": "[VERSO 1]:\n            Em\nYo he creído en un poder que no se toca, \n              E                                         Am\nYo he creído en un poder que no se ve\n              D                                           G           Em\nYo he creído en un poder que no se toca ni se ve, \n                B                             Em\nPero se siente dentro de mi corazón.\n\n\n\n\nTú has creído     —     Hemos creído",
+    "id": 344
   },
   {
-    "id": 345,
+    "num": null,
     "title": "HAY VICTORIA",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS\n[VERSO 1]:\nEm | C-B | Em | Am | D | Em | B | Em |\nX2    Hay victoria, hay victoria, hay victoria en la sangre de Jesús.  X2\nNo podrá el enemigo, dañar a nuestras almas\nPorque hay victoria, hay victoria, hay  victoria en la sangre de Jesús.\nTROMPETAS"
+    "content": "[VERSO 1]:\n                   Em\nX2    Hay victoria, hay victoria, \n                                 C             B\nHay victoria en la sangre de Jesús.  X2\n                                       E                        Am\nNo podrá el enemigo, dañar a nuestras almas\n                        D                Am\nPorque hay victoria, hay victoria, \n            B                                 Em\nHay victoria en la sangre de Jesús.\n",
+    "id": 345
   },
   {
-    "id": 346,
+    "num": null,
     "title": "YA VIENE LA RECOMPENSA",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 20  |  EBENEZER\nMIX 20  |  EBENEZER\nTROMPETAS    | E | Am | D-G | Em-B |\n[VERSO 1]:\n               Em                                                                       C                B\nX2    Vamos escalando peldaños, vamos llevando la cruz,\n                                                                                                                     Em\nSigamos el camino angosto, que con Cristo es mucho mejor.   X2\n[CORO]:\n                    E                   Am             D                       G\nX2    Ya viene la recompensa, ya no voy a llorar,\n     Em                                  B                                         Em\nTengo a Cristo en mi vida, por eso puedo escalar.    X2\nTROMPETAS\n[VERSO 2]:\n               Em                                                        C             B\nX2   A veces me siento débil, ya no puedo escalar,\n                                                                                                        Em\nAlzo mis manos al cielo, viene Cristo y fuerzas me da.  X2                        CORO"
+    "content": "[VERSO 1]:\n          Em\nX2    Vamos escalando peldaños, \n                 C            B\nVamos llevando la cruz, Sigamos el camino angosto, \n                                           Em\nQue con Cristo es mucho mejor.   X2\n[CORO]:\n                 E               Am         D                  G\nX2    Ya viene la recompensa, ya no voy a llorar,\n Em                             B                               Em\nTengo a Cristo en mi vida, por eso puedo escalar.    X2\n[VERSO 2]:\n            Em                                          C          B\nX2   A veces me siento débil, ya no puedo escalar,                                                                                   \nAlzo mis manos al cielo, \n                                         Em\nViene Cristo y fuerzas me da.  X2                      \n\n[CORO]: X2",
+    "id": 346
   },
   {
     "num": null,
@@ -867,12 +874,13 @@ var SONGS_JUBILO =
     "content": "MIX 12  |  EBENEZER\nMIX 12  |  EBENEZER\n[VERSO 1]:\n             Cm                                                                                                                 Gm\nY de noche cantaremos, celebrando su poder, con alegría de corazón,\n                                                                                                                                                 Cm\nComo el que va con la flauta, al monte del Señor, celebraremos su poder.\n[CORO]:\n                                  Cm                                                             Gm\nX2     Él es el Poderoso de Israel, el Poderoso de Israel,\n                                                                                                          Cm\nSu voz se oirá, nadie lo detendrá, al Poderoso de Israel.     X2\n[VERSO 2]:\n             Cm                                                                                                                                    Gm\nY los ojos de los ciegos se abrirán y ellos verán, los oídos de los sordos, oirán,\n                                                                                                                                    Cm\nEl cojo saltará, con el arpa danzará, la lengua de los mudos cantará.                 CORO"
   },
   {
-    "id": 405,
+    "num": null,
     "title": "PON ACEITE",
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS   | Em | B | Em | Am | Em | B | Em |\n[VERSO 1]:\n                      Em                                        B                                                                 Em\nX2    Pon aceite en mi lámpara Señor, pon aceite en mi lámpara Señor\n                     E                                  Am                  Em                       B          Em\nQue yo quiero servirte con amor, pon aceite en mi lámpara Señor.   X2\n[CORO]:\n                  B                            Em                    B                             Em\nSeñor Jesús tu eres mi vida, Señor Jesús tu eres mi amor,\n      Am                            Em                                 B                        Em\nsalvaste mi alma perdida, por eso te alabo con el corazón,\n      Am                            Em                                 B                        Em                                                                        B / Em\nsalvaste mi alma perdida, por eso te alabo con el corazón.               X2   con el corazón. X2"
+    "content": "[VERSO 1]:\n                 Em           \nX2    Pon aceite en mi lámpara Señor, \n                                             B\nPon aceite en mi lámpara Señor\n                E                          Am\nQue yo quiero servirte con amor, \n          Em                  B       Em         \nPon aceite en mi lámpara Señor.   X2\n[CORO]:\n              B                     Em\nSeñor Jesús tu eres mi vida, \n              B                      Em\nSeñor Jesús tu eres mi amor,\n    Am                     Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón,\n    Am                    Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón.       ",
+    "id": 405
   },
   {
     "id": 406,
