@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Parisienne&display=swap" rel="stylesheet">
 
+<script src="https://unpkg.com/tone@latest/build/Tone.js"></script>
 <script>
   // Estados globales tempranos para que Firebase pueda escribir aunque el resto aún no haya cargado.
   window.REPERTORIOS_KEY = window.REPERTORIOS_KEY || 'yhwh_repertorios_v3';
@@ -212,7 +213,7 @@ onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
   }
 });
 
-onValue(ref(db, 'notas_director'), function(snapshot) {
+  onValue(ref(db, 'notas_director'), function(snapshot) {
   var data = snapshot.val();
   if (data) {
     Object.keys(data).forEach(function(id) {
@@ -220,6 +221,24 @@ onValue(ref(db, 'notas_director'), function(snapshot) {
     });
   }
 });
+
+  onValue(ref(db, 'melodias'), function(snapshot) {
+    var data = snapshot.val();
+    if (data && typeof data === 'object') {
+      window.melodiasDB = data;
+      localStorage.setItem('yhwh_melodias_cache', JSON.stringify(data));
+    } else {
+      window.melodiasDB = window.melodiasDB || JSON.parse(localStorage.getItem('yhwh_melodias_cache') || '{}');
+    }
+    // Refresca cualquier panel de melodía abierto para que otros dispositivos
+    // vean al instante lo que grabó el admin, sin recargar la página.
+    if (window.jubiloGrupoActivo && window.jubiloCadenaActiva && window.renderJubiloCadena) {
+      window.renderJubiloCadena(window.jubiloGrupoActivo, window.jubiloCadenaActiva);
+    }
+    if (window.currentSong && window.loadSong) {
+      window.loadSong(window.currentSong.id);
+    }
+  });
 
 // Escuchar nombres de cultos editados en tiempo real
 onValue(ref(db, 'cultos_nombres'), function(snapshot) {
@@ -1380,7 +1399,12 @@ table.teoria-tabla tr:hover td{ background:rgba(201,168,76,0.06); }
 .teoria-circle-info h3{ margin:0 0 4px; color:var(--gold2); font-size:1.1rem; }
 .teoria-circle-info .tci-sig{ color:var(--text); opacity:0.7; font-size:0.78rem; margin-bottom:14px; }
 /* Brillo suave en las teclas que forman el acorde mostrado en el piano */
-.pk-key.pk-active{ animation: pkGlow 1.7s ease-in-out infinite; }
+.pk-key.pk-active,.pk-key.pk-playing{
+  animation: pkGlow 1.7s ease-in-out infinite;
+  filter: brightness(1.08);
+  transform: translateY(1px);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.10) inset, 0 0 18px rgba(201,168,76,0.26);
+}
 @keyframes pkGlow{
   0%,100%{ box-shadow:none; }
   50%{ box-shadow:0 0 12px 3px rgba(127,119,221,0.65); }
@@ -1696,7 +1720,7 @@ body.light-theme .btn-guardar-cadena {
 /* ============================================================ */
 /* === MODALES: overlay y tarjeta unificados ==================== */
 /* Usado por: adminLoginModal, recomendadorModal, rolModal,       */
-/* exportSetlistModal, imprimirPDFModal.                          */
+/* exportSetlistModal.                                             */
 /* Centrado vertical con "safe center": centra el modal cuando    */
 /* entra en pantalla, pero si el contenido es más alto que el     */
 /* viewport (ej. resultado de la IA, preview del PDF), cae al     */
@@ -2046,11 +2070,6 @@ body.light-theme #btnCompartirRepertorio {
 body.light-theme #btnCompartirRepertorio:hover {
   background: #1f827f !important;
   border-color: #1f827f !important;
-}
-body.light-theme .tp-btn {
-  background: #ffffff;
-  color: #31424f;
-  border-color: #d8cdb8;
 }
 body.light-theme #pianoModal > div {
   background: #fffaf0 !important;
@@ -2507,77 +2526,6 @@ body.light-theme .dif-dificil {
 }
 
 
-/* === TELEPROMPTER === */
-.teleprompter-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: #000;
-  z-index: 8000;
-  flex-direction: column;
-  overflow: hidden;
-}
-.teleprompter-overlay.visible {
-  display: flex;
-}
-.teleprompter-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  background: rgba(0,0,0,0.8);
-  flex-shrink: 0;
-}
-.teleprompter-titulo {
-  color: #f1c40f;
-  font-weight: bold;
-  font-size: 0.7rem;
-  margin-right: 10px;
-}
-.teleprompter-controles {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.teleprompter-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 30px 24px 200px;
-  scroll-behavior: smooth;
-}
-.teleprompter-body .ll {
-  font-size: 1.25rem;
-  line-height: 1.7;
-  color: #ffffff;
-  display: block;
-  text-align: center;
-}
-.teleprompter-body .ls {
-  font-size: 1.25rem;
-  color: #f1c40f;
-  display: block;
-  text-align: center;
-  margin: 20px 0 10px;
-}
-.teleprompter-body .lb {
-  display: block;
-  height: 20px;
-  font-size: 1.25rem;
-}
-.tp-btn {
-  background: #222;
-  border: 1px solid #444;
-  color: #fff;
-  border-radius: 6px;
-  padding: 6px 14px;
-  cursor: pointer;
-  font-size: 0.7rem;
-  font-weight: bold;
-}
-
-
-
 /* === DIFICULTAD === */
 .dificultad-badge {
   display: inline-block;
@@ -2591,6 +2539,26 @@ body.light-theme .dif-dificil {
 .dif-facil { background: #1a4a1a; color: #4caf50; border: 1px solid #4caf50; }
 .dif-media { background: #4a3a00; color: #f1c40f; border: 1px solid #f1c40f; }
 .dif-dificil { background: #4a1a1a; color: #e74c3c; border: 1px solid #e74c3c; }
+
+/* === INDICADOR "SIN VIDEO" / "SIN AUDIO" === */
+.media-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 0.6rem;
+  font-weight: bold;
+  margin-left: 5px;
+  vertical-align: middle;
+  background: #4a2a10;
+  color: #e0946a;
+  border: 1px solid #e0946a;
+  opacity: 0.85;
+}
+body.light-theme .media-badge {
+  background: #fbe9dd;
+  color: #a15a2b;
+  border-color: #d99a6c;
+}
 
 
 
@@ -2934,16 +2902,6 @@ body.light-theme .more-actions { border-top-color: rgba(0,0,0,0.12); }
   .quick-actions .fila-botones, .more-actions .fila-botones { margin-bottom: 6px; }
   .quick-actions .action-btn, .more-actions .action-btn { min-height: 34px; }
 }/* === MODO PRESENTACIÓN JÚBILO === */
-.modo-present .jubilo-card-tools { display: none !important; }
-.modo-present .jubilo-key-selector { display: none !important; }
-.modo-present .jubilo-notes { display: none !important; }
-.modo-present #jubiloAddBox { display: none !important; }
-.modo-present .jubilo-add-btn { display: none !important; }
-.modo-present .song-meta { display: none !important; }
-.modo-present .jubilo-sidebar { display: none !important; }
-.modo-present .jubilo-layout { grid-template-columns: 1fr !important; }
-.modo-present .jubilo-song-title { font-size: 1.1rem !important; padding-right: 4px !important; }
-.modo-present .jubilo-content .ll { font-size: 1rem !important; line-height: 1.8 !important; }
 body.jubilo-singer-view #screen-jubilo header,
 body.jubilo-singer-view #screen-jubilo .jubilo-sidebar,
 body.jubilo-singer-view #screen-jubilo .jubilo-card-tools,
@@ -3110,6 +3068,23 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 .jubilo-suggestion{background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:9px 10px;cursor:pointer;text-align:left;}
 .jubilo-suggestion:hover{border-color:var(--gold);color:var(--gold);}
 @media(max-width:850px){.jubilo-layout{grid-template-columns:1fr;align-content:start;}.jubilo-main{padding:12px; }}
+
+@media(max-width:600px){
+  #pianoModal { padding: 4px !important; }
+  #pianoModal > div { width: 100% !important; max-width: 100% !important; padding: 10px !important; border-radius: 12px !important; }
+  #pianoModalContent { overflow-x: auto; overflow-y: visible; -webkit-overflow-scrolling: touch; }
+  #pianoModal .piano-extra-row { display: flex !important; }
+  #pianoModal .piano-extra-row.piano-extra-label { display: block !important; }
+  #pianoModal .piano-main-actions { gap: 6px !important; }
+  #pianoModal .piano-main-actions button { min-width: 0 !important; flex: 1 1 0 !important; padding: 10px 8px !important; font-size: 0.74rem !important; }
+  #pianoModal #pianoMelodyRecorder { padding: 10px !important; }
+  #pianoModal #pianoMelodyRecorder button { flex: 1 1 140px !important; }
+  #pianoModal .pk-key { touch-action: manipulation !important; }
+  #pianoModal .piano-keyboard-scroll { overflow-x: auto !important; overflow-y: visible !important; }
+  #pianoModal .piano-keyboard-stage { transform: none !important; margin-right: 8px; }
+  #pianoModal .piano-keyboard-whites { height: 140px !important; }
+  #pianoModal .piano-keyboard-blacks { height: 88px !important; z-index: 20 !important; }
+}
 
 
 @media(max-width: 850px) {
@@ -3603,11 +3578,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <div class="more-actions" id="moreSongOptions">
   <div class="fila-botones">
-    <button class="action-btn" onclick="compartirCancion()">
+    <button class="action-btn" onclick="compartirCancion()" style="width:100%;">
       Compartir
-    </button>
-    <button id="btnImprimirPDF" class="action-btn" onclick="abrirImprimirPDF()" style="background:linear-gradient(135deg,#1a4a1a,#0d2b0d);border-color:#4caf50;color:#4caf50;">
-      🖨️ Imprimir PDF
     </button>
   </div>
 
@@ -3636,6 +3608,12 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="fila-botones solo-musico">
     <button id="btnYoutubeCancion" class="action-btn" onclick="abrirYoutubeCancion()" style="width:100%;background:linear-gradient(135deg,#b71c1c,#7a0000);border-color:#ff4d4d;color:#fff;">
       ▶️ Ver en YouTube
+    </button>
+  </div>
+
+  <div class="fila-botones solo-musico">
+    <button id="btnMelodiaCancion" class="action-btn" onclick="abrirMenuMelodiaAdoracion()" style="width:100%;background:linear-gradient(135deg,#c9a84c,#f3d58a);border-color:#c9a84c;color:#1a1a2e;font-weight:bold;">
+      🎼 Melodía
     </button>
   </div>
 
@@ -3707,18 +3685,20 @@ document.addEventListener('DOMContentLoaded', function(){
       <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
       <div class="logo">🎹 <span>Alabanzas</span> de Júbilo</div>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-      <div class="network-status" id="networkStatusJubilo">🌐 En la nube</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+    <div class="network-status" id="networkStatusJubilo">🌐 En la nube</div>
       <div class="header-menu" id="headerMenuJubilo">
         <button type="button" class="header-menu-toggle" title="Más opciones" aria-label="Más opciones" onclick="toggleHeaderMenu('headerMenuJubilo')">⋯</button>
       </div>
     </div>
 
-    <div class="header-menu-dropdown" id="headerMenuJubilo-dropdown">
+  <div class="header-menu-dropdown" id="headerMenuJubilo-dropdown">
       <button id="btnAdminLoginJubilo" class="header-menu-item" onclick="toggleAdminLogin();cerrarHeaderMenus();">🔑 Admin</button>
       <button id="btnRolUsuarioJubilo" class="header-menu-item" onclick="mostrarModalRol();cerrarHeaderMenus();">🎤 Rol</button>
     </div>
   </header>
+
+  <div id="jubiloMelodiaPanel" style="display:none;"></div>
 
  <!-- BARRA DE CONTROLES GLOBALES -->
   <div id="jubiloControlsBar" style="display:none;">
@@ -3769,6 +3749,14 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <div class="fila-botones jubilo-vistas-row" style="margin-top:4px;">
+      <button id="btnMelodiaJubilo" onclick="abrirMenuMelodiaJubilo()"
+        style="background:linear-gradient(135deg,#c9a84c,#f3d58a);color:#1a1a2e;border:1px solid #c9a84c;
+        padding:0 12px;font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
+        🎼 Melodía
+      </button>
+    </div>
+
+    <div class="fila-botones jubilo-vistas-row" style="margin-top:4px;">
       <button id="btnJubiloVolverRepertorio" onclick="showScreen('screen-setlist')"
         style="background:var(--bg3);color:var(--gold2);border:1px solid var(--gold2);padding:0 12px;
         font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
@@ -3808,18 +3796,6 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 
 
-    <div class="fila-botones" style="margin-top:4px;display:none;">
-      <button onclick="abrirTeleprompterJubilo()"
-        style="background:#8b0000;color:#fff;border:none;padding:0 12px;
-        font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
-        🎤 Teleprompter
-      </button>
-      <button id="btnModoPresent" onclick="toggleModoPresent()"
-        style="background:#1a4a1a;color:#4caf50;border:1px solid #4caf50;
-        padding:0 12px;font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
-        🎭 Presentación
-      </button>
-    </div>
 <div id="jubiloCifradoBar" class="solo-musico" style="display:none; width:100%;">
   <button id="btnJubiloCifradoMusico" class="jubilo-small-btn" onclick="toggleJubiloLatinoGlobal(); this.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano'">Cifrado: Americano</button>
 </div>
@@ -3926,7 +3902,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <button onclick="abrirExportarSetlist()"
         style="background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;border:none;padding:10px 18px;
                font-size:0.9rem;font-weight:bold;cursor:pointer;border-radius:8px;flex:1;min-width:140px;">
-        📄 Exportar PDF / Imagen
+        🖼️ Exportar imagen
       </button>
       <button onclick="abrirRecomendador()"
         style="background:linear-gradient(135deg,#8e44ad,#af7ac5);color:#fff;border:none;padding:10px 18px;
@@ -4349,38 +4325,6 @@ function getDominante(root) {
   return dominant;
 }
 
-function formatDominant(root) {
-  var d = getDominante(root);
-  return d ? d + '7' : '';
-}
-
-function formatChordRoot(root) {
-  var r = getToneRoot(root);
-  return r ? escH(r) : '';
-}
-
-function buildFifthPath(fromRoot, toRoot) {
-  var start = getToneRoot(fromRoot);
-  var target = getToneRoot(toRoot);
-  if (!start || !target) return [];
-
-  var path = [start];
-  var current = start;
-  var guard = 0;
-  while (current !== target && guard < 7) {
-    var idx = CHROMATIC.indexOf(norm(current));
-    if (idx === -1) break;
-    current = CHROMATIC[(idx + 7) % 12];
-    path.push(current);
-    guard++;
-  }
-
-  if (path[path.length - 1] !== target) {
-    path.push(target);
-  }
-  return path;
-}
-
 function transposeRoot(root, semitones) {
   var idx = CHROMATIC.indexOf(norm(root));
   if (idx === -1) return root;
@@ -4393,14 +4337,6 @@ function isMinorKey(tono) {
 
 function formatTonicChord(root, minor) {
   return root + (minor ? 'm' : '');
-}
-
-function formatSubdominantChord(root, minor) {
-  return root + (minor ? 'm' : '');
-}
-
-function formatDominantChord(root, minor) {
-  return root + '7';
 }
 
 function buildTargetCadence(toKey) {
@@ -5017,6 +4953,17 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
   animarEntradaContenido('viewHeader', 0);
   animarEntradaContenido('adoracionControlsBar', 90);
   renderContent(180);
+  var adoracionMelodiaPanel = document.getElementById('adoracionMelodiaPanel');
+  if (adoracionMelodiaPanel) adoracionMelodiaPanel.style.display = 'block';
+  var adoracionMelodiaEstado = document.getElementById('adoracionMelodiaEstado');
+  var savedAdoracionMel = jubiloLeerMelodias()[song.id];
+  if (adoracionMelodiaEstado) {
+    adoracionMelodiaEstado.textContent = (savedAdoracionMel && Array.isArray(savedAdoracionMel.notas) && savedAdoracionMel.notas.length)
+      ? (savedAdoracionMel.notas.length + ' notas guardadas')
+      : 'Lista para grabar';
+  }
+  var btnVerMelodiaAdor = document.getElementById('btnAdoracionVerMelodia');
+  if (btnVerMelodiaAdor) btnVerMelodiaAdor.style.display = (savedAdoracionMel && Array.isArray(savedAdoracionMel.notas) && savedAdoracionMel.notas.length) ? 'inline-flex' : 'none';
   var vieneDeRepertorio = origenRepertorioPendiente;
   origenRepertorioPendiente = false;
   var btnVolverRep = document.getElementById('btnVolverRepertorioAdoracion');
@@ -5449,16 +5396,6 @@ function alternarCifrado() {
 
 
 
-// --- NUEVO: Función para ocultar o mostrar acordes ---
-function alternarAcordes() {
-  ocultarAcordes = !ocultarAcordes;
-  var btn = document.getElementById('btnOcultarAcordes');
-  if (btn) {
-    btn.textContent = ocultarAcordes ? 'Mostrar acordes' : 'Solo Letra';
-  }
-  renderContent();
-}
-
 function toggleFiltrosAvanzados() {
   var panel = document.getElementById('filtrosAvanzados');
   var btn = document.getElementById('btnToggleFiltros');
@@ -5494,16 +5431,12 @@ function toggleVistaCantante() {
 
   if (activa && !ocultarAcordes) {
     ocultarAcordes = true;
-    var btnAcordes = document.getElementById('btnOcultarAcordes');
-    if (btnAcordes) btnAcordes.textContent = 'Mostrar acordes';
     renderContent();
   }
 
   if (!activa && singerViewPrevOcultarAcordes !== null) {
     ocultarAcordes = singerViewPrevOcultarAcordes;
     singerViewPrevOcultarAcordes = null;
-    var btnAcordesSalir = document.getElementById('btnOcultarAcordes');
-    if (btnAcordesSalir) btnAcordesSalir.textContent = ocultarAcordes ? 'Mostrar acordes' : 'Solo Letra';
     renderContent();
   }
   renderContent();
@@ -5521,8 +5454,6 @@ function toggleVistaMusico() {
     if (singerViewPrevOcultarAcordes !== null) {
       ocultarAcordes = singerViewPrevOcultarAcordes;
       singerViewPrevOcultarAcordes = null;
-      var btnAcordesPrev = document.getElementById('btnOcultarAcordes');
-      if (btnAcordesPrev) btnAcordesPrev.textContent = ocultarAcordes ? 'Mostrar acordes' : 'Solo Letra';
       renderContent();
     }
   }
@@ -6969,6 +6900,7 @@ buildList = function(songs) {
   }
 
   list.innerHTML = html;
+  revisarAudiosLista(songs);
 };
 
 function crearItemHtml(s, num) {
@@ -6978,7 +6910,7 @@ function crearItemHtml(s, num) {
     '<div class="song-item-inner">' +
       '<div class="song-item-texto">' +
         '<div class="snum">#' + num + '</div>' +
-        '<div class="stitle">' + escH(s.title) + obtenerBadgeDificultad(s.id) + '</div>' +
+        '<div class="stitle">' + escH(s.title) + obtenerBadgeDificultad(s.id) + obtenerBadgeSinVideo(s) + obtenerBadgeSinAudio(s.id) + '</div>' +
         (match ? '<div class="ssearch-match">' + match + '</div>' : '') +
         '<div class="skey">' + (s.tono ? '&#9836; ' + escH(s.tono) : '') + '</div>' +
       '</div>' +
@@ -7263,94 +7195,6 @@ function renderContenidoEnTono(song, key) {
   return out;
 }
 
-var tpInterval = null;
-var tpVelocidad = 1;
-var tpActivo = false;
-
-function abrirTeleprompter() {
-  if (!currentSong) return;
-  var overlay = document.getElementById('teleprompterOverlay');
-  var body = document.getElementById('tpBody');
-  var titulo = document.getElementById('tpTitulo');
-  if (!overlay || !body) return;
-
-  titulo.textContent = currentSong.title;
-  body.scrollTop = 0;
-
-  // Renderizar solo letra y secciones, sin acordes
-  var lines = currentSong.content.split('\n');
-  var out = '';
-  for (var i = 0; i < lines.length; i++) {
-    var raw = lines[i];
-    var s = raw.trim();
-    if (!s) { out += '<span class="lb"></span>'; continue; }
-    if (s[0] === '[') {
-      out += '<span class="ls">' + escH(s) + '</span>';
-      continue;
-    }
-    if (!isChordLine(raw)) {
-      var texto = escH(raw);
-      texto = texto.replace(/\b(X[0-9]+)\b/g, '<span style="color:#f1c40f;font-weight:bold;">$1</span>');
-      out += '<span class="ll">' + texto + '</span>';
-    }
-  }
-  body.innerHTML = out;
-
-  tpActivo = false;
-  clearInterval(tpInterval);
-  var playBtn = document.getElementById('tpPlayBtn');
-  if (playBtn) playBtn.textContent = '▶ Play';
-
-  overlay.classList.add('visible');
-
-  // Pedir pantalla activa (WakeLock)
-  if (navigator.wakeLock) {
-    navigator.wakeLock.request('screen').catch(function(){});
-  }
-}
-
-function cerrarTeleprompter() {
-  clearInterval(tpInterval);
-  tpActivo = false;
-  document.getElementById('teleprompterOverlay').classList.remove('visible');
-}
-
-function toggleTeleprompter() {
-  tpActivo = !tpActivo;
-  var playBtn = document.getElementById('tpPlayBtn');
-  if (tpActivo) {
-    if (playBtn) playBtn.textContent = '⏸ Pausa';
-    tpInterval = setInterval(function() {
-      var body = document.getElementById('tpBody');
-      if (!body) return;
-      body.scrollTop += tpVelocidad;
-      // Si llegó al final, para
-      if (body.scrollTop + body.clientHeight >= body.scrollHeight) {
-        clearInterval(tpInterval);
-        tpActivo = false;
-        if (playBtn) playBtn.textContent = '▶ Play';
-      }
-    }, 50);
-  } else {
-    clearInterval(tpInterval);
-    if (playBtn) playBtn.textContent = '▶ Play';
-  }
-}
-
-function cambiarVelocidadTp(delta) {
-  tpVelocidad = Math.min(10, Math.max(1, tpVelocidad + delta));
-  var disp = document.getElementById('tpVelDisplay');
-  if (disp) disp.textContent = tpVelocidad;
-  // Si está activo, reiniciar con nueva velocidad
-  if (tpActivo) {
-    clearInterval(tpInterval);
-    toggleTeleprompter();
-    toggleTeleprompter();
-  }
-}
-
-
-
 function setDificultad(nivel) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   if (!currentSong) return;
@@ -7415,6 +7259,98 @@ function obtenerBadgeDificultad(id) {
   var textos = { facil: 'Fácil', media: 'Media', dificil: 'Difícil' };
   return '<span class="dificultad-badge ' + clases[nivel] + '">' + textos[nivel] + '</span>';
 }
+
+// ============================================================
+// === INDICADOR "SIN VIDEO" / "SIN AUDIO" =====================
+// ============================================================
+// Objetivo: que se note DESDE LA LISTA (antes de entrar a la canción)
+// cuando falta el video de YouTube o el archivo de audio, en vez de
+// que el músico se entere recién al tocar play y no pase nada.
+
+function obtenerBadgeSinVideo(song) {
+  if (song && song.youtube) return '';
+  return '<span class="media-badge" title="Esta canción no tiene video tutorial de YouTube enlazado">🎥 Sin video</span>';
+}
+
+function obtenerBadgeSinAudio(id) {
+  // Mientras no se haya revisado todavía (undefined), no mostramos nada
+  // para no marcar como "falta" algo que en realidad no se sabe aún.
+  if (audioDisponibleCache[id] !== false) return '';
+  return '<span class="media-badge badge-sin-audio" title="No se encontró archivo de audio para esta canción en /audios">🔇 Sin audio</span>';
+}
+
+// Caché persistente: qué canciones SÍ/NO tienen archivo de audio real
+// en el servidor. Evita repetir la revisión (fetch) cada vez que se
+// abre la lista; solo se vuelve a revisar lo que nunca se comprobó.
+var AUDIO_DISPONIBLE_KEY = 'yhwh_audio_disponible_v1';
+var audioDisponibleCache = {};
+try {
+  audioDisponibleCache = JSON.parse(localStorage.getItem(AUDIO_DISPONIBLE_KEY) || '{}') || {};
+} catch (e) { audioDisponibleCache = {}; }
+
+function guardarAudioDisponibleCache() {
+  try { localStorage.setItem(AUDIO_DISPONIBLE_KEY, JSON.stringify(audioDisponibleCache)); } catch (e) {}
+}
+
+function existeArchivo(url) {
+  return fetch(url, { method: 'HEAD' })
+    .then(function(res) { return res.ok; })
+    .catch(function() { return false; });
+}
+
+// Revisa si existe audios/{id}.m4a o audios/{id}.mp3 y guarda el resultado.
+function revisarAudioCancion(song) {
+  if (audioDisponibleCache[song.id] !== undefined) return Promise.resolve();
+  return existeArchivo('audios/' + song.id + '.m4a').then(function(existeM4a) {
+    if (existeM4a) return true;
+    return existeArchivo('audios/' + song.id + '.mp3');
+  }).then(function(existe) {
+    audioDisponibleCache[song.id] = existe;
+    guardarAudioDisponibleCache();
+    actualizarBadgeAudioEnLista(song.id);
+  });
+}
+
+// Una vez se sabe el resultado, agrega o quita el badge sin volver a
+// dibujar toda la lista (evita parpadeos y pierde el scroll).
+function actualizarBadgeAudioEnLista(id) {
+  var item = document.querySelector('.song-item[data-id="' + id + '"]');
+  if (!item) return;
+  var titleEl = item.querySelector('.stitle');
+  if (!titleEl) return;
+  var existente = titleEl.querySelector('.badge-sin-audio');
+  if (audioDisponibleCache[id] === false) {
+    if (!existente) {
+      titleEl.insertAdjacentHTML('beforeend', obtenerBadgeSinAudio(id));
+    }
+  } else if (existente) {
+    existente.remove();
+  }
+}
+
+// Revisa en segundo plano, con un máximo de revisiones simultáneas
+// (para no disparar cientos de fetch de golpe con repertorios grandes).
+function revisarAudiosLista(songs) {
+  var pendientes = songs.filter(function(s) { return audioDisponibleCache[s.id] === undefined; });
+  if (!pendientes.length) return;
+  var CONCURRENCIA = 4;
+  var indice = 0;
+  function siguiente() {
+    if (indice >= pendientes.length) return;
+    var song = pendientes[indice++];
+    revisarAudioCancion(song).then(siguiente);
+  }
+  for (var k = 0; k < CONCURRENCIA && k < pendientes.length; k++) siguiente();
+}
+
+// La primera vez que carga la página, "filterSongs()" se llama más
+// arriba en este mismo script (justo después de "aplicarOrdenGuardado()"),
+// pero eso ocurre ANTES de que "buildList" se reemplace por la versión
+// con tarjetas ('crearItemHtml', con los badges de dificultad/video/audio).
+// Sin este segundo llamado, la primera pantalla que ve el usuario se
+// dibuja con la lista "vieja" (sin esos badges) hasta que toque algo
+// que vuelva a filtrar (buscar, cambiar un filtro, etc.).
+if (typeof filterSongs === 'function') filterSongs();
 
 
 
@@ -7724,10 +7660,8 @@ var jubiloCadenaActiva = null;
 var jubiloAddBoxAbierto = false;
 var jubiloAddBoxQuery = '';
 var jubiloState = {};
-var jubiloFavs = JSON.parse(localStorage.getItem('yhwh_jubilo_favs') || '[]');
 var jubiloGlobalLatino = false;
 var jubiloGlobalChords = false;
-var jubiloGlobalClaro = false;
 var jubiloSingerPrevChords = null;
 var jubiloVistaActual = null;
 
@@ -7791,24 +7725,20 @@ function toggleJubiloChordsGlobal() {
 }
 
 function toggleJubiloClaroGlobal() {
-  jubiloGlobalClaro = !jubiloGlobalClaro;
+  // Reutiliza el MISMO interruptor de tema que Adoración (modoClaro),
+  // en vez de llevar un estado propio y desincronizado. Así el botón
+  // de tema muestra siempre lo mismo sin importar desde qué pantalla
+  // se cambie, y la preferencia se guarda en localStorage como siempre.
+  alternarModoClaro();
   var btn = document.getElementById('btnJubiloClaro');
-  if (btn) btn.textContent = jubiloGlobalClaro ? 'Tema: Claro ☀️' : 'Tema: Oscuro 🌙';
-  document.body.classList.toggle('light-theme', jubiloGlobalClaro);
-}
-
-function toggleJubiloClaroGlobal() {
-  jubiloGlobalClaro = !jubiloGlobalClaro;
-  var btn = document.getElementById('btnJubiloClaro');
-  if (btn) btn.textContent = jubiloGlobalClaro ? 'Tema: Claro ☀️' : 'Tema: Oscuro 🌙';
-  document.body.classList.toggle('light-theme', jubiloGlobalClaro);
+  if (btn) btn.textContent = modoClaro ? 'Tema: Claro ☀️' : 'Tema: Oscuro 🌙';
 
   // Aplicar a todas las tarjetas visibles
   Object.keys(jubiloState).forEach(function(key) {
-    jubiloState[key].light = jubiloGlobalClaro;
+    jubiloState[key].light = modoClaro;
     var card = document.getElementById('jubiloCard_' + key);
     if (card) {
-      if (jubiloGlobalClaro) {
+      if (modoClaro) {
         card.classList.add('light');
       } else {
         card.classList.remove('light');
@@ -7817,37 +7747,6 @@ function toggleJubiloClaroGlobal() {
   });
 }
 
-function abrirTeleprompterJubilo() {
-  var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva);
-  if (!found) return;
-  var overlay = document.getElementById('teleprompterOverlay');
-  var body = document.getElementById('tpBody');
-  var titulo = document.getElementById('tpTitulo');
-  if (!overlay || !body) return;
-  titulo.textContent = found.cadena.nombre;
-  body.scrollTop = 0;
-  var out = '';
-  (found.cadena.alabanzas || []).forEach(function(id) {
-    var song = getJubiloSong(id);
-    if (!song) return;
-    out += '<span class="ls" style="font-size:1.4rem;color:#f1c40f;margin:30px 0 10px;display:block;text-align:center;">— ' + escH(song.title) + ' —</span>';
-    song.content.split('\n').forEach(function(raw) {
-      var s = raw.trim();
-      if (!s) { out += '<span class="lb"></span>'; return; }
-      if (s[0] === '[') { out += '<span class="ls">' + escH(s) + '</span>'; return; }
-      if (!isChordLine(raw)) {
-        out += '<span class="ll">' + escH(raw).replace(/\b(X[0-9]+)\b/g, '<span style="color:#f1c40f;font-weight:bold;">$1</span>') + '</span>';
-      }
-    });
-  });
-  body.innerHTML = out;
-  tpActivo = false;
-  clearInterval(tpInterval);
-  var playBtn = document.getElementById('tpPlayBtn');
-  if (playBtn) playBtn.textContent = '▶ Play';
-  overlay.classList.add('visible');
-  if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function(){});
-}
 var jubiloFontSize = parseInt(localStorage.getItem(claveFontSizeJubilo())) || (document.body.classList.contains('rol-cantante') ? 14 : 12);
 
 function guardarJubiloGrupos(){ 
@@ -7870,7 +7769,6 @@ function getJubiloContent(song){
 function jubiloNormText(s){ return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function jubiloStateKey(cadenaId, index, songId){ return cadenaId + '_' + index + '_' + songId; }
 function jubiloNotaKey(id){ return 'yhwh_jubilo_nota_' + id; }
-function jubiloEsFav(id){ return jubiloFavs.indexOf(String(id)) !== -1; }
 
 function initJubilo(){
   if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
@@ -8221,8 +8119,47 @@ function renderJubiloCadena(grupoId, cadenaId){
       '<button class="btn-guardar-cadena" onclick="agregarCadenaJubiloAlRepertorio()" style="background:var(--gold);border:1px solid var(--gold);color:#111111;border-radius:999px;padding:8px 14px;font-size:0.78rem;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(201,168,76,0.22);">✅ Guardar cadena</button>' +
       '<button onclick="duplicarCadenaJubilo(\'' + found.grupo.id + '\',\'' + cadena.id + '\')" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 14px;font-size:0.78rem;font-weight:bold;cursor:pointer;">📄 Duplicar</button>' +
     '</div>' +
+    '</div>' +
+    '<div class="fila-botones jubilo-vistas-row" style="margin:0 0 12px 0;display:flex;gap:8px;flex-wrap:wrap;">' +
+      '<button id="btnJubiloCadenaModo" onclick="jubiloCambiarModoCadena(\'cadena\')" style="flex:1;min-width:140px;background:var(--gold);color:#111;border:none;padding:0 12px;font-size:0.76rem;font-weight:bold;border-radius:999px;height:34px;cursor:pointer;">🔎 Ver cadenas</button>' +
+      '<button id="btnJubiloMelodiaModo" onclick="jubiloCambiarModoCadena(\'melodia\')" style="flex:1;min-width:140px;background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:0 12px;font-size:0.76rem;font-weight:bold;border-radius:999px;height:34px;cursor:pointer;">🎼 Crear melodía</button>' +
+    '</div>' +
+    '<div id="jubiloCadenaPanelContent">' +
+      renderJubiloCadenaPanel(found, cadena, cadenaId) +
+    '</div>' +
+    '<div id="jubiloMelodiaPanelContent" style="display:none;">' +
+      renderJubiloMelodiaPanel(found, cadena) +
     '</div>';
+  main.innerHTML = html;
+  animarEntradaContenido(main, esAperturaNueva ? 90 : 0);
+  aplicarFuenteJubilo();
+  if (jubiloAddBoxAbierto) mostrarBuscadorJubilo();
+  jubiloAplicarModoCadena();
 
+  // Sincronizar estado de botones globales con el estado actual
+  var btnLatino = document.getElementById('btnJubiloLatino');
+  var btnChords = document.getElementById('btnJubiloChords');
+  var btnClaro = document.getElementById('btnJubiloClaro');
+  if (btnLatino) btnLatino.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
+  if (btnChords) btnChords.textContent = jubiloGlobalChords ? 'Mostrar Acordes 🎹' : 'Solo Letra 🎤';
+  if (btnClaro) btnClaro.textContent = modoClaro ? 'Tema: Claro ☀️' : 'Tema: Oscuro 🌙';
+  var fontDisp = document.getElementById('jubiloFontDisplay');
+  if (fontDisp) fontDisp.textContent = jubiloFontSize + 'px';
+  var jubiloMelodiaPanel = document.getElementById('jubiloMelodiaPanel');
+  if (jubiloMelodiaPanel) jubiloMelodiaPanel.style.display = 'block';
+  var jubiloMelodiaEstado = document.getElementById('jubiloMelodiaEstado');
+  var savedMel = jubiloLeerMelodias()[cadenaId];
+  if (jubiloMelodiaEstado) {
+    jubiloMelodiaEstado.textContent = (savedMel && Array.isArray(savedMel.notas) && savedMel.notas.length)
+      ? (savedMel.notas.length + ' notas guardadas')
+      : 'Sin melodía';
+  }
+  var btnVerMelodia = document.getElementById('btnJubiloVerMelodia');
+  if (btnVerMelodia) btnVerMelodia.style.display = (savedMel && Array.isArray(savedMel.notas) && savedMel.notas.length) ? 'inline-flex' : 'none';
+}
+
+function renderJubiloCadenaPanel(found, cadena, cadenaId){
+  var html = '';
   if (!cadena.alabanzas || !cadena.alabanzas.length) {
     html += '<div class="jubilo-empty">Esta cadena está vacía. Añade alabanzas para construirla.</div>';
   } else {
@@ -8231,28 +8168,209 @@ function renderJubiloCadena(grupoId, cadenaId){
       if (song) html += renderJubiloSongCard(song, index, cadena);
     });
   }
+  html += (jubiloAddBoxAbierto ? '' : '<button class="jubilo-add-btn" onclick="mostrarBuscadorJubilo()">+ Añadir Alabanza</button>') +
+    '<div class="jubilo-notes" style="margin:0 0 20px 0;">' +
+      '<div class="notas-label">📝 Notas del director — ' + escH(cadena.nombre) + '</div>' +
+     '<textarea class="notas-textarea" id="notaJubiloCadena_' + cadenaId + '" placeholder="Indicaciones generales para esta cadena..." oninput="debouncedNotaJubilo(\'cadena_' + cadenaId + '\', this.value)">' +
+      '</textarea>' +
+    '</div>' +
+    '<div id="jubiloAddBox"></div>';
+  return html;
+}
 
-html += (jubiloAddBoxAbierto ? '' : '<button class="jubilo-add-btn" onclick="mostrarBuscadorJubilo()">+ Añadir Alabanza</button>') +
-  '<div class="jubilo-notes" style="margin:0 0 20px 0;">' +
-    '<div class="notas-label">📝 Notas del director — ' + escH(cadena.nombre) + '</div>' +
-   '<textarea class="notas-textarea" id="notaJubiloCadena_' + cadenaId + '" placeholder="Indicaciones generales para esta cadena..." oninput="debouncedNotaJubilo(\'cadena_' + cadenaId + '\', this.value)">' +
-    '</textarea>' +
-  '</div>' +
-  '<div id="jubiloAddBox"></div>';
-  main.innerHTML = html;
-  animarEntradaContenido(main, esAperturaNueva ? 90 : 0);
-  aplicarFuenteJubilo();
-  if (jubiloAddBoxAbierto) mostrarBuscadorJubilo();
+function renderJubiloMelodiaPanel(found, cadena){
+  var saved = jubiloLeerMelodias();
+  var key = found.cadena.id;
+  var melodia = saved[key] || null;
+  var resumen = melodia && Array.isArray(melodia.notas) ? melodia.notas.length + ' notas guardadas' : 'Sin melodía guardada aún';
+  return '<div class="jubilo-melodia-card" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;">' +
+    '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">' +
+      '<div style="color:var(--gold);font-weight:bold;font-size:0.95rem;">🎼 Melodía de esta cadena</div>' +
+      '<div style="color:var(--text2);font-size:0.8rem;line-height:1.5;">' +
+        'Aquí puedes guardar una melodía propia para ' + escH(cadena.nombre) + ' sin depender de YouTube. Se guarda como JSON y queda lista para offline.' +
+      '</div>' +
+      '<div class="jubilo-chain-chip" style="width:max-content;">' + escH(resumen) + '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">' +
+      '<button onclick="jubiloAbrirPianoMelodiaActual(false)" style="flex:1;min-width:160px;background:linear-gradient(135deg,#c9a84c,#f3d58a);border:none;color:#111;border-radius:999px;padding:11px 14px;font-size:0.82rem;font-weight:bold;cursor:pointer;">🎹 Abrir piano</button>' +
+      '<button onclick="jubiloAbrirPianoMelodiaActual(true)" style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:11px 14px;font-size:0.82rem;font-weight:bold;cursor:pointer;">⏺ Grabar melodía</button>' +
+      (melodia && Array.isArray(melodia.notas) && melodia.notas.length ? '<button onclick="jubiloReproducirMelodiaGuardada(\'' + found.cadena.id + '\')" style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:11px 14px;font-size:0.82rem;font-weight:bold;cursor:pointer;">▶ Ver melodía</button>' : '') +
+      '<button onclick="jubiloDescargarMelodia(\'' + found.cadena.id + '\')" style="flex:1;min-width:160px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:11px 14px;font-size:0.82rem;font-weight:bold;cursor:pointer;">⬇ Descargar JSON</button>' +
+    '</div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">' +
+      '<button onclick="jubiloBorrarMelodia(\'' + found.cadena.id + '\')" style="flex:1;min-width:140px;background:#4a1a1a;border:1px solid #8a2b2b;color:#ffb4b4;border-radius:999px;padding:10px 12px;font-size:0.78rem;font-weight:bold;cursor:pointer;">🗑 Borrar melodía</button>' +
+    '</div>' +
+    '<div style="background:rgba(255,255,255,0.02);border:1px dashed var(--border);border-radius:10px;padding:12px;color:var(--text2);font-size:0.78rem;line-height:1.5;">' +
+      'Siguiente paso recomendado: abre el grabador, toca las notas que quieres, y luego guarda para que la cadena quede lista sin depender de enlaces externos.' +
+    '</div>' +
+  '</div>';
+}
 
-  // Sincronizar estado de botones globales con el estado actual
-  var btnLatino = document.getElementById('btnJubiloLatino');
-  var btnChords = document.getElementById('btnJubiloChords');
-  var btnClaro = document.getElementById('btnJubiloClaro');
-  if (btnLatino) btnLatino.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano';
-  if (btnChords) btnChords.textContent = jubiloGlobalChords ? 'Mostrar Acordes 🎹' : 'Solo Letra 🎤';
-  if (btnClaro) btnClaro.textContent = jubiloGlobalClaro ? 'Tema: Claro ☀️' : 'Tema: Oscuro 🌙';
-  var fontDisp = document.getElementById('jubiloFontDisplay');
-  if (fontDisp) fontDisp.textContent = jubiloFontSize + 'px';
+function jubiloCambiarModoCadena(modo){
+  JUBILO_MELODIA_MODE = modo;
+  jubiloAplicarModoCadena();
+}
+
+function jubiloAplicarModoCadena(){
+  var btnCadena = document.getElementById('btnJubiloCadenaModo');
+  var btnMelodia = document.getElementById('btnJubiloMelodiaModo');
+  var panelCadena = document.getElementById('jubiloCadenaPanelContent');
+  var panelMelodia = document.getElementById('jubiloMelodiaPanelContent');
+  if (btnCadena) {
+    btnCadena.style.background = (JUBILO_MELODIA_MODE === 'cadena') ? 'var(--gold)' : 'var(--bg3)';
+    btnCadena.style.color = (JUBILO_MELODIA_MODE === 'cadena') ? '#111' : 'var(--text)';
+    btnCadena.style.border = (JUBILO_MELODIA_MODE === 'cadena') ? 'none' : '1px solid var(--border)';
+  }
+  if (btnMelodia) {
+    btnMelodia.style.background = (JUBILO_MELODIA_MODE === 'melodia') ? 'var(--gold)' : 'var(--bg3)';
+    btnMelodia.style.color = (JUBILO_MELODIA_MODE === 'melodia') ? '#111' : 'var(--text)';
+    btnMelodia.style.border = (JUBILO_MELODIA_MODE === 'melodia') ? 'none' : '1px solid var(--border)';
+  }
+  if (panelCadena) panelCadena.style.display = (JUBILO_MELODIA_MODE === 'cadena') ? 'block' : 'none';
+  if (panelMelodia) panelMelodia.style.display = (JUBILO_MELODIA_MODE === 'melodia') ? 'block' : 'none';
+}
+
+function jubiloLeerMelodias(){
+  var local = {};
+  try { local = JSON.parse(localStorage.getItem(JUBILO_MELODIA_KEY) || '{}') || {}; }
+  catch (e) { local = {}; }
+  // Fusiona con lo que haya llegado de Firebase (melodias/jubilo y melodias/adoracion),
+  // dando prioridad a Firebase para que las melodías grabadas por el admin
+  // se vean también en otros dispositivos.
+  var remoto = (window.melodiasDB && typeof window.melodiasDB === 'object') ? window.melodiasDB : {};
+  var merged = {};
+  Object.keys(local).forEach(function(id){ merged[id] = local[id]; });
+  if (remoto.jubilo && typeof remoto.jubilo === 'object') {
+    Object.keys(remoto.jubilo).forEach(function(id){ merged[id] = remoto.jubilo[id]; });
+  }
+  if (remoto.adoracion && typeof remoto.adoracion === 'object') {
+    Object.keys(remoto.adoracion).forEach(function(id){ merged[id] = remoto.adoracion[id]; });
+  }
+  return merged;
+}
+
+function jubiloGuardarMelodias(all){
+  try { localStorage.setItem(JUBILO_MELODIA_KEY, JSON.stringify(all || {})); } catch (e) {}
+}
+
+function jubiloDescargarMelodia(cadenaId){
+  var all = jubiloLeerMelodias();
+  var melodia = all[cadenaId];
+  if (!melodia) { mostrarToast('⚠️ No hay melodía para descargar.'); return; }
+  var blob = new Blob([JSON.stringify(melodia, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'melodia-' + cadenaId + '.json';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+}
+
+function jubiloBorrarMelodia(cadenaId){
+  var all = jubiloLeerMelodias();
+  if (!all[cadenaId]) { mostrarToast('⚠️ No había melodía guardada.'); return; }
+  delete all[cadenaId];
+  jubiloGuardarMelodias(all);
+  if (jubiloGrupoActivo && jubiloCadenaActiva) renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
+  mostrarToast('🗑 Melodía eliminada.');
+}
+
+function jubiloPrevisualizarMelodia(cadenaId){
+  jubiloReproducirMelodiaGuardada(cadenaId);
+}
+
+function abrirGrabadorMelodiaJubilo(grupoId, cadenaId){
+  jubiloMelodiaEditor = { grupoId: grupoId, cadenaId: cadenaId };
+  pianoMelodyTarget = 'jubilo:' + cadenaId;
+  jubiloAbrirPianoMelodiaActual(true);
+}
+
+function cerrarGrabadorMelodiaJubilo(){
+  cerrarPiano();
+  jubiloMelodiaRecording = false;
+  jubiloMelodiaActiveKey = null;
+}
+
+function jubiloRenderGrabadorMelodia(){
+  var title = document.getElementById('melodyRecorderTitle');
+  var status = document.getElementById('melodyRecorderStatus');
+  var saveBtn = document.getElementById('btnMelodyRecorderSave');
+  var recBtn = document.getElementById('btnMelodyRecorderRecord');
+  if (title && jubiloMelodiaEditor) title.textContent = '🎼 Grabador de melodía';
+  if (status) status.textContent = jubiloMelodiaRecording ? 'Grabando... toca las notas' : 'Listo para grabar';
+  if (saveBtn) saveBtn.textContent = '💾 Guardar (' + jubiloMelodiaEvents.length + ')';
+  if (recBtn) recBtn.textContent = jubiloMelodiaRecording ? '⏸ Detener' : '⏺ Grabar';
+  var keyboard = document.getElementById('melodyRecorderKeyboard');
+  if (keyboard) {
+    var notes = ['C4','Db4','D4','Eb4','E4','F4','Gb4','G4','Ab4','A4','Bb4','B4'];
+    keyboard.innerHTML = notes.map(function(n){
+      return '<button class="jubilo-melody-key" onclick="jubiloTocarNotaGrabador(\'' + n + '\')" style="min-width:46px;flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:12px 6px;cursor:pointer;font-weight:bold;">' + n + '</button>';
+    }).join('');
+  }
+}
+
+function pianoLimpiarPlaybackMelodia(){
+  while (pianoMelodyPlaybackTimers.length) {
+    clearTimeout(pianoMelodyPlaybackTimers.pop());
+  }
+  var modal = document.getElementById('pianoModalContent');
+  if (!modal) return;
+  var keys = modal.querySelectorAll('.pk-key.pk-playing');
+  for (var i = 0; i < keys.length; i++) keys[i].classList.remove('pk-playing');
+}
+
+function jubiloTocarNotaGrabador(note){
+  var ctx = pianoGetAudioCtx();
+  if (!ctx) return;
+  var midiMap = {C4:60,Db4:61,D4:62,Eb4:63,E4:64,F4:65,Gb4:66,G4:67,Ab4:68,A4:69,Bb4:70,B4:71};
+  var midi = midiMap[note];
+  if (!midi) return;
+  if (jubiloMelodiaRecording) {
+    var now = performance.now();
+    if (!jubiloMelodiaStart) jubiloMelodiaStart = now;
+    var start = (now - jubiloMelodiaStart) / 1000;
+    jubiloMelodiaEvents.push({ note: note, midi: midi, start: start, duration: 0.35 });
+    jubiloRenderGrabadorMelodia();
+  }
+  pianoLoadBuffer(ctx, midi).then(function(){
+    var t = ctx.currentTime + 0.02;
+    pianoPlayNoteSample(ctx, midi, t, 0.35);
+  });
+}
+
+function jubiloToggleRecording(){
+  jubiloMelodiaRecording = !jubiloMelodiaRecording;
+  if (jubiloMelodiaRecording) {
+    jubiloMelodiaStart = performance.now();
+    jubiloMelodiaEvents = [];
+  }
+  jubiloRenderGrabadorMelodia();
+}
+
+function jubiloGuardarMelodiaGrabada(){
+  if (!jubiloMelodiaEditor) { mostrarToast('⚠️ No hay cadena seleccionada.'); return; }
+  if (!jubiloMelodiaEvents.length) { mostrarToast('⚠️ Graba al menos una nota.'); return; }
+  var all = jubiloLeerMelodias();
+  var notas = jubiloMelodiaEvents.map(function(n, i, arr){
+    var next = arr[i + 1];
+    var dur = next ? Math.max(0.12, next.start - n.start) : 0.45;
+    return { note:n.note, midi:n.midi, start:+n.start.toFixed(3), duration:+dur.toFixed(3) };
+  });
+  all[jubiloMelodiaEditor.cadenaId] = {
+    cadenaId: jubiloMelodiaEditor.cadenaId,
+    grupoId: jubiloMelodiaEditor.grupoId,
+    updatedAt: new Date().toISOString(),
+    notas: notas
+  };
+  jubiloGuardarMelodias(all);
+  cerrarGrabadorMelodiaJubilo();
+  if (jubiloGrupoActivo && jubiloCadenaActiva) renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
+  mostrarToast('✅ Melodía guardada.');
+}
+
+function jubiloBorrarUltimaNota(){
+  jubiloMelodiaEvents.pop();
+  jubiloRenderGrabadorMelodia();
 }
 
 function getJubiloCardState(song, key){
@@ -8263,7 +8381,7 @@ function getJubiloCardState(song, key){
       semitones: getSemitonesTo(savedKey, getOrigKey(song)),
       latino: jubiloGlobalLatino,
       hideChords: jubiloGlobalChords,
-      light: jubiloGlobalClaro
+      light: modoClaro
     };
   }
   return jubiloState[key];
@@ -8481,9 +8599,6 @@ function shiftJubiloSemitone(key, songId, delta){
 
   aplicarFuenteJubilo();
 }
-function toggleJubiloLatino(key){ jubiloState[key].latino=!jubiloState[key].latino; rerenderJubiloActive(); }
-function toggleJubiloChords(key){ jubiloState[key].hideChords=!jubiloState[key].hideChords; rerenderJubiloActive(); }
-function toggleJubiloLight(key){ jubiloState[key].light=!jubiloState[key].light; rerenderJubiloActive(); }
 function cambiarFuenteJubilo(delta){ jubiloFontSize=Math.min(FONT_MAX,Math.max(FONT_MIN,jubiloFontSize+delta)); localStorage.setItem(claveFontSizeJubilo(), jubiloFontSize); aplicarFuenteJubilo(); }
 function aplicarFuenteJubilo(){ document.querySelectorAll('.jubilo-content .lc,.jubilo-content .ll,.jubilo-content .ls,.jubilo-content .lm').forEach(function(el){ el.style.fontSize=jubiloFontSize+'px'; }); document.querySelectorAll('#jubiloFontDisplay').forEach(function(el){ el.textContent=jubiloFontSize+'px'; }); }
 function guardarNotaJubilo(id, value){ localStorage.setItem(jubiloNotaKey(id), value); }
@@ -8496,8 +8611,6 @@ function debouncedNotaJubilo(id, value) {
     mostrarToast('✅ Nota guardada');
   }, 800);
 }
-function toggleJubiloFav(id){ var sid=String(id), idx=jubiloFavs.indexOf(sid); if(idx===-1) jubiloFavs.push(sid); else jubiloFavs.splice(idx,1); localStorage.setItem('yhwh_jubilo_favs', JSON.stringify(jubiloFavs)); rerenderJubiloActive(); }
-
 function setJubiloChordsGlobal(valor) {
   jubiloGlobalChords = valor;
   var btn = document.getElementById('btnJubiloChords');
@@ -8529,6 +8642,10 @@ function actualizarBotonesVistaJubilo() {
 function salirVistasJubilo() {
   detenerAutoScrollJubilo();
   document.body.classList.remove('jubilo-singer-view', 'jubilo-musician-view');
+  var bar = document.getElementById('jubiloControlsBar');
+  if (bar) bar.style.display = 'none';
+  var melodiaPanel = document.getElementById('jubiloMelodiaPanel');
+  if (melodiaPanel) melodiaPanel.style.display = 'none';
   if (jubiloSingerPrevChords !== null) {
     setJubiloChordsGlobal(jubiloSingerPrevChords);
     jubiloSingerPrevChords = null;
@@ -8880,13 +8997,6 @@ function agregarCadenaJubiloAlRepertorio(){
   });
 }
 
-function compartirJubilo(id){
-  var song=getJubiloSong(id); if(!song) return;
-  var texto=song.title + '\nTono: ' + (song.tono || '-') + '\n\n' + song.content;
-  if(navigator.share) navigator.share({ title: song.title, text: texto }).catch(function(){});
-  else if(navigator.clipboard) navigator.clipboard.writeText(texto).then(function(){ mostrarToast('Letra copiada.'); });
-}
-
 function compartirCadenaJubilo() {
   var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva);
   if (!found) return;
@@ -8921,56 +9031,11 @@ showScreen = function(screenId){
   if (typeof salirVistasJubilo === 'function') salirVistasJubilo();
   var bar = document.getElementById('jubiloControlsBar');
   if (bar) bar.style.display = 'none';
+  var panel = document.getElementById('jubiloMelodiaPanel');
+  if (panel) panel.style.display = 'none';
   }
   if (screenId === 'screen-jubilo') initJubilo();
 };
-
-// ============================================================
-// === MODO PRESENTACIÓN JÚBILO ===============================
-// ============================================================
-var modoPresent = false;
-
-function toggleModoPresent() {
-  modoPresent = !modoPresent;
-  var btn = document.getElementById('btnModoPresent');
-  var layout = document.querySelector('.jubilo-layout');
-  var bar = document.getElementById('jubiloControlsBar');
-
-  if (modoPresent) {
-    if (layout) layout.classList.add('modo-present');
-    if (btn) {
-      btn.textContent = '✏️ Edición';
-      btn.style.background = '#4a3a00';
-      btn.style.color = '#f1c40f';
-      btn.style.borderColor = '#f1c40f';
-    }
-    if (bar) {
-      bar.style.display = 'flex';
-      bar.querySelectorAll(':scope > div').forEach(function(row) {
-        row.style.display = row.querySelector('#btnModoPresent') ? 'flex' : 'none';
-      });
-      bar.querySelectorAll('button:not(#btnModoPresent), span').forEach(function(el) {
-        el.style.display = 'none';
-      });
-      if (btn) btn.style.display = '';
-    }
-    mostrarToast('🎭 Modo presentación activo');
-  } else {
-    if (layout) layout.classList.remove('modo-present');
-    if (btn) {
-      btn.textContent = '🎭 Presentación';
-      btn.style.background = '#1a4a1a';
-      btn.style.color = '#4caf50';
-      btn.style.borderColor = '#4caf50';
-    }
-    if (bar) {
-      bar.querySelectorAll('button, div, span').forEach(function(el) {
-        el.style.display = '';
-      });
-    }
-    mostrarToast('✏️ Modo edición activo');
-  }
-}
 
 // ============================================================
 // === ORDEN DEL REPERTORIO ===================================
@@ -8984,14 +9049,6 @@ function moverRepertorioIndice(desde, hasta) {
   guardarRepertorios();
   renderSetlist();
   mostrarToast('↕ Orden actualizado');
-}
-
-function moverRepertorioArriba(index) {
-  moverRepertorioIndice(index, index - 1);
-}
-
-function moverRepertorioAbajo(index) {
-  moverRepertorioIndice(index, index + 1);
 }
 
 // === DRAG & DROP DEL REPERTORIO (Pointer Events, funciona bien en iPhone) ===
@@ -9142,6 +9199,280 @@ function pianoLabelChord(root, type){
   return pianoLabelRoot(root) + (type || '');
 }
 
+function pianoRequestLandscapeMode(){
+  var el = document.documentElement;
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(function(){});
+  } else if (el && el.requestFullscreen && !document.fullscreenElement) {
+    // No forzamos fullscreen; solo intentamos dejar al navegador en un estado
+    // donde algunos móviles permiten mejor la vista horizontal.
+    el.requestFullscreen().catch(function(){});
+  }
+}
+
+var pianoMelodyRecording = false;
+var pianoMelodyStart = 0;
+var pianoMelodyNotes = [];
+var pianoMelodyTarget = null;
+var pianoMelodyPlaybackTimers = [];
+
+function pianoMelodyClaveDeDestino(){
+  return String(pianoMelodyTarget || '').replace(/^jubilo:/, '');
+}
+
+function pianoLimpiarPlaybackMelodia(){
+  while (pianoMelodyPlaybackTimers.length) {
+    clearTimeout(pianoMelodyPlaybackTimers.pop());
+  }
+  var modal = document.getElementById('pianoModalContent');
+  if (!modal) return;
+  var keys = modal.querySelectorAll('.pk-key.pk-playing');
+  for (var i = 0; i < keys.length; i++) keys[i].classList.remove('pk-playing');
+}
+
+function pianoSetKeyActive(midi, activo){
+  var modal = document.getElementById('pianoModalContent');
+  if (!modal) return;
+  var key = modal.querySelector('[data-midi="' + midi + '"]');
+  if (!key) return;
+  key.classList.toggle('pk-playing', !!activo);
+  if (activo) {
+    key.style.background = key.classList.contains('pk-active') ? '#f1cf6d' : '#6f67d8';
+    key.style.borderColor = '#f1cf6d';
+    key.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.16) inset, 0 0 18px rgba(241,207,109,0.34)';
+  } else {
+    key.style.background = '';
+    key.style.borderColor = '';
+    key.style.boxShadow = '';
+  }
+}
+
+function pianoPlayNoteMidi(ctx, midi, duration, velocity){
+  var startTime = ctx.currentTime + 0.02;
+  if (pianoMelodyRecording && pianoMelodyTarget) {
+    var now = performance.now();
+    if (!pianoMelodyStart) pianoMelodyStart = now;
+    var start = (now - pianoMelodyStart) / 1000;
+    var noteName = pianoLabelRoot(PIANO_SEMIS[midi % 12]) + (Math.floor(midi / 12) - 1);
+    pianoMelodyNotes.push({
+      midi: midi,
+      note: noteName,
+      start: start,
+      duration: Math.max(0.12, duration || 0.35)
+    });
+    pianoRenderMelodyRecorder();
+  }
+  pianoLoadBuffer(ctx, midi).then(function(){
+    pianoPlayNoteSample(ctx, midi, startTime, duration || 0.35);
+  });
+}
+
+function pianoAbrirMelodiaDesdeNotas(notas, titulo, autoGrabar, rootForModal){
+  if (!Array.isArray(notas) || !notas.length) {
+    mostrarToast('⚠️ No hay melodía guardada.');
+    return;
+  }
+  var root = rootForModal || 'C';
+  pianoLimpiarPlaybackMelodia();
+  abrirPiano(root, null, false);
+  var title = document.getElementById('pianoModalTitle');
+  if (title && titulo) title.textContent = titulo;
+  pianoMelodyTarget = autoGrabar ? pianoMelodyClaveDeDestino() : null;
+  pianoMelodyRecording = false;
+  pianoMelodyStart = 0;
+  pianoMelodyNotes = Array.isArray(notas) ? notas.slice() : [];
+  pianoRenderMelodyRecorder();
+  var ctx = pianoGetAudioCtx();
+  if (!ctx) { mostrarToast('⚠️ Tu navegador no soporta audio.'); return; }
+  Promise.all(notas.map(function(n){ return pianoLoadBuffer(ctx, n.midi); })).then(function(){
+    var base = ctx.currentTime + 0.05;
+    notas.forEach(function(n){
+      var start = Math.max(0, Number(n.start) || 0);
+      var dur = Math.max(0.15, Number(n.duration) || 0.35);
+      var tOn = setTimeout(function(){ pianoSetKeyActive(n.midi, true); }, start * 1000);
+      var tOff = setTimeout(function(){ pianoSetKeyActive(n.midi, false); }, (start + dur) * 1000);
+      pianoMelodyPlaybackTimers.push(tOn, tOff);
+      pianoPlayNoteSample(ctx, n.midi, base + start, dur);
+    });
+    var lastEnd = notas.reduce(function(max, n){
+      return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
+    }, 0);
+    pianoMelodyPlaybackTimers.push(setTimeout(function(){ pianoLimpiarPlaybackMelodia(); }, (lastEnd + 0.3) * 1000));
+  });
+}
+
+function esAdminActivo(){
+  return !!window.esAdmin;
+}
+
+function bloquearMelodiaSiNoAdmin(){
+  if (esAdminActivo()) return false;
+  mostrarToast('🔒 Solo el Admin puede grabar o guardar melodías.');
+  return true;
+}
+
+function abrirMenuMelodiaAdoracion(){
+  abrirMenuMelodiaComun('adoracion');
+}
+
+function abrirMenuMelodiaJubilo(){
+  abrirMenuMelodiaComun('jubilo');
+}
+
+function abrirMenuMelodiaComun(tipo){
+  var modal = document.getElementById('melodiaMenuModal');
+  if (!modal) return;
+  var titulo = document.getElementById('melodiaMenuTitle');
+  var estado = document.getElementById('melodiaMenuEstado');
+  var btnVer = document.getElementById('melodiaMenuVer');
+  var btnAbrir = document.getElementById('melodiaMenuAbrir');
+  var btnGrabar = document.getElementById('melodiaMenuGrabar');
+  var btnGuardar = document.getElementById('melodiaMenuGuardar');
+  var tiene = false;
+  var puedeGrabar = esAdminActivo();
+  if (tipo === 'adoracion' && currentSong) {
+    tiene = !!(jubiloLeerMelodias()[currentSong.id] && jubiloLeerMelodias()[currentSong.id].notas && jubiloLeerMelodias()[currentSong.id].notas.length);
+    if (titulo) titulo.textContent = '🎼 Melodía';
+    if (estado) estado.textContent = currentSong.title || 'Canción actual';
+    if (btnAbrir) btnAbrir.onclick = function(){ cerrarMenuMelodia(); abrirMelodiaCancionActual(); };
+    if (btnGrabar) { btnGrabar.style.display = puedeGrabar ? 'block' : 'none'; btnGrabar.onclick = function(){ cerrarMenuMelodia(); abrirGrabadorPianoActual(); }; }
+    if (btnVer) btnVer.style.display = tiene ? 'block' : 'none';
+    if (btnVer) btnVer.onclick = function(){ cerrarMenuMelodia(); jubiloReproducirMelodiaGuardada(currentSong.id); };
+    if (btnGuardar) btnGuardar.style.display = 'none';
+  } else if (tipo === 'jubilo' && jubiloGrupoActivo && jubiloCadenaActiva) {
+    var mel = jubiloLeerMelodias()[jubiloCadenaActiva];
+    tiene = !!(mel && mel.notas && mel.notas.length);
+    if (titulo) titulo.textContent = '🎼 Melodía';
+    var infoCadena = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva);
+    var nombreCadena = (infoCadena && infoCadena.cadena && infoCadena.cadena.nombre) ? infoCadena.cadena.nombre : 'Cadena';
+    if (estado) estado.textContent = 'Júbilo: ' + nombreCadena;
+    if (btnAbrir) btnAbrir.onclick = function(){ cerrarMenuMelodia(); jubiloAbrirPianoMelodiaActual(false); };
+    if (btnGrabar) { btnGrabar.style.display = puedeGrabar ? 'block' : 'none'; btnGrabar.onclick = function(){ cerrarMenuMelodia(); jubiloAbrirPianoMelodiaActual(true); }; }
+    if (btnVer) btnVer.style.display = tiene ? 'block' : 'none';
+    if (btnVer) btnVer.onclick = function(){ cerrarMenuMelodia(); jubiloReproducirMelodiaGuardada(jubiloCadenaActiva); };
+    if (btnGuardar) btnGuardar.style.display = 'none';
+  }
+  modal.style.display = 'flex';
+}
+
+function cerrarMenuMelodia(){
+  var modal = document.getElementById('melodiaMenuModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function abrirMelodiaCancionActual(){
+  if (!currentSong) { mostrarToast('⚠️ Abre una canción primero.'); return; }
+  if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  pianoRequestLandscapeMode();
+  var root = currentKey || getOrigKey(currentSong) || 'C';
+  var source = document.getElementById('viewContent');
+  abrirPiano(root, source, true);
+  pianoMelodyTarget = currentSong.id;
+}
+
+function abrirGrabadorPianoActual(){
+  if (bloquearMelodiaSiNoAdmin()) return;
+  if (!currentSong) { mostrarToast('⚠️ Abre una canción primero.'); return; }
+  if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  pianoRequestLandscapeMode();
+  pianoMelodyTarget = currentSong.id;
+  var root = currentKey || getOrigKey(currentSong) || 'C';
+  var source = document.getElementById('viewContent');
+  abrirPiano(root, source, false);
+  pianoMelodyRecording = true;
+  pianoMelodyStart = performance.now();
+  pianoMelodyNotes = [];
+  pianoRenderMelodyRecorder();
+}
+
+function pianoToggleRecording(){
+  if (bloquearMelodiaSiNoAdmin()) return;
+  pianoMelodyRecording = !pianoMelodyRecording;
+  if (pianoMelodyRecording) {
+    pianoMelodyStart = performance.now();
+    pianoMelodyNotes = [];
+  }
+  pianoRenderMelodyRecorder();
+}
+
+function pianoRenderMelodyRecorder(){
+  var panel = document.getElementById('pianoMelodyRecorder');
+  var status = document.getElementById('pianoMelodyStatus');
+  var btnRec = document.getElementById('btnPianoRecord');
+  var btnSave = document.getElementById('btnPianoSaveMelody');
+  var btnDel = document.getElementById('btnPianoDeleteNote');
+  if (!panel) return;
+  panel.style.display = 'block';
+  if (status) {
+    var destino = pianoMelodyClaveDeDestino();
+    status.textContent = (destino ? ('Guardando en ' + destino + ' · ') : '') + (pianoMelodyRecording ? 'Grabando... toca el piano' : 'Listo para grabar');
+  }
+  if (btnRec) btnRec.textContent = pianoMelodyRecording ? '⏸ Detener' : '⏺ Grabar';
+  if (btnSave) btnSave.textContent = '💾 Guardar (' + pianoMelodyNotes.length + ')';
+  if (btnDel) btnDel.textContent = '↩ Última nota';
+}
+
+function pianoDeleteLastNote(){
+  pianoMelodyNotes.pop();
+  pianoRenderMelodyRecorder();
+}
+
+function pianoSaveMelody(){
+  if (bloquearMelodiaSiNoAdmin()) return;
+  if (!pianoMelodyTarget) { mostrarToast('⚠️ No hay melodía activa.'); return; }
+  if (!pianoMelodyNotes.length) { mostrarToast('⚠️ Graba al menos una nota.'); return; }
+  var targetKey = pianoMelodyClaveDeDestino();
+  var all = jubiloLeerMelodias();
+  var payload = {
+    songId: targetKey,
+    updatedAt: new Date().toISOString(),
+    notas: pianoMelodyNotes.map(function(n, i, arr){
+      var next = arr[i + 1];
+      var dur = next ? Math.max(0.12, next.start - n.start) : Math.max(0.35, n.duration || 0.35);
+      return { midi: n.midi, note: n.note, start: +n.start.toFixed(3), duration: +dur.toFixed(3) };
+    })
+  };
+  all[targetKey] = payload;
+  jubiloGuardarMelodias(all);
+  if (window.fbSet && window.fbRef && window.fbDb) {
+    var ruta = pianoMelodyTarget.indexOf('jubilo:') === 0 ? 'melodias/jubilo/' + targetKey : 'melodias/adoracion/' + targetKey;
+    window.fbSet(window.fbRef(window.fbDb, ruta), payload).catch(function(){});
+  }
+  pianoMelodyRecording = false;
+  pianoMelodyStart = 0;
+  mostrarToast('✅ Melodía guardada.');
+  pianoRenderMelodyRecorder();
+}
+
+function pianoClearMelody(){
+  pianoMelodyNotes = [];
+  pianoMelodyRecording = false;
+  pianoMelodyStart = 0;
+  pianoRenderMelodyRecorder();
+}
+
+function jubiloAbrirPianoMelodiaActual(iniciarGrabacion){
+  if (!jubiloGrupoActivo || !jubiloCadenaActiva) return;
+  if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  pianoRequestLandscapeMode();
+  pianoMelodyTarget = 'jubilo:' + jubiloCadenaActiva;
+  pianoMelodyRecording = false;
+  pianoMelodyStart = 0;
+  pianoMelodyNotes = [];
+  abrirPiano('C', null, false);
+  if (esAdminActivo()) pianoRenderMelodyRecorder();
+  if (iniciarGrabacion) pianoToggleRecording();
+}
+
+function jubiloReproducirMelodiaGuardada(cadenaId){
+  var melodia = jubiloLeerMelodias()[cadenaId];
+  if (!melodia || !Array.isArray(melodia.notas) || !melodia.notas.length) {
+    mostrarToast('⚠️ No hay melodía guardada todavía.');
+    return;
+  }
+  pianoAbrirMelodiaDesdeNotas(melodia.notas, '🎼 Melodía guardada', false, 'C');
+}
+
 // Recuerda el acorde que está mostrando el modal para poder refrescarlo
 // (por ejemplo, si el usuario cambia el cifrado a Latino mientras está abierto).
 var pianoModalActual = null;
@@ -9218,50 +9549,54 @@ function pianoGetSemis(root, type){
 function pianoRenderHTML(root, type){
   var semisOn = pianoGetSemis(root, type);
   var rootSemi = pianoSemiOf(root);
- var semisForRange = pianoGetSemis(root, type);
-var minSemi = Math.min.apply(null, semisForRange);
-var maxSemi = Math.max.apply(null, semisForRange);
-var centerSemi = Math.round((minSemi + maxSemi) / 2);
-var startMidi = centerSemi - 8;
-var endMidi = centerSemi + 16;
-// Asegurar que solo mostramos notas blancas como inicio
-while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
-  var whiteKeys = '';
+  var startMidi = 21; // A0
+  var endMidi = 109;  // C8
+  while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
+  var whiteKeys = [];
+  var blackKeys = [];
+  var whiteIndex = 0;
   var isLightTheme = document.body.classList.contains('light-theme');
   var bgWhite  = isLightTheme ? '#fff' : '#e8e6f0';
   var bgBlack  = isLightTheme ? '#222' : '#1a1a2e';
   var litColor = '#7F77DD';
   var rootColor= '#3C3489';
   var litText  = '#EEEDFE';
+  var whiteWidth = 30;
+  var whiteGap = 2;
+  var blackWidth = 18;
+  var whiteHeight = 148;
+  var blackHeight = 94;
+  var blackHeightTop = 0;
+  var whiteTotal = whiteWidth + whiteGap;
 
   for (var m = startMidi; m < endMidi; m++){
     var s = m % 12;
-    if (PIANO_WHITE.indexOf(s) === -1) continue;
-    var isRoot = semisOn.indexOf(m) !== -1 && rootSemi === s;
-    var isLit  = semisOn.indexOf(m) !== -1 && !isRoot;
-    var wBg = isRoot ? rootColor : isLit ? litColor : bgWhite;
-    var wColor = (isRoot||isLit) ? litText : '#555';
-    var wActiveClass = (isRoot||isLit) ? ' pk-active' : '';
-    whiteKeys += '<div class="pk-key'+wActiveClass+'" style="position:relative;width:30px;height:110px;flex-shrink:0;' +
-      'border:1px solid #aaa;border-radius:0 0 4px 4px;background:'+wBg+';' +
-      'margin-right:2px;display:flex;align-items:flex-end;justify-content:center;' +
-      'padding-bottom:3px;font-size:9px;color:'+wColor+';">' +
-      '<span>'+PIANO_SEMIS[s]+'</span>';
-    var ns = (m+1)%12;
-    if (PIANO_BLACK.indexOf(ns) !== -1){
-      var bMidi = m+1;
-      var bRoot = semisOn.indexOf(bMidi) !== -1 && rootSemi === ns;
-      var bLit  = semisOn.indexOf(bMidi) !== -1 && !bRoot;
-      var bBg   = bRoot ? rootColor : bLit ? litColor : bgBlack;
-      var bColor= (bRoot||bLit) ? litText : 'transparent';
-      var bActiveClass = (bRoot||bLit) ? ' pk-active' : '';
-      whiteKeys += '<div class="pk-key'+bActiveClass+'" style="position:absolute;top:0;left:20px;width:20px;height:68px;' +
-        'background:'+bBg+';border-radius:0 0 3px 3px;z-index:2;display:flex;' +
-        'align-items:flex-end;justify-content:center;padding-bottom:2px;' +
-        'font-size:8px;color:'+bColor+';">' +
-        '<span>'+PIANO_SEMIS[ns]+'</span></div>';
+    if (PIANO_WHITE.indexOf(s) !== -1){
+      var x = whiteIndex * whiteTotal;
+      var isRoot = semisOn.indexOf(m) !== -1 && rootSemi === s;
+      var isLit  = semisOn.indexOf(m) !== -1 && !isRoot;
+      var wBg = isRoot ? rootColor : isLit ? litColor : bgWhite;
+      var wActiveClass = (isRoot||isLit) ? ' pk-active' : '';
+      var octaveLabel = (s === 0) ? ('<span style="position:absolute;left:0;right:0;bottom:4px;font-size:10px;line-height:1;opacity:0.85;text-align:center;pointer-events:none;">' + pianoMidiToNoteName(m) + '</span>') : '';
+      whiteKeys.push('<button class="pk-key'+wActiveClass+'" data-midi="'+m+'" onclick="pianoPlayNoteMidi(pianoGetAudioCtx(),'+m+',0.48)" style="position:absolute;left:'+x+'px;top:0;width:'+whiteWidth+'px;height:'+whiteHeight+'px;flex-shrink:0;overflow:hidden;' +
+        'border:1px solid '+(isRoot ? '#c9a84c' : '#a6a6b8')+';border-radius:0 0 5px 5px;background:'+wBg+';' +
+        'margin-right:'+whiteGap+'px;display:flex;align-items:flex-end;justify-content:center;position:absolute;font-size:0;color:'+ (isRoot||isLit ? litText : '#555') +';box-shadow:' + (isRoot||isLit ? '0 0 0 1px rgba(255,255,255,0.12) inset' : 'none') + ';cursor:pointer;">' +
+        octaveLabel +
+        '</button>');
+      var next = m + 1;
+      var ns = next % 12;
+      if (PIANO_BLACK.indexOf(ns) !== -1 && next < endMidi){
+        var bMidi = next;
+        var bRoot = semisOn.indexOf(bMidi) !== -1 && rootSemi === ns;
+        var bLit  = semisOn.indexOf(bMidi) !== -1 && !bRoot;
+        var bBg   = bRoot ? rootColor : bLit ? litColor : bgBlack;
+        var bActiveClass = (bRoot||bLit) ? ' pk-active' : '';
+        var bx = x + whiteWidth - (blackWidth / 2);
+        blackKeys.push('<button class="pk-key'+bActiveClass+'" data-midi="'+bMidi+'" onclick="pianoPlayNoteMidi(pianoGetAudioCtx(),'+bMidi+',0.34)" style="position:absolute;top:'+blackHeightTop+'px;left:'+bx+'px;width:'+blackWidth+'px;height:'+blackHeight+'px;' +
+          'background:'+bBg+';border:1px solid '+(bRoot ? '#c9a84c' : '#111')+';border-radius:0 0 4px 4px;z-index:60;cursor:pointer;pointer-events:auto;touch-action:manipulation;box-shadow:' + (bRoot||bLit ? '0 0 0 1px rgba(255,255,255,0.08) inset' : 'none') + ';"></button>');
+      }
+      whiteIndex++;
     }
-    whiteKeys += '</div>';
   }
 
   var ints = PIANO_CHORD_TYPES[type] || [];
@@ -9316,26 +9651,56 @@ while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
       '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">' + songBtns + '</div>';
   }
 
-  return '<div style="font-size:0.8rem;color:#e0946a;margin-bottom:6px;">' +
-    '<strong style="color:#e8c97a;font-size:1rem;">'+pianoLabelChord(root,type)+'</strong> &nbsp;' + typeName + 
-    ' &nbsp;|&nbsp; ' + noteNames + '</div>' +
-    '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;">' + intervalHTML + '</div>' +
-    '<div style="overflow-x:auto;padding-bottom:4px;">' +
-      '<div style="display:inline-flex;align-items:flex-start;height:115px;">' + whiteKeys + '</div>' +
+  return '<div style="font-size:0.82rem;color:#e0946a;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">' +
+      '<div><strong style="color:#e8c97a;font-size:1.05rem;">'+pianoLabelChord(root,type)+'</strong> <span style="color:#8888aa;">' + typeName + '</span></div>' +
+      '<div style="color:#8888aa;font-size:0.72rem;">Piano virtual offline</div>' +
     '</div>' +
-    '<div style="margin-top:10px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Acordes (toca para ver otro):</div>' +
-    '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">' + rootBtns + '</div>' +
-    songChordsHTML +
-    '<div style="margin-top:6px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Variaciones:</div>' +
-    '<div style="display:flex;flex-wrap:wrap;gap:4px;">' + variantBtns + '</div>' +
-    '<div style="margin-top:12px;display:flex;gap:6px;">' +
-      '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',false)" style="flex:1;background:#3C3489;border:1px solid #534AB7;color:#EEEDFE;border-radius:6px;padding:8px 10px;cursor:pointer;font-size:0.8rem;font-weight:bold;">&#9654; Reproducir</button>' +
-      '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',true)" style="flex:1;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:6px;padding:8px 10px;cursor:pointer;font-size:0.8rem;font-weight:bold;">&#127925; Arpegio</button>' +
-    '</div>';
+    '<div id="pianoMelodyRecorder" style="display:none;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:4px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">' +
+        '<div>' +
+          '<div style="color:var(--gold);font-weight:bold;font-size:0.82rem;">Grabación de melodía</div>' +
+          '<div id="pianoMelodyStatus" style="color:var(--text2);font-size:0.72rem;margin-top:2px;">Listo para grabar</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+          '<button id="btnPianoRecord" onclick="pianoToggleRecording()" style="background:linear-gradient(135deg,#c9a84c,#f3d58a);border:none;color:#111;border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">⏺ Grabar</button>' +
+          '<button id="btnPianoSaveMelody" onclick="pianoSaveMelody()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">💾 Guardar</button>' +
+          '<button id="btnPianoDeleteNote" onclick="pianoDeleteLastNote()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">↩ Última nota</button>' +
+          '<button onclick="pianoClearMelody()" style="background:#4a1a1a;border:1px solid #8a2b2b;color:#ffb4b4;border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">🗑 Limpiar</button>' +
+        '</div>' +
+      '</div>' +
+      '<div id="pianoMelodyList" style="max-height:120px;overflow:auto;"></div>' +
+    '</div>' +
+    '<div class="piano-extra-row" style="display:flex;gap:4px;flex-wrap:wrap;">' + intervalHTML + '</div>' +
+    '<div class="piano-keyboard-scroll" style="overflow-x:auto;overflow-y:visible;padding:10px 0 10px 0;-webkit-overflow-scrolling:touch;">' +
+      '<div class="piano-keyboard-stage" style="position:relative;display:inline-block;min-width:'+((whiteIndex * whiteTotal) + 4)+'px;height:'+whiteHeight+'px;">' +
+        '<div class="piano-keyboard-whites" style="position:relative;height:'+whiteHeight+'px;z-index:1;">' + whiteKeys.join('') + '</div>' +
+        '<div class="piano-keyboard-blacks" style="position:absolute;left:0;top:0;width:100%;height:'+blackHeight+'px;z-index:60;pointer-events:auto;">' + blackKeys.join('') + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="piano-main-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">' +
+      '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',false)" style="flex:1;min-width:150px;background:#3C3489;border:1px solid #534AB7;color:#EEEDFE;border-radius:999px;padding:10px 12px;cursor:pointer;font-size:0.8rem;font-weight:bold;">▶ Reproducir acorde</button>' +
+      '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',true)" style="flex:1;min-width:150px;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:10px 12px;cursor:pointer;font-size:0.8rem;font-weight:bold;">🎵 Arpegio</button>' +
+    '</div>' +
+    '<div style="margin-top:4px;color:#8888aa;font-size:0.72rem;">' +
+      'Toca directamente las teclas del piano. Las negras ahora son independientes y el arpegio se escucha escalonado.' +
+    '</div>' +
+    '<div class="piano-extra-row piano-extra-label" style="margin-top:4px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Acordes (toca para ver otro):</div>' +
+    '<div class="piano-extra-row" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">' + rootBtns + '</div>' +
+    '<div class="piano-extra-row">' + songChordsHTML + '</div>' +
+    '<div class="piano-extra-row piano-extra-label" style="margin-top:6px;font-size:0.72rem;color:#8888aa;margin-bottom:6px;">Variaciones:</div>' +
+    '<div class="piano-extra-row" style="display:flex;flex-wrap:wrap;gap:4px;">' + variantBtns + '</div>';
 }
 
 // ===== AUDIO DEL ACORDE (Web Audio API, sin dependencias, funciona offline) =====
 var pianoAudioCtx = null;
+var jubiloMelodiaEditor = null;
+var jubiloMelodiaRecording = false;
+var jubiloMelodiaStart = 0;
+var jubiloMelodiaEvents = [];
+var jubiloMelodiaActiveKey = null;
+var JUBILO_MELODIA_KEY = 'yhwh_jubilo_melodias_v1';
+var JUBILO_MELODIA_MODE = 'cadena';
 var HISTORIA_TABS = ['vision','historia','organigrama','galeria'];
 function cambiarTabHistoria(tab){
   for (var i = 0; i < HISTORIA_TABS.length; i++) {
@@ -9585,8 +9950,64 @@ function pianoGetAudioCtx(){
   return pianoAudioCtx;
 }
 
+var pianoSampler = null;
+var pianoSamplerPromise = null;
+
+function pianoGetSampler(){
+  var ctx = pianoGetAudioCtx();
+  if (!ctx || !window.Tone || !Tone.Sampler) return Promise.reject(new Error('Tone.js no disponible'));
+  if (pianoSampler && pianoSampler.loaded) return Promise.resolve(pianoSampler);
+  if (pianoSamplerPromise) return pianoSamplerPromise;
+
+  var baseUrl = 'https://tonejs.github.io/audio/salamander/';
+  pianoSampler = new Tone.Sampler({
+    urls: {
+      A0: 'A0.mp3',
+      C1: 'C1.mp3',
+      'D#1': 'Ds1.mp3',
+      'F#1': 'Fs1.mp3',
+      A1: 'A1.mp3',
+      C2: 'C2.mp3',
+      'D#2': 'Ds2.mp3',
+      'F#2': 'Fs2.mp3',
+      A2: 'A2.mp3',
+      C3: 'C3.mp3',
+      'D#3': 'Ds3.mp3',
+      'F#3': 'Fs3.mp3',
+      A3: 'A3.mp3',
+      C4: 'C4.mp3',
+      'D#4': 'Ds4.mp3',
+      'F#4': 'Fs4.mp3',
+      A4: 'A4.mp3',
+      C5: 'C5.mp3',
+      'D#5': 'Ds5.mp3',
+      'F#5': 'Fs5.mp3',
+      A5: 'A5.mp3'
+    },
+    release: 1.2,
+    baseUrl: baseUrl,
+    onload: function(){}
+  }).toDestination();
+
+  pianoSamplerPromise = pianoSampler.loaded.then(function(){
+    pianoSamplerPromise = null;
+    return pianoSampler;
+  }).catch(function(err){
+    pianoSamplerPromise = null;
+    throw err;
+  });
+
+  return pianoSamplerPromise;
+}
+
 function pianoMidiToFreq(midi){
   return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function pianoMidiToNoteName(midi){
+  var names = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  var octave = Math.floor(midi / 12) - 1;
+  return names[((midi % 12) + 12) % 12] + octave;
 }
 
 // Nodo compartido que suaviza el volumen cuando suenan varias notas del
@@ -9605,87 +10026,60 @@ function pianoGetMasterOut(ctx){
   return ctx._pianoMasterOut;
 }
 
-// ===== SAMPLES REALES DE PIANO (mp3, notas C3 a C5) =====
-// Los archivos viven en piano-samples/, se cachean offline vía sw.js.
-var PIANO_SAMPLE_MIN = 48; // C3
-var PIANO_SAMPLE_MAX = 72; // C5
-var PIANO_SAMPLE_NOMBRES = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
-var pianoBufferCache = {}; // nombre de nota -> { buffer, promise }
-
-function pianoMidiToSampleName(midi){
-  var octava = Math.floor(midi / 12) - 1;
-  var nota = PIANO_SAMPLE_NOMBRES[((midi % 12) + 12) % 12];
-  return nota + octava;
+// ===== NUEVO MOTOR DE PIANO (Web Audio API, más musical que samples planos) =====
+function pianoCreateVoice(ctx, midi, startTime, duration, velocity){
+  var note = pianoMidiToNoteName(midi);
+  var vel = Math.max(0.15, Math.min(1, velocity || 0.8));
+  pianoGetSampler().then(function(sampler){
+    var when = (typeof startTime === 'number' && isFinite(startTime)) ? startTime : ((window.Tone && Tone.now) ? Tone.now() : (ctx ? ctx.currentTime + 0.02 : 0));
+    sampler.triggerAttackRelease(note, Math.max(0.2, duration || 0.55), when, vel);
+  }).catch(function(){
+    pianoCreateFallbackVoice(ctx, midi, startTime, duration, velocity);
+  });
 }
 
 function pianoLoadBuffer(ctx, midi){
-  var midiClamp = Math.max(PIANO_SAMPLE_MIN, Math.min(PIANO_SAMPLE_MAX, midi));
-  var nombre = pianoMidiToSampleName(midiClamp);
-  if (pianoBufferCache[nombre]) return pianoBufferCache[nombre].promise;
-  var entry = { buffer: null, promise: null };
-  entry.promise = fetch('piano-samples/' + nombre + '.mp3')
-    .then(function(res){ return res.arrayBuffer(); })
-    .then(function(arrBuf){ return ctx.decodeAudioData(arrBuf); })
-    .then(function(audioBuffer){ entry.buffer = audioBuffer; return audioBuffer; });
-  pianoBufferCache[nombre] = entry;
-  return entry.promise;
+  return pianoGetSampler().then(function(){ return midi; });
 }
 
 function pianoPlayNoteSample(ctx, midiObjetivo, startTime, duration){
-  var midi = Math.max(PIANO_SAMPLE_MIN, Math.min(PIANO_SAMPLE_MAX, midiObjetivo));
-  // Si la nota pedida se sale del rango de samples que tenemos, la tocamos
-  // con el sample más cercano y le ajustamos la velocidad de reproducción
-  // para afinarla (esto casi nunca debería pasar con los acordes actuales).
-  var playbackRate = Math.pow(2, (midiObjetivo - midi) / 12);
-  var nombre = pianoMidiToSampleName(midi);
-  var entry = pianoBufferCache[nombre];
-  var buffer = entry && entry.buffer;
-  if (!buffer) return;
+  pianoCreateVoice(ctx, midiObjetivo, startTime, duration || 0.6, 0.84);
+}
 
-  var masterOut = pianoGetMasterOut(ctx);
-  var src = ctx.createBufferSource();
-  src.buffer = buffer;
-  src.playbackRate.value = playbackRate;
-
-  // ===== Calidez / "menos brillante" =====
-  // Los samples de piano digital suelen sonar duros o metálicos por exceso
-  // de agudos. Estos dos filtros suavizan esos agudos y refuerzan un poco
-  // el cuerpo (graves/medios), para un timbre más cálido y natural.
-  // Ajustar aquí si se quiere más o menos brillo:
-  //  - warmthShelf.gain más negativo = menos brillo (más apagado/oscuro)
-  //  - bodyPeak.gain más alto = más cuerpo/calidez en los medios-graves
-  var warmthShelf = ctx.createBiquadFilter();
-  warmthShelf.type = 'highshelf';
-  warmthShelf.frequency.value = 3200;
-  warmthShelf.gain.value = -9;
-
-  var bodyPeak = ctx.createBiquadFilter();
-  bodyPeak.type = 'peaking';
-  bodyPeak.frequency.value = 300;
-  bodyPeak.Q.value = 0.8;
-  bodyPeak.gain.value = 3;
-
+function pianoCreateFallbackVoice(ctx, midi, startTime, duration, velocity){
+  var out = pianoGetMasterOut(ctx);
+  var freq = pianoMidiToFreq(midi);
+  var vel = Math.max(0.15, Math.min(1, velocity || 0.8));
+  var osc1 = ctx.createOscillator();
+  var osc2 = ctx.createOscillator();
+  var osc3 = ctx.createOscillator();
   var gain = ctx.createGain();
+  var filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 3200;
+  filter.Q.value = 0.5;
+  osc1.type = 'triangle'; osc1.frequency.value = freq;
+  osc2.type = 'sine'; osc2.frequency.value = freq * 2;
+  osc3.type = 'sine'; osc3.frequency.value = freq * 0.5;
   gain.gain.setValueAtTime(0.0001, startTime);
-  gain.gain.exponentialRampToValueAtTime(0.9, startTime + 0.005);
-  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-
-  src.connect(warmthShelf);
-  warmthShelf.connect(bodyPeak);
-  bodyPeak.connect(gain);
-  gain.connect(masterOut);
-  src.start(startTime);
-  src.stop(startTime + duration + 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.7 * vel, startTime + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + Math.max(0.24, duration || 0.55));
+  osc1.connect(filter); osc2.connect(filter); osc3.connect(filter);
+  filter.connect(gain);
+  gain.connect(out);
+  osc1.start(startTime); osc2.start(startTime); osc3.start(startTime);
+  var stopAt = startTime + Math.max(0.3, duration || 0.55) + 0.1;
+  osc1.stop(stopAt); osc2.stop(stopAt); osc3.stop(stopAt);
 }
 
 function pianoReproducirAcorde(root, type, modoArpegio){
   var ctx = pianoGetAudioCtx();
   if (!ctx) { mostrarToast('⚠️ Tu navegador no soporta audio.'); return; }
   // Todas las notas del acorde suenan dentro de la MISMA octava, partiendo
-  // del Do que está una octava por debajo del Do central (C4 → C3 = MIDI 48).
+  // del Do central (C4 = MIDI 60) para que el sonido no quede tan grave.
   // El teclado visual sigue mostrando las teclas en su posición real/completa;
   // esto solo afecta cómo se escucha el acorde.
-  var PIANO_OCTAVA_SONIDO = 48; // C3
+  var PIANO_OCTAVA_SONIDO = 60; // C4
   var rootPc = pianoSemiOf(root);
   var ints = PIANO_CHORD_TYPES[type] || PIANO_CHORD_TYPES[''];
   var semis = ints.map(function(i){
@@ -9700,11 +10094,11 @@ function pianoReproducirAcorde(root, type, modoArpegio){
     var now = ctx.currentTime + 0.03;
     if (modoArpegio) {
       semis.forEach(function(m, i){
-        pianoPlayNoteSample(ctx, m, now + i * 0.16, 0.9);
+        pianoPlayNoteSample(ctx, m, now + i * 0.18, 0.62);
       });
     } else {
-      semis.forEach(function(m){
-        pianoPlayNoteSample(ctx, m, now, 1.1);
+      semis.forEach(function(m, i){
+        pianoPlayNoteSample(ctx, m, now + (i * 0.01), 1.2);
       });
     }
   }).catch(function(err){
@@ -9717,6 +10111,8 @@ function abrirPiano(chordStr, sourceEl, autoPlay){
   chordStr = chordLatinoToAmericano(chordStr);
   var parsed = pianoParseChord(chordStr);
   if (!parsed) return;
+  if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  pianoRequestLandscapeMode();
   var modal = document.getElementById('pianoModal');
   var title = document.getElementById('pianoModalTitle');
   var content = document.getElementById('pianoModalContent');
@@ -9741,6 +10137,30 @@ function abrirPiano(chordStr, sourceEl, autoPlay){
     pianoGetSemis(parsed.root, parsed.type).map(function(m){ return m - 12; })
       .forEach(function(m){ pianoLoadBuffer(ctxPre, m); });
   }
+  requestAnimationFrame(function(){
+    var scroller = content.querySelector('.piano-keyboard-scroll');
+    if (!scroller) return;
+    var stage = content.querySelector('.piano-keyboard-stage');
+    if (!stage) return;
+    var targetMidi = 60 + pianoSemiOf(parsed.root);
+    var whiteWidth = 30;
+    var whiteGap = 2;
+    var whiteTotal = whiteWidth + whiteGap;
+    var startMidi = 21;
+    while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
+    var whiteIndex = 0;
+    var targetWhiteIndex = 0;
+    for (var m = startMidi; m < 109; m++) {
+      if ([0,2,4,5,7,9,11].indexOf(m % 12) === -1) continue;
+      if (m === targetMidi) {
+        targetWhiteIndex = whiteIndex;
+        break;
+      }
+      whiteIndex++;
+    }
+    var approxLeft = Math.max(0, (targetWhiteIndex * whiteTotal) - (scroller.clientWidth * 0.35));
+    scroller.scrollLeft = approxLeft;
+  });
 
   if (autoPlay) {
     pianoReproducirAcorde(parsed.root, parsed.type, false);
@@ -9750,6 +10170,7 @@ function abrirPiano(chordStr, sourceEl, autoPlay){
 function cerrarPiano(){
   var modal = document.getElementById('pianoModal');
   if (modal) modal.style.display = 'none';
+  pianoLimpiarPlaybackMelodia();
 }
 
 // Cerrar con Escape
@@ -10135,31 +10556,64 @@ function aplicarAjusteJubilo() {
 
 
 
-<div class="teleprompter-overlay" id="teleprompterOverlay">
-  <div class="teleprompter-header">
-    <div class="teleprompter-titulo" id="tpTitulo"></div>
-    <div class="teleprompter-controles">
-      <span style="color:#aaa;font-size:0.75rem;">Velocidad</span>
-      <button class="tp-btn" onclick="cambiarVelocidadTp(-1)">−</button>
-      <span id="tpVelDisplay" style="color:#f1c40f;font-size:0.8rem;min-width:30px;text-align:center;">1</span>
-      <button class="tp-btn" onclick="cambiarVelocidadTp(1)">+</button>
-      <button class="tp-btn" id="tpPlayBtn" onclick="toggleTeleprompter()">▶ Play</button>
-      <button class="tp-btn" onclick="cerrarTeleprompter()">✕</button>
-    </div>
-  </div>
-  <div class="teleprompter-body" id="tpBody"></div>
-</div>
-
 <div id="pianoModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
-  background:rgba(0,0,0,0.85);z-index:9000;overflow-y:auto;padding:20px;box-sizing:border-box;">
-  <div style="max-width:520px;margin:0 auto;background:#1c1c3f;border-radius:12px;
-    border:1px solid #2a2a45;padding:16px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <span id="pianoModalTitle" style="color:#c9a84c;font-weight:bold;font-size:1rem;"></span>
+  background:rgba(5,5,12,0.92);z-index:9000;overflow-y:auto;padding:10px;box-sizing:border-box;">
+  <div style="max-width:1280px;width:96vw;margin:0 auto;background:linear-gradient(180deg,#17172b,#0f0f1a);border-radius:16px;
+    border:1px solid #2a2a45;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,0.45);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <span id="pianoModalTitle" style="color:#c9a84c;font-weight:bold;font-size:1rem;"></span>
+        <span style="color:#8888aa;font-size:0.72rem;">Vista horizontal para tocar y grabar como práctica real</span>
+      </div>
       <button onclick="cerrarPiano()" style="background:#42426e;border:none;color:#e8e6f0;
-        border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:bold;">✕ Cerrar</button>
+        border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:bold;">✕ Cerrar</button>
     </div>
     <div id="pianoModalContent"></div>
+  </div>
+</div>
+
+<div id="melodyRecorderModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;
+  background:rgba(0,0,0,0.88);z-index:9100;overflow-y:auto;padding:18px;box-sizing:border-box;">
+  <div style="max-width:760px;margin:0 auto;background:linear-gradient(180deg,#1b1b3b,#121225);border-radius:14px;
+    border:1px solid #2a2a45;padding:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;">
+      <div>
+        <div id="melodyRecorderTitle" style="color:#c9a84c;font-weight:bold;font-size:1rem;">🎼 Grabador de melodía</div>
+        <div id="melodyRecorderStatus" style="color:#8888aa;font-size:0.76rem;margin-top:4px;">Listo para grabar</div>
+      </div>
+      <button onclick="cerrarGrabadorMelodiaJubilo()" style="background:#42426e;border:none;color:#e8e6f0;
+        border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:bold;">✕ Cerrar</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <button id="btnMelodyRecorderRecord" onclick="jubiloToggleRecording()" style="flex:1;min-width:120px;background:var(--gold);border:none;color:#111;border-radius:999px;padding:10px 12px;font-weight:bold;cursor:pointer;">⏺ Grabar</button>
+      <button id="btnMelodyRecorderSave" onclick="jubiloGuardarMelodiaGrabada()" style="flex:1;min-width:120px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:bold;cursor:pointer;">💾 Guardar</button>
+      <button onclick="jubiloBorrarUltimaNota()" style="flex:1;min-width:120px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:10px 12px;font-weight:bold;cursor:pointer;">↩ Última nota</button>
+    </div>
+    <div id="melodyRecorderKeyboard" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;"></div>
+    <div style="display:none;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div style="color:#c9a84c;font-size:0.82rem;font-weight:bold;margin-bottom:6px;">Notas registradas</div>
+      <div id="melodyRecorderList" style="max-height:220px;overflow:auto;"></div>
+    </div>
+    <div style="color:#8888aa;font-size:0.76rem;line-height:1.5;">
+      Consejo: graba con un tempo constante. Si luego quieres, le metemos metrónomo y cuantización para que quede todavía más limpio.
+    </div>
+  </div>
+</div>
+
+<div id="melodiaMenuModal" class="modal-overlay" style="display:none;z-index:9150;">
+  <div class="modal-card" style="max-width:420px;width:min(92vw,420px);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;">
+      <div>
+        <div id="melodiaMenuTitle" style="color:#c9a84c;font-weight:bold;font-size:1rem;">🎼 Melodía</div>
+        <div id="melodiaMenuEstado" style="color:#8888aa;font-size:0.76rem;margin-top:4px;">Opciones rápidas</div>
+      </div>
+      <button onclick="cerrarMenuMelodia()" style="background:transparent;border:none;color:#8888aa;cursor:pointer;font-size:0.9rem;font-weight:bold;">✕</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button id="melodiaMenuAbrir" style="background:linear-gradient(135deg,#c9a84c,#f3d58a);border:none;color:#1a1a2e;border-radius:999px;padding:12px 14px;font-weight:bold;cursor:pointer;">🎹 Abrir piano</button>
+      <button id="melodiaMenuGrabar" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:12px 14px;font-weight:bold;cursor:pointer;">⏺ Grabar</button>
+      <button id="melodiaMenuVer" style="display:none;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:12px 14px;font-weight:bold;cursor:pointer;">▶ Ver melodía</button>
+    </div>
   </div>
 </div>
 
@@ -10341,17 +10795,12 @@ function aplicarAjusteJubilo() {
       <canvas id="exportCanvas" style="max-width:100%;border-radius:6px;"></canvas>
     </div>
 
-    <!-- Botones de acción -->
+    <!-- Botón de acción -->
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button onclick="descargarSetlistImagen()"
         style="flex:1;min-width:120px;background:linear-gradient(135deg,#519bfc,#1d2677);color:#fff;
                border:none;border-radius:8px;padding:12px;font-weight:bold;font-size:0.9rem;cursor:pointer;">
         🖼️ Guardar Imagen
-      </button>
-      <button onclick="descargarSetlistPDF()"
-        style="flex:1;min-width:120px;background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;
-               border:none;border-radius:8px;padding:12px;font-weight:bold;font-size:0.9rem;cursor:pointer;">
-        📄 Guardar PDF
       </button>
     </div>
     <div style="text-align:center;color:#8888aa;font-size:0.72rem;margin-top:10px;">
@@ -10624,358 +11073,10 @@ function descargarSetlistImagen() {
 }
 
 
-
-
-// Sobreescribir descargarSetlistPDF para usar el blob directamente
-function descargarSetlistPDF() {
-  var canvasEl = generarCanvasSetlist();
-  if (!canvasEl) return;
-
-  var W_pt = 595.28;
-  var H_pt = (canvasEl.height / canvasEl.width) * W_pt;
-  var jpegData = canvasEl.toDataURL('image/jpeg', 0.92);
-  var jpegBase64 = jpegData.split(',')[1];
-  var jpegRaw = atob(jpegBase64);
-  var jpegLen = jpegRaw.length;
-  var cw = canvasEl.width, ch = canvasEl.height;
-  var NL = '\n';
-
-  var obj1 = '1 0 obj' + NL + '<< /Type /Catalog /Pages 2 0 R >>' + NL + 'endobj' + NL;
-  var obj2 = '2 0 obj' + NL + '<< /Type /Pages /Kids [3 0 R] /Count 1 >>' + NL + 'endobj' + NL;
-  var obj3 = '3 0 obj' + NL +
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W_pt.toFixed(2) + ' ' + H_pt.toFixed(2) + ']' +
-    ' /Contents 4 0 R /Resources << /XObject << /Img1 5 0 R >> >> >>' + NL + 'endobj' + NL;
-  var stream = 'q ' + W_pt.toFixed(2) + ' 0 0 ' + H_pt.toFixed(2) + ' 0 0 cm /Img1 Do Q';
-  var obj4 = '4 0 obj' + NL + '<< /Length ' + stream.length + ' >>' + NL +
-    'stream' + NL + stream + NL + 'endstream' + NL + 'endobj' + NL;
-  var obj5head = '5 0 obj' + NL +
-    '<< /Type /XObject /Subtype /Image /Width ' + cw + ' /Height ' + ch +
-    ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jpegLen + ' >>' + NL +
-    'stream' + NL;
-  var obj5tail = NL + 'endstream' + NL + 'endobj' + NL;
-  var header = '%PDF-1.4' + NL;
-  var body   = header + obj1 + obj2 + obj3 + obj4 + obj5head;
-
-  var pos = header.length;
-  var o1 = pos; pos += obj1.length;
-  var o2 = pos; pos += obj2.length;
-  var o3 = pos; pos += obj3.length;
-  var o4 = pos; pos += obj4.length;
-  var o5 = pos;
-
-  var xrefOffset = pos + obj5head.length + jpegLen + obj5tail.length;
-  var xref =
-    'xref' + NL + '0 6' + NL +
-    '0000000000 65535 f ' + NL +
-    pad10(o1) + ' 00000 n ' + NL +
-    pad10(o2) + ' 00000 n ' + NL +
-    pad10(o3) + ' 00000 n ' + NL +
-    pad10(o4) + ' 00000 n ' + NL +
-    pad10(o5) + ' 00000 n ' + NL;
-  var trailer =
-    'trailer' + NL + '<< /Size 6 /Root 1 0 R >>' + NL +
-    'startxref' + NL + xrefOffset + NL + '%%EOF';
-
-  var enc = new TextEncoder();
-  var jpegBytes = new Uint8Array(jpegLen);
-  for (var i = 0; i < jpegLen; i++) jpegBytes[i] = jpegRaw.charCodeAt(i);
-
-  var blob = new Blob(
-    [enc.encode(body), jpegBytes, enc.encode(obj5tail + xref + trailer)],
-    { type: 'application/pdf' }
-  );
-  var url  = URL.createObjectURL(blob);
-  var link = document.createElement('a');
-  var fecha = (repertorioFechaActiva || 'setlist').replace(/[\/]/g, '-');
-  link.href = url;
-  link.download = 'setlist-' + fecha + '.pdf';
-  link.click();
-  setTimeout(function() { URL.revokeObjectURL(url); }, 4000);
-  mostrarToast('\u2705 PDF descargado');
-}
-
-function pad10(n) { return ('0000000000' + n).slice(-10); }
-
 </script>
 
 
-<!-- ===== MODAL IMPRIMIR PÁGINA DE PDF ===== -->
-<div id="imprimirPDFModal" class="modal-overlay">
-  <div class="modal-card" style="max-width:380px;">
-
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-      <span style="color:#c9a84c;font-weight:bold;font-size:1rem;">🖨️ Imprimir desde PDF</span>
-      <button onclick="cerrarImprimirPDF()" style="background:#42426e;border:none;color:#e8e6f0;
-        border-radius:6px;padding:5px 12px;cursor:pointer;font-weight:bold;">✕</button>
-    </div>
-
-    <!-- Nombre canción -->
-    <div id="imprimirNombreCancion" style="color:#e8e6f0;font-weight:bold;font-size:0.95rem;
-      text-align:center;margin-bottom:16px;padding:10px;background:rgba(255,255,255,0.05);
-      border-radius:8px;border:1px solid #2a2a45;"></div>
-
-    <!-- Campos de página (solo admin) -->
-    <div id="imprimirAdminPanel" style="display:none;margin-bottom:14px;">
-      <div style="color:#8888aa;font-size:0.72rem;font-weight:700;text-transform:uppercase;
-        letter-spacing:0.5px;margin-bottom:8px;">Asignar páginas (solo admin)</div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-        <label style="color:#e8e6f0;font-size:0.82rem;flex:1;">📖 Letra:</label>
-        <input type="number" id="inputPaginaLetra" min="1" max="999" placeholder="Pág."
-          style="width:80px;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;
-                 border-radius:6px;padding:7px 10px;font-size:0.9rem;text-align:center;outline:none;" />
-      </div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
-        <label style="color:#e8e6f0;font-size:0.82rem;flex:1;">🎵 Acordes:</label>
-        <input type="number" id="inputPaginaAcordes" min="1" max="999" placeholder="Pág."
-          style="width:80px;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;
-                 border-radius:6px;padding:7px 10px;font-size:0.9rem;text-align:center;outline:none;" />
-      </div>
-      <button onclick="guardarPaginasPDF()"
-        style="width:100%;background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;
-               border:none;border-radius:8px;padding:10px;font-weight:bold;font-size:0.88rem;cursor:pointer;margin-bottom:12px;">
-        💾 Guardar páginas
-      </button>
-      <div style="border-top:1px solid #2a2a45;padding-top:12px;"></div>
-    </div>
-
-    <!-- Info páginas asignadas -->
-    <div id="imprimirInfoPaginas" style="margin-bottom:14px;"></div>
-
-    <!-- Botones imprimir -->
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button id="btnImpLetra" onclick="imprimirPaginaPDF('letra')"
-        style="flex:1;min-width:120px;background:linear-gradient(135deg,#1d2677,#519bfc);color:#fff;
-               border:none;border-radius:8px;padding:12px;font-weight:bold;font-size:0.88rem;cursor:pointer;display:none;">
-        📖 Imprimir Letra
-      </button>
-      <button id="btnImpAcordes" onclick="imprimirPaginaPDF('acordes')"
-        style="flex:1;min-width:120px;background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;
-               border:none;border-radius:8px;padding:12px;font-weight:bold;font-size:0.88rem;cursor:pointer;display:none;">
-        🎵 Imprimir Acordes
-      </button>
-    </div>
-
-    <!-- Sin páginas asignadas -->
-    <div id="imprimirSinPaginas" style="text-align:center;color:#8888aa;font-size:0.82rem;
-      padding:10px 0;display:none;">
-      Aún no se han asignado las páginas de esta canción.<br>
-      <span style="color:#e0946a;font-size:0.75rem;">Solo el admin puede asignarlas.</span>
-    </div>
-
-    <div style="text-align:center;color:#42426e;font-size:0.68rem;margin-top:12px;">
-      Extrae la página exacta del PDF para imprimir
-    </div>
-  </div>
-</div>
-
 <script>
-// ============================================================
-// === IMPRIMIR PÁGINA EXACTA DE PDF ==========================
-// ============================================================
-
-// Clave Firebase y localStorage para páginas de PDF
-var PDF_PAGINAS_KEY = 'yhwh_pdf_paginas';
-var pdfPaginasDB = {};
-
-// Cargar desde localStorage al inicio
-try {
-  pdfPaginasDB = JSON.parse(localStorage.getItem(PDF_PAGINAS_KEY) || '{}') || {};
-} catch(e) { pdfPaginasDB = {}; }
-
-// Sincronizar desde Firebase en tiempo real (con espera si aún no cargó)
-function iniciarListenerPdfPaginas(intentos) {
-  if (window.fbDb && window.fbRef && window.fbOnValue) {
-    window.fbOnValue(window.fbRef(window.fbDb, 'pdf_paginas'), function(snapshot) {
-      var data = snapshot.val();
-      if (data && typeof data === 'object') {
-        pdfPaginasDB = data;
-        localStorage.setItem(PDF_PAGINAS_KEY, JSON.stringify(data));
-      }
-    });
-  } else if (intentos > 0) {
-    setTimeout(function() { iniciarListenerPdfPaginas(intentos - 1); }, 800);
-  }
-}
-iniciarListenerPdfPaginas(10);
-
-function abrirImprimirPDF() {
-  if (!currentSong) return;
-  var modal = document.getElementById('imprimirPDFModal');
-  if (!modal) return;
-
-  // Nombre canción
-  var nombre = document.getElementById('imprimirNombreCancion');
-  if (nombre) nombre.textContent = currentSong.title;
-
-  // Panel admin
-  var adminPanel = document.getElementById('imprimirAdminPanel');
-  if (adminPanel) adminPanel.style.display = window.esAdmin ? 'block' : 'none';
-
-  // Rellenar inputs si ya tiene páginas
-  var paginas = pdfPaginasDB[currentSong.id] || {};
-  var inpLetra = document.getElementById('inputPaginaLetra');
-  var inpAcordes = document.getElementById('inputPaginaAcordes');
-  if (inpLetra)   inpLetra.value   = paginas.letra   || '';
-  if (inpAcordes) inpAcordes.value = paginas.acordes || '';
-
-  actualizarUIImprimirPDF();
-  modal.style.display = 'flex';
-}
-
-function cerrarImprimirPDF() {
-  var modal = document.getElementById('imprimirPDFModal');
-  if (modal) modal.style.display = 'none';
-}
-
-function actualizarUIImprimirPDF() {
-  if (!currentSong) return;
-  var paginas = pdfPaginasDB[currentSong.id] || {};
-  var tieneLetra   = !!paginas.letra;
-  var tieneAcordes = !!paginas.acordes;
-
-  var info = document.getElementById('imprimirInfoPaginas');
-  var sinPag = document.getElementById('imprimirSinPaginas');
-  var btnL = document.getElementById('btnImpLetra');
-  var btnA = document.getElementById('btnImpAcordes');
-
-  if (tieneLetra || tieneAcordes) {
-    if (sinPag) sinPag.style.display = 'none';
-    var html = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">';
-    if (tieneLetra)   html += '<div style="flex:1;background:rgba(81,155,252,0.1);border:1px solid #519bfc;border-radius:8px;padding:8px;text-align:center;"><div style="color:#519bfc;font-size:0.7rem;font-weight:700;">LETRA</div><div style="color:#e8e6f0;font-weight:bold;font-size:1.1rem;">Pág. ' + paginas.letra + '</div></div>';
-    if (tieneAcordes) html += '<div style="flex:1;background:rgba(201,168,76,0.1);border:1px solid #c9a84c;border-radius:8px;padding:8px;text-align:center;"><div style="color:#c9a84c;font-size:0.7rem;font-weight:700;">ACORDES</div><div style="color:#e8e6f0;font-weight:bold;font-size:1.1rem;">Pág. ' + paginas.acordes + '</div></div>';
-    html += '</div>';
-    if (info) info.innerHTML = html;
-    if (btnL) btnL.style.display = tieneLetra   ? 'block' : 'none';
-    if (btnA) btnA.style.display = tieneAcordes ? 'block' : 'none';
-  } else {
-    if (info) info.innerHTML = '';
-    if (sinPag) sinPag.style.display = 'block';
-    if (btnL) btnL.style.display = 'none';
-    if (btnA) btnA.style.display = 'none';
-  }
-}
-
-function guardarPaginasPDF() {
-  if (!currentSong || !window.esAdmin) return;
-  var inpLetra   = document.getElementById('inputPaginaLetra');
-  var inpAcordes = document.getElementById('inputPaginaAcordes');
-  var letra   = inpLetra   ? parseInt(inpLetra.value)   : 0;
-  var acordes = inpAcordes ? parseInt(inpAcordes.value) : 0;
-
-  if (!letra && !acordes) {
-    mostrarToast('⚠️ Escribe al menos una página.');
-    return;
-  }
-
-  var datos = {};
-  if (letra)   datos.letra   = letra;
-  if (acordes) datos.acordes = acordes;
-
-  pdfPaginasDB[currentSong.id] = datos;
-  localStorage.setItem(PDF_PAGINAS_KEY, JSON.stringify(pdfPaginasDB));
-
-  // Guardar en Firebase con reintentos
-  function intentarGuardarFirebase(intentos) {
-    if (window.fbDb && window.fbSet && window.fbRef) {
-      window.fbSet(window.fbRef(window.fbDb, 'pdf_paginas/' + currentSong.id), datos)
-        .then(function() {
-          mostrarToast('✅ Páginas guardadas en Firebase');
-        })
-        .catch(function(err) {
-          console.error('Firebase pdf_paginas error:', err && err.message ? err.message : err);
-          if (intentos > 0) {
-            setTimeout(function() { intentarGuardarFirebase(intentos - 1); }, 1500);
-          } else {
-            mostrarToast('⚠️ Error: ' + (err && err.message ? err.message : 'sin detalle'));
-          }
-        });
-    } else if (intentos > 0) {
-      // Firebase aún no cargó, esperar y reintentar
-      setTimeout(function() { intentarGuardarFirebase(intentos - 1); }, 1000);
-    } else {
-      mostrarToast('⚠️ Guardado local. Firebase no disponible.');
-    }
-  }
-  intentarGuardarFirebase(3);
-
-  actualizarUIImprimirPDF();
-}
-
-function imprimirPaginaPDF(tipo) {
-  if (!currentSong) return;
-  var paginas = pdfPaginasDB[currentSong.id] || {};
-  var numPagina = tipo === 'letra' ? paginas.letra : paginas.acordes;
-  var archivoPDF = tipo === 'letra' ? 'Alabanzas_Letra.pdf' : 'Alabanzas_Acordes.pdf';
-
-  if (!numPagina) {
-    mostrarToast('⚠️ No hay página asignada para ' + tipo);
-    return;
-  }
-
-  mostrarToast('⏳ Cargando PDF...');
-
-  // Cargar pdf-lib dinámicamente
-  if (!window.PDFLib) {
-    var script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
-    script.onload = function() {
-      extraerPaginaPDF(archivoPDF, numPagina, tipo);
-    };
-    script.onerror = function() {
-      mostrarToast('❌ Sin conexión para cargar pdf-lib');
-    };
-    document.head.appendChild(script);
-  } else {
-    extraerPaginaPDF(archivoPDF, numPagina, tipo);
-  }
-}
-
-function extraerPaginaPDF(archivo, numeroPagina, tipo) {
-  fetch(archivo)
-    .then(function(res) {
-      if (!res.ok) throw new Error('No se pudo cargar ' + archivo);
-      return res.arrayBuffer();
-    })
-    .then(function(buffer) {
-      return window.PDFLib.PDFDocument.load(buffer);
-    })
-    .then(function(pdfOriginal) {
-      return window.PDFLib.PDFDocument.create().then(function(pdfNuevo) {
-        // pdfNuevo.copyPages es quien debe llamar, pasando pdfOriginal como fuente
-        return pdfNuevo.copyPages(pdfOriginal, [numeroPagina - 1]).then(function(paginas) {
-          pdfNuevo.addPage(paginas[0]);
-          return pdfNuevo.save();
-        });
-      });
-    })
-    .then(function(pdfBytes) {
-      var blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      var url  = URL.createObjectURL(blob);
-
-      // Abrir en nueva pestaña para imprimir
-      var ventana = window.open(url, '_blank');
-      if (ventana) {
-        ventana.onload = function() {
-          ventana.focus();
-          ventana.print();
-        };
-        mostrarToast('✅ PDF listo para imprimir');
-      } else {
-        // Fallback: descargar directo (Safari bloquea popups a veces)
-        var link = document.createElement('a');
-        link.href = url;
-        link.download = currentSong.title + ' - ' + tipo + '.pdf';
-        link.click();
-        mostrarToast('✅ PDF descargado');
-      }
-
-      setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
-      cerrarImprimirPDF();
-    })
-    .catch(function(err) {
-      mostrarToast('❌ Error: ' + err.message);
-    });
-}
 // === ZONAS DE TOQUE PARA VISTA MÚSICO ===
 // Se eliminó el gesto de tocar arriba/abajo para pasar "página": casi nadie
 // lo descubría y generaba scrolls accidentales al tocar la pantalla. La
