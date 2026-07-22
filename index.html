@@ -5119,6 +5119,9 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
     // 2. SIEMPRE DIBUJA EL AUDIO LOCAL, CON CONTROLES PROPIOS (FUNCIONA CON O SIN INTERNET)
     var audio = document.createElement('audio');
     audio.style.display = 'none';
+    audio.playsInline = true;
+    audio.setAttribute('playsinline', '');
+    audio.preload = 'metadata';
 
     var sourceM4a = document.createElement('source');
     sourceM4a.src = 'audios/' + song.id + '.m4a';
@@ -5158,9 +5161,13 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
     }
 
     playBtn.onclick = function(){
-      if (audio.paused) { audio.play(); } else { audio.pause(); }
+      if (audio.paused) { intentarReproducirAudioPrincipal(audio); } else { audio.pause(); }
       actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
     };
+    audio.addEventListener('error', function(){
+      var codigo = audio.error ? audio.error.code : '?';
+      mostrarToast('⚠️ No se pudo cargar el audio (código ' + codigo + '). Revisa que exista audios/' + song.id + '.m4a o .mp3');
+    });
     audio.addEventListener('play', function(){
       playBtn.textContent = '❚❚';
       actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
@@ -9330,11 +9337,30 @@ function pianoRequestLandscapeMode(){
   } catch (e) {}
 }
 
+function pianoReadKeyboardScale(){
+  try {
+    var raw = localStorage.getItem('yhwh_piano_keyboard_scale');
+    var n = raw !== null ? parseFloat(raw) : NaN;
+    if (!isNaN(n)) {
+      pianoKeyboardScale = Math.max(0.8, Math.min(1.2, n));
+    }
+  } catch (e) {}
+  return pianoKeyboardScale || 1;
+}
+
+function pianoSetKeyboardScale(delta){
+  var next = Math.max(0.8, Math.min(1.2, (pianoKeyboardScale || 1) + delta));
+  pianoKeyboardScale = next;
+  try { localStorage.setItem('yhwh_piano_keyboard_scale', String(next)); } catch (e) {}
+  pianoActualizarSiAbierto();
+}
+
 // Cuando se está viendo/reproduciendo una melodía guardada, ocultamos la
 // marcación morada de "acorde actual" en el teclado (no aporta info útil
 // mientras suena la melodía y puede confundir). Se vuelve a mostrar en
 // cuanto el usuario toca cualquier acorde (variación, tonalidad, etc.).
 var pianoOcultarMarcaAcorde = false;
+var pianoKeyboardScale = 1;
 var pianoMelodyRecording = false;
 var pianoMelodyStart = 0;
 var pianoMelodyNotes = [];
@@ -9409,10 +9435,11 @@ function pianoIniciarFallOverlay(notas, playBaseMs){
       b.el.style.opacity = (t > b.start + b.duration) ? '0' : '1';
     });
     if (t < finMax + 0.4) {
-      if (esMovil) {
-        setTimeout(function(){ pianoFallRAF = requestAnimationFrame(frame); }, 16);
-        return;
-      }
+      // Antes, en móvil se envolvía requestAnimationFrame en un setTimeout(16ms)
+      // extra. Esa doble espera desincroniza la animación del refresco real de
+      // pantalla del iPhone (Safari no es preciso con setTimeout a 16ms) y es
+      // lo que causaba que las barras se vieran trabadas/a saltos. Usamos
+      // requestAnimationFrame puro siempre, igual que en PC, donde sí se ve fluido.
       pianoFallRAF = requestAnimationFrame(frame);
     } else {
       pianoLimpiarFallOverlay();
@@ -9721,6 +9748,22 @@ function pianoAcomodarVistaMelodia(){
   }
 }
 
+// Antes audio.play() se llamaba "a ciegas": si la promesa se rechazaba
+// (típico en iPhone por políticas de reproducción de iOS), el botón ya
+// había cambiado de ícono por el evento 'play' esperado, pero el sonido
+// nunca salía y no había forma de saber por qué. Esta función centraliza
+// la llamada a .play() y muestra un toast con el error real de iOS/Safari
+// para poder diagnosticarlo en el propio teléfono.
+function intentarReproducirAudioPrincipal(audio){
+  if (!audio) return;
+  var p = audio.play();
+  if (p && p.catch) {
+    p.catch(function(err){
+      mostrarToast('⚠️ El audio no pudo sonar: ' + (err && err.message ? err.message : err));
+    });
+  }
+}
+
 function actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel){
   var floating = document.getElementById('floatingAudioPlayer');
   if (!floating) {
@@ -9755,7 +9798,7 @@ function actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel)
     miniBtn._pianoSynced = true;
     miniBtn.onclick = function(){
       if (!audio) return;
-      if (audio.paused) { audio.play(); } else { audio.pause(); }
+      if (audio.paused) { intentarReproducirAudioPrincipal(audio); } else { audio.pause(); }
     };
   }
   floating.style.right = '10px';
@@ -10098,9 +10141,13 @@ function pianoRenderHTML(root, type){
   // se dibujan un poco más finas para que se vean más octavas de contexto
   // alrededor del acorde activo, en vez de tener que hacer tanto scroll.
   var esCompacto = (typeof window !== 'undefined' && window.innerWidth && window.innerWidth <= 600);
-  var whiteWidth = esCompacto ? 24 : 30;
-  var whiteGap = esCompacto ? 1 : 2;
-  var blackWidth = esCompacto ? 14 : 18;
+  var zoomTeclas = pianoReadKeyboardScale();
+  var baseWhiteWidth = esCompacto ? 24 : 30;
+  var baseWhiteGap = esCompacto ? 1 : 2;
+  var baseBlackWidth = esCompacto ? 14 : 18;
+  var whiteWidth = Math.max(18, Math.round(baseWhiteWidth * zoomTeclas));
+  var whiteGap = Math.max(1, Math.round(baseWhiteGap * zoomTeclas));
+  var blackWidth = Math.max(11, Math.round(baseBlackWidth * zoomTeclas));
   var whiteHeight = 148;
   var blackHeight = 94;
   var blackHeightTop = 0;
@@ -10233,11 +10280,22 @@ function pianoRenderHTML(root, type){
       ins.emoji+' '+ins.label+'</button>';
   }).join('');
 
+  var zoomBtns = '';
+  if (esCompacto) {
+    zoomBtns =
+      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">' +
+        '<button onclick="pianoSetKeyboardScale(-0.08)" style="background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:5px 10px;cursor:pointer;font-size:0.72rem;font-weight:bold;">− Teclas</button>' +
+        '<button onclick="pianoSetKeyboardScale(0.08)" style="background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:5px 10px;cursor:pointer;font-size:0.72rem;font-weight:bold;">+ Teclas</button>' +
+        '<span style="color:#8888aa;font-size:0.7rem;">' + Math.round(zoomTeclas * 100) + '%</span>' +
+      '</div>';
+  }
+
   return '<div style="font-size:0.82rem;color:#e0946a;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;">' +
     '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">' +
       '<div><strong style="color:#e8c97a;font-size:1.05rem;">'+pianoLabelChord(root,type)+'</strong> <span style="color:#8888aa;">' + typeName + '</span></div>' +
       '<div style="display:flex;gap:5px;flex-wrap:wrap;">' + instrumentoBtns + '</div>' +
     '</div>' +
+    (zoomBtns ? '<div style="display:flex;justify-content:flex-end;">' + zoomBtns + '</div>' : '') +
     '<div id="pianoMelodyRecorder" style="display:none;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:4px;">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">' +
         '<div>' +
