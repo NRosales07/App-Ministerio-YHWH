@@ -9553,7 +9553,7 @@ function cerrarMenuMelodia(){
 // (Grabar / Guardar / Última nota / Limpiar) dentro del propio piano.
 function abrirMelodiaCancionActual(){
   if (!currentSong) { mostrarToast('⚠️ Abre una canción primero.'); return; }
-  if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  if (window.pianoAsegurarAudioDesbloqueado) pianoAsegurarAudioDesbloqueado().catch(function(){});
   pianoRequestLandscapeMode();
   // Si ya estábamos grabando (o teníamos notas sin guardar) para esta MISMA
   // canción, no las borremos solo por reabrir el menú de Melodía — antes
@@ -9668,7 +9668,7 @@ function pianoClearMelody(){
 // de pianoToggleRecording, igual que en Adoración).
 function jubiloAbrirPianoMelodiaActual(iniciarGrabacion){
   if (!jubiloMelodiaSongId) return;
-  if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  if (window.pianoAsegurarAudioDesbloqueado) pianoAsegurarAudioDesbloqueado().catch(function(){});
   pianoRequestLandscapeMode();
   pianoMelodyTarget = 'jubilo:' + jubiloMelodiaSongId;
   pianoMelodyRecording = false;
@@ -9771,7 +9771,7 @@ function pianoGetSemis(root, type){
 // como preferencia de la sección actual (Adoración/Júbilo).
 function pianoCambiarInstrumento(instrumento){
   if (!pianoModalActual) return;
-  if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  if (window.pianoAsegurarAudioDesbloqueado) pianoAsegurarAudioDesbloqueado().catch(function(){});
   vibrar(10);
   abrirPiano(pianoModalActual.root + pianoModalActual.type, null, false, pianoOcultarMarcaAcorde, instrumento);
 }
@@ -10265,35 +10265,68 @@ function pianoDebugToast(msg){
   try { mostrarToast('🔧 ' + msg, 3500); } catch(e){}
 }
 (function(){
+  var pianoAudioUnlockPromise = null;
+  var pianoAudioUnlocked = false;
+
+  function pianoSilencePulse(ctx){
+    if (!ctx || !ctx.createBuffer || !ctx.createBufferSource) return;
+    try {
+      var buffer = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+      var source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      if (source.start) source.start(0);
+      else if (source.noteOn) source.noteOn(0);
+    } catch(e){}
+  }
+
+  window.pianoAsegurarAudioDesbloqueado = function(){
+    if (pianoAudioUnlocked) return Promise.resolve();
+    if (pianoAudioUnlockPromise) return pianoAudioUnlockPromise;
+
+    pianoAudioUnlockPromise = Promise.resolve().then(function(){
+      if (!(window.Tone && Tone.start && Tone.getContext)) {
+        throw new Error('Tone.js no estaba listo');
+      }
+      return Tone.start().then(function(){
+        var ctx = Tone.getContext().rawContext;
+        if (!ctx) throw new Error('No se pudo obtener el contexto de Tone');
+        if (ctx.state === 'suspended' && ctx.resume) {
+          return ctx.resume().catch(function(){});
+        }
+      }).then(function(){
+        var ctx = Tone.getContext().rawContext;
+        pianoSilencePulse(ctx);
+        pianoAudioUnlocked = true;
+        if (ctx && ctx.state !== 'running') {
+          pianoDebugToast('Contexto de audio quedó en "' + ctx.state + '" tras desbloquear');
+        }
+      });
+    }).then(function(){
+      pianoAudioUnlockPromise = null;
+    }, function(err){
+      pianoAudioUnlockPromise = null;
+      pianoDebugToast('Tone.start() falló: ' + (err && err.message ? err.message : err));
+      throw err;
+    });
+
+    return pianoAudioUnlockPromise;
+  };
+})();
+(function(){
   var pianoAudioDesbloqueado = false;
   function pianoDesbloquearAudio(){
     if (pianoAudioDesbloqueado) return;
     pianoAudioDesbloqueado = true;
-    document.removeEventListener('touchend', pianoDesbloquearAudio);
-    document.removeEventListener('mousedown', pianoDesbloquearAudio);
+    document.removeEventListener('touchstart', pianoDesbloquearAudio, true);
+    document.removeEventListener('pointerdown', pianoDesbloquearAudio, true);
+    document.removeEventListener('mousedown', pianoDesbloquearAudio, true);
 
-    if (!(window.Tone && Tone.start)) {
-      pianoDebugToast('Tone.js no estaba listo en el primer toque');
-      return;
-    }
-    Tone.start().then(function(){
-      var ctx = Tone.getContext().rawContext;
-      // Buffer de 1 sample en silencio, reproducido ya (no programado a
-      // futuro) para forzar el desbloqueo real dentro del gesto.
-      var buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
-      var source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(ctx.destination);
-      if (source.start) source.start(0); else source.noteOn(0);
-      if (ctx.state !== 'running') {
-        pianoDebugToast('Contexto de audio quedó en "' + ctx.state + '" tras desbloquear');
-      }
-    }).catch(function(err){
-      pianoDebugToast('Tone.start() falló: ' + (err && err.message ? err.message : err));
-    });
+    if (window.pianoAsegurarAudioDesbloqueado) pianoAsegurarAudioDesbloqueado().catch(function(){});
   }
-  document.addEventListener('touchend', pianoDesbloquearAudio, { passive: true });
-  document.addEventListener('mousedown', pianoDesbloquearAudio);
+  document.addEventListener('touchstart', pianoDesbloquearAudio, { passive: true, capture: true });
+  document.addEventListener('pointerdown', pianoDesbloquearAudio, true);
+  document.addEventListener('mousedown', pianoDesbloquearAudio, true);
 })();
 
 var pianoSampler = null;
@@ -10627,7 +10660,7 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
   chordStr = chordLatinoToAmericano(chordStr);
   var parsed = pianoParseChord(chordStr);
   if (!parsed) return;
-  if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  if (window.pianoAsegurarAudioDesbloqueado) pianoAsegurarAudioDesbloqueado().catch(function(){});
   pianoAvisoCargaMostrado = false;
   pianoRequestLandscapeMode();
   var modal = document.getElementById('pianoModal');
