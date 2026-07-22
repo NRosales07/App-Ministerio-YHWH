@@ -9383,7 +9383,83 @@ var pianoMelodyViewNotas = null;
 // el requestAnimationFrame de las barras que caen — eso era lo que se veía
 // "trabado". Ahora todo el resaltado vive en este único RAF, igual que las
 // barras, así que no compite consigo mismo.
-var pianoMelodyHighlightRAF = null;
+// Un solo bucle que en cada frame: mueve las barras que caen, enciende/apaga
+// las teclas resaltadas (con su destello) y actualiza la barra de progreso.
+// Antes esto eran 3 requestAnimationFrame separados compitiendo entre sí por
+// el hilo principal; ahora es uno solo con un único "t".
+function pianoLoopReproduccionMelodia(overlay, notas, playBaseMs){
+  var barras = overlay ? overlay.barras : [];
+  var zoneHeight = overlay ? overlay.zoneHeight : 0;
+  var finMax = overlay ? overlay.finMax : 0;
+  var bar = document.getElementById('pianoMelodyProgressBar');
+  var text = document.getElementById('pianoMelodyProgressText');
+
+  function frame(){
+    if (!pianoMelodyModalState.active || pianoMelodyModalState.paused) {
+      pianoMelodyPlaybackRAF = null;
+      return;
+    }
+    var t = (performance.now() - playBaseMs) / 1000;
+
+    // 1) Barras que caen
+    for (var bIdx = 0; bIdx < barras.length; bIdx++){
+      var b = barras[bIdx];
+      var distArriba = (b.start - t) * PIANO_FALL_SPEED; // px sobre la línea de teclas
+      b.el.style.transform = 'translate3d(0,' + (zoneHeight - distArriba - b.alto) + 'px,0)';
+      b.el.style.opacity = (t > b.start + b.duration) ? '0' : '1';
+    }
+
+    // 2) Resaltado de teclas + destello
+    for (var i = 0; i < notas.length; i++){
+      var n = notas[i];
+      var start = Math.max(0, Number(n.start) || 0);
+      var dur = Math.max(0.15, Number(n.duration) || 0.35);
+      var suena = (t >= start) && (t < start + dur);
+      if (suena && !n._resaltada){
+        n._resaltada = true;
+        pianoSetKeyActive(n.midi, true);
+        pianoKeyRipple(n.midi);
+      } else if (!suena && n._resaltada){
+        n._resaltada = false;
+        pianoSetKeyActive(n.midi, false);
+      }
+    }
+
+    // 3) Barra de progreso
+    pianoMelodyModalState.elapsed = Math.max(0, t);
+    if (bar && pianoMelodyModalState.duration) {
+      var pct = Math.max(0, Math.min(100, (pianoMelodyModalState.elapsed / pianoMelodyModalState.duration) * 100));
+      bar.style.transform = 'scaleX(' + (pct / 100) + ')';
+      if (text) text.textContent = Math.round(pct) + '%';
+    }
+
+    if (t < finMax + 0.4) {
+      pianoMelodyPlaybackRAF = requestAnimationFrame(frame);
+    } else {
+      pianoMelodyPlaybackRAF = null;
+      pianoLimpiarFallOverlay();
+    }
+  }
+  pianoMelodyPlaybackRAF = requestAnimationFrame(frame);
+}
+
+// === EFECTO "BARRAS QUE CAEN" (estilo Synthesia) =============
+// Al reproducir una melodía guardada, dibujamos una barra por nota que cae
+// desde arriba y llega exactamente a la tecla en el instante en que suena.
+var PIANO_FALL_ZONE_H = 170; // alto (px) de la zona donde caen las barras
+// Antes en 130px/s: con una zona de solo 150-170px de alto, la barra tardaba
+// más de 1 segundo en cruzarla y se veía en cámara lenta. Subida a 260px/s
+// para que el recorrido sea de apenas ~0.6s, mucho más parecido a un
+// "Synthesia" real.
+var PIANO_FALL_SPEED  = 260; // velocidad de caída (px por segundo)
+var PIANO_FALL_COLORS = ['#7F77DD','#3ddc84','#e8824a','#4fc3f7','#f3d58a'];
+// Un solo requestAnimationFrame para TODA la reproducción visual de la
+// melodía (barras que caen + resaltado de teclas + barra de progreso).
+// Antes eran 3 rAF independientes corriendo en paralelo, cada uno leyendo
+// performance.now() y escribiendo al DOM por su cuenta; eso era trabajo de
+// más en cada frame y es lo que sumaba al trabón en iPhone. Ahora todo se
+// calcula con un solo "t" y se actualiza en un solo paso por frame.
+var pianoMelodyPlaybackRAF = null;
 // Cache de elementos <button> de las teclas por midi, para no hacer
 // querySelector por cada nota en cada cambio de estado (se reconstruye cada
 // vez que arranca una reproducción, es barata: un solo querySelectorAll).
@@ -9401,59 +9477,22 @@ function pianoTeclaEl(midi){
   if (!pianoTeclaElCache) pianoConstruirCacheTeclas();
   return pianoTeclaElCache[String(midi)] || null;
 }
-// Recorre las notas de la melodía en cada frame (en vez de un setTimeout por
-// nota) y enciende/apaga cada tecla solo cuando su estado realmente cambia.
-function pianoLoopResaltadoMelodia(notas, playBaseMs){
-  function frame(){
-    if (!pianoMelodyModalState.active || pianoMelodyModalState.paused) return;
-    var t = (performance.now() - playBaseMs) / 1000;
-    var faltan = false;
-    for (var i = 0; i < notas.length; i++){
-      var n = notas[i];
-      var start = Math.max(0, Number(n.start) || 0);
-      var dur = Math.max(0.15, Number(n.duration) || 0.35);
-      var suena = (t >= start) && (t < start + dur);
-      if (suena && !n._resaltada){
-        n._resaltada = true;
-        pianoSetKeyActive(n.midi, true);
-        pianoKeyRipple(n.midi);
-      } else if (!suena && n._resaltada){
-        n._resaltada = false;
-        pianoSetKeyActive(n.midi, false);
-      }
-      if (t < start + dur) faltan = true;
-    }
-    if (faltan) {
-      pianoMelodyHighlightRAF = requestAnimationFrame(frame);
-    } else {
-      pianoMelodyHighlightRAF = null;
-    }
-  }
-  pianoMelodyHighlightRAF = requestAnimationFrame(frame);
-}
-
-// === EFECTO "BARRAS QUE CAEN" (estilo Synthesia) =============
-// Al reproducir una melodía guardada, dibujamos una barra por nota que cae
-// desde arriba y llega exactamente a la tecla en el instante en que suena.
-var PIANO_FALL_ZONE_H = 170; // alto (px) de la zona donde caen las barras
-var PIANO_FALL_SPEED  = 130; // velocidad de caída (px por segundo)
-var PIANO_FALL_COLORS = ['#7F77DD','#3ddc84','#e8824a','#4fc3f7','#f3d58a'];
-var pianoFallRAF = null;
 
 function pianoLimpiarFallOverlay(){
-  if (pianoFallRAF) { cancelAnimationFrame(pianoFallRAF); pianoFallRAF = null; }
+  if (pianoMelodyPlaybackRAF) { cancelAnimationFrame(pianoMelodyPlaybackRAF); pianoMelodyPlaybackRAF = null; }
   var zone = document.getElementById('pianoFallZone');
   if (zone) zone.innerHTML = '';
 }
 
-// Crea (si no existe) la zona de caída justo encima del teclado y anima
-// una barra por cada nota de `notas`, sincronizada con `playBaseMs`
-// (el mismo instante performance.now() usado para programar el audio).
+// Crea (si no existe) la zona de caída justo encima del teclado y arma una
+// barra por cada nota de `notas`. Ya NO arranca su propio requestAnimationFrame:
+// eso ahora lo hace pianoLoopReproduccionMelodia, que anima esto junto con el
+// resaltado de teclas y el progreso en un único bucle.
 function pianoIniciarFallOverlay(notas, playBaseMs){
   var content = document.getElementById('pianoModalContent');
-  if (!content) return;
+  if (!content) return null;
   var stage = content.querySelector('.piano-keyboard-stage');
-  if (!stage) return;
+  if (!stage) return null;
   pianoLimpiarFallOverlay();
   var zone = document.getElementById('pianoFallZone');
   if (!zone) {
@@ -9484,25 +9523,7 @@ function pianoIniciarFallOverlay(notas, playBaseMs){
     return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
   }, 0);
 
-  function frame(){
-    var t = (performance.now() - playBaseMs) / 1000;
-    barras.forEach(function(b){
-      var distArriba = (b.start - t) * PIANO_FALL_SPEED; // px sobre la línea de teclas
-      b.el.style.transform = 'translate3d(0,' + (zoneHeight - distArriba - b.alto) + 'px,0)';
-      b.el.style.opacity = (t > b.start + b.duration) ? '0' : '1';
-    });
-    if (t < finMax + 0.4) {
-      // Antes, en móvil se envolvía requestAnimationFrame en un setTimeout(16ms)
-      // extra. Esa doble espera desincroniza la animación del refresco real de
-      // pantalla del iPhone (Safari no es preciso con setTimeout a 16ms) y es
-      // lo que causaba que las barras se vieran trabadas/a saltos. Usamos
-      // requestAnimationFrame puro siempre, igual que en PC, donde sí se ve fluido.
-      pianoFallRAF = requestAnimationFrame(frame);
-    } else {
-      pianoLimpiarFallOverlay();
-    }
-  }
-  pianoFallRAF = requestAnimationFrame(frame);
+  return { barras: barras, zoneHeight: zoneHeight, finMax: finMax };
 }
 
 function pianoMelodyClaveDeDestino(){
@@ -9513,7 +9534,6 @@ function pianoLimpiarPlaybackMelodia(){
   while (pianoMelodyPlaybackTimers.length) {
     clearTimeout(pianoMelodyPlaybackTimers.pop());
   }
-  if (pianoMelodyHighlightRAF) { cancelAnimationFrame(pianoMelodyHighlightRAF); pianoMelodyHighlightRAF = null; }
   pianoLimpiarFallOverlay();
   var modal = document.getElementById('pianoModalContent');
   if (!modal) return;
@@ -9536,8 +9556,7 @@ function pianoModalActualizarControlesMelodia(){
 
 function pianoModalDetenerMelodia(resetearEstado){
   if (resetearEstado === undefined) resetearEstado = true;
-  if (pianoMelodyModalState.raf) cancelAnimationFrame(pianoMelodyModalState.raf);
-  if (pianoMelodyHighlightRAF) { cancelAnimationFrame(pianoMelodyHighlightRAF); pianoMelodyHighlightRAF = null; }
+  pianoLimpiarFallOverlay();
   pianoMelodyPlaybackTimers.forEach(function(t){ clearTimeout(t); });
   pianoMelodyPlaybackTimers.length = 0;
   var audio = window.audioPrincipalEl;
@@ -9564,24 +9583,6 @@ function pianoModalDetenerMelodia(resetearEstado){
     }
   }
   pianoModalActualizarControlesMelodia();
-}
-
-function pianoModalLoopProgreso(){
-  if (!pianoMelodyModalState.active || pianoMelodyModalState.paused) return;
-  var now = performance.now();
-  pianoMelodyModalState.elapsed = Math.max(0, (now - pianoMelodyModalState.start) / 1000);
-  var bar = document.getElementById('pianoMelodyProgressBar');
-  var text = document.getElementById('pianoMelodyProgressText');
-  if (bar && pianoMelodyModalState.duration) {
-    var pct = Math.max(0, Math.min(100, (pianoMelodyModalState.elapsed / pianoMelodyModalState.duration) * 100));
-    // transform en vez de width: evita forzar layout en cada frame (lo
-    // que trababa la barra en Safari/iPhone). scaleX es solo composición.
-    bar.style.transform = 'scaleX(' + (pct / 100) + ')';
-    if (text) text.textContent = Math.round(pct) + '%';
-  }
-  if (pianoMelodyModalState.elapsed < pianoMelodyModalState.duration + 0.15) {
-    pianoMelodyModalState.raf = requestAnimationFrame(pianoModalLoopProgreso);
-  }
 }
 
 function pianoModalProgramarMelodiaDesde(offsetSegundos){
@@ -9631,7 +9632,7 @@ function pianoModalProgramarMelodiaDesde(offsetSegundos){
     if (!pianoMelodyModalState.active || pianoMelodyModalState.paused) return;
     var base = ctx.currentTime + 0.05;
     var playBaseMs = performance.now() + 50;
-    pianoIniciarFallOverlay(notasPendientes, playBaseMs);
+    var overlay = pianoIniciarFallOverlay(notasPendientes, playBaseMs);
     pianoConstruirCacheTeclas();
     notasPendientes.forEach(function(n){
       var start = Math.max(0, Number(n.start) || 0);
@@ -9640,10 +9641,10 @@ function pianoModalProgramarMelodiaDesde(offsetSegundos){
       n._resaltada = false;
       pianoPlayNoteSample(ctx, n.midi, base + delay, dur);
     });
-    // El resaltado de teclas + destello ahora vive en un único
-    // requestAnimationFrame (igual que las barras que caen), en vez de dos
-    // setTimeout por nota — eso es lo que evita el trabado en iPhone.
-    pianoLoopResaltadoMelodia(notasPendientes, playBaseMs);
+    // Barras, resaltado de teclas y progreso ahora corren en un único
+    // requestAnimationFrame — antes eran 3 bucles separados compitiendo por
+    // el hilo principal, lo cual sumaba al trabón en iPhone.
+    pianoLoopReproduccionMelodia(overlay, notasPendientes, playBaseMs);
     var lastEnd = notasPendientes.reduce(function(max, n){
       return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
     }, inicio);
@@ -9657,7 +9658,6 @@ function pianoModalProgramarMelodiaDesde(offsetSegundos){
       if (bar) bar.style.transform = 'scaleX(0)';
       if (text) text.textContent = '0%';
     }, Math.max(0, (lastEnd - inicio + 0.3) * 1000)));
-    pianoModalLoopProgreso();
   });
 
   return true;
