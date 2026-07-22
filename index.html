@@ -9794,15 +9794,19 @@ function actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel)
       miniTime.textContent = 'Audio';
     }
   }
-  if (miniBtn && !miniBtn._pianoSynced) {
-    miniBtn._pianoSynced = true;
+  if (miniBtn) {
+    // Se reasigna en CADA llamada (no solo la primera vez) para que el
+    // botón flotante siempre controle el <audio> de la canción actual.
+    // Antes, con el flag _pianoSynced, el clic quedaba enganchado para
+    // siempre al <audio> de la primera canción abierta; al cambiar de
+    // canción ese <audio> viejo se elimina del DOM (mediaContainer.innerHTML=''),
+    // y en iPhone reproducir un <audio> ya desconectado del DOM no suena
+    // (el ícono cambiaba pero no salía sonido).
     miniBtn.onclick = function(){
       if (!audio) return;
       if (audio.paused) { intentarReproducirAudioPrincipal(audio); } else { audio.pause(); }
     };
   }
-  floating.style.right = '10px';
-  floating.style.top = '10px';
   floating.style.display = 'flex';
 }
 
