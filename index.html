@@ -10216,7 +10216,23 @@ function cerrarGaleriaLightbox(){
   if (lb) lb.style.display = 'none';
 }
 
+// OJO: antes esta función creaba su PROPIO AudioContext "crudo" (new
+// AudioContext()), separado del que usa Tone.js internamente para los
+// Sampler (piano/trompeta/guitarra). En Chrome/Android eso no se notaba,
+// pero en iOS Safari el desbloqueo de audio por gesto del usuario solo
+// vale para el contexto que efectivamente se desbloqueó — y como el
+// sonido real sale por el contexto de Tone (vía .toDestination()), tener
+// dos contextos distintos podía dejar el de Tone sin desbloquear aunque
+// este de acá sí lo estuviera. Ahora, si Tone.js está disponible, se
+// reutiliza SU contexto (Tone.getContext().rawContext) para todo —
+// incluido el motor de respaldo con osciladores — para que solo exista un
+// AudioContext en toda la app.
 function pianoGetAudioCtx(){
+  if (window.Tone && Tone.getContext) {
+    var toneCtx = Tone.getContext().rawContext;
+    if (toneCtx && toneCtx.state === 'suspended') { try { toneCtx.resume(); } catch(e){} }
+    return toneCtx;
+  }
   if (!pianoAudioCtx) {
     var Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return null;
@@ -10235,15 +10251,46 @@ function pianoGetAudioCtx(){
 // CUALQUIER parte de la página (no hace falta que sea sobre el piano), así
 // para cuando el usuario realmente toca un acorde, Tone.js ya está listo
 // y lo único que puede demorar es la descarga de las muestras en sí.
+//
+// Además, en vez de confiar solo en Tone.start()/resume() (que en algunos
+// iPhone deja el contexto "running" en el papel pero sin sonar realmente
+// la primera vez), se reproduce un buffer silencioso de un sample dentro
+// del mismo gesto — es el truco clásico para que Safari cuente el
+// contexto como "audio real ya sonó" y no como un desbloqueo fantasma.
+//
+// pianoDebugToast: aviso TEMPORAL (quitar cuando confirmemos que ya suena
+// bien en iPhone) para poder ver en el propio teléfono, sin cable ni
+// consola, si el desbloqueo falló y por qué.
+function pianoDebugToast(msg){
+  try { mostrarToast('🔧 ' + msg, 3500); } catch(e){}
+}
 (function(){
   var pianoAudioDesbloqueado = false;
   function pianoDesbloquearAudio(){
     if (pianoAudioDesbloqueado) return;
     pianoAudioDesbloqueado = true;
-    if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
-    try { pianoGetAudioCtx(); } catch(e){}
     document.removeEventListener('touchend', pianoDesbloquearAudio);
     document.removeEventListener('mousedown', pianoDesbloquearAudio);
+
+    if (!(window.Tone && Tone.start)) {
+      pianoDebugToast('Tone.js no estaba listo en el primer toque');
+      return;
+    }
+    Tone.start().then(function(){
+      var ctx = Tone.getContext().rawContext;
+      // Buffer de 1 sample en silencio, reproducido ya (no programado a
+      // futuro) para forzar el desbloqueo real dentro del gesto.
+      var buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+      var source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      if (source.start) source.start(0); else source.noteOn(0);
+      if (ctx.state !== 'running') {
+        pianoDebugToast('Contexto de audio quedó en "' + ctx.state + '" tras desbloquear');
+      }
+    }).catch(function(err){
+      pianoDebugToast('Tone.start() falló: ' + (err && err.message ? err.message : err));
+    });
   }
   document.addEventListener('touchend', pianoDesbloquearAudio, { passive: true });
   document.addEventListener('mousedown', pianoDesbloquearAudio);
@@ -10467,7 +10514,8 @@ function pianoCreateVoice(ctx, midi, startTime, duration, velocity){
   pianoObtenerSamplerActivo().then(function(sampler){
     var when = (typeof startTime === 'number' && isFinite(startTime)) ? startTime : ((window.Tone && Tone.now) ? Tone.now() : (ctx ? ctx.currentTime + 0.02 : 0));
     sampler.triggerAttackRelease(note, Math.max(0.2, duration || 0.55), when, vel);
-  }).catch(function(){
+  }).catch(function(err){
+    pianoDebugToast('Sampler no cargó, sonando con respaldo: ' + (err && err.message ? err.message : err));
     pianoCreateFallbackVoice(ctx, midi, startTime, duration, velocity);
   });
 }
