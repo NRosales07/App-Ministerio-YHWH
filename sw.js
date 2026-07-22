@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alabanzas-v87';
-const DATA_CACHE_NAME = 'alabanzas-data-v27';
+const CACHE_NAME = 'alabanzas-v89';
+const DATA_CACHE_NAME = 'alabanzas-data-v29';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -21,31 +21,48 @@ self.addEventListener('install', (e) => {
         'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js',
         'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js',
         'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js',
-        'piano-samples/C3.mp3',
-        'piano-samples/Db3.mp3',
-        'piano-samples/D3.mp3',
-        'piano-samples/Eb3.mp3',
-        'piano-samples/E3.mp3',
-        'piano-samples/F3.mp3',
-        'piano-samples/Gb3.mp3',
-        'piano-samples/G3.mp3',
-        'piano-samples/Ab3.mp3',
-        'piano-samples/A3.mp3',
-        'piano-samples/Bb3.mp3',
-        'piano-samples/B3.mp3',
-        'piano-samples/C4.mp3',
-        'piano-samples/Db4.mp3',
-        'piano-samples/D4.mp3',
-        'piano-samples/Eb4.mp3',
-        'piano-samples/E4.mp3',
-        'piano-samples/F4.mp3',
-        'piano-samples/Gb4.mp3',
-        'piano-samples/G4.mp3',
-        'piano-samples/Ab4.mp3',
-        'piano-samples/A4.mp3',
-        'piano-samples/Bb4.mp3',
-        'piano-samples/B4.mp3',
-        'piano-samples/C5.mp3'
+        // El piano (Tone.Sampler) usa estos samples de tonejs.github.io,
+        // no los de piano-samples/ (esa carpeta no se referencia en ningún
+        // lado del código, así que precacharla no ayudaba en nada). Los
+        // dejamos precargados desde la instalación para que la primera
+        // vez que se abra el piano ya suene al toque, sin esperar.
+        'https://tonejs.github.io/audio/salamander/A0.mp3',
+        'https://tonejs.github.io/audio/salamander/C1.mp3',
+        'https://tonejs.github.io/audio/salamander/Ds1.mp3',
+        'https://tonejs.github.io/audio/salamander/Fs1.mp3',
+        'https://tonejs.github.io/audio/salamander/A1.mp3',
+        'https://tonejs.github.io/audio/salamander/C2.mp3',
+        'https://tonejs.github.io/audio/salamander/Ds2.mp3',
+        'https://tonejs.github.io/audio/salamander/Fs2.mp3',
+        'https://tonejs.github.io/audio/salamander/A2.mp3',
+        'https://tonejs.github.io/audio/salamander/C3.mp3',
+        'https://tonejs.github.io/audio/salamander/Ds3.mp3',
+        'https://tonejs.github.io/audio/salamander/Fs3.mp3',
+        'https://tonejs.github.io/audio/salamander/A3.mp3',
+        'https://tonejs.github.io/audio/salamander/C4.mp3',
+        'https://tonejs.github.io/audio/salamander/Ds4.mp3',
+        'https://tonejs.github.io/audio/salamander/Fs4.mp3',
+        'https://tonejs.github.io/audio/salamander/A4.mp3',
+        'https://tonejs.github.io/audio/salamander/C5.mp3',
+        'https://tonejs.github.io/audio/salamander/Ds5.mp3',
+        'https://tonejs.github.io/audio/salamander/Fs5.mp3',
+        'https://tonejs.github.io/audio/salamander/A5.mp3',
+        // Muestras de trompeta (Júbilo), mismas 11 notas que carga
+        // pianoGetTrumpetSampler() en index.html. Van en 'opcionales' con
+        // el mismo trato que las de piano: si una falla, no aborta el
+        // resto (cada cache.add() de la lista de abajo tiene su propio
+        // .catch()).
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/A3.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/F3.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/C4.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/Ds4.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/F4.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/G4.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/As4.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/D5.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/F5.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/A5.mp3',
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/C6.mp3'
       ];
 
       return cache.addAll(criticos).then(() => {
@@ -99,8 +116,21 @@ self.addEventListener('fetch', (e) => {
   }
 
   if (!isSameOrigin) {
+    // Antes esto solo miraba si ya había algo cacheado y, si no, iba a la
+    // red sin guardar nada — por eso los samples del piano (que se bajan
+    // de tonejs.github.io) se volvían a descargar cada vez que no estaban
+    // ya en el caché HTTP normal del navegador, con la demora que eso
+    // causaba al abrir el piano. Ahora sí se guardan, igual que los PDFs.
     e.respondWith(
-      caches.match(e.request).then((cached) => cached || fetch(e.request))
+      caches.open(DATA_CACHE_NAME).then(async (cache) => {
+        const cached = await cache.match(e.request);
+        const networkFetch = fetch(e.request).then((response) => {
+          if (response) cache.put(e.request, response.clone());
+          return response;
+        }).catch(() => cached);
+
+        return cached || networkFetch;
+      }).catch(() => fetch(e.request))
     );
     return;
   }
