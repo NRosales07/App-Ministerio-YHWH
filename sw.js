@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alabanzas-v90';
-const DATA_CACHE_NAME = 'alabanzas-data-v30';
+const CACHE_NAME = 'alabanzas-v91';
+const DATA_CACHE_NAME = 'alabanzas-data-v31';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -62,8 +62,29 @@ self.addEventListener('install', (e) => {
         'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/D5.mp3',
         'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/F5.mp3',
         'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/A5.mp3',
-        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/C6.mp3'
-      ];
+        'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/C6.mp3',
+
+        // Muestras de guitarra eléctrica (17 notas), las que carga
+// pianoGetGuitarraSampler() en index.html.
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/Cs2.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/E2.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/Fs2.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/A2.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/C3.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/Ds3.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/Fs3.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/A3.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/C4.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/Ds4.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/Fs4.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/A4.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/C5.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/Ds5.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/Fs5.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/A5.mp3',
+'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/C6.mp3'
+];
+      
 
       return cache.addAll(criticos).then(() => {
         opcionales.forEach(url => {

@@ -3139,6 +3139,11 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
   #pianoModal #pianoModalContent { display: none !important; }
   #pianoModal #pianoGirarAviso { display: flex !important; }
   #pianoModal .piano-subtitulo-horizontal { display: none !important; }
+  /* Con el teclado oculto, solo quedan el encabezado y el aviso; sin esto
+     el aviso queda pegado arriba, con todo el resto de la pantalla vacío
+     debajo. Centramos el modal completo en el viewport para que el aviso
+     quede a media pantalla en vez de "flotando" cerca del borde superior. */
+  #pianoModal.piano-open { display: flex !important; align-items: center !important; justify-content: center !important; }
 }
 @keyframes pianoGirarBounce {
   0%, 100% { transform: rotate(0deg); }
@@ -4077,6 +4082,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div id="tabContentGaleria" class="historia-tab-content" style="display:none; max-width: 720px; margin: 0 auto; padding: 20px 20px 60px; overflow-y: auto;">
     <h2 style="color: var(--gold2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.5rem; margin-bottom: 16px; text-align:center;">Galería del Ministerio</h2>
     <div class="galeria-grid">
+      <img class="galeria-thumb" src="foto0.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto0.jpeg')">
       <img class="galeria-thumb" src="foto1.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto1.jpeg')">
       <img class="galeria-thumb" src="foto2.jpeg" alt="Foto del Ministerio 2" onclick="abrirGaleriaLightbox('foto2.jpeg')">
       <img class="galeria-thumb" src="foto3.jpeg" alt="Foto del Ministerio 3" onclick="abrirGaleriaLightbox('foto3.jpeg')">
@@ -4086,7 +4092,9 @@ document.addEventListener('DOMContentLoaded', function(){
       <img class="galeria-thumb" src="foto7.jpeg" alt="Foto del Ministerio 7" onclick="abrirGaleriaLightbox('foto7.jpeg')">
       <img class="galeria-thumb" src="foto8.jpeg" alt="Foto del Ministerio 7" onclick="abrirGaleriaLightbox('foto8.jpeg')">
       <img class="galeria-thumb" src="foto9.jpeg" alt="Foto del Ministerio 7" onclick="abrirGaleriaLightbox('foto9.jpeg')">
-
+      <img class="galeria-thumb" src="foto10.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto10.jpeg')">
+      <img class="galeria-thumb" src="foto11.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto11.jpeg')">
+      <img class="galeria-thumb" src="foto12.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto12.jpeg')">
     </div>
   </div>
 </div>
@@ -8398,7 +8406,7 @@ function renderJubiloSongCard(song, index, cadena){
     '</div>' +
 
   // --- BLOQUE 2: TÍTULO ---
-'<div class="jubilo-song-title-wrap" style="margin-bottom:15px; padding-right:95px; min-height:' + (window.esAdmin && tieneEdicionLocal ? '118px' : '90px') + ';">' +
+'<div class="jubilo-song-title-wrap" style="margin-bottom:15px; padding-right:95px; min-height:' + (window.esAdmin && tieneEdicionLocal ? '118px' : '50px') + ';">' +
   '<div class="jubilo-song-title" style="margin-bottom:0; font-size:0.8rem; font-weight:bold; color:#f3c641; text-transform:uppercase; white-space:normal; word-break:normal; overflow-wrap:break-word; padding-right:0;">' + 
     escH(song.title) + 
   '</div>' +
@@ -9184,6 +9192,34 @@ function pianoLabelChord(root, type){
   return pianoLabelRoot(root) + (type || '');
 }
 
+// Calcula la posición X y el ancho de una tecla (blanca o negra) dado su
+// midi, usando exactamente las mismas medidas que pianoRenderHTML(), para
+// que las barras que caen (efecto "Synthesia") queden perfectamente
+// alineadas con cada tecla del teclado dibujado debajo.
+function pianoTeclaGeom(midi){
+  var esCompacto = (typeof window !== 'undefined' && window.innerWidth && window.innerWidth <= 600);
+  var whiteWidth = esCompacto ? 24 : 30;
+  var whiteGap = esCompacto ? 1 : 2;
+  var blackWidth = esCompacto ? 14 : 18;
+  var whiteTotal = whiteWidth + whiteGap;
+  var startMidi = 21;
+  while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
+  var whiteIndex = 0;
+  var lastWhiteX = 0;
+  for (var m = startMidi; m <= midi; m++){
+    var s = m % 12;
+    var esBlanca = PIANO_WHITE.indexOf(s) !== -1;
+    if (esBlanca){
+      lastWhiteX = whiteIndex * whiteTotal;
+      if (m === midi) return { x: lastWhiteX, width: whiteWidth, isBlack: false };
+      whiteIndex++;
+    } else if (m === midi){
+      return { x: lastWhiteX + whiteWidth - blackWidth / 2, width: blackWidth, isBlack: true };
+    }
+  }
+  return null;
+}
+
 function pianoRequestLandscapeMode(){
   var el = document.documentElement;
   if (screen.orientation && screen.orientation.lock) {
@@ -9205,6 +9241,76 @@ var pianoMelodyStart = 0;
 var pianoMelodyNotes = [];
 var pianoMelodyTarget = null;
 var pianoMelodyPlaybackTimers = [];
+// Notas de la última melodía abierta en modo "Ver" (sin grabar), para poder
+// repetirla con el botón "🔁 Reproducir de nuevo" sin tener que volver a
+// buscarla en Firebase/localStorage.
+var pianoMelodyViewNotas = null;
+
+// === EFECTO "BARRAS QUE CAEN" (estilo Synthesia) =============
+// Al reproducir una melodía guardada, dibujamos una barra por nota que cae
+// desde arriba y llega exactamente a la tecla en el instante en que suena.
+var PIANO_FALL_ZONE_H = 170; // alto (px) de la zona donde caen las barras
+var PIANO_FALL_SPEED  = 130; // velocidad de caída (px por segundo)
+var PIANO_FALL_COLORS = ['#7F77DD','#3ddc84','#e8824a','#4fc3f7','#f3d58a'];
+var pianoFallRAF = null;
+
+function pianoLimpiarFallOverlay(){
+  if (pianoFallRAF) { cancelAnimationFrame(pianoFallRAF); pianoFallRAF = null; }
+  var zone = document.getElementById('pianoFallZone');
+  if (zone) zone.innerHTML = '';
+}
+
+// Crea (si no existe) la zona de caída justo encima del teclado y anima
+// una barra por cada nota de `notas`, sincronizada con `playBaseMs`
+// (el mismo instante performance.now() usado para programar el audio).
+function pianoIniciarFallOverlay(notas, playBaseMs){
+  var content = document.getElementById('pianoModalContent');
+  if (!content) return;
+  var stage = content.querySelector('.piano-keyboard-stage');
+  if (!stage) return;
+  pianoLimpiarFallOverlay();
+  var zone = document.getElementById('pianoFallZone');
+  if (!zone) {
+    zone = document.createElement('div');
+    zone.id = 'pianoFallZone';
+    stage.parentNode.insertBefore(zone, stage);
+  }
+  zone.style.cssText = 'position:relative;overflow:hidden;height:' + PIANO_FALL_ZONE_H + 'px;margin-bottom:2px;width:' + (stage.style.minWidth || (stage.offsetWidth + 'px')) + ';pointer-events:none;';
+
+  var barras = notas.map(function(n, i){
+    var geom = pianoTeclaGeom(n.midi);
+    if (!geom) return null;
+    var dur = Math.max(0.15, Number(n.duration) || 0.35);
+    var alto = Math.max(8, dur * PIANO_FALL_SPEED);
+    var color = PIANO_FALL_COLORS[i % PIANO_FALL_COLORS.length];
+    var div = document.createElement('div');
+    div.className = 'piano-fall-note';
+    div.style.cssText = 'position:absolute;left:' + geom.x + 'px;width:' + geom.width + 'px;height:' + alto + 'px;' +
+      'background:linear-gradient(180deg,' + color + 'dd,' + color + '55);border:1px solid ' + color + ';' +
+      'border-radius:5px;box-shadow:0 0 6px ' + color + '88;top:-' + alto + 'px;';
+    zone.appendChild(div);
+    return { el: div, start: Math.max(0, Number(n.start) || 0), duration: dur, alto: alto };
+  }).filter(Boolean);
+
+  var finMax = notas.reduce(function(max, n){
+    return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
+  }, 0);
+
+  function frame(){
+    var t = (performance.now() - playBaseMs) / 1000;
+    barras.forEach(function(b){
+      var distArriba = (b.start - t) * PIANO_FALL_SPEED; // px sobre la línea de teclas
+      b.el.style.top = (PIANO_FALL_ZONE_H - distArriba - b.alto) + 'px';
+      b.el.style.opacity = (t > b.start + b.duration) ? '0' : '1';
+    });
+    if (t < finMax + 0.4) {
+      pianoFallRAF = requestAnimationFrame(frame);
+    } else {
+      pianoLimpiarFallOverlay();
+    }
+  }
+  pianoFallRAF = requestAnimationFrame(frame);
+}
 
 function pianoMelodyClaveDeDestino(){
   return String(pianoMelodyTarget || '').replace(/^jubilo:/, '');
@@ -9214,6 +9320,7 @@ function pianoLimpiarPlaybackMelodia(){
   while (pianoMelodyPlaybackTimers.length) {
     clearTimeout(pianoMelodyPlaybackTimers.pop());
   }
+  pianoLimpiarFallOverlay();
   var modal = document.getElementById('pianoModalContent');
   if (!modal) return;
   var keys = modal.querySelectorAll('.pk-key.pk-playing');
@@ -9306,11 +9413,31 @@ function pianoAbrirMelodiaDesdeNotas(notas, titulo, autoGrabar, rootForModal, in
   pianoMelodyRecording = false;
   pianoMelodyStart = 0;
   pianoMelodyNotes = Array.isArray(notas) ? notas.slice() : [];
+  // Guardamos las notas "en limpio" para poder repetir esta misma melodía
+  // desde el botón "🔁 Reproducir de nuevo" sin volver a buscarla.
+  pianoMelodyViewNotas = notas.slice();
   pianoRenderMelodyRecorder();
+  pianoActualizarBotonReplay();
+  pianoReproducirNotasGuardadas(pianoMelodyViewNotas);
+}
+
+// Reproduce (audio + teclas iluminadas + barras cayendo estilo Synthesia)
+// un arreglo de notas ya grabado. La usan tanto la apertura inicial de
+// "Ver Melodía" como el botón "🔁 Reproducir de nuevo" dentro del piano.
+function pianoReproducirNotasGuardadas(notas){
+  if (!Array.isArray(notas) || !notas.length) {
+    mostrarToast('⚠️ No hay melodía guardada.');
+    return;
+  }
+  pianoLimpiarPlaybackMelodia();
   var ctx = pianoGetAudioCtx();
   if (!ctx) { mostrarToast('⚠️ Tu navegador no soporta audio.'); return; }
   Promise.all(notas.map(function(n){ return pianoLoadBuffer(ctx, n.midi); })).then(function(){
     var base = ctx.currentTime + 0.05;
+    // Mismo instante que 'base', pero en el reloj de performance.now(),
+    // para poder sincronizar la animación de barras con el audio.
+    var playBaseMs = performance.now() + 50;
+    pianoIniciarFallOverlay(notas, playBaseMs);
     notas.forEach(function(n){
       var start = Math.max(0, Number(n.start) || 0);
       var dur = Math.max(0.15, Number(n.duration) || 0.35);
@@ -9324,6 +9451,24 @@ function pianoAbrirMelodiaDesdeNotas(notas, titulo, autoGrabar, rootForModal, in
     }, 0);
     pianoMelodyPlaybackTimers.push(setTimeout(function(){ pianoLimpiarPlaybackMelodia(); }, (lastEnd + 0.3) * 1000));
   });
+}
+
+// Botón "🔁 Reproducir de nuevo": repite la última melodía abierta en
+// modo "Ver", sin tener que cerrar y volver a entrar al piano.
+function pianoReplayMelodiaVista(){
+  if (!pianoMelodyViewNotas || !pianoMelodyViewNotas.length) {
+    mostrarToast('⚠️ No hay melodía para repetir.');
+    return;
+  }
+  vibrar(15);
+  pianoReproducirNotasGuardadas(pianoMelodyViewNotas);
+}
+
+// Muestra/oculta el botón de repetir según si hay una melodía "en vista".
+function pianoActualizarBotonReplay(){
+  var btn = document.getElementById('btnPianoReplayMelodia');
+  if (!btn) return;
+  btn.style.display = (pianoMelodyViewNotas && pianoMelodyViewNotas.length) ? 'inline-flex' : 'none';
 }
 
 function esAdminActivo(){
@@ -9812,6 +9957,7 @@ function pianoRenderHTML(root, type){
     '<div class="piano-main-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">' +
       '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',false)" style="flex:1;min-width:150px;background:#3C3489;border:1px solid #534AB7;color:#EEEDFE;border-radius:999px;padding:10px 12px;cursor:pointer;font-size:0.8rem;font-weight:bold;">▶ Reproducir acorde</button>' +
       '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',true)" style="flex:1;min-width:150px;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:10px 12px;cursor:pointer;font-size:0.8rem;font-weight:bold;">🎵 Arpegio</button>' +
+      '<button id="btnPianoReplayMelodia" onclick="pianoReplayMelodiaVista()" style="display:none;flex:1;min-width:150px;background:linear-gradient(135deg,#c9a84c,#f3d58a);border:none;color:#1a1a2e;border-radius:999px;padding:10px 12px;cursor:pointer;font-size:0.8rem;font-weight:bold;">🔁 Reproducir de nuevo</button>' +
     '</div>' +
     '<div style="margin-top:4px;color:#8888aa;font-size:0.72rem;">' +
       'Toca directamente las teclas del piano. Las negras ahora son independientes y el arpegio se escucha escalonado.' +
@@ -10161,43 +10307,66 @@ function pianoGetTrumpetSampler(){
   return pianoTrumpetSamplerPromise;
 }
 
-var pianoGuitarraSynth = null;
+var pianoGuitarraSampler = null;
+var pianoGuitarraSamplerPromise = null;
 
-// Guitarra eléctrica distorsionada estilo "power chord" de rock alternativo
-// 90s (ese golpe grueso, medio atascado, más percutido que sostenido — no
-// una guitarra que "canta" y suena larga). Se sintetiza con Tone.js, así
-// que no necesita ningún archivo nuevo que precachear en el sw.js.
-// Cadena: doble oscilador diente de sierra (algo desafinado entre sí, como
-// dos cuerdas) -> filtro pasa-bajos que recorta el brillo y deja el cuerpo
-// en los medios -> Tone.Distortion (bien presente, no sutil) -> destino.
-// La envolvente es corta a propósito (decay y release rápidos, sustain
-// bajo) para que la nota "pegue" y se apague, en vez de quedar sonando.
-function pianoGetGuitarraSynth(){
-  if (!window.Tone || !Tone.PolySynth) return Promise.reject(new Error('Tone.js no disponible'));
-  if (pianoGuitarraSynth) return Promise.resolve(pianoGuitarraSynth);
+// Muestras reales de guitarra eléctrica (17 notas, Tone.js interpola el
+// resto), mismo formato y misma fuente que la trompeta: nbrosowsky/tonejs-instruments
+// (CC-BY 3.0) — https://github.com/nbrosowsky/tonejs-instruments
+// Se le agrega una distorsión suave (Tone.Distortion) después del sampler
+// para darle un poco de "mordida" de amplificador, sin llegar al synth
+// anterior que sonaba artificial.
+function pianoGetGuitarraSampler(){
+  var ctx = pianoGetAudioCtx();
+  if (!ctx || !window.Tone || !Tone.Sampler) return Promise.reject(new Error('Tone.js no disponible'));
+  if (pianoGuitarraSampler && pianoGuitarraSampler.loaded) return Promise.resolve(pianoGuitarraSampler);
+  if (pianoGuitarraSamplerPromise) return pianoGuitarraSamplerPromise;
 
-  var distorsion = new Tone.Distortion(0.55);
+  var distorsion = new Tone.Distortion(0.22);
   distorsion.oversample = '4x';
   distorsion.toDestination();
-  // Frecuencia y Q más marcados que un piano/trompeta: buscamos ese
-  // punto "boxy" de amplificador con la ganancia alta, no un tono limpio.
-  var filtro = new Tone.Filter({ type: 'lowpass', frequency: 2200, Q: 1.1 }).connect(distorsion);
 
-  pianoGuitarraSynth = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: 'fatsawtooth', count: 2, spread: 22 },
-    envelope: { attack: 0.003, decay: 0.14, sustain: 0.08, release: 0.12 }
-  }).connect(filtro);
-  // La distorsión sube el nivel percibido; bajamos el volumen base del
-  // synth para que no sature ni quede más fuerte que el piano/trompeta.
-  pianoGuitarraSynth.volume.value = -7;
+  var baseUrl = 'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/';
+  pianoGuitarraSampler = new Tone.Sampler({
+    urls: {
+      'C#2': 'Cs2.mp3',
+      E2: 'E2.mp3',
+      'F#2': 'Fs2.mp3',
+      A2: 'A2.mp3',
+      C3: 'C3.mp3',
+      'D#3': 'Ds3.mp3',
+      'F#3': 'Fs3.mp3',
+      A3: 'A3.mp3',
+      C4: 'C4.mp3',
+      'D#4': 'Ds4.mp3',
+      'F#4': 'Fs4.mp3',
+      A4: 'A4.mp3',
+      C5: 'C5.mp3',
+      'D#5': 'Ds5.mp3',
+      'F#5': 'Fs5.mp3',
+      A5: 'A5.mp3',
+      C6: 'C6.mp3'
+    },
+    release: 0.4,
+    baseUrl: baseUrl,
+    onload: function(){}
+  }).connect(distorsion);
 
-  return Promise.resolve(pianoGuitarraSynth);
+  pianoGuitarraSamplerPromise = pianoGuitarraSampler.loaded.then(function(){
+    pianoGuitarraSamplerPromise = null;
+    return pianoGuitarraSampler;
+  }).catch(function(err){
+    pianoGuitarraSamplerPromise = null;
+    throw err;
+  });
+
+  return pianoGuitarraSamplerPromise;
 }
 
 // Devuelve la promesa del sampler/synth correspondiente al instrumento activo.
 function pianoObtenerSamplerActivo(){
   if (pianoInstrumentoActivo === 'trompeta') return pianoGetTrumpetSampler();
-  if (pianoInstrumentoActivo === 'guitarra') return pianoGetGuitarraSynth();
+  if (pianoInstrumentoActivo === 'guitarra') return pianoGetGuitarraSampler();
   return pianoGetSampler();
 }
 
@@ -10275,12 +10444,12 @@ function pianoGetMasterOut(ctx){
 }
 
 // ===== NUEVO MOTOR DE PIANO (Web Audio API, más musical que samples planos) =====
-// Guitarra es un synth (sin muestras que descargar): está lista apenas se
-// crea. Piano/trompeta sí dependen de que sus .mp3 terminen de bajar.
+// Piano, trompeta y guitarra usan muestras reales: la primera vez hay que
+// esperar a que terminen de bajar sus .mp3 (por eso el aviso de "Cargando").
 var pianoAvisoCargaMostrado = false;
 function pianoInstrumentoListo(){
-  if (pianoInstrumentoActivo === 'guitarra') return true;
-  var s = pianoInstrumentoActivo === 'trompeta' ? pianoTrumpetSampler : pianoSampler;
+  var s = pianoInstrumentoActivo === 'trompeta' ? pianoTrumpetSampler :
+    pianoInstrumentoActivo === 'guitarra' ? pianoGuitarraSampler : pianoSampler;
   return !!(s && s.loaded);
 }
 
@@ -10312,9 +10481,9 @@ function pianoPlayNoteSample(ctx, midiObjetivo, startTime, duration){
 }
 
 // Curva clásica de distorsión para WaveShaperNode (recorte progresivo
-// según "amount"). Solo se usa aquí, en el motor de respaldo sin Tone.js;
-// con Tone.js disponible, la guitarra usa Tone.Distortion (ver
-// pianoGetGuitarraSynth) en vez de esto.
+// según "amount"). Solo se usa aquí, en el motor de respaldo sin Tone.js
+// (si Tone.js no cargó, no hay muestras reales ni de piano/trompeta/guitarra
+// y todo suena con estos osciladores en su lugar).
 function pianoMakeDistortionCurve(amount){
   var k = typeof amount === 'number' ? amount : 20;
   var n = 44100;
@@ -10460,11 +10629,17 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
   // Solo se oculta cuando el llamador lo pide explícitamente (ver melodía
   // guardada), y se revela de nuevo en cuanto se toque un acorde.
   pianoOcultarMarcaAcorde = !!ocultarMarcaAcorde;
+  // Si esta apertura NO es para "ver una melodía guardada" (ocultarMarcaAcorde
+  // solo llega en true desde pianoAbrirMelodiaDesdeNotas), olvidamos la
+  // última melodía vista para que el botón "🔁 Reproducir de nuevo" no se
+  // quede pegado mostrando algo que ya no corresponde a este acorde.
+  if (!ocultarMarcaAcorde) pianoMelodyViewNotas = null;
   pianoModalActual = parsed;
   var pianoEmojiInstrumento = pianoInstrumentoActivo === 'trompeta' ? '🎺 ' : pianoInstrumentoActivo === 'guitarra' ? '🎸 ' : '🎹 ';
   title.textContent = pianoEmojiInstrumento + pianoLabelChord(parsed.root, parsed.type);
   content.innerHTML = pianoRenderHTML(parsed.root, parsed.type);
   modal.style.display = 'block';
+  modal.classList.add('piano-open');
 
   // Si había una grabación de melodía activa (o en pausa) para esta misma
   // canción, el cambio de acorde de arriba acaba de reconstruir todo el
@@ -10474,6 +10649,7 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
   // que sí muestra los acordes propios de la alabanza) hacía "desaparecer"
   // el panel de Grabar/Guardar sin avisar.
   if (esAdminActivo() && pianoMelodyTarget) pianoRenderMelodyRecorder();
+  pianoActualizarBotonReplay();
 
   // Precargamos ya los samples de este acorde para que "Reproducir" /
   // "Arpegio" respondan al toque, sin esperar la descarga.
@@ -10538,7 +10714,7 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
 
 function cerrarPiano(){
   var modal = document.getElementById('pianoModal');
-  if (modal) modal.style.display = 'none';
+  if (modal) { modal.style.display = 'none'; modal.classList.remove('piano-open'); }
   pianoLimpiarPlaybackMelodia();
 }
 
