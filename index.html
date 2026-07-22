@@ -1011,6 +1011,38 @@ body.light-theme .media-card-label{color:#8a7a5c;}
   max-width:320px;
   margin:0 auto;
 }
+.audio-player.floating{
+  position:fixed;
+  right:12px;
+  bottom:12px;
+  top:auto;
+  z-index:30000;
+  width:46px;
+  min-width:46px;
+  max-width:46px;
+  margin:0;
+  padding:0;
+  box-shadow:0 10px 22px rgba(0,0,0,0.24);
+  backdrop-filter:blur(10px);
+  overflow:hidden;
+  justify-content:center;
+  align-items:center;
+}
+.audio-player.floating .ap-time,
+.audio-player.floating input[type="range"]{
+  display:none;
+}
+.audio-player.floating .ap-play{
+  width:46px;
+  height:46px;
+  font-size:0.88rem;
+  border-radius:14px;
+}
+.audio-player.floating .ap-play-mini{
+  width:30px;
+  height:30px;
+  font-size:0.75rem;
+}
 .audio-player .ap-play{
   flex-shrink:0;
   width:34px;
@@ -1064,6 +1096,35 @@ body.light-theme .media-card-label{color:#8a7a5c;}
 }
 body.light-theme .audio-player{background:#f1ece0;}
 body.light-theme .audio-player .ap-time{color:#7a6a4d;}
+body.light-theme .audio-player.floating{background:rgba(241,236,224,0.96);}
+
+#floatingAudioPlayer{
+  pointer-events:auto;
+  opacity:1;
+  transform:none;
+  transition:none;
+  position:fixed !important;
+  right:12px !important;
+  bottom:12px !important;
+  top:auto !important;
+  left:auto !important;
+}
+
+.piano-melody-progress{
+  width:100%;
+  height:8px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.08);
+}
+.piano-melody-progress-bar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#c9a84c,#8bc7ff);
+  border-radius:999px;
+  transition:width 0.08s linear;
+}
 .controls{display:flex;align-items:center;gap:8px;margin-bottom:16px;background:#1b2152;padding:12px 14px;border-radius:10px;border:1px solid var(--border);flex-wrap:wrap;}
 .controls label{font-size:0.75rem;color:var(--text2);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
 .key-selector{display:flex;gap:2px;flex-wrap:wrap;}
@@ -5098,19 +5159,33 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
 
     playBtn.onclick = function(){
       if (audio.paused) { audio.play(); } else { audio.pause(); }
+      actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
     };
-    audio.addEventListener('play', function(){ playBtn.textContent = '❚❚'; });
-    audio.addEventListener('pause', function(){ playBtn.textContent = '▶'; });
+    audio.addEventListener('play', function(){
+      playBtn.textContent = '❚❚';
+      actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
+    });
+    audio.addEventListener('pause', function(){
+      playBtn.textContent = '▶';
+      actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
+    });
     audio.addEventListener('timeupdate', function(){
       if (audio.duration) { seek.value = (audio.currentTime / audio.duration) * 100; }
       timeLabel.textContent = fmtTime(audio.currentTime) + ' / ' + fmtTime(audio.duration);
+      actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
     });
     audio.addEventListener('loadedmetadata', function(){
       timeLabel.textContent = fmtTime(audio.currentTime) + ' / ' + fmtTime(audio.duration);
+      actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
     });
-    audio.addEventListener('ended', function(){ playBtn.textContent = '▶'; seek.value = 0; });
+    audio.addEventListener('ended', function(){
+      playBtn.textContent = '▶';
+      seek.value = 0;
+      actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
+    });
     seek.addEventListener('input', function(){
       if (audio.duration) { audio.currentTime = (seek.value / 100) * audio.duration; }
+      actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
     });
 
     player.appendChild(playBtn);
@@ -5121,6 +5196,7 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
     mediaContainer.appendChild(player);
 
     audio.load(); 
+    actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel);
   }
 
   
@@ -8299,14 +8375,8 @@ function jubiloRenderGrabadorMelodia(){
   }
 }
 
-function pianoLimpiarPlaybackMelodia(){
-  while (pianoMelodyPlaybackTimers.length) {
-    clearTimeout(pianoMelodyPlaybackTimers.pop());
-  }
-  var modal = document.getElementById('pianoModalContent');
-  if (!modal) return;
-  var keys = modal.querySelectorAll('.pk-key.pk-playing');
-  for (var i = 0; i < keys.length; i++) keys[i].classList.remove('pk-playing');
+function pianoActualizarControlesMelodia(){
+  pianoModalActualizarControlesMelodia();
 }
 
 function jubiloTocarNotaGrabador(note){
@@ -9199,15 +9269,27 @@ function pianoLabelChord(root, type){
   return pianoLabelRoot(root) + (type || '');
 }
 
+// Medidas REALES con las que se dibujó por última vez el teclado (ver
+// pianoRenderHTML). No se pueden recalcular "en frío" mirando
+// window.innerWidth en el momento de reproducir la melodía: si el modal se
+// abrió en vertical (teclado compacto) y el usuario luego giró el celular a
+// horizontal, window.innerWidth ya cambió, pero el teclado dibujado en el
+// DOM sigue teniendo las medidas compactas de cuando se creó (no se vuelve a
+// dibujar solo por rotar). Si pianoTeclaGeom() recalculaba su propio
+// "esCompacto" con el ancho ACTUAL, las barras quedaban calculadas con un
+// ancho de tecla distinto al real y se iban desalineando progresivamente
+// hacia la derecha (se veían "una octava" más arriba de la tecla real).
+var pianoUltimaMedidaTeclado = { whiteWidth: 30, whiteGap: 2, blackWidth: 18 };
+
 // Calcula la posición X y el ancho de una tecla (blanca o negra) dado su
-// midi, usando exactamente las mismas medidas que pianoRenderHTML(), para
-// que las barras que caen (efecto "Synthesia") queden perfectamente
-// alineadas con cada tecla del teclado dibujado debajo.
+// midi, usando exactamente las mismas medidas con las que se dibujó el
+// teclado (pianoUltimaMedidaTeclado), para que las barras que caen (efecto
+// "Synthesia") queden perfectamente alineadas con cada tecla del teclado
+// dibujado debajo.
 function pianoTeclaGeom(midi){
-  var esCompacto = (typeof window !== 'undefined' && window.innerWidth && window.innerWidth <= 600);
-  var whiteWidth = esCompacto ? 24 : 30;
-  var whiteGap = esCompacto ? 1 : 2;
-  var blackWidth = esCompacto ? 14 : 18;
+  var whiteWidth = pianoUltimaMedidaTeclado.whiteWidth;
+  var whiteGap = pianoUltimaMedidaTeclado.whiteGap;
+  var blackWidth = pianoUltimaMedidaTeclado.blackWidth;
   var whiteTotal = whiteWidth + whiteGap;
   var startMidi = 21;
   while ([1,3,6,8,10].indexOf(startMidi % 12) !== -1) startMidi--;
@@ -9228,14 +9310,24 @@ function pianoTeclaGeom(midi){
 }
 
 function pianoRequestLandscapeMode(){
-  var el = document.documentElement;
-  if (screen.orientation && screen.orientation.lock) {
-    screen.orientation.lock('landscape').catch(function(){});
-  } else if (el && el.requestFullscreen && !document.fullscreenElement) {
-    // No forzamos fullscreen; solo intentamos dejar al navegador en un estado
-    // donde algunos móviles permiten mejor la vista horizontal.
-    el.requestFullscreen().catch(function(){});
-  }
+  // IMPORTANTE: en varios navegadores/webviews móviles, screen.orientation.lock()
+  // no solo rechaza la promesa cuando no se puede bloquear (p.ej. sin estar en
+  // fullscreen): a veces LANZA una excepción síncrona. Como esta función se
+  // llama al principio de abrirPiano(), una excepción aquí interrumpía TODO el
+  // resto de abrirPiano() (título, contenido, notas de la melodía), dejando el
+  // modal con el contenido "viejo" (parecía "Abrir piano" en vez de "Ver
+  // melodía") hasta que se reabría y, esa segunda vez, la llamada ya no
+  // lanzaba la excepción. Por eso todo va envuelto en try/catch.
+  try {
+    var el = document.documentElement;
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock('landscape').catch(function(){});
+    } else if (el && el.requestFullscreen && !document.fullscreenElement) {
+      // No forzamos fullscreen; solo intentamos dejar al navegador en un estado
+      // donde algunos móviles permiten mejor la vista horizontal.
+      el.requestFullscreen().catch(function(){});
+    }
+  } catch (e) {}
 }
 
 // Cuando se está viendo/reproduciendo una melodía guardada, ocultamos la
@@ -9248,6 +9340,10 @@ var pianoMelodyStart = 0;
 var pianoMelodyNotes = [];
 var pianoMelodyTarget = null;
 var pianoMelodyPlaybackTimers = [];
+var pianoMelodyPlaybackState = { paused: false, active: false, start: 0, elapsed: 0, duration: 0, raf: 0 };
+var pianoMelodyPlaybackNotas = null;
+var pianoMelodyModalState = { active: false, paused: false, start: 0, elapsed: 0, duration: 0, raf: 0 };
+var pianoMelodyReplayBloqueado = false;
 // Notas de la última melodía abierta en modo "Ver" (sin grabar), para poder
 // repetirla con el botón "🔁 Reproducir de nuevo" sin tener que volver a
 // buscarla en Firebase/localStorage.
@@ -9340,6 +9436,150 @@ function pianoLimpiarPlaybackMelodia(){
   for (var i = 0; i < keys.length; i++) keys[i].classList.remove('pk-playing');
 }
 
+function pianoModalActualizarControlesMelodia(){
+  var playBtn = document.getElementById('btnPianoModalPlayMelodia');
+  var tieneMelodia = !!(pianoMelodyViewNotas && pianoMelodyViewNotas.length);
+
+  if (playBtn) {
+    playBtn.style.display = tieneMelodia ? 'inline-flex' : 'none';
+    playBtn.disabled = !!pianoMelodyReplayBloqueado;
+    playBtn.style.opacity = pianoMelodyReplayBloqueado ? '0.65' : '1';
+    playBtn.style.cursor = pianoMelodyReplayBloqueado ? 'not-allowed' : 'pointer';
+    playBtn.textContent = '▶ Reproducir';
+  }
+}
+
+function pianoModalDetenerMelodia(resetearEstado){
+  if (resetearEstado === undefined) resetearEstado = true;
+  if (pianoMelodyModalState.raf) cancelAnimationFrame(pianoMelodyModalState.raf);
+  pianoMelodyPlaybackTimers.forEach(function(t){ clearTimeout(t); });
+  pianoMelodyPlaybackTimers.length = 0;
+  var audio = window.audioPrincipalEl;
+  try { if (audio && audio.pause) audio.pause(); } catch (e) {}
+  if (audio) {
+    try { audio.currentTime = 0; } catch (e) {}
+  }
+  pianoSetMelodyMuted(!resetearEstado);
+  pianoLimpiarFallOverlay();
+  if (resetearEstado) {
+    pianoMelodyModalState.active = false;
+    pianoMelodyModalState.paused = false;
+    pianoMelodyModalState.start = 0;
+    pianoMelodyModalState.elapsed = 0;
+    pianoMelodyModalState.duration = 0;
+    var bar = document.getElementById('pianoMelodyProgressBar');
+    var text = document.getElementById('pianoMelodyProgressText');
+    if (bar) bar.style.width = '0%';
+    if (text) text.textContent = '0%';
+    var modal = document.getElementById('pianoModalContent');
+    if (modal) {
+      var keys = modal.querySelectorAll('.pk-key.pk-playing');
+      for (var i = 0; i < keys.length; i++) keys[i].classList.remove('pk-playing');
+    }
+  }
+  pianoModalActualizarControlesMelodia();
+}
+
+function pianoModalLoopProgreso(){
+  if (!pianoMelodyModalState.active || pianoMelodyModalState.paused) return;
+  var now = performance.now();
+  pianoMelodyModalState.elapsed = Math.max(0, (now - pianoMelodyModalState.start) / 1000);
+  var bar = document.getElementById('pianoMelodyProgressBar');
+  var text = document.getElementById('pianoMelodyProgressText');
+  if (bar && pianoMelodyModalState.duration) {
+    var pct = Math.max(0, Math.min(100, (pianoMelodyModalState.elapsed / pianoMelodyModalState.duration) * 100));
+    bar.style.width = pct + '%';
+    if (text) text.textContent = Math.round(pct) + '%';
+  }
+  if (pianoMelodyModalState.elapsed < pianoMelodyModalState.duration + 0.15) {
+    pianoMelodyModalState.raf = requestAnimationFrame(pianoModalLoopProgreso);
+  }
+}
+
+function pianoModalProgramarMelodiaDesde(offsetSegundos){
+  if (!pianoMelodyViewNotas || !pianoMelodyViewNotas.length) {
+    mostrarToast('⚠️ No hay melodía para reproducir.');
+    return false;
+  }
+  if (pianoMelodyReplayBloqueado) return false;
+
+  var inicio = Math.max(0, Number(offsetSegundos) || 0);
+  pianoMelodyReplayBloqueado = true;
+  pianoModalActualizarControlesMelodia();
+  pianoLimpiarPlaybackMelodia();
+  pianoSetMelodyMuted(false);
+  pianoMelodyPlaybackNotas = pianoMelodyViewNotas.slice();
+  pianoMelodyModalState.active = true;
+  pianoMelodyModalState.paused = false;
+  pianoMelodyModalState.elapsed = inicio;
+  pianoMelodyModalState.start = performance.now() - (inicio * 1000);
+  pianoMelodyModalState.duration = pianoMelodyPlaybackNotas.reduce(function(max, n){
+    return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
+  }, 0);
+  pianoModalActualizarControlesMelodia();
+
+  var ctx = pianoGetAudioCtx();
+  if (!ctx) {
+    mostrarToast('⚠️ Tu navegador no soporta audio.');
+    pianoMelodyReplayBloqueado = false;
+    pianoModalActualizarControlesMelodia();
+    pianoModalDetenerMelodia();
+    return false;
+  }
+
+  var notasPendientes = pianoMelodyPlaybackNotas.filter(function(n){
+    var start = Math.max(0, Number(n.start) || 0);
+    var dur = Math.max(0.15, Number(n.duration) || 0.35);
+    return (start + dur) > inicio;
+  });
+  if (!notasPendientes.length) {
+    pianoMelodyReplayBloqueado = false;
+    pianoModalActualizarControlesMelodia();
+    pianoModalDetenerMelodia();
+    return false;
+  }
+
+  Promise.all(notasPendientes.map(function(n){ return pianoLoadBuffer(ctx, n.midi); })).then(function(){
+    if (!pianoMelodyModalState.active || pianoMelodyModalState.paused) return;
+    var base = ctx.currentTime + 0.05;
+    var playBaseMs = performance.now() + 50;
+    pianoIniciarFallOverlay(notasPendientes, playBaseMs);
+    notasPendientes.forEach(function(n){
+      var start = Math.max(0, Number(n.start) || 0);
+      var dur = Math.max(0.15, Number(n.duration) || 0.35);
+      var delay = Math.max(0, start - inicio);
+      var tOn = setTimeout(function(){ pianoSetKeyActive(n.midi, true); pianoKeyRipple(n.midi); }, delay * 1000);
+      var tOff = setTimeout(function(){ pianoSetKeyActive(n.midi, false); }, (delay + dur) * 1000);
+      pianoMelodyPlaybackTimers.push(tOn, tOff);
+      pianoPlayNoteSample(ctx, n.midi, base + delay, dur);
+    });
+    var lastEnd = notasPendientes.reduce(function(max, n){
+      return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
+    }, inicio);
+    pianoMelodyPlaybackTimers.push(setTimeout(function(){
+      pianoModalDetenerMelodia();
+      pianoLimpiarPlaybackMelodia();
+      pianoMelodyReplayBloqueado = false;
+      pianoModalActualizarControlesMelodia();
+      var bar = document.getElementById('pianoMelodyProgressBar');
+      var text = document.getElementById('pianoMelodyProgressText');
+      if (bar) bar.style.width = '0%';
+      if (text) text.textContent = '0%';
+    }, Math.max(0, (lastEnd - inicio + 0.3) * 1000)));
+    pianoModalLoopProgreso();
+  });
+
+  return true;
+}
+
+function pianoModalReproducirMelodia(){
+  pianoModalProgramarMelodiaDesde(0);
+}
+
+function pianoModalToggleMelodia(){
+  pianoModalReproducirMelodia();
+}
+
 // Efecto "onda de sonido": un destello circular breve en la tecla que
 // acaba de sonar, para reforzar visualmente el toque (además del brillo
 // morado/dorado que ya marca las teclas del acorde).
@@ -9418,70 +9658,118 @@ function pianoAbrirMelodiaDesdeNotas(notas, titulo, autoGrabar, rootForModal, in
     return;
   }
   var root = rootForModal || 'C';
+  pianoMelodyViewNotas = notas.slice();
   pianoLimpiarPlaybackMelodia();
   abrirPiano(root, null, false, true, instrumento);
   var title = document.getElementById('pianoModalTitle');
   if (title && titulo) title.textContent = titulo;
+  pianoMelodyViewNotas = notas.slice();
   pianoMelodyTarget = autoGrabar ? pianoMelodyClaveDeDestino() : null;
   pianoMelodyRecording = false;
   pianoMelodyStart = 0;
   pianoMelodyNotes = Array.isArray(notas) ? notas.slice() : [];
   // Guardamos las notas "en limpio" para poder repetir esta misma melodía
   // desde el botón "🔁 Reproducir de nuevo" sin volver a buscarla.
-  pianoMelodyViewNotas = notas.slice();
   pianoRenderMelodyRecorder();
-  pianoActualizarBotonReplay();
-  pianoReproducirNotasGuardadas(pianoMelodyViewNotas);
+  pianoModalActualizarControlesMelodia();
+  setTimeout(function(){
+    pianoModalActualizarControlesMelodia();
+  }, 0);
+  pianoAcomodarVistaMelodia();
 }
 
-// Reproduce (audio + teclas iluminadas + barras cayendo estilo Synthesia)
-// un arreglo de notas ya grabado. La usan tanto la apertura inicial de
-// "Ver Melodía" como el botón "🔁 Reproducir de nuevo" dentro del piano.
+function pianoActualizarProgresoMelodia(){
+  var bar = document.getElementById('pianoMelodyProgressBar');
+  var text = document.getElementById('pianoMelodyProgressText');
+  if (!bar || !pianoMelodyPlaybackState.duration) return;
+  var pct = Math.max(0, Math.min(100, (pianoMelodyPlaybackState.elapsed / pianoMelodyPlaybackState.duration) * 100));
+  bar.style.width = pct + '%';
+  if (text) text.textContent = Math.round(pct) + '%';
+}
+
+function pianoLoopProgresoMelodia(){
+  if (!pianoMelodyPlaybackState || pianoMelodyPlaybackState.paused) return;
+  var now = performance.now();
+  pianoMelodyPlaybackState.elapsed = Math.max(0, (now - pianoMelodyPlaybackState.start) / 1000);
+  pianoActualizarProgresoMelodia();
+  if (pianoMelodyPlaybackState.elapsed < pianoMelodyPlaybackState.duration + 0.15) {
+    pianoMelodyPlaybackState.raf = requestAnimationFrame(pianoLoopProgresoMelodia);
+  }
+  pianoActualizarProgresoMelodia();
+}
+
+function pianoPausarReanudarMelodia(){ pianoModalToggleMelodia(); }
+function pianoReproducirMelodiaVista(){ pianoModalToggleMelodia(); }
 function pianoReproducirNotasGuardadas(notas){
-  if (!Array.isArray(notas) || !notas.length) {
-    mostrarToast('⚠️ No hay melodía guardada.');
-    return;
-  }
-  pianoLimpiarPlaybackMelodia();
-  var ctx = pianoGetAudioCtx();
-  if (!ctx) { mostrarToast('⚠️ Tu navegador no soporta audio.'); return; }
-  Promise.all(notas.map(function(n){ return pianoLoadBuffer(ctx, n.midi); })).then(function(){
-    var base = ctx.currentTime + 0.05;
-    // Mismo instante que 'base', pero en el reloj de performance.now(),
-    // para poder sincronizar la animación de barras con el audio.
-    var playBaseMs = performance.now() + 50;
-    pianoIniciarFallOverlay(notas, playBaseMs);
-    notas.forEach(function(n){
-      var start = Math.max(0, Number(n.start) || 0);
-      var dur = Math.max(0.15, Number(n.duration) || 0.35);
-      var tOn = setTimeout(function(){ pianoSetKeyActive(n.midi, true); pianoKeyRipple(n.midi); }, start * 1000);
-      var tOff = setTimeout(function(){ pianoSetKeyActive(n.midi, false); }, (start + dur) * 1000);
-      pianoMelodyPlaybackTimers.push(tOn, tOff);
-      pianoPlayNoteSample(ctx, n.midi, base + start, dur);
-    });
-    var lastEnd = notas.reduce(function(max, n){
-      return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
-    }, 0);
-    pianoMelodyPlaybackTimers.push(setTimeout(function(){ pianoLimpiarPlaybackMelodia(); }, (lastEnd + 0.3) * 1000));
-  });
+  pianoMelodyViewNotas = Array.isArray(notas) ? notas.slice() : [];
+  pianoModalReproducirMelodia();
 }
 
-// Botón "🔁 Reproducir de nuevo": repite la última melodía abierta en
-// modo "Ver", sin tener que cerrar y volver a entrar al piano.
-function pianoReplayMelodiaVista(){
-  if (!pianoMelodyViewNotas || !pianoMelodyViewNotas.length) {
-    mostrarToast('⚠️ No hay melodía para repetir.');
-    return;
+function pianoAcomodarVistaMelodia(){
+  var isMobile = window.innerWidth && window.innerWidth <= 768;
+  if (isMobile) {
+    setTimeout(function(){
+      var modal = document.getElementById('pianoModal');
+      var content = document.getElementById('pianoModalContent');
+      if (content && content.scrollIntoView) {
+        content.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (modal && modal.scrollTo) {
+        modal.scrollTo({ top: 120, behavior: 'smooth' });
+      }
+    }, 120);
   }
-  vibrar(15);
-  pianoReproducirNotasGuardadas(pianoMelodyViewNotas);
 }
 
-// Muestra/oculta el botón de repetir según si hay una melodía "en vista".
+function actualizarReproductorFlotanteAdoracion(audio, playBtn, seek, timeLabel){
+  var floating = document.getElementById('floatingAudioPlayer');
+  if (!floating) {
+    floating = document.createElement('div');
+    floating.id = 'floatingAudioPlayer';
+    floating.className = 'audio-player floating';
+    floating.innerHTML = '<button type="button" class="ap-play ap-play-mini" aria-label="Reproducir">▶</button>' +
+      '<span class="ap-time">Audio</span>';
+    document.body.appendChild(floating);
+  }
+  // El flotante debe poder aparecer tanto en vista cantante como en vista músico.
+  // Solo lo ocultamos si todavía no hay un audio real que controlar.
+  if (!audio) {
+    floating.style.display = 'none';
+    return;
+  }
+  var miniBtn = floating.querySelector('.ap-play');
+  var miniTime = floating.querySelector('.ap-time');
+  if (miniBtn) miniBtn.textContent = audio && audio.paused ? '▶' : '❚❚';
+  if (miniTime) {
+    if (audio && isFinite(audio.duration) && audio.duration) {
+      var m = Math.floor(audio.currentTime / 60);
+      var s = Math.floor(audio.currentTime % 60);
+      var dm = Math.floor(audio.duration / 60);
+      var ds = Math.floor(audio.duration % 60);
+      miniTime.textContent = m + ':' + (s < 10 ? '0' : '') + s + ' / ' + dm + ':' + (ds < 10 ? '0' : '') + ds;
+    } else {
+      miniTime.textContent = 'Audio';
+    }
+  }
+  if (miniBtn && !miniBtn._pianoSynced) {
+    miniBtn._pianoSynced = true;
+    miniBtn.onclick = function(){
+      if (!audio) return;
+      if (audio.paused) { audio.play(); } else { audio.pause(); }
+    };
+  }
+  floating.style.right = '10px';
+  floating.style.top = '10px';
+  floating.style.display = 'flex';
+}
+
+// Muestra/oculta el botón de reproducir según si hay una melodía "en vista".
 function pianoActualizarBotonReplay(){
-  var btn = document.getElementById('btnPianoReplayMelodia');
-  if (!btn) return;
-  btn.style.display = (pianoMelodyViewNotas && pianoMelodyViewNotas.length) ? 'inline-flex' : 'none';
+  pianoActualizarControlesMelodia();
+}
+
+function pianoActualizarBotonPlayMelodia(){
+  pianoActualizarBotonReplay();
 }
 
 function esAdminActivo(){
@@ -9585,6 +9873,7 @@ function abrirMelodiaCancionActual(){
   var source = document.getElementById('viewContent');
   abrirPiano(root, source, true);
   if (esAdminActivo()) pianoRenderMelodyRecorder();
+  pianoAcomodarVistaMelodia();
 }
 
 function pianoToggleRecording(){
@@ -9816,6 +10105,10 @@ function pianoRenderHTML(root, type){
   var blackHeight = 94;
   var blackHeightTop = 0;
   var whiteTotal = whiteWidth + whiteGap;
+  // Guardamos estas medidas para que pianoTeclaGeom() (usada por las barras
+  // que caen) las reutilice tal cual, en vez de recalcular su propio
+  // "esCompacto" con el ancho de pantalla que haya en ese momento.
+  pianoUltimaMedidaTeclado = { whiteWidth: whiteWidth, whiteGap: whiteGap, blackWidth: blackWidth };
   // Sombra 3D "de fábrica" de cada tecla (además del anillo de luz que ya
   // se añade cuando la tecla forma parte del acorde). Da sensación de
   // profundidad/relieve incluso en reposo; ver también .pk-touching en el
@@ -9952,11 +10245,18 @@ function pianoRenderHTML(root, type){
           '<div id="pianoMelodyStatus" style="color:var(--text2);font-size:0.72rem;margin-top:2px;">Listo para grabar</div>' +
         '</div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+          '<button id="btnPianoModalPlayMelodia" onclick="pianoModalReproducirMelodia()" style="display:none;background:linear-gradient(135deg,#f3d58a,#c9a84c);border:none;color:#1a1a2e;border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">▶ Reproducir</button>' +
           '<button id="btnPianoRecord" onclick="pianoToggleRecording()" style="background:linear-gradient(135deg,#c9a84c,#f3d58a);border:none;color:#111;border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">⏺ Grabar</button>' +
           '<button id="btnPianoSaveMelody" onclick="pianoSaveMelody()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">💾 Guardar</button>' +
           '<button id="btnPianoDeleteNote" onclick="pianoDeleteLastNote()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">↩ Última nota</button>' +
           '<button onclick="pianoClearMelody()" style="background:#4a1a1a;border:1px solid #8a2b2b;color:#ffb4b4;border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">🗑 Limpiar</button>' +
         '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+        '<div class="piano-melody-progress" style="flex:1;">' +
+          '<div id="pianoMelodyProgressBar" class="piano-melody-progress-bar"></div>' +
+        '</div>' +
+        '<div id="pianoMelodyProgressText" style="min-width:64px;text-align:right;color:var(--text2);font-size:0.72rem;font-variant-numeric:tabular-nums;">0%</div>' +
       '</div>' +
       '<div id="pianoMelodyList" style="max-height:120px;overflow:auto;"></div>' +
     '</div>' +
@@ -9970,7 +10270,6 @@ function pianoRenderHTML(root, type){
     '<div class="piano-main-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">' +
       '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',false)" style="flex:1;min-width:150px;background:#3C3489;border:1px solid #534AB7;color:#EEEDFE;border-radius:999px;padding:10px 12px;cursor:pointer;font-size:0.8rem;font-weight:bold;">▶ Reproducir acorde</button>' +
       '<button onclick="pianoReproducirAcorde(\''+root+'\',\''+type+'\',true)" style="flex:1;min-width:150px;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:10px 12px;cursor:pointer;font-size:0.8rem;font-weight:bold;">🎵 Arpegio</button>' +
-      '<button id="btnPianoReplayMelodia" onclick="pianoReplayMelodiaVista()" style="display:none;flex:1;min-width:150px;background:linear-gradient(135deg,#c9a84c,#f3d58a);border:none;color:#1a1a2e;border-radius:999px;padding:10px 12px;cursor:pointer;font-size:0.8rem;font-weight:bold;">🔁 Reproducir de nuevo</button>' +
     '</div>' +
     '<div style="margin-top:4px;color:#8888aa;font-size:0.72rem;">' +
       'Toca directamente las teclas del piano. Las negras ahora son independientes y el arpegio se escucha escalonado.' +
@@ -10372,6 +10671,8 @@ function pianoDesbloquearAudioConMp3Real(){
       fuente = window.audioPrincipalEl.currentSrc;
     } else if (window.currentSong && window.currentSong.id) {
       fuente = 'audios/' + window.currentSong.id + '.mp3';
+    } else {
+      fuente = 'audios/1.mp3';
     }
     if (!fuente) return false;
     var a = document.createElement('audio');
@@ -10400,15 +10701,13 @@ function pianoDesbloquearAudioConMp3Real(){
 (function(){
   var pianoAudioDesbloqueado = false;
   function pianoDesbloquearAudio(){
-    if (pianoAudioDesbloqueado) return;
-    pianoAudioDesbloqueado = true;
     document.removeEventListener('touchend', pianoDesbloquearAudio);
     document.removeEventListener('touchstart', pianoDesbloquearAudio);
     document.removeEventListener('mousedown', pianoDesbloquearAudio);
     document.removeEventListener('pointerdown', pianoDesbloquearAudio);
 
     pianoDesbloquearAudioSession();
-    pianoDesbloquearAudioConMp3Real();
+    var usoMp3 = pianoDesbloquearAudioConMp3Real();
 
     if (!(window.Tone && Tone.start)) {
       pianoDebugToast('Tone.js no estaba listo en el primer toque');
@@ -10416,10 +10715,12 @@ function pianoDesbloquearAudioConMp3Real(){
     }
     Tone.start().then(function(){
       var ctx = Tone.getContext().rawContext;
-      if (ctx.state !== 'running') {
-        pianoDebugToast('Contexto de audio quedó en "' + ctx.state + '" tras desbloquear');
+      pianoAudioDesbloqueado = (ctx && ctx.state === 'running') || !!usoMp3;
+      if (!pianoAudioDesbloqueado) {
+        pianoDebugToast('Audio aún no quedó listo; tocá una vez más');
       }
     }).catch(function(err){
+      pianoAudioDesbloqueado = !!usoMp3;
       pianoDebugToast('Tone.start() falló: ' + (err && err.message ? err.message : err));
     });
   }
@@ -10612,15 +10913,29 @@ function pianoMidiToNoteName(midi){
 function pianoGetMasterOut(ctx){
   if (!ctx._pianoMasterOut) {
     var comp = ctx.createDynamicsCompressor();
+    var gain = ctx.createGain();
     comp.threshold.value = -18;
     comp.knee.value = 20;
     comp.ratio.value = 8;
     comp.attack.value = 0.003;
     comp.release.value = 0.25;
-    comp.connect(ctx.destination);
+    gain.gain.value = 1;
+    comp.connect(gain);
+    gain.connect(ctx.destination);
     ctx._pianoMasterOut = comp;
+    ctx._pianoMasterGain = gain;
   }
   return ctx._pianoMasterOut;
+}
+
+function pianoSetMelodyMuted(muted){
+  var ctx = pianoAudioCtx;
+  if (!ctx || !ctx._pianoMasterGain) return;
+  try {
+    ctx._pianoMasterGain.gain.setValueAtTime(muted ? 0 : 1, ctx.currentTime);
+  } catch (e) {
+    ctx._pianoMasterGain.gain.value = muted ? 0 : 1;
+  }
 }
 
 // ===== NUEVO MOTOR DE PIANO (Web Audio API, más musical que samples planos) =====
@@ -10782,7 +11097,7 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
   var modal = document.getElementById('pianoModal');
   var title = document.getElementById('pianoModalTitle');
   var content = document.getElementById('pianoModalContent');
-  var modalYaAbierto = modal && modal.style.display === 'block';
+  var modalYaAbierto = modal && modal.style.display === 'flex';
   if (sourceEl) {
     pianoContextoCancion = pianoDetectarAcordesDesdeElemento(sourceEl);
   } else if (!modalYaAbierto) {
@@ -10835,7 +11150,10 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
   var pianoEmojiInstrumento = pianoInstrumentoActivo === 'trompeta' ? '🎺 ' : pianoInstrumentoActivo === 'guitarra' ? '🎸 ' : '🎹 ';
   title.textContent = pianoEmojiInstrumento + pianoLabelChord(parsed.root, parsed.type);
   content.innerHTML = pianoRenderHTML(parsed.root, parsed.type);
-  modal.style.display = 'block';
+  // Abrimos como contenedor flexible desde la primera vez para que el
+  // modal quede centrado de forma consistente en la primera apertura y en
+  // las reaperturas.
+  modal.style.display = 'flex';
   modal.classList.add('piano-open');
 
   // Si había una grabación de melodía activa (o en pausa) para esta misma
@@ -10914,6 +11232,20 @@ function cerrarPiano(){
   if (modal) { modal.style.display = 'none'; modal.classList.remove('piano-open'); }
   pianoLimpiarPlaybackMelodia();
 }
+
+// Si el piano está abierto y el celular gira (o cambia el ancho de la
+// ventana), volvemos a dibujar el teclado con las medidas correctas para
+// ese tamaño. Antes, al girar el teléfono desde el aviso "Gira tu teléfono",
+// el teclado se quedaba con las medidas "compactas" con las que se dibujó
+// en vertical (nunca se refrescaba), y eso hacía que las barras de la
+// melodía (recalculadas con el ancho nuevo) quedaran desalineadas de las
+// teclas reales — se veían como una octava más arriba.
+window.addEventListener('orientationchange', function(){
+  setTimeout(pianoActualizarSiAbierto, 200);
+});
+window.addEventListener('resize', function(){
+  setTimeout(pianoActualizarSiAbierto, 200);
+});
 
 // Cerrar con Escape
 document.addEventListener('keydown', function(e){
