@@ -10703,94 +10703,35 @@ function pianoCrearWarmupAudioUrl(){
   return pianoAudioWarmupUrl;
 }
 function pianoDesbloquearAudioSession(){
-  try {
-    if (window.Tone && Tone.start) {
-      Tone.start().catch(function(){});
-    }
-  } catch (e) {}
-  try {
-    var url = pianoCrearWarmupAudioUrl();
-    if (!url) return;
-    var a = new Audio();
-    a.src = url;
-    a.preload = 'auto';
-    a.playsInline = true;
-    a.volume = 0.001;
-    var p = a.play();
-    if (p && p.catch) p.catch(function(){});
-    setTimeout(function(){
-      try {
-        a.pause();
-        a.src = '';
-      } catch (e) {}
-    }, 250);
-  } catch(e){}
+  // NEUTRALIZADO POR COMPLETO: crear/arrancar el AudioContext de Tone.js
+  // (Web Audio API) apenas se toca la pantalla por primera vez, antes de
+  // que el usuario elija una cancion, es lo que rompe el sonido en
+  // iPhone: en cuanto existe un AudioContext de Web Audio activo, Safari
+  // en iOS empieza a tratar TODO el audio de la pagina (incluido el
+  // audio normal de las canciones) como si debiera respetar el
+  // interruptor fisico de silencio, aunque normalmente el audio comun lo
+  // ignora. Por eso el boton se veia reproduciendo pero no sonaba.
+  // El piano (Tone.js) ya arranca su propio Tone.start() en el momento
+  // exacto en que el usuario lo abre (ver abrirPiano y funciones
+  // relacionadas), asi que aqui ya no hace falta hacer nada.
 }
 function pianoDesbloquearAudioConMp3Real(){
-  try {
-    var fuente = null;
-    if (window.audioPrincipalEl && window.audioPrincipalEl.currentSrc) {
-      fuente = window.audioPrincipalEl.currentSrc;
-    } else if (window.currentSong && window.currentSong.id) {
-      fuente = 'audios/' + window.currentSong.id + '.mp3';
-    } else {
-      fuente = 'audios/1.mp3';
-    }
-    if (!fuente) return false;
-    var a = document.createElement('audio');
-    a.src = fuente;
-    a.preload = 'auto';
-    a.playsInline = true;
-    a.volume = 0.001;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    var stop = function(){
-      try { a.pause(); } catch (e) {}
-      try { a.removeAttribute('src'); a.load(); } catch (e) {}
-      if (a.parentNode) a.parentNode.removeChild(a);
-    };
-    var p = a.play();
-    if (p && p.then) {
-      p.then(function(){ setTimeout(stop, 160); }).catch(function(){ stop(); });
-    } else {
-      setTimeout(stop, 160);
-    }
-    return true;
-  } catch(e){
-    return false;
-  }
+  // NEUTRALIZADO: creaba un <audio> real (mp3 de una cancion) y lo
+  // reproducia en volumen casi cero como "truco" de desbloqueo apenas
+  // se tocaba la pantalla por primera vez. Esto es lo que mas probable
+  // rompia el sonido real: iOS solo permite una cantidad limitada de
+  // audios "recien desbloqueados" por gesto, y este truco se quedaba
+  // con ese permiso antes de que el usuario alcanzara a tocar play.
+  return false;
 }
-(function(){
-  var pianoAudioDesbloqueado = false;
-  function pianoDesbloquearAudio(){
-    document.removeEventListener('touchend', pianoDesbloquearAudio);
-    document.removeEventListener('touchstart', pianoDesbloquearAudio);
-    document.removeEventListener('mousedown', pianoDesbloquearAudio);
-    document.removeEventListener('pointerdown', pianoDesbloquearAudio);
-
-    pianoDesbloquearAudioSession();
-    var usoMp3 = pianoDesbloquearAudioConMp3Real();
-
-    if (!(window.Tone && Tone.start)) {
-      pianoDebugToast('Tone.js no estaba listo en el primer toque');
-      return;
-    }
-    Tone.start().then(function(){
-      var ctx = Tone.getContext().rawContext;
-      pianoAudioDesbloqueado = (ctx && ctx.state === 'running') || !!usoMp3;
-      if (!pianoAudioDesbloqueado) {
-        pianoDebugToast('Audio aún no quedó listo; tocá una vez más');
-      }
-    }).catch(function(err){
-      pianoAudioDesbloqueado = !!usoMp3;
-      pianoDebugToast('Tone.start() falló: ' + (err && err.message ? err.message : err));
-    });
-  }
-  document.addEventListener('touchend', pianoDesbloquearAudio, { passive: true });
-  document.addEventListener('touchstart', pianoDesbloquearAudio, { passive: true, capture: true });
-  document.addEventListener('mousedown', pianoDesbloquearAudio);
-  document.addEventListener('pointerdown', pianoDesbloquearAudio, { passive: true, capture: true });
-})();
+// DESACTIVADO: este bloque escuchaba el PRIMER toque en cualquier parte de
+// toda la app (aun antes de elegir una cancion) para arrancar el
+// AudioContext de Tone.js por adelantado. Ese arranque temprano era la
+// causa real de que el audio de las canciones sonara mudo en iPhone (ver
+// la explicacion en pianoDesbloquearAudioSession, arriba). El piano sigue
+// funcionando igual: se desbloquea solo, en el momento en que el usuario
+// realmente lo abre (abrirPiano() y funciones relacionadas ya llaman a
+// Tone.start() ahi mismo).
 
 var pianoSampler = null;
 var pianoSamplerPromise = null;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alabanzas-v100';
+const CACHE_NAME = 'alabanzas-v101';
 const DATA_CACHE_NAME = 'alabanzas-data-v33';
 
 self.addEventListener('install', (e) => {
