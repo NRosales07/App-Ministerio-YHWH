@@ -10080,6 +10080,29 @@ function pianoGetAudioCtx(){
   return pianoAudioCtx;
 }
 
+// iOS (Safari) exige que el audio se "desbloquee" dentro de un gesto real
+// del usuario (touch/click), y solo cuenta la primera vez que ocurre.
+// Antes eso quedaba atado al primer toque a un acorde (dentro de
+// abrirPiano), lo cual coincidía con empezar a descargar las muestras del
+// instrumento — si esa descarga tardaba, la sensación era que "no sonaba
+// la primera vez". Con esto, el desbloqueo pasa en el primer toque a
+// CUALQUIER parte de la página (no hace falta que sea sobre el piano), así
+// para cuando el usuario realmente toca un acorde, Tone.js ya está listo
+// y lo único que puede demorar es la descarga de las muestras en sí.
+(function(){
+  var pianoAudioDesbloqueado = false;
+  function pianoDesbloquearAudio(){
+    if (pianoAudioDesbloqueado) return;
+    pianoAudioDesbloqueado = true;
+    if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+    try { pianoGetAudioCtx(); } catch(e){}
+    document.removeEventListener('touchend', pianoDesbloquearAudio);
+    document.removeEventListener('mousedown', pianoDesbloquearAudio);
+  }
+  document.addEventListener('touchend', pianoDesbloquearAudio, { passive: true });
+  document.addEventListener('mousedown', pianoDesbloquearAudio);
+})();
+
 var pianoSampler = null;
 var pianoSamplerPromise = null;
 
@@ -10122,7 +10145,7 @@ function pianoGetTrumpetSampler(){
       A5: 'A5.mp3',
       C6: 'C6.mp3'
     },
-    release: 0.6,
+    release: 0.3,
     baseUrl: baseUrl,
     onload: function(){}
   }).toDestination();
@@ -10140,28 +10163,33 @@ function pianoGetTrumpetSampler(){
 
 var pianoGuitarraSynth = null;
 
-// Guitarra eléctrica "un poco distorsionada": a diferencia del piano y la
-// trompeta (samples reales), esta se sintetiza con Tone.js, así que no
-// necesita ningún archivo nuevo que precachear en el sw.js. Doble
-// oscilador (uno afinado un pelín arriba del otro, como dos cuerdas) ->
-// filtro pasa-bajos que quita el brillo más agudo -> Tone.Distortion, que
-// es la que le da el "grano" de distorsión.
+// Guitarra eléctrica distorsionada estilo "power chord" de rock alternativo
+// 90s (ese golpe grueso, medio atascado, más percutido que sostenido — no
+// una guitarra que "canta" y suena larga). Se sintetiza con Tone.js, así
+// que no necesita ningún archivo nuevo que precachear en el sw.js.
+// Cadena: doble oscilador diente de sierra (algo desafinado entre sí, como
+// dos cuerdas) -> filtro pasa-bajos que recorta el brillo y deja el cuerpo
+// en los medios -> Tone.Distortion (bien presente, no sutil) -> destino.
+// La envolvente es corta a propósito (decay y release rápidos, sustain
+// bajo) para que la nota "pegue" y se apague, en vez de quedar sonando.
 function pianoGetGuitarraSynth(){
   if (!window.Tone || !Tone.PolySynth) return Promise.reject(new Error('Tone.js no disponible'));
   if (pianoGuitarraSynth) return Promise.resolve(pianoGuitarraSynth);
 
-  var distorsion = new Tone.Distortion(0.3);
-  distorsion.oversample = '2x';
+  var distorsion = new Tone.Distortion(0.55);
+  distorsion.oversample = '4x';
   distorsion.toDestination();
-  var filtro = new Tone.Filter({ type: 'lowpass', frequency: 3000, Q: 0.6 }).connect(distorsion);
+  // Frecuencia y Q más marcados que un piano/trompeta: buscamos ese
+  // punto "boxy" de amplificador con la ganancia alta, no un tono limpio.
+  var filtro = new Tone.Filter({ type: 'lowpass', frequency: 2200, Q: 1.1 }).connect(distorsion);
 
   pianoGuitarraSynth = new Tone.PolySynth(Tone.Synth, {
-    oscillator: { type: 'fatsawtooth', count: 2, spread: 18 },
-    envelope: { attack: 0.006, decay: 0.28, sustain: 0.32, release: 0.55 }
+    oscillator: { type: 'fatsawtooth', count: 2, spread: 22 },
+    envelope: { attack: 0.003, decay: 0.14, sustain: 0.08, release: 0.12 }
   }).connect(filtro);
   // La distorsión sube el nivel percibido; bajamos el volumen base del
   // synth para que no sature ni quede más fuerte que el piano/trompeta.
-  pianoGuitarraSynth.volume.value = -8;
+  pianoGuitarraSynth.volume.value = -7;
 
   return Promise.resolve(pianoGuitarraSynth);
 }
@@ -10204,7 +10232,7 @@ function pianoGetSampler(){
       'F#5': 'Fs5.mp3',
       A5: 'A5.mp3'
     },
-    release: 1.2,
+    release: 0.45,
     baseUrl: baseUrl,
     onload: function(){}
   }).toDestination();
@@ -10247,9 +10275,26 @@ function pianoGetMasterOut(ctx){
 }
 
 // ===== NUEVO MOTOR DE PIANO (Web Audio API, más musical que samples planos) =====
+// Guitarra es un synth (sin muestras que descargar): está lista apenas se
+// crea. Piano/trompeta sí dependen de que sus .mp3 terminen de bajar.
+var pianoAvisoCargaMostrado = false;
+function pianoInstrumentoListo(){
+  if (pianoInstrumentoActivo === 'guitarra') return true;
+  var s = pianoInstrumentoActivo === 'trompeta' ? pianoTrumpetSampler : pianoSampler;
+  return !!(s && s.loaded);
+}
+
 function pianoCreateVoice(ctx, midi, startTime, duration, velocity){
   var note = pianoMidiToNoteName(midi);
   var vel = Math.max(0.15, Math.min(1, velocity || 0.8));
+  // La primera vez que se toca un instrumento (piano/trompeta) puede tardar
+  // un momento en sonar mientras se terminan de bajar sus muestras — sobre
+  // todo en el primer uso, antes de que el service worker las tenga en
+  // caché. Sin este aviso, esa demora se sentía como que "no sonaba".
+  if (!pianoInstrumentoListo() && !pianoAvisoCargaMostrado) {
+    pianoAvisoCargaMostrado = true;
+    mostrarToast('🔊 Cargando el sonido, esperá un segundo…');
+  }
   pianoObtenerSamplerActivo().then(function(sampler){
     var when = (typeof startTime === 'number' && isFinite(startTime)) ? startTime : ((window.Tone && Tone.now) ? Tone.now() : (ctx ? ctx.currentTime + 0.02 : 0));
     sampler.triggerAttackRelease(note, Math.max(0.2, duration || 0.55), when, vel);
@@ -10346,12 +10391,12 @@ function pianoReproducirAcorde(root, type, modoArpegio){
     var now = ctx.currentTime + 0.03;
     if (modoArpegio) {
       semis.forEach(function(m, i){
-        pianoPlayNoteSample(ctx, m, now + i * 0.18, 0.62);
+        pianoPlayNoteSample(ctx, m, now + i * 0.18, 0.4);
         setTimeout(function(){ pianoKeyRipple(m); }, i * 180);
       });
     } else {
       semis.forEach(function(m, i){
-        pianoPlayNoteSample(ctx, m, now + (i * 0.01), 1.2);
+        pianoPlayNoteSample(ctx, m, now + (i * 0.01), 0.5);
         setTimeout(function(){ pianoKeyRipple(m); }, i * 10);
       });
     }
@@ -10366,6 +10411,7 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
   var parsed = pianoParseChord(chordStr);
   if (!parsed) return;
   if (window.Tone && Tone.start) { Tone.start().catch(function(){}); }
+  pianoAvisoCargaMostrado = false;
   pianoRequestLandscapeMode();
   var modal = document.getElementById('pianoModal');
   var title = document.getElementById('pianoModalTitle');
