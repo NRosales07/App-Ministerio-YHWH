@@ -9287,7 +9287,7 @@ function pianoIniciarFallOverlay(notas, playBaseMs){
     div.className = 'piano-fall-note';
     div.style.cssText = 'position:absolute;left:' + geom.x + 'px;width:' + geom.width + 'px;height:' + alto + 'px;' +
       'background:linear-gradient(180deg,' + color + 'dd,' + color + '55);border:1px solid ' + color + ';' +
-      'border-radius:5px;box-shadow:0 0 6px ' + color + '88;top:-' + alto + 'px;';
+      'border-radius:5px;box-shadow:0 0 6px ' + color + '88;top:0;transform:translate3d(0,-' + alto + 'px,0);will-change:transform,opacity;';
     zone.appendChild(div);
     return { el: div, start: Math.max(0, Number(n.start) || 0), duration: dur, alto: alto };
   }).filter(Boolean);
@@ -9300,7 +9300,7 @@ function pianoIniciarFallOverlay(notas, playBaseMs){
     var t = (performance.now() - playBaseMs) / 1000;
     barras.forEach(function(b){
       var distArriba = (b.start - t) * PIANO_FALL_SPEED; // px sobre la línea de teclas
-      b.el.style.top = (PIANO_FALL_ZONE_H - distArriba - b.alto) + 'px';
+      b.el.style.transform = 'translate3d(0,' + (PIANO_FALL_ZONE_H - distArriba - b.alto) + 'px,0)';
       b.el.style.opacity = (t > b.start + b.duration) ? '0' : '1';
     });
     if (t < finMax + 0.4) {
@@ -10275,16 +10275,81 @@ function pianoDebugToast(msg){
 // real) y después abrir el piano sí sonaba: la canción ya había hecho
 // ese cambio de categoría.
 //
-// Esta función reproduce un WAV de 1 sample en silencio (sin red, va
-// embebido) dentro del mismo primer toque, para forzar esa categoría de
-// audio ANTES de que el usuario llegue a tocar un acorde.
-var PIANO_SILENCIO_WAV = 'data:audio/wav;base64,UklGRiUAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQEAAACA';
+// iOS necesita un audio real para cambiar la sesión a playback. En vez de
+// depender de un WAV casi vacío, generamos un clip diminuto y lo usamos una
+// sola vez como "calentamiento" del audio. Es tan corto y suave que no se
+// percibe, pero sí ayuda a que Safari registre una reproducción real.
+var pianoAudioWarmupUrl = null;
+function pianoCrearWarmupAudioUrl(){
+  if (pianoAudioWarmupUrl) return pianoAudioWarmupUrl;
+  try {
+    var sampleRate = 22050;
+    var duration = 0.12;
+    var totalSamples = Math.floor(sampleRate * duration);
+    var audioData = new Uint8Array(44 + totalSamples * 2);
+    function writeStr(offset, str){
+      for (var i = 0; i < str.length; i++) audioData[offset + i] = str.charCodeAt(i);
+    }
+    function write32(offset, value){
+      audioData[offset] = value & 255;
+      audioData[offset + 1] = (value >> 8) & 255;
+      audioData[offset + 2] = (value >> 16) & 255;
+      audioData[offset + 3] = (value >> 24) & 255;
+    }
+    function write16(offset, value){
+      audioData[offset] = value & 255;
+      audioData[offset + 1] = (value >> 8) & 255;
+    }
+    writeStr(0, 'RIFF');
+    write32(4, 36 + totalSamples * 2);
+    writeStr(8, 'WAVE');
+    writeStr(12, 'fmt ');
+    write32(16, 16);
+    write16(20, 1);
+    write16(22, 1);
+    write32(24, sampleRate);
+    write32(28, sampleRate * 2);
+    write16(32, 2);
+    write16(34, 16);
+    writeStr(36, 'data');
+    write32(40, totalSamples * 2);
+    for (var s = 0; s < totalSamples; s++) {
+      var t = s / sampleRate;
+      var envelope = Math.min(1, t / 0.01) * Math.max(0, 1 - (t / duration));
+      var sample = Math.sin(2 * Math.PI * 440 * t) * 0.0025 * envelope;
+      var pcm = Math.max(-1, Math.min(1, sample)) * 32767;
+      var o = 44 + s * 2;
+      write16(o, pcm < 0 ? (pcm + 65536) : pcm);
+    }
+    var blob = new Blob([audioData], { type: 'audio/wav' });
+    pianoAudioWarmupUrl = URL.createObjectURL(blob);
+  } catch (e) {
+    pianoAudioWarmupUrl = null;
+  }
+  return pianoAudioWarmupUrl;
+}
 function pianoDesbloquearAudioSession(){
   try {
-    var a = new Audio(PIANO_SILENCIO_WAV);
-    a.volume = 0.01;
+    if (window.Tone && Tone.start) {
+      Tone.start().catch(function(){});
+    }
+  } catch (e) {}
+  try {
+    var url = pianoCrearWarmupAudioUrl();
+    if (!url) return;
+    var a = new Audio();
+    a.src = url;
+    a.preload = 'auto';
+    a.playsInline = true;
+    a.volume = 0.001;
     var p = a.play();
     if (p && p.catch) p.catch(function(){});
+    setTimeout(function(){
+      try {
+        a.pause();
+        a.src = '';
+      } catch (e) {}
+    }, 250);
   } catch(e){}
 }
 (function(){
@@ -10293,7 +10358,9 @@ function pianoDesbloquearAudioSession(){
     if (pianoAudioDesbloqueado) return;
     pianoAudioDesbloqueado = true;
     document.removeEventListener('touchend', pianoDesbloquearAudio);
+    document.removeEventListener('touchstart', pianoDesbloquearAudio);
     document.removeEventListener('mousedown', pianoDesbloquearAudio);
+    document.removeEventListener('pointerdown', pianoDesbloquearAudio);
 
     pianoDesbloquearAudioSession();
 
@@ -10303,13 +10370,6 @@ function pianoDesbloquearAudioSession(){
     }
     Tone.start().then(function(){
       var ctx = Tone.getContext().rawContext;
-      // Buffer de 1 sample en silencio, reproducido ya (no programado a
-      // futuro) para forzar el desbloqueo real dentro del gesto.
-      var buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
-      var source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(ctx.destination);
-      if (source.start) source.start(0); else source.noteOn(0);
       if (ctx.state !== 'running') {
         pianoDebugToast('Contexto de audio quedó en "' + ctx.state + '" tras desbloquear');
       }
@@ -10318,7 +10378,9 @@ function pianoDesbloquearAudioSession(){
     });
   }
   document.addEventListener('touchend', pianoDesbloquearAudio, { passive: true });
+  document.addEventListener('touchstart', pianoDesbloquearAudio, { passive: true, capture: true });
   document.addEventListener('mousedown', pianoDesbloquearAudio);
+  document.addEventListener('pointerdown', pianoDesbloquearAudio, { passive: true, capture: true });
 })();
 
 var pianoSampler = null;
@@ -10652,7 +10714,7 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
   chordStr = chordLatinoToAmericano(chordStr);
   var parsed = pianoParseChord(chordStr);
   if (!parsed) return;
-  if (window.Tone && Tone.start) { pianoDesbloquearAudioSession(); Tone.start().catch(function(){}); }
+  pianoDesbloquearAudioSession();
   pianoAvisoCargaMostrado = false;
   pianoRequestLandscapeMode();
   var modal = document.getElementById('pianoModal');
