@@ -1183,12 +1183,12 @@ var SONGS =
     "num": 1,
     "title": "PAZ EN LA TORMENTA",
     "compositor": "Kirk Allen - 1974",
-    "tono": "G",
-    "youtube": "https://www.youtube.com/embed/qwtF7jacIZ8",
+    "tono": "C",
     "album": "Paz en la tormenta",
+    "content": "[INTRO]:  MELODÍA \n                                        | C | Bb | Gsus4 | C |\n\n                                            \n        [VERSO 1]:\n             Csus2               F              Csus2\nCuando lloras por las veces que intentaste,\n   C                             Dm7              Gsus4\nTratas de olvidar las lágrimas, que lloraste,\n            F                     C           Am7                   F\nSolo tienes pena y tristeza, el futuro incierto espera,\n                C      F       G        C\nPuedes tener paz en la tormenta.\n        [VERSO 2]: \n                 C                   F                     C\nMuchas veces yo me siento igual que tú,\n                     Dm7 Gsus4       G7\nMi corazón anhela al -go real,\n        F                 E7            Am          F\nEl Señor viene a mí y me ayuda a seguir,\n        C          G7                 C\nEn paz en medio de la tormenta.\n        [CORO]:\n                C       F               C                          \nPuedes tener paz en la tormenta, fe y esperanza \n             Am                G\nCuando no puedas seguir,\n                      F                      E7            Am                       F\nAún con tu mundo hecho pedazos, el Señor guiará tus pasos,\n        C         G7                   C\nEn paz en medio de la tormenta.\n[VERSO 1]:     |        [CORO]       \n  [VERSO 2]:       |        [CORO]: X2 ",
+    "id": 111,
     "version": "Renán Carías",
-    "content": "[CORO]: MELODÍA \n                                      | C | Bb | Gsus4 | C |\n        [VERSO 1]:\n             Csus2               F              Csus2\nCuando lloras por las veces que intentaste,\n   C                             Dm7              Gsus4\nTratas de olvidar las lágrimas, que lloraste,\n            F                     C           Am7                   F\nSolo tienes pena y tristeza, el futuro incierto espera,\n                C      F       G        C\nPuedes tener paz en la tormenta.\n        [VERSO 2]: \n                 C                   F                     C\nMuchas veces yo me siento igual que tú,\n                     Dm7 Gsus4       G7\nMi corazón anhela al -go real,\n        F                 E7            Am          F\nEl Señor viene a mí y me ayuda a seguir,\n        C          G7                 C\nEn paz en medio de la tormenta.\n        [CORO]:\n                C       F               C                          \nPuedes tener paz en la tormenta, fe y esperanza \n             Am                G\nCuando no puedas seguir,\n                      F                      E7            Am                       F\nAún con tu mundo hecho pedazos, el Señor guiará tus pasos,\n        C         G7                   C\nEn paz en medio de la tormenta.\n[VERSO 1]:     |        [CORO]       \n  [VERSO 2]:       |        [CORO]: X2 ",
-    "id": 111
+    "youtube": "https://www.youtube.com/embed/qwtF7jacIZ8"
   },
   {
     "num": 2,
@@ -2033,11 +2033,11 @@ var SONGS =
     "num": 9,
     "title": "VEN Y LLENA ESTA CASA",
     "compositor": "Vino Nuevo",
-    "tono": "E",
-    "youtube": "https://www.youtube.com/embed/",
+    "tono": "A",
     "album": "Ven y llena esta casa - 2012",
-    "content": "[INTRO]: MELODÍA\n                                             | A | C#m | D |\n        [VERSO 1]: \n        E          A          D    A Bm7                          E\nAl mirar tu santidad, somos transformados, a tu imagen,\n        A          D     A     Bm7                 E       A D-E\nAl mirar tu majestad, de gloria en gloria, cámbianos Señor.\n        [CORO]: \n        A       C#m            D\nX2 Ven y llena esta casa, con tu gloria,\n        A      C#m              D A\nven y llena esta casa, con tu gloria\n        Bm7       E            A         E F#m\nLa gloria postrera, será mayor que la primera,\n        Bm7               D [E] E [A]\nAumenta en mi tu gloria, oh Jesús. X2\n        \nMELODÍA\n        [VERSO 1] X2         |         [CORO] X2 F",
-    "id": 196
+    "content": "[INTRO]: MELODÍA\n                                             | A | C#m | D |\n        [VERSO 1]: \nE        A              D       A    Bm7                                       E\n    Al mirar tu santidad,      somos transformados, a tu imagen,\n       A              D         A        Bm7                         E            A   D - E\nAl mirar tu majestad,       de gloria en gloria, cámbianos Señor.\n        [CORO]: \n                    A           C#m                D\nX2   Ven y llena esta casa, con tu gloria,\n            A            C#m                D     A\nVen y llena esta casa, con tu gloria\n     Bm7       E                    A            E   F#m\nLa gloria postrera, será mayor que la primera,\n   Bm7                      D [E]       E [A]\nAumenta en mi tu gloria, oh Jesús.    X2\n        \n\n\nMELODÍA\n        [VERSO 1]:  X2         |         [CORO]:  X2 ",
+    "id": 196,
+    "youtube": "https://www.youtube.com/embed/"
   },
   {
     "num": 10,

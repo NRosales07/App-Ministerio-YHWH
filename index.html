@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Parisienne&display=swap" rel="stylesheet">
 
-<script src="https://unpkg.com/tone@latest/build/Tone.js"></script>
+<script src="Tone.js"></script>
 <script>
   // Estados globales tempranos para que Firebase pueda escribir aunque el resto aún no haya cargado.
   window.REPERTORIOS_KEY = window.REPERTORIOS_KEY || 'yhwh_repertorios_v3';
@@ -1483,6 +1483,23 @@ table.teoria-tabla tr:hover td{ background:rgba(201,168,76,0.06); }
   user-select:none;
   -webkit-touch-callout:none;
   touch-action:none;
+}
+#pianoModal, #pianoModal *{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+#pianoModalContent{
+  touch-action:none;
+}
+#pianoFallZone{
+  contain: layout paint;
+}
+.piano-fall-note{
+  background: rgba(127,119,221,0.32);
+  border: 1px solid rgba(127,119,221,0.22);
+  border-radius: 4px;
+  box-shadow: none;
 }
 .pk-key.pk-touching{
   transform: translateY(3px) scale(0.98) !important;
@@ -5093,8 +5110,8 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
   if (btnVerMelodiaAdor) btnVerMelodiaAdor.style.display = (savedAdoracionMel && Array.isArray(savedAdoracionMel.notas) && savedAdoracionMel.notas.length) ? 'inline-flex' : 'none';
   var vieneDeRepertorio = origenRepertorioPendiente;
   origenRepertorioPendiente = false;
-  var btnVolverRep = document.getElementById('btnVolverRepertorioAdoracion');
-  if (btnVolverRep) btnVolverRep.style.display = vieneDeRepertorio ? '' : 'none';
+  cancionActualVieneDeRepertorio = vieneDeRepertorio;
+  actualizarVisibilidadBotonVolverRepertorio();
   if (window.aplicarVistaSegunRolCanciones) aplicarVistaSegunRolCanciones();
   initTransitionUI();
   actualizarTransicionActual();
@@ -5578,6 +5595,7 @@ function toggleVistaCantante() {
   document.body.classList.toggle('singer-view', activa);
   actualizarBotonesVistaAdoracion();
   actualizarSiguienteAlabanza();
+  actualizarVisibilidadBotonVolverRepertorio();
 
   if (activa && !ocultarAcordes) {
     ocultarAcordes = true;
@@ -5609,6 +5627,7 @@ function toggleVistaMusico() {
   }
   document.body.classList.toggle('musician-view', activa);
   actualizarBotonesVistaAdoracion();
+  actualizarVisibilidadBotonVolverRepertorio();
   renderContent();
   initTransitionUI();
   actualizarSiguienteAlabanza();
@@ -9375,6 +9394,49 @@ var pianoMelodyReplayBloqueado = false;
 // repetirla con el botón "🔁 Reproducir de nuevo" sin tener que volver a
 // buscarla en Firebase/localStorage.
 var pianoMelodyViewNotas = null;
+var pianoMelodyTranspose = 0;
+
+function pianoTransposeMidi(midi, semitones){
+  var next = Number(midi);
+  var shift = Number(semitones) || 0;
+  if (!isFinite(next)) return midi;
+  next += shift;
+  if (next < 0) next = 0;
+  if (next > 127) next = 127;
+  return next;
+}
+
+function pianoTransposeMelodyNotes(notas, semitones){
+  var shift = Number(semitones) || 0;
+  if (!shift || !Array.isArray(notas)) return Array.isArray(notas) ? notas.slice() : [];
+  return notas.map(function(n){
+    var clone = Object.assign({}, n);
+    clone.midi = pianoTransposeMidi(clone.midi, shift);
+    clone.note = pianoMidiToNoteName(clone.midi);
+    return clone;
+  });
+}
+
+function pianoCargarTransposeMelodia(){
+  try {
+    var raw = localStorage.getItem('yhwh_piano_melody_transpose');
+    var n = raw === null ? 0 : parseInt(raw, 10);
+    pianoMelodyTranspose = isFinite(n) ? Math.max(-12, Math.min(12, n)) : 0;
+  } catch (e) {
+    pianoMelodyTranspose = 0;
+  }
+}
+
+function pianoAjustarTransposeMelodia(delta){
+  pianoMelodyTranspose = Math.max(-12, Math.min(12, (Number(pianoMelodyTranspose) || 0) + delta));
+  try { localStorage.setItem('yhwh_piano_melody_transpose', String(pianoMelodyTranspose)); } catch (e) {}
+  pianoModalActualizarControlesMelodia();
+  if (pianoMelodyModalState && pianoMelodyModalState.active) {
+    pianoModalDetenerMelodia(true);
+  }
+}
+
+pianoCargarTransposeMelodia();
 // requestAnimationFrame del resaltado de teclas + destello ("ripple") durante
 // la reproducción de una melodía. Antes cada nota programaba sus propios
 // setTimeout (uno para encender la tecla, otro para apagarla); con una
@@ -9502,7 +9564,7 @@ function pianoIniciarFallOverlay(notas, playBaseMs){
   }
   var esMovil = typeof window !== 'undefined' && window.innerWidth && window.innerWidth <= 768;
   var zoneHeight = esMovil ? 150 : PIANO_FALL_ZONE_H;
-  zone.style.cssText = 'position:relative;overflow:hidden;height:' + zoneHeight + 'px;margin-bottom:2px;width:' + (stage.style.minWidth || (stage.offsetWidth + 'px')) + ';pointer-events:none;contain:layout paint;will-change:transform;';
+  zone.style.cssText = 'position:relative;overflow:hidden;height:' + zoneHeight + 'px;margin-bottom:2px;width:' + (stage.style.minWidth || (stage.offsetWidth + 'px')) + ';pointer-events:none;contain:layout paint;';
 
   var barras = notas.map(function(n, i){
     var geom = pianoTeclaGeom(n.midi);
@@ -9513,8 +9575,7 @@ function pianoIniciarFallOverlay(notas, playBaseMs){
     var div = document.createElement('div');
     div.className = 'piano-fall-note';
     div.style.cssText = 'position:absolute;left:' + geom.x + 'px;width:' + geom.width + 'px;height:' + alto + 'px;' +
-      'background:linear-gradient(180deg,' + color + 'f2,' + color + '55);border:1px solid ' + color + ';' +
-      'border-radius:5px;box-shadow:0 0 6px ' + color + '88, inset 0 0 10px rgba(255,255,255,0.12);top:0;transform:translate3d(0,-' + alto + 'px,0);will-change:transform,opacity;';
+      'background:' + color + ';border:0;border-radius:3px;opacity:0.9;top:0;transform:translate3d(0,-' + alto + 'px,0);will-change:transform,opacity;';
     zone.appendChild(div);
     return { el: div, start: Math.max(0, Number(n.start) || 0), duration: dur, alto: alto };
   }).filter(Boolean);
@@ -9539,10 +9600,13 @@ function pianoLimpiarPlaybackMelodia(){
   if (!modal) return;
   var keys = modal.querySelectorAll('.pk-key.pk-playing');
   for (var i = 0; i < keys.length; i++) keys[i].classList.remove('pk-playing');
+  var touching = modal.querySelectorAll('.pk-key.pk-touching');
+  for (var j = 0; j < touching.length; j++) touching[j].classList.remove('pk-touching');
 }
 
 function pianoModalActualizarControlesMelodia(){
   var playBtn = document.getElementById('btnPianoModalPlayMelodia');
+  var transposeLabel = document.getElementById('pianoMelodyTransposeValue');
   var tieneMelodia = !!(pianoMelodyViewNotas && pianoMelodyViewNotas.length);
 
   if (playBtn) {
@@ -9551,6 +9615,9 @@ function pianoModalActualizarControlesMelodia(){
     playBtn.style.opacity = pianoMelodyReplayBloqueado ? '0.65' : '1';
     playBtn.style.cursor = pianoMelodyReplayBloqueado ? 'not-allowed' : 'pointer';
     playBtn.textContent = '▶ Reproducir';
+  }
+  if (transposeLabel) {
+    transposeLabel.textContent = (pianoMelodyTranspose > 0 ? '+' : '') + pianoMelodyTranspose + ' semitonos';
   }
 }
 
@@ -9597,7 +9664,7 @@ function pianoModalProgramarMelodiaDesde(offsetSegundos){
   pianoModalActualizarControlesMelodia();
   pianoLimpiarPlaybackMelodia();
   pianoSetMelodyMuted(false);
-  pianoMelodyPlaybackNotas = pianoMelodyViewNotas.slice();
+  pianoMelodyPlaybackNotas = pianoTransposeMelodyNotes(pianoMelodyViewNotas, pianoMelodyTranspose);
   pianoMelodyModalState.active = true;
   pianoMelodyModalState.paused = false;
   pianoMelodyModalState.elapsed = inicio;
@@ -10375,6 +10442,14 @@ function pianoRenderHTML(root, type){
           '<button onclick="pianoClearMelody()" style="background:#4a1a1a;border:1px solid #8a2b2b;color:#ffb4b4;border-radius:999px;padding:8px 12px;cursor:pointer;font-size:0.75rem;font-weight:bold;">🗑 Limpiar</button>' +
         '</div>' +
       '</div>' +
+      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;">' +
+        '<button onclick="pianoAjustarTransposeMelodia(-1)" style="background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:0.72rem;font-weight:bold;">-1</button>' +
+        '<button onclick="pianoAjustarTransposeMelodia(1)" style="background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:0.72rem;font-weight:bold;">+1</button>' +
+        '<button onclick="pianoAjustarTransposeMelodia(-12)" style="background:#2a2a45;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:0.72rem;font-weight:bold;">-8va</button>' +
+        '<button onclick="pianoAjustarTransposeMelodia(12)" style="background:#2a2a45;border:1px solid #2a2a45;color:#e8e6f0;border-radius:999px;padding:6px 10px;cursor:pointer;font-size:0.72rem;font-weight:bold;">+8va</button>' +
+        '<span style="color:#8888aa;font-size:0.72rem;">Transposición:</span>' +
+        '<span id="pianoMelodyTransposeValue" style="color:#f3d58a;font-size:0.72rem;font-weight:bold;">0 semitonos</span>' +
+      '</div>' +
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
         '<div class="piano-melody-progress" style="flex:1;">' +
           '<div id="pianoMelodyProgressBar" class="piano-melody-progress-bar"></div>' +
@@ -10785,6 +10860,15 @@ function pianoDesbloquearAudioConMp3Real(){
   // con ese permiso antes de que el usuario alcanzara a tocar play.
   return false;
 }
+
+function pianoStartToneIfNeeded(){
+  if (!(window.Tone && Tone.start)) return Promise.resolve();
+  try {
+    if (Tone.context && Tone.context.state === 'running') return Promise.resolve();
+  } catch (e) {}
+  return Tone.start().catch(function(){});
+}
+
 // DESACTIVADO: este bloque escuchaba el PRIMER toque en cualquier parte de
 // toda la app (aun antes de elegir una cancion) para arrancar el
 // AudioContext de Tone.js por adelantado. Ese arranque temprano era la
@@ -10811,155 +10895,79 @@ var pianoSeccionActual = 'adoracion';
 
 var pianoTrumpetSampler = null;
 var pianoTrumpetSamplerPromise = null;
-
-// Muestras reales de trompeta (11 notas, Tone.js interpola el resto),
-// mismo formato que el piano Salamander. Fuente: nbrosowsky/tonejs-instruments
-// (CC-BY 3.0) — https://github.com/nbrosowsky/tonejs-instruments
-function pianoGetTrumpetSampler(){
-  var ctx = pianoGetAudioCtx();
-  if (!ctx || !window.Tone || !Tone.Sampler) return Promise.reject(new Error('Tone.js no disponible'));
-  if (pianoTrumpetSampler && pianoTrumpetSampler.loaded) return Promise.resolve(pianoTrumpetSampler);
-  if (pianoTrumpetSamplerPromise) return pianoTrumpetSamplerPromise;
-
-  var baseUrl = 'https://nbrosowsky.github.io/tonejs-instruments/samples/trumpet/';
-  pianoTrumpetSampler = new Tone.Sampler({
-    urls: {
-      C4: 'C4.mp3',
-      A3: 'A3.mp3',
-      F3: 'F3.mp3',
-      'D#4': 'Ds4.mp3',
-      F4: 'F4.mp3',
-      G4: 'G4.mp3',
-      'A#4': 'As4.mp3',
-      D5: 'D5.mp3',
-      F5: 'F5.mp3',
-      A5: 'A5.mp3',
-      C6: 'C6.mp3'
-    },
-    release: 0.3,
-    baseUrl: baseUrl,
-    onload: function(){}
-  }).toDestination();
-
-  pianoTrumpetSamplerPromise = pianoTrumpetSampler.loaded.then(function(){
-    pianoTrumpetSamplerPromise = null;
-    return pianoTrumpetSampler;
-  }).catch(function(err){
-    pianoTrumpetSamplerPromise = null;
-    throw err;
-  });
-
-  return pianoTrumpetSamplerPromise;
-}
-
 var pianoGuitarraSampler = null;
 var pianoGuitarraSamplerPromise = null;
 
-// Muestras reales de guitarra eléctrica (17 notas, Tone.js interpola el
-// resto), mismo formato y misma fuente que la trompeta: nbrosowsky/tonejs-instruments
-// (CC-BY 3.0) — https://github.com/nbrosowsky/tonejs-instruments
-// Se le agrega una distorsión suave (Tone.Distortion) después del sampler
-// para darle un poco de "mordida" de amplificador, sin llegar al synth
-// anterior que sonaba artificial.
-function pianoGetGuitarraSampler(){
+function pianoCrearSamplerLocal(tipo){
   var ctx = pianoGetAudioCtx();
-  if (!ctx || !window.Tone || !Tone.Sampler) return Promise.reject(new Error('Tone.js no disponible'));
-  if (pianoGuitarraSampler && pianoGuitarraSampler.loaded) return Promise.resolve(pianoGuitarraSampler);
-  if (pianoGuitarraSamplerPromise) return pianoGuitarraSamplerPromise;
+  if (!ctx || !window.Tone) return Promise.reject(new Error('Tone.js no disponible'));
 
-  var distorsion = new Tone.Distortion(0.22);
-  distorsion.oversample = '4x';
-  distorsion.toDestination();
+  var cached = tipo === 'trompeta' ? pianoTrumpetSampler : tipo === 'guitarra' ? pianoGuitarraSampler : pianoSampler;
+  var cachedPromise = tipo === 'trompeta' ? pianoTrumpetSamplerPromise : tipo === 'guitarra' ? pianoGuitarraSamplerPromise : pianoSamplerPromise;
+  if (cached) return Promise.resolve(cached);
+  if (cachedPromise) return cachedPromise;
 
-  var baseUrl = 'https://nbrosowsky.github.io/tonejs-instruments/samples/guitar-electric/';
-  pianoGuitarraSampler = new Tone.Sampler({
-    urls: {
-      'C#2': 'Cs2.mp3',
-      E2: 'E2.mp3',
-      'F#2': 'Fs2.mp3',
-      A2: 'A2.mp3',
-      C3: 'C3.mp3',
-      'D#3': 'Ds3.mp3',
-      'F#3': 'Fs3.mp3',
-      A3: 'A3.mp3',
-      C4: 'C4.mp3',
-      'D#4': 'Ds4.mp3',
-      'F#4': 'Fs4.mp3',
-      A4: 'A4.mp3',
-      C5: 'C5.mp3',
-      'D#5': 'Ds5.mp3',
-      'F#5': 'Fs5.mp3',
-      A5: 'A5.mp3',
-      C6: 'C6.mp3'
-    },
-    release: 0.4,
-    baseUrl: baseUrl,
-    onload: function(){}
-  }).connect(distorsion);
+  var inst;
+  if (tipo === 'trompeta') {
+    inst = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'sawtooth' },
+      envelope: { attack: 0.045, decay: 0.14, sustain: 0.18, release: 0.42 },
+      portamento: 0.01
+    });
+    var trumpetFilter = new Tone.Filter(1500, 'lowpass');
+    trumpetFilter.Q.value = 1.1;
+    var trumpetComp = new Tone.Compressor(-22, 4);
+    var trumpetVerb = new Tone.Reverb({ decay: 1.1, preDelay: 0.01, wet: 0.08 });
+    trumpetVerb.toDestination();
+    inst.chain(trumpetFilter, trumpetComp, trumpetVerb, Tone.Destination);
+    pianoTrumpetSampler = inst;
+    pianoTrumpetSamplerPromise = Promise.resolve(inst);
+    return pianoTrumpetSamplerPromise;
+  }
 
-  pianoGuitarraSamplerPromise = pianoGuitarraSampler.loaded.then(function(){
-    pianoGuitarraSamplerPromise = null;
-    return pianoGuitarraSampler;
-  }).catch(function(err){
-    pianoGuitarraSamplerPromise = null;
-    throw err;
+  if (tipo === 'guitarra') {
+    inst = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'fatsawtooth', count: 3, spread: 22 },
+      envelope: { attack: 0.004, decay: 0.14, sustain: 0.06, release: 0.26 },
+      portamento: 0.005
+    });
+    var gtrFilter = new Tone.Filter(2400, 'lowpass');
+    gtrFilter.Q.value = 0.9;
+    var dist = new Tone.Distortion(0.16);
+    dist.oversample = '4x';
+    var gtrChorus = new Tone.Chorus(2.2, 0.35, 0.18).start();
+    var gtrComp = new Tone.Compressor(-24, 4);
+    inst.chain(gtrFilter, gtrChorus, dist, gtrComp, Tone.Destination);
+    pianoGuitarraSampler = inst;
+    pianoGuitarraSamplerPromise = Promise.resolve(inst);
+    return pianoGuitarraSamplerPromise;
+  }
+
+  inst = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: 'triangle' },
+    envelope: { attack: 0.006, decay: 0.2, sustain: 0.24, release: 1.05 },
+    portamento: 0.01
   });
-
-  return pianoGuitarraSamplerPromise;
+  var pianoEq = new Tone.Filter(2600, 'lowpass');
+  pianoEq.Q.value = 0.7;
+  var pianoVerb = new Tone.Reverb({ decay: 1.8, preDelay: 0.015, wet: 0.12 });
+  pianoVerb.toDestination();
+  var pianoComp = new Tone.Compressor(-20, 5);
+  inst.chain(pianoEq, pianoVerb, pianoComp, Tone.Destination);
+  pianoSampler = inst;
+  pianoSamplerPromise = Promise.resolve(inst);
+  return pianoSamplerPromise;
 }
 
-// Devuelve la promesa del sampler/synth correspondiente al instrumento activo.
+// Devuelve la promesa del instrumento correspondiente al instrumento activo.
 function pianoObtenerSamplerActivo(){
-  if (pianoInstrumentoActivo === 'trompeta') return pianoGetTrumpetSampler();
-  if (pianoInstrumentoActivo === 'guitarra') return pianoGetGuitarraSampler();
-  return pianoGetSampler();
+  if (pianoInstrumentoActivo === 'trompeta') return pianoCrearSamplerLocal('trompeta');
+  if (pianoInstrumentoActivo === 'guitarra') return pianoCrearSamplerLocal('guitarra');
+  return pianoCrearSamplerLocal('piano');
 }
 
 function pianoGetSampler(){
-  var ctx = pianoGetAudioCtx();
-  if (!ctx || !window.Tone || !Tone.Sampler) return Promise.reject(new Error('Tone.js no disponible'));
-  if (pianoSampler && pianoSampler.loaded) return Promise.resolve(pianoSampler);
-  if (pianoSamplerPromise) return pianoSamplerPromise;
-
-  var baseUrl = 'https://tonejs.github.io/audio/salamander/';
-  pianoSampler = new Tone.Sampler({
-    urls: {
-      A0: 'A0.mp3',
-      C1: 'C1.mp3',
-      'D#1': 'Ds1.mp3',
-      'F#1': 'Fs1.mp3',
-      A1: 'A1.mp3',
-      C2: 'C2.mp3',
-      'D#2': 'Ds2.mp3',
-      'F#2': 'Fs2.mp3',
-      A2: 'A2.mp3',
-      C3: 'C3.mp3',
-      'D#3': 'Ds3.mp3',
-      'F#3': 'Fs3.mp3',
-      A3: 'A3.mp3',
-      C4: 'C4.mp3',
-      'D#4': 'Ds4.mp3',
-      'F#4': 'Fs4.mp3',
-      A4: 'A4.mp3',
-      C5: 'C5.mp3',
-      'D#5': 'Ds5.mp3',
-      'F#5': 'Fs5.mp3',
-      A5: 'A5.mp3'
-    },
-    release: 0.45,
-    baseUrl: baseUrl,
-    onload: function(){}
-  }).toDestination();
-
-  pianoSamplerPromise = pianoSampler.loaded.then(function(){
-    pianoSamplerPromise = null;
-    return pianoSampler;
-  }).catch(function(err){
-    pianoSamplerPromise = null;
-    throw err;
-  });
-
-  return pianoSamplerPromise;
+  return pianoCrearSamplerLocal('piano');
 }
 
 function pianoMidiToFreq(midi){
@@ -11101,7 +11109,14 @@ function pianoTouchStart(ev, midi, duration){
   if (ev) {
     if (ev.preventDefault) ev.preventDefault();
     if (ev.stopPropagation) ev.stopPropagation();
+    if (ev.currentTarget && ev.pointerId !== undefined && ev.currentTarget.setPointerCapture) {
+      try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch (e) {}
+    }
+    if (ev.currentTarget && ev.currentTarget.classList) {
+      ev.currentTarget.classList.add('pk-touching');
+    }
   }
+  pianoStartToneIfNeeded();
   pianoPlayNoteMidi(pianoGetAudioCtx(), midi, duration);
   return false;
 }
@@ -11109,6 +11124,9 @@ function pianoTouchStart(ev, midi, duration){
 function pianoTouchEnd(ev){
   if (ev && ev.preventDefault) ev.preventDefault();
   if (ev && ev.stopPropagation) ev.stopPropagation();
+  if (ev && ev.currentTarget && ev.currentTarget.classList) {
+    ev.currentTarget.classList.remove('pk-touching');
+  }
   return false;
 }
 
@@ -11156,6 +11174,7 @@ function abrirPiano(chordStr, sourceEl, autoPlay, ocultarMarcaAcorde, instrument
   if (!parsed) return;
   pianoDesbloquearAudioSession();
   pianoDesbloquearAudioConMp3Real();
+  pianoStartToneIfNeeded();
   pianoAvisoCargaMostrado = false;
   pianoRequestLandscapeMode();
   var modal = document.getElementById('pianoModal');
@@ -11411,6 +11430,13 @@ function cambiarAjusteJubilo(delta) {
 // ===== ROL DE USUARIO (Cantante / Músico) =====
 var ROL_USUARIO_KEY = 'yhwh_rol_usuario';
 var origenRepertorioPendiente = false; // true justo antes de abrir una canción/cadena desde el Repertorio
+var cancionActualVieneDeRepertorio = false; // true si la canción cargada actualmente vino del Repertorio
+function actualizarVisibilidadBotonVolverRepertorio() {
+  var btnVolverRep = document.getElementById('btnVolverRepertorioAdoracion');
+  if (!btnVolverRep) return;
+  var enVistaPresentacion = document.body.classList.contains('singer-view') || document.body.classList.contains('musician-view');
+  btnVolverRep.style.display = (cancionActualVieneDeRepertorio && enVistaPresentacion) ? '' : 'none';
+}
 
 function storageDisponible() {
   try {
