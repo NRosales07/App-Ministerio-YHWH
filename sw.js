@@ -1,5 +1,5 @@
-const CACHE_NAME = 'alabanzas-v105';
-const DATA_CACHE_NAME = 'alabanzas-data-v35';
+const CACHE_NAME = 'alabanzas-v106';
+const DATA_CACHE_NAME = 'alabanzas-data-v36';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -37,7 +37,9 @@ self.addEventListener('install', (e) => {
         'piano-samples/G3.mp3',
         'piano-samples/G4.mp3',
         'piano-samples/Gb3.mp3',
-        'piano-samples/Gb4.mp3'
+        'piano-samples/Gb4.mp3',
+        'audios/0.m4a',
+        'audios/0.mp3'
       ];
 
       const opcionales = [
