@@ -1052,12 +1052,13 @@ var SONGS_JUBILO =
     "content": "MIX 26  |  EBENEZER\nMIX 26  |  EBENEZER\nTROMPETAS\n[CORO]:\nX2   Sube, sube, sube nuestra alabanza, con manos extendidas y acción de gracias,\nCon todas mis fuerzas, alegría y danza, doy vueltas en el aire y grito alabanzas.    X2\n[VERSO 1]:\nX2     El Tabernáculo caído de David hoy en día lo levantamos\nPara que los hombres busquen al Señor\nUn lugar de danza y alabanza extravagante.    X2                 —             CORO     |    VERSO 1\nTROMPETAS\n[VERSO 2]:\nX2     Yo vengo al Tabernáculo de David, lugar de adoración para todas las naciones\nDonde los ciegos y los cojos se sanan, el pueblo se llena de su unción\nPara llevarla a sus casas.    X2\n[VERSO 3]:\nX2     Un lugar de intimidad con Dios, donde adultos y niños alaban con libertad,\nPureza y luz que quema, donde la oscuridad no se puede quedar,\nUn lugar de revelación y guía.   X2\nTROMPETAS\n[VERSO 4]:\nX2     Jesús está sentado en su trono de autoridad,\nEl fuerte cetro de su Señorío sale desde Sion\nDeclaramos guerra, contrapotestades,\nGobernamos en el poder de resurrección.     X2                —               CORO\nSube, sube, sube, Sube, sube, sube,\nSube, sube, sube, Sube, sube, sube."
   },
   {
-    "id": 427,
+    "num": null,
     "title": "REMOLINEANDO",
-    "compositor": "Tradicional",
-    "tono": "Cm",
+    "compositor": "Centro Vida",
+    "tono": "Gm",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 26  |  EBENEZER\nMIX 26  |  EBENEZER\nTROMPETAS\n[VERSO 1]:\n             Cm                                                                                   Bb                      Cm\nHay muchas formas de alabar tu nombre, y de exaltarte, oh, Jehová\n                               Ab      Bb            Cm                         –Bb-G          Cm\nHay muchas formas de magnificarte, pero ahora lo haré así.\n[VERSO 2]:\n   Cm                                                                      Bb                                Cm\nSacó mi vida del anonimato, me dio corona y un vestido real,\n                  Ab                     Bb           Cm                                      Bb -G                          Cm\nAsí es Jehová, que exalta al pequeño, por causa de Él yo me haré más vil.\n[CORO]:\n                    Cm                                                        Bb               Cm\nX2    Remolineando, remolineando, celebraré a Jehová,\n                                                                                               Bb             G                Cm\nRemolineando, remolineando, me haré más vil por causa de Jehová.  X2\nTROMPETAS"
+    "content": "[VERSO 1]:\n                       Gm\nHay muchas formas de alabar tu nombre, \n              F                Gm \nY de exaltarte, oh, Jehová\n                        Eb     F         Gm\nHay muchas formas de magnificarte, \n            D                Gm\nPero ahora lo haré así.\n\n[VERSO 2]:\n Gm\nSacó mi vida del anonimato, \n                F                         Gm\nMe dio corona y un vestido real,\n               Eb                F            Gm\nAsí es Jehová, que exalta al pequeño, \n                   D                              Gm\nPor causa de Él yo me haré más vil.\n[CORO]:\n                 Gm\nX2    Remolineando, remolineando, \n        F            Gm\nCelebraré a Jehová,\n  \nRemolineando, remolineando, \n                      D                           Gm\nMe haré más vil por causa de Jehová.   X2\n\n\nSE REPITE TODO\n",
+    "id": 427
   },
   {
     "id": 428,
@@ -1190,5 +1191,59 @@ var SONGS_JUBILO =
     "album": "",
     "content": "[CORO]:\n                       C\nX3   Cuando allá se pase  lista, \n               G\nCuando allá se pase  lista,\n               C                    F    \nCuando allá se pase  lista...\n           Dm           G           C \nA mi nombre yo feliz responderé.     X3 ",
     "id": 442
+  },
+  {
+    "num": 13,
+    "title": "LOS ENEMIGOS DEL SEÑOR",
+    "compositor": "Centro Vida",
+    "tono": "Dm",
+    "album": "",
+    "content": "[VERSO 1]:\n                   Dm\nX4   Los enemigos del Señor están cayendo, \n              C                                Dm\nLos adversarios del Señor perecerán     X4\n[CORO]:  \n               Bb          C            Rem    \nPorque grande y fuerte es nuestro Dios, \n Bb - C        Dm    Bb - C     Dm\nPoderoso es Él Victorioso es el Señor,  \n  Gm              A\nSobre todo, mal... \n\n\n\n\n\n\nSE REPITE TODO\n",
+    "id": 443
+  },
+  {
+    "num": 14,
+    "title": "ME GOZARÉ",
+    "compositor": "Centro Vida",
+    "tono": "Dm",
+    "album": "",
+    "content": "[CORO]:\n                Dm\nX2   Me gozaré, me gozaré, me gozaré,\n                            C                      Gm\nMe gozaré en Jehová, pues ha llevado\n                                               A\nTodo mi dolor, me ha hecho libre...    X2\n\n[VERSO 1]:\n                          Dm                                     C  \nX2   Cuando el Señor hiciere volver la cautividad\n                Gm                     A\nSeremos como los que sueñan...   X2\n             Dm                                     C\nX2   Mi boca llenará de risa, mis labios de alabanza\n    Gm\nEntonces dirán las naciones\n                  A\nGrandes cosas ha hecho el Señor...   X2\n\n\n[CORO]:    X2\n\n\n[VERSO 2]: \n| Dm | C | Gm | A |\nX2  Así como David cantaba...   X2\n\n\n\n[CORO]: X2",
+    "id": 444
+  },
+  {
+    "num": 15,
+    "title": "NO PUEDO PARAR DE ALABARTE",
+    "compositor": "Centro Vida",
+    "tono": "Fm",
+    "album": "",
+    "content": "[CORO]:\n     Fm\nX2  No, no puedo parar de alabarte,\nC#\nNo, no puedo parar de alabarte \nEb                    C                          Fm  C#-Eb\nNo, no puedo parar de alabarte, Cristo   X2  \n\n[VERSO 1]:\n  Fm           C#                              Eb\nToda rodilla     se doblara ante él\n                         C             Fm      C#-Eb\nEs Jesucristo, Dios por siempre.\n  Fm              C#                              Eb\nToda lengua,      confesará ante él\n                         C             Fm      C#-Eb\nEs Jesucristo, Dios por siempre.\n\n\n[CORO]:  X2\n\n\n\n[VERSO 2]:\n  Fm           C#                              Eb\nToda rodilla     se doblara ante él\n                         C             Fm      C#-Eb\nEs Jesucristo, Dios por siempre.\n Fm             C#                     Eb\nÉl es el Alfa      y la Omega\n                         C             Fm      C#-Eb\nEs Jesucristo, Dios por siempre.\n\n\n[CORO]:  X2",
+    "id": 445
+  },
+  {
+    "num": 16,
+    "title": "REMOLINEANDO",
+    "compositor": "Centro Vida",
+    "tono": "Gm",
+    "album": "",
+    "content": "[VERSO 1]:\n                       Gm\nHay muchas formas de alabar tu nombre, \n              F                Gm \nY de exaltarte, oh, Jehová\n                        Eb     F         Gm\nHay muchas formas de magnificarte, \n            D                Gm\nPero ahora lo haré así.\n\n[VERSO 2]:\n Gm\nSacó mi vida del anonimato, \n                F                         Gm\nMe dio corona y un vestido real,\n               Eb                F            Gm\nAsí es Jehová, que exalta al pequeño, \n                   D                              Gm\nPor causa de Él yo me haré más vil.\n[CORO]:\n                 Gm\nX2    Remolineando, remolineando, \n        F            Gm\nCelebraré a Jehová,\n  \nRemolineando, remolineando, \n                      D                           Gm\nMe haré más vil por causa de Jehová.   X2\n\n\nSE REPITE TODO\n",
+    "id": 446
+  },
+  {
+    "num": 17,
+    "title": "PODEROSO DE ISRAEL",
+    "compositor": "Centro Vida",
+    "tono": "Gm",
+    "album": "",
+    "content": "[VERSO 1]:\n          Gm \nY de noche cantaremos, celebrando su poder, \n                             D\nCon alegría de corazón,                                \nComo el que va con la flauta, al monte del Señor, \n                             Gm\nCelebraremos su poder.\n[CORO]:\n                           Gm\nX2     Él es el Poderoso de Israel, \n                            D\nEl Poderoso de Israel,\nSu voz se oirá, nadie lo detendrá, \n                           Gm\nAl Poderoso de Israel.     X2\n[VERSO 2]:\n         Gm\nY los ojos de los ciegos se abrirán y ellos verán, \n                                           D\nLos oídos de los sordos, oirán,\nEl cojo saltará, con el arpa danzará, \n                                          Gm\nLa lengua de los mudos cantará.                 \n\n[CORO]:  X2\n\n\n\nSE REPITE TODO\n",
+    "id": 447
+  },
+  {
+    "num": 18,
+    "title": "PODEROSO",
+    "compositor": "Centro Vida",
+    "tono": "Gm",
+    "album": "",
+    "content": "[VERSO 1]:\n          Gm\nX2   Mayor es el que está conmigo, \n           F                                 Gm\nMás fuerte es el que está por mi...    X2 \n\n[CORO]:  X2\n             Gm              F  -  Gm\nX4    Poderoso él es poderoso, \n     Gm               F  -  Gm\nVictorioso él es victorioso...   X4\n\n\n\n\nSE REPITE TODO ",
+    "id": 448
   }
 ];
