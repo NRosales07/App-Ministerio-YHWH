@@ -3159,15 +3159,30 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 .jubilo-chain span::before{content:"🎵";margin-right:6px;font-size:.78rem;opacity:.8;}
 .jubilo-chain small{color:var(--text2);font-size:.68rem;white-space:nowrap;}
 .jubilo-chain-icon-btn{background:none;border:none;color:#aaa;cursor:pointer;font-size:.8rem;padding:4px 5px;border-radius:5px;transition:background .12s,color .12s;}
-.jubilo-chain-icon-btn:hover{background:var(--bg3);color:var(--gold2);}
-.jubilo-chain-icon-btn.danger:hover{color:#e74c3c;}
-.jubilo-empty{color:var(--text2);text-align:center;margin:50px auto;max-width:420px;line-height:1.6;}
-.jubilo-chain-head{border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:18px;text-align:center;}
-.jubilo-chain-head h2{color:var(--gold2);font-size:1.3rem;text-align:center;margin-bottom:8px;}
+  .jubilo-chain-icon-btn:hover{background:var(--bg3);color:var(--gold2);}
+  .jubilo-chain-icon-btn.danger:hover{color:#e74c3c;}
+  .jubilo-empty{color:var(--text2);text-align:center;margin:50px auto;max-width:420px;line-height:1.6;}
+  .jubilo-chain-head{border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:18px;text-align:center;}
+.jubilo-chain-head h2{color:var(--gold2);font-size:1.3rem;text-align:center;margin:0;}
 .jubilo-chain-head p{text-align:center;color:var(--text2);font-size:.86rem;}
-.jubilo-chain-meta{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;}
+.jubilo-chain-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
 .jubilo-chain-chip{display:inline-flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:4px 12px;font-size:.72rem;font-weight:600;}
-.jubilo-chain-head-actions{display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap;}
+.jubilo-chain-head-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px;}
+  .jubilo-chain-head-actions .btn-guardar-cadena,
+  .jubilo-chain-head-actions button{width:100%;min-height:40px;}
+  @media(max-width:520px){
+  .jubilo-chain-head-actions{grid-template-columns:1fr;}
+  }
+  body.jubilo-menu-compact #btnJubiloClaro,
+  body.jubilo-menu-compact #jubiloShareBtn,
+  body.jubilo-menu-compact #jubiloAcordesLeftRow,
+  body.jubilo-menu-compact #jubiloAcordesShiftRow,
+  body.jubilo-menu-compact #jubiloAcordesRightRow,
+  body.jubilo-menu-compact .jubilo-actions,
+  body.jubilo-menu-compact .jubilo-chain-head-actions,
+  body.jubilo-menu-compact .jubilo-edit-btn{
+    display:none !important;
+  }
 .jubilo-song-card{position:relative;background:rgba(21,21,53,.82);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;padding:14px;animation:fadeIn .22s ease;}
 .jubilo-song-card.light{background:#f7f7fb;color:#111;border-color:#d4d4df;}
 .jubilo-song-card.light .song-meta,.jubilo-song-card.light .jubilo-mini-label{color:#4a5568;}
@@ -3851,15 +3866,7 @@ document.addEventListener('DOMContentLoaded', function(){
  <!-- BARRA DE CONTROLES GLOBALES -->
   <div id="jubiloControlsBar" style="display:none;">
 
-    <!-- Fila 1: Tamaño de fuente -->
-    <div class="font-controls" style="justify-content:center;margin-bottom:8px;">
-      <span>Tamaño</span>
-      <button class="font-btn" onclick="cambiarFuenteJubilo(-1)">A −</button>
-      <div class="font-size-display" id="jubiloFontDisplay">11px</div>
-      <button class="font-btn" onclick="cambiarFuenteJubilo(1)">A +</button>
-    </div>
-
-    <!-- Fila 2: Cifrado -->
+    <!-- Fila 1: Cifrado -->
     <div class="fila-botones">
       <button id="btnJubiloLatino" onclick="if(typeof toggleJubiloLatinoGlobal==='function')toggleJubiloLatinoGlobal();"
         style="background:var(--bg3);color:var(--text);border:1px solid var(--border);
@@ -3868,21 +3875,39 @@ document.addEventListener('DOMContentLoaded', function(){
       </button>
     </div>
 
+    <!-- Fila 5: Ajuste Latino Júbilo -->
+    <div id="jubiloAcordesShiftRow" class="fila-botones solo-musico" style="margin-top:4px;">
+      <button class="action-btn" onclick="cambiarAjusteJubilo(-1)" title="Mover acordes latinos a la izquierda">
+        Acordes ←
+      </button>
+      <button id="latinoShiftDisplayJubilo" class="action-btn" onclick="resetAjusteJubilo()" title="Volver a -7px">
+        Latino -7px
+      </button>
+      <button class="action-btn" onclick="cambiarAjusteJubilo(1)" title="Mover acordes latinos a la derecha">
+        Acordes →
+      </button>
+    </div>
+
+
+    <button class="jubilo-btn" onclick="toggleJubiloMoreOptions()" style="background:var(--bg3);color:var(--text);border:1px solid var(--border);width:100%;margin-top:4px;">
+      ⋯ Más opciones
+    </button>
+
     <!-- Fila 3: Tema y Compartir -->
-    <div class="fila-botones">
+    <div class="fila-botones" style="margin-top:4px;">
       <button id="btnJubiloClaro" onclick="if(typeof toggleJubiloClaroGlobal==='function')toggleJubiloClaroGlobal();"
         style="background:var(--bg3);color:var(--text);border:1px solid var(--border);
         padding:0 12px;font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
         Tema: Oscuro 🌙
       </button>
-      <button onclick="compartirCadenaJubilo()"
+      <button id="jubiloShareBtn" onclick="compartirCadenaJubilo()"
         style="background:var(--bg3);color:var(--text);border:1px solid var(--border);
         padding:0 12px;font-size:0.75rem;font-weight:bold;border-radius:5px;height:32px;cursor:pointer;flex:1;">
         📤 Compartir
       </button>
     </div>
 
-   <!-- Fila 4: Vistas rápidas -->
+    <!-- Fila 4: Vistas rápidas -->
     <div class="fila-botones jubilo-vistas-row" style="margin-top:4px;">
       <button id="btnJubiloVistaCantante" onclick="toggleJubiloVistaCantante()"
         style="background:var(--gold);color:#000;border:none;padding:0 12px;
@@ -3921,24 +3946,11 @@ document.addEventListener('DOMContentLoaded', function(){
         font-size:0.9rem;font-weight:bold;border-radius:5px;height:32px;width:34px;cursor:pointer;flex:0 0 auto;">+</button>
     </div>
 
-   <!-- Opciones guardadas: no se muestran porque las vistas rápidas son más útiles en vivo -->
-    <!-- Fila 5: Ajuste Latino Júbilo -->
-<div class="fila-botones solo-musico" style="margin-top:4px;">
-  <button class="action-btn" onclick="cambiarAjusteJubilo(-1)" title="Mover acordes latinos a la izquierda">
-    Acordes ←
-  </button>
-  <button id="latinoShiftDisplayJubilo" class="action-btn" onclick="resetAjusteJubilo()" title="Volver a -7px">
-    Latino -7px
-  </button>
-  <button class="action-btn" onclick="cambiarAjusteJubilo(1)" title="Mover acordes latinos a la derecha">
-    Acordes →
-  </button>
-</div>
-
-
-<div id="jubiloCifradoBar" class="solo-musico" style="display:none; width:100%;">
-  <button id="btnJubiloCifradoMusico" class="jubilo-small-btn" onclick="toggleJubiloLatinoGlobal(); this.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano'">Cifrado: Americano</button>
-</div>
+    
+    <!-- Opciones guardadas: también se pueden ocultar/revelar -->
+    <div id="jubiloCifradoBar" class="solo-musico" style="display:none; width:100%;">
+      <button id="btnJubiloCifradoMusico" class="jubilo-small-btn" onclick="toggleJubiloLatinoGlobal(); this.textContent = jubiloGlobalLatino ? 'Cifrado: Latino' : 'Cifrado: Americano'">Cifrado: Americano</button>
+    </div>
   </div>
 
   <div class="jubilo-layout">
@@ -7978,6 +7990,10 @@ function toggleJubiloClaroGlobal() {
   });
 }
 
+function toggleJubiloMoreOptions() {
+  document.body.classList.toggle('jubilo-menu-compact');
+}
+
 var jubiloFontSize = parseInt(localStorage.getItem(claveFontSizeJubilo())) || (document.body.classList.contains('rol-cantante') ? 14 : 12);
 
 function guardarJubiloGrupos(){ 
@@ -8004,6 +8020,7 @@ function jubiloNotaKey(id){ return 'yhwh_jubilo_nota_' + id; }
 function initJubilo(){
   if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
   if (!Array.isArray(jubiloGrupos)) jubiloGrupos = [];
+  document.body.classList.add('jubilo-menu-compact');
   
   // Restaurar preferencias guardadas
   jubiloGlobalLatino = localStorage.getItem('yhwh_jubilo_latino') === '1';
@@ -8187,7 +8204,7 @@ function renderJubiloSidebar(){
   }
   var html = '';
   jubiloGrupos.filter(function(g){ return g && g.id && g.nombre; }).forEach(function(g){
-    html += '<details class="jubilo-group" open>' +
+    html += '<details class="jubilo-group">' +
       '<summary style="display:flex;align-items:center;justify-content:space-between;">' +
         '<span>' + escH(g.nombre) + '</span>' +
         '<span style="display:flex;gap:2px;">' +
@@ -8346,7 +8363,14 @@ function renderJubiloCadena(grupoId, cadenaId){
       '<span class="jubilo-chain-chip">🗂 ' + escH(found.grupo.nombre) + '</span>' +
       '<span class="jubilo-chain-chip">✦ ' + (cadena.alabanzas || []).length + ' alabanzas</span>' +
     '</div>' +
+    '<div class="font-controls" style="justify-content:center;margin-top:10px;margin-bottom:4px;">' +
+      '<span>Tamaño</span>' +
+      '<button class="font-btn" onclick="cambiarFuenteJubilo(-1)">A −</button>' +
+      '<div class="font-size-display" id="jubiloFontDisplay">11px</div>' +
+      '<button class="font-btn" onclick="cambiarFuenteJubilo(1)">A +</button>' +
+    '</div>' +
     '<div class="jubilo-chain-head-actions">' +
+      '<button class="btn-guardar-cadena" onclick="abrirEditorOrdenJubilo()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 14px;font-size:0.78rem;font-weight:bold;cursor:pointer;">↕ Editar orden de las alabanzas</button>' +
       '<button class="btn-guardar-cadena" onclick="agregarCadenaJubiloAlRepertorio()" style="background:var(--gold);border:1px solid var(--gold);color:#111111;border-radius:999px;padding:8px 14px;font-size:0.78rem;font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(201,168,76,0.22);">✅ Guardar cadena</button>' +
       '<button onclick="duplicarCadenaJubilo(\'' + found.grupo.id + '\',\'' + cadena.id + '\')" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 14px;font-size:0.78rem;font-weight:bold;cursor:pointer;">📄 Duplicar</button>' +
     '</div>' +
@@ -8530,16 +8554,14 @@ function renderJubiloSongCard(song, index, cadena){
 
     '<div class="jubilo-card-tools" style="display:flex;flex-direction:column;gap:4px;right:6px;top:6px;align-items:stretch;">' +
       '<div style="display:flex;gap:3px;justify-content:flex-end;">' +
-        '<button class="jubilo-icon-btn" title="Subir orden" onclick="moverAlabanzaJubilo('+index+',-1)">↑</button>' +
-        '<button class="jubilo-icon-btn" title="Bajar orden" onclick="moverAlabanzaJubilo('+index+',1)">↓</button>' +
         '<button class="jubilo-icon-btn" title="Quitar" onclick="quitarAlabanzaJubilo('+index+')" style="background:#4a1a1a;color:#e74c3c;">✕</button>' +
       '</div>' +
       '<button onclick="activarEditorJubilo(\'' + key + '\',' + song.id + ')" ' +
-        'class="jubilo-card-edit-btn" style="background:#2d304e;border:1px solid #c9a84c;color:#f3c641;border-radius:999px;padding:5px 10px;font-size:0.72rem;cursor:pointer;white-space:nowrap;">' +
+        'class="jubilo-card-edit-btn jubilo-edit-btn" style="background:#2d304e;border:1px solid #c9a84c;color:#f3c641;border-radius:999px;padding:5px 10px;font-size:0.72rem;cursor:pointer;white-space:nowrap;">' +
         '✏️ Editar' +
       '</button>' +
       '<button onclick="abrirMenuMelodiaCancionJubilo(\'' + key + '\',' + song.id + ')" ' +
-        'class="jubilo-card-edit-btn" style="background:#2d304e;border:1px solid #c9a84c;color:#f3c641;border-radius:999px;padding:5px 10px;font-size:0.72rem;cursor:pointer;white-space:nowrap;">' +
+        'class="jubilo-card-edit-btn jubilo-melody-btn" style="background:#2d304e;border:1px solid #c9a84c;color:#f3c641;border-radius:999px;padding:5px 10px;font-size:0.72rem;cursor:pointer;white-space:nowrap;">' +
         '🎼 Melodía' +
       '</button>' +
       (window.esAdmin && tieneEdicionLocal ?
@@ -8636,6 +8658,186 @@ function cambiarModoMayorMenorJubilo(key, songId){
   }
 
   aplicarFuenteJubilo();
+}
+
+function crearEditorOrdenJubiloOverlay() {
+  var overlay = document.getElementById('jubiloOrdenOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'jubiloOrdenOverlay';
+    overlay.className = 'modal-overlay';
+    overlay.style.cssText = 'display:none;z-index:9900;';
+    overlay.innerHTML =
+      '<div class="modal-card" style="max-width:760px;width:min(96vw,760px);max-height:90vh;display:flex;flex-direction:column;gap:12px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
+          '<div>' +
+            '<div style="font-size:1.05rem;font-weight:800;color:var(--gold2);">Editar orden de las alabanzas</div>' +
+            '<div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">Mantén presionado el ícono ⠿ y arrastra cada alabanza a su nueva posición.</div>' +
+          '</div>' +
+          '<button onclick="cerrarEditorOrdenJubilo()" style="background:transparent;border:none;color:var(--text2);font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>' +
+        '</div>' +
+        '<div id="jubiloOrdenList" style="overflow-y:auto;display:grid;gap:8px;max-height:60vh;padding-right:2px;"></div>' +
+        '<div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">' +
+          '<button onclick="cerrarEditorOrdenJubilo()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:9px 14px;font-weight:700;cursor:pointer;">Cancelar</button>' +
+          '<button onclick="guardarOrdenJubiloDesdeEditor()" style="background:var(--gold);border:none;color:#111;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;">💾 Guardar orden</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+  }
+  return overlay;
+}
+
+function abrirEditorOrdenJubilo() {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva);
+  if (!found || !found.cadena) { mostrarToast('⚠️ No se encontró la cadena activa.'); return; }
+
+  var overlay = crearEditorOrdenJubiloOverlay();
+  window.jubiloOrdenEditorState = window.jubiloOrdenEditorState || {};
+  window.jubiloOrdenEditorState.grupoId = found.grupo.id;
+  window.jubiloOrdenEditorState.cadenaId = found.cadena.id;
+  window.jubiloOrdenEditorState.orden = (found.cadena.alabanzas || []).slice();
+  renderEditorOrdenJubilo();
+  overlay.style.display = 'flex';
+  setTimeout(function(){ overlay.classList.add('modal-pop-in'); }, 10);
+}
+
+function renderEditorOrdenJubilo() {
+  var overlay = document.getElementById('jubiloOrdenOverlay');
+  var cont = document.getElementById('jubiloOrdenList');
+  var state = window.jubiloOrdenEditorState;
+  if (!overlay || !cont || !state || !Array.isArray(state.orden)) return;
+
+  var html = '';
+  state.orden.forEach(function(id, index) {
+    var song = getJubiloSong(id);
+    if (!song) return;
+    html +=
+      '<div class="setlist-item" data-index="' + index + '" data-id="' + song.id + '" style="border-radius:8px;display:flex;align-items:center;padding-right:8px;gap:6px;background:var(--bg2);border:1px solid var(--border);">' +
+        '<div class="drag-handle" title="Mantén presionado y arrastra para reordenar" style="touch-action:none;cursor:grab;color:var(--text2);font-size:1.05rem;padding:8px 4px;flex-shrink:0;user-select:none;">⠿</div>' +
+        '<div style="flex:1;min-width:0;padding:8px 4px 8px 2px;">' +
+          '<div style="font-weight:800;color:var(--text);font-size:0.9rem;white-space:normal;word-break:break-word;">' + escH(song.title) + '</div>' +
+          '<div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">' + escH(song.tono || '') + '</div>' +
+        '</div>' +
+      '</div>';
+  });
+  cont.innerHTML = html || '<div style="color:var(--text2);text-align:center;padding:16px 8px;">No hay alabanzas en esta cadena.</div>';
+  activarDragEditorOrdenJubilo();
+}
+
+function cerrarEditorOrdenJubilo() {
+  var overlay = document.getElementById('jubiloOrdenOverlay');
+  if (overlay) overlay.style.display = 'none';
+  window.jubiloOrdenEditorState = null;
+}
+
+function guardarOrdenJubiloDesdeEditor() {
+  var state = window.jubiloOrdenEditorState;
+  if (!state || !state.grupoId || !state.cadenaId || !Array.isArray(state.orden)) return;
+  var found = buscarGrupoCadena(state.grupoId, state.cadenaId);
+  if (!found || !found.cadena) return;
+  found.cadena.alabanzas = state.orden.slice();
+  guardarJubiloGrupos();
+  cerrarEditorOrdenJubilo();
+  renderJubiloCadena(state.grupoId, state.cadenaId);
+  mostrarToast('↕ Orden actualizado');
+}
+
+function activarDragEditorOrdenJubilo() {
+  var cont = document.getElementById('jubiloOrdenList');
+  if (!cont) return;
+  if (cont._jubiloDragReady) return;
+  cont._jubiloDragReady = true;
+
+  var dragEl = null;
+  var placeholder = null;
+  var startY = 0;
+  var startTop = 0;
+  var activePointerId = null;
+
+  function onPointerDown(e) {
+    var handle = e.target.closest ? e.target.closest('.drag-handle') : null;
+    if (!handle) return;
+    if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin para reordenar.'); return; }
+    var item = handle.closest('.setlist-item');
+    if (!item) return;
+
+    e.preventDefault();
+    dragEl = item;
+    activePointerId = e.pointerId;
+    startY = e.clientY;
+    startTop = dragEl.getBoundingClientRect().top;
+
+    var rect = dragEl.getBoundingClientRect();
+    placeholder = document.createElement('div');
+    placeholder.className = 'setlist-drag-placeholder';
+    placeholder.style.height = rect.height + 'px';
+    dragEl.parentNode.insertBefore(placeholder, dragEl.nextSibling);
+
+    dragEl.classList.add('dragging');
+    dragEl.style.width = rect.width + 'px';
+    dragEl.style.position = 'fixed';
+    dragEl.style.top = rect.top + 'px';
+    dragEl.style.left = rect.left + 'px';
+    dragEl.style.zIndex = '999';
+    dragEl.style.pointerEvents = 'none';
+
+    try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+    document.addEventListener('pointermove', onPointerMove, { passive: false });
+    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointercancel', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!dragEl || e.pointerId !== activePointerId) return;
+    e.preventDefault();
+    var dy = e.clientY - startY;
+    dragEl.style.top = (startTop + dy) + 'px';
+    var siblings = Array.prototype.slice.call(cont.querySelectorAll('.setlist-item:not(.dragging)'));
+    var colocado = false;
+    for (var i = 0; i < siblings.length; i++) {
+      var r = siblings[i].getBoundingClientRect();
+      var mid = r.top + r.height / 2;
+      if (e.clientY < mid) {
+        cont.insertBefore(placeholder, siblings[i]);
+        colocado = true;
+        break;
+      }
+    }
+    if (!colocado) cont.appendChild(placeholder);
+  }
+
+  function onPointerUp(e) {
+    if (!dragEl || (activePointerId !== null && e.pointerId !== activePointerId)) return;
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+    document.removeEventListener('pointercancel', onPointerUp);
+
+    placeholder.parentNode.insertBefore(dragEl, placeholder);
+    placeholder.parentNode.removeChild(placeholder);
+
+    dragEl.classList.remove('dragging');
+    dragEl.style.position = '';
+    dragEl.style.top = '';
+    dragEl.style.left = '';
+    dragEl.style.width = '';
+    dragEl.style.zIndex = '';
+    dragEl.style.pointerEvents = '';
+
+    var nuevoOrden = Array.prototype.map.call(cont.querySelectorAll('.setlist-item'), function (el) {
+      return el.getAttribute('data-id');
+    }).filter(Boolean);
+
+    if (window.jubiloOrdenEditorState && Array.isArray(window.jubiloOrdenEditorState.orden)) {
+      window.jubiloOrdenEditorState.orden = nuevoOrden;
+    }
+
+    dragEl = null;
+    placeholder = null;
+    activePointerId = null;
+  }
+
+  document.addEventListener('pointerdown', onPointerDown, { passive: false });
 }
 
 function jubiloSemText(st){
@@ -9079,7 +9281,7 @@ function filtrarSidebarJubilo(q) {
       });
     });
     if (!cadenasFiltradas.length) return;
-    html += '<details class="jubilo-group" open><summary style="display:flex;align-items:center;justify-content:space-between;"><span>' + escH(g.nombre) + '</span></summary>';
+    html += '<details class="jubilo-group"><summary style="display:flex;align-items:center;justify-content:space-between;"><span>' + escH(g.nombre) + '</span></summary>';
     cadenasFiltradas.forEach(function(c) {
       var active = c.id === jubiloCadenaActiva ? ' active' : '';
      html += '<div class="jubilo-chain-row" style="display:flex;align-items:center;gap:2px;">' +
