@@ -218,12 +218,13 @@ var SONGS_JUBILO =
     "content": "[VERSO 1]:\nGm | F | D | Gm |\nX2    Cantaré a Jehová por siempre, su diestra es todo poder.    X2\n[CORO]:\nGm | D | Gm | D | Gm |\nX2    Echó a la mar a los que le seguían, jinete y caballo, echó a la mar.    X2\nEchó a la mar, los carros de Faraón…  La, la, la, la, la, la."
   },
   {
-    "id": 325,
+    "num": null,
     "title": "PON ACEITE EN MI LÁMPARA",
-    "compositor": "Tradicional",
-    "tono": "Gm",
+    "compositor": "Ebenezer",
+    "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS\n[VERSO 1]:\nEm | B | Em | Am | B | Em |\nX2    Pon aceite en mi lámpara Señor...   X2\n[CORO]:\nB | Em | B | Em | Am | Em | B | Em |\nSeñor Jesús, tú eres mi vida..."
+    "content": "TROMPETAS | Em | B | Em-E | Am | Em-B-Em |\n[VERSO 1]:\n                 Em           \nX2    Pon aceite en mi lámpara Señor, \n                                             B\nPon aceite en mi lámpara Señor\n                E                          Am\nQue yo quiero servirte con amor, \n          Em                  B       Em         \nPon aceite en mi lámpara Señor.   X2\n[CORO]:\n              B                     Em\nSeñor Jesús tu eres mi vida, \n              B                      Em\nSeñor Jesús tu eres mi amor,\n    Am                     Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón,\n    Am                    Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón.       \n\n",
+    "id": 325
   },
   {
     "id": 326,
@@ -721,12 +722,13 @@ var SONGS_JUBILO =
     "content": "TROMPETAS    | Bm | A-D | A | F#m-Bm |\n[CORO]:\n            Bm     A      D          A                     Bm    F#m  Bm      A-D                     A         Bm       F#m\nX2      Soy tuyo Dios esclavo por amor,                tú hermoso llenas mi corazón,\nBm     A           D                    A                           Bm   F#m    Bm      A-D                       A                Bm    F#m\nLengua y nación se postraran a ti Oh Dios,                 al Cordero sea la gloria y el honor.   X2\nTROMPETAS"
   },
   {
-    "id": 386,
+    "num": null,
     "title": "PORQUE NUESTRO CAPITÁN",
     "compositor": "Tradicional",
-    "tono": "Bm",
+    "tono": "G",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS      | G | D | G | D | G | Em | Bm |\n[CORO]:\n                  G                                                      D                     G                                  D\nX2      Porque nuestro Capitán es Cristo, sus huellas estamos siguiendo,\n       G             Em       Bm\nContra nosotros nada se levantará.     X2\n                                                                                                                                  G            Em         Bm\nTROMPETAS            —          SE REPITE TODO        —         X2    Contra nosotros nada se levantará.   X2"
+    "content": "TROMPETAS      | G | D | G | D | G | Em | Bm |\n[CORO]:\n               G                                        D \nX2      Porque nuestro Capitán es Cristo, \n           G                           D\nSus huellas estamos siguiendo,\n    G         Em      Bm\nContra nosotros nada se levantará.     X2\n                                                                                                                                  G            Em         Bm\nTROMPETAS            —          SE REPITE TODO                 \n             G         Em      Bm\nX2    Contra nosotros nada se levantará.   X2",
+    "id": 386
   },
   {
     "id": 387,
@@ -850,12 +852,13 @@ var SONGS_JUBILO =
     "content": "TROMPETAS   | Cm | Bb-Cm | Bb-Ab | Eb-Cm-Ab | Eb-Ab | Cm-Ab | Cm-Bb-Cm |\n[CORO]:\n       Cm                                            Bb-Cm                                                  Bb-Ab\nX2      El Señor es mi Rey mi todo,       el Señor es mi luz mi Rey,\n                                                      Eb-Cm-Ab                                        Eb    Ab\nEl que me hace vibrar de gozo,               el que guía mis pasos,\n                                              Cm   Ab                               Cm – Bb – Cm\nEl que extiende sus brazos,      el creador de los ci-e–los…   X2\nTROMPETAS"
   },
   {
-    "id": 402,
+    "num": null,
     "title": "CAMINO AL CIELO YO VOY",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 11  |  EBENEZER\nMIX 11  |  EBENEZER\nTROMPETAS  | Em | B | Em | B |\n[VERSO 1]:\n             Em                                                                       B\nX2    Estoy contento porque en Él tengo la vida,\n                                                                      Em\nLa Vida eterna que Jesucristo me dio,\n                                                                          B\nYo tengo gozo, tengo paz, tengo alegría, Ca-mi-no al cie-lo yo voy.\n                Em                                                          B\nEsta alegría que yo siento aquí en mi vida,\n                                                                                 Em\nYo no la cambio por la gloria de este mundo\n                                                                       B\nEstaba muerto y Jesús me dio la vida, Ca-mi-no al cie-lo yo voy.\n[CORO]:\n                              Em                      B                                                                                       Em\nX2    Yo tengo gozo, tengo alegría, tengo a Jesús, tengo la paz, tengo la vida,\n                     Em                      B\nYo tengo gozo, tengo alegría Ca-mi-no al cie-lo yo voy.    X2\nTROMPETAS\n                                  B\n[FINAL]:\nX2  Camino al cielo yo voy...  X2"
+    "content": "TROMPETAS  | Em | B | Em | B | Em |\n[VERSO 1]:\n                       Em                                          B\nX2    Estoy contento porque en Él tengo la vida,\n                                                      Em\nLa Vida eterna que Jesucristo me dio,\n                                                         B\nYo tengo gozo, tengo paz, tengo alegría, \n B\nCa-mi-no al cie-lo yo voy.\n           Em                                              B\nEsta alegría que yo siento aquí en mi vida,\n                                                             Em\nYo no la cambio por la gloria de este mundo\n                                                       B\nEstaba muerto y Jesús me dio la vida, \nB\nCa-mi-no al cie-lo yo voy.\n[CORO]:\n                       Em                  B                                                                                       \nX2    Yo tengo gozo, tengo alegría, \n                                                              Em\nTengo a Jesús, Tengo la paz, tengo la vida,\n                Em                 B\nYo tengo gozo, tengo alegría \nB\nCa-mi-no al cie-lo yo voy.    X2\n\n\n\n\nTROMPETAS\nSE REPITE TODO                                  \n[FINAL]:\n            B                      [E]\nX2  Camino al cielo yo voy...  X2",
+    "id": 402
   },
   {
     "id": 403,
@@ -879,7 +882,7 @@ var SONGS_JUBILO =
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                 Em           \nX2    Pon aceite en mi lámpara Señor, \n                                             B\nPon aceite en mi lámpara Señor\n                E                          Am\nQue yo quiero servirte con amor, \n          Em                  B       Em         \nPon aceite en mi lámpara Señor.   X2\n[CORO]:\n              B                     Em\nSeñor Jesús tu eres mi vida, \n              B                      Em\nSeñor Jesús tu eres mi amor,\n    Am                     Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón,\n    Am                    Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón.       ",
+    "content": "TROMPETAS | Em | B | Em-E | Am | Em-B-Em |\n[VERSO 1]:\n                 Em           \nX2    Pon aceite en mi lámpara Señor, \n                                             B\nPon aceite en mi lámpara Señor\n                E                          Am\nQue yo quiero servirte con amor, \n          Em                  B       Em         \nPon aceite en mi lámpara Señor.   X2\n[CORO]:\n              B                     Em\nSeñor Jesús tu eres mi vida, \n              B                      Em\nSeñor Jesús tu eres mi amor,\n    Am                     Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón,\n    Am                    Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón.       \n\n",
     "id": 405
   },
   {
@@ -1004,12 +1007,13 @@ var SONGS_JUBILO =
     "content": "TROMPETAS    | Am | F | E |\n[VERSO 1]:\n                  Am                                                                                         Dm       Am                                   F        G     Am\nX2      La voz de mi amado se oye ya.    X2     |    X2      Ya viene saltando sobre los montes y collados.    X2\n[CORO]:\n            G                              Am             G                        Am         F             G      Am\nMi amado habló y me dijo, Levántate amada mía hermosa mía y ven.\n                         G                                     Am                           G                                  Am\nPorque he aquí ha pasado el invierno, se ha marchado la lluvia se fue.\n                      Dm                                       Am                   Dm                   Am                E\nSe han mostrado las flores del campo, y el tiempo de la canción, ya llegó.\nTROMPETAS"
   },
   {
-    "id": 421,
+    "num": null,
     "title": "LOS QUE ESPERAN EN JEHOVÁ",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS   | Em | B | Em | Am | Em | B | Em |\n[VERSO 1]:\n                               Em                                                         B7\n X2   Los que esperan, los que esperan en Jehová,\n                                                                                 Em\nLos que esperan, los que esperan en Jehová,\n                     Am-D                           G-Em             B            Em\nComo las águilas, como las águilas sus alas levantarán,\n                      Am-D                           G-Em             B            Em\nComo las águilas, como las águilas sus alas levantarán.   X2\n[CORO]:\n         D                              G                      D                               G\nCorrerán y no se cansarán, caminarán, no se fatigarán,\n                          Am-D                        G-Em\nX2   Nuevas fuerzas tendrán, nuevas fuerzas tendrán,\n                         B                                                       Em\nLos que esperan, los que esperan en Jehová.   X2"
+    "content": "TROMPETAS   | Em | B | Em | Am | Em | B | Em |\n[VERSO 1]:\n                         Em                                          B7\n X2   Los que esperan, los que esperan en Jehová,\n                                                              Em\nLos que esperan, los que esperan en Jehová,\n                 Am-D                    G-Em             \nComo las águilas, como las águilas \n         B          Em\nSus alas levantarán,\n                 Am-D                    G-Em             \nComo las águilas, como las águilas \n         B          Em\nSus alas levantarán. X2\n[CORO]:\n     D                         G                D                        G\nCorrerán y no se cansarán, caminarán, no se fatigarán,\n                      Am-D                             G-Em\nX2   Nuevas fuerzas tendrán, nuevas fuerzas tendrán,\n                   B                                          Em\nLos que esperan, los que esperan en Jehová.   X2",
+    "id": 421
   },
   {
     "id": 422,
@@ -1245,5 +1249,14 @@ var SONGS_JUBILO =
     "album": "",
     "content": "[VERSO 1]:\n          Gm\nX2   Mayor es el que está conmigo, \n           F                                 Gm\nMás fuerte es el que está por mi...    X2 \n\n[CORO]:  X2\n             Gm              F  -  Gm\nX4    Poderoso él es poderoso, \n     Gm               F  -  Gm\nVictorioso él es victorioso...   X4\n\n\n\n\nSE REPITE TODO ",
     "id": 448
+  },
+  {
+    "num": 19,
+    "title": "VEN ESPÍRITU DIVINO",
+    "compositor": "Ebenezer",
+    "tono": "Em",
+    "album": "",
+    "content": "[VERSO 1]:\nEm                                            B \nX2    Ven, ven, ven, Espíritu Divino, \n                                             Em\nVen, ven, ven, Apodérate de mí.   X2\n[CORO]:\n            Am-D         G-Em   \nX4    Apodérate, apodérate, \n        B                        Em\nApodérate de todo mi ser.   X4\n\n\nTROMPETAS ",
+    "id": 449
   }
 ];
