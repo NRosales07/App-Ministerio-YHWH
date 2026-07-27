@@ -1720,20 +1720,20 @@ var SONGS =
     "title": "ÉL ME LEVANTARÁ",
     "compositor": "Tony Pérez",
     "tono": "D",
-    "youtube": "https://www.youtube.com/embed/",
     "album": "Espíritu Santo, Gracias - 1990",
-    "content": "[INTRO]: MELODÍA \n                                           | D | Em | A | D | \n                                          | Bm | Em | A | D |\n        [VERSO 1]:  \n        D             Em-A                D-Bm\nX3   Él me levantará,    él me levantará,\n        Em-A              D     G-D\nÉl me levantará, así es el Señor.   X3\n        [CORO]: \n        G A            F#m-Bm                            Em-A\nEl me levantará,    el me levantará, en sus manos me sostendrá,\n        D-D/C                G A                 F#m-Bm\nEl me levantará, el me levantará,    el me levantará,\n        G      A             D\nEn sus manos me sostendrá,        Así es el Señor.\n        [VERSO 2]: \n        D               Em-A                 D-Bm\nX2 Me fortalecerá,     me fortalecerá,\n        Em-A               D    G-D\nMe fortalecerá,   así es el Señor. X2\n        [CORO 2]: \n        G A            F#m-Bm                           Em-A\nMe fortalecerá,      me fortalecerá, en sus manos me sostendrá,\n        D-D/C                G A                F#m-Bm\nMe fortalecerá, me fortalecerá,       me fortalecerá,\n        G      A              D\nEn sus manos me sostendrá,        así es el Señor.\n        \n\nMELODÍA                \n[CORO 1]: ",
-    "id": 165
+    "content": "[INTRO]: MELODÍA \n                                         | D | Em | A | D | \n                                        | Bm | Em | A | D |\n        [VERSO 1]:  \n D                  Em       A                D         Bm\nX3   Él me levantará,    él me levantará,\n               Em         A                     D        G - D\nÉl me levantará,         así es el Señor.   X3\n        [CORO]: \n               G         A              F#m      Bm \nEl me levantará,    el me levantará, \n                                   Em        A\nEn sus manos me sostendrá,\n              D          D/C                G        A               F#m      Bm\nEl me levantará,       el me levantará,    el me levantará,\n                                     G          A                    D\nEn sus manos me sostendrá,        Así es el Señor.\n        [VERSO 2]: \n D             Em         A              D           Bm\nX2 Me fortalecerá,     me fortalecerá,\n          Em            A                    D      G - D\nMe fortalecerá,        así es el Señor. X2\n        [CORO 2]: \n             G          A            F#m         Bm \nMe fortalecerá,      me fortalecerá, \n                                    Em         A\nEn sus manos me sostendrá,\n             D         D/C              G          A              F#m        Bm\nMe fortalecerá,        me fortalecerá,       me fortalecerá,\n                                     G         A                     D\nEn sus manos me sostendrá,        así es el Señor.\n        \n\n\nMELODÍA                \n[CORO 1]: ",
+    "id": 165,
+    "youtube": "https://www.youtube.com/embed/"
   },
   {
     "num": 2,
     "title": "ERES DIGNO",
     "compositor": "Tony Pérez",
     "tono": "G",
-    "youtube": "https://www.youtube.com/embed/",
     "album": "Espíritu Santo, Gracias - 1990",
-    "content": "[INTRO]:\n                                           | G | Gsus4 | G |\n        [VERSO 1]: \n        G                      C\nX2   Eres digno (Eres digno) de abrir (De abrir)\n        D                    G\nLos sellos (Los sellos), Señor.   X2\n        [CORO]: \n        C               D              G\nX2   Porque fuiste inmolado, con tu poder me has levantado,\n        C            D             G\nPorque fuiste inmolado, y tu sangre me ha salvado,\n        C   D          G              C D            G\nGloria a Dios, gloria a Dios, Gloria a Dios, gloria a Dios.   X2\n       [VERSO 1] X2            |          [CORO] X2",
-    "id": 166
+    "content": "[INTRO]:\n                                  | G | Gsus4 | G |\n        [VERSO 1]: \n                   G                                C\nX2   Eres digno (Eres digno) de abrir (De abrir)\n          D                             G\nLos sellos (Los sellos), Señor.   X2\n        [CORO]: \n                                   C                      D                         G\nX2   Porque fuiste inmolado, con tu poder me has levantado,\n                            C                   D                     G\nPorque fuiste inmolado, y tu sangre me ha salvado,\n                C     D                  G             \nGloria a Dios,      Gloria a Dios, \n                C     D                 G\nGloria a Dios,      Gloria a Dios.   X2\n \n\n      [VERSO 1] X2            |          [CORO] X2",
+    "id": 166,
+    "youtube": "https://www.youtube.com/embed/"
   },
   {
     "num": 3,
