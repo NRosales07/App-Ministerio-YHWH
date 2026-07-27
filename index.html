@@ -1554,21 +1554,25 @@ table.teoria-tabla tr:hover td{ background:rgba(201,168,76,0.06); }
 }
 
 /* === Fondo con movimiento sutil en la pantalla de menú === */
-#screen-menu {
+#screen-menu,
+#screen-menu-more {
   position: relative;
   overflow: hidden;
   background: linear-gradient(90deg, #f1824b, #1d2677, #3a2a7d, #101038);
   background-size: 300% 100%;
   animation: menuGradientMove 12s ease infinite;
 }
-body.light-theme #screen-menu {
+body.light-theme #screen-menu,
+body.light-theme #screen-menu-more {
   background: linear-gradient(90deg, #0e8f7c, #e35a2b, #c4870a, #7f5f19) !important;
   background-size: 300% 100% !important;
   animation: menuGradientMove 12s ease infinite;
 }
 
 #screen-menu .network-status,
-#screen-menu .menu-container{
+#screen-menu .menu-container,
+#screen-menu-more .network-status,
+#screen-menu-more .menu-container{
   position: relative;
   z-index: 1;
 }
@@ -1609,10 +1613,13 @@ body.run-menu-intro #screen-menu .menu-btn:nth-of-type(6) { animation-delay: 0.8
   to { opacity: 1; transform: translateY(0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  #screen-menu { animation: none; }
+  #screen-menu, #screen-menu-more { animation: none; }
   body.run-menu-intro #screen-menu h2,
   body.run-menu-intro #screen-menu p,
-  body.run-menu-intro #screen-menu .menu-btn {
+  body.run-menu-intro #screen-menu .menu-btn,
+  body.run-menu-intro #screen-menu-more h2,
+  body.run-menu-intro #screen-menu-more p,
+  body.run-menu-intro #screen-menu-more .menu-btn {
     animation: none; opacity: 1; transform: none;
   }
 }
@@ -1759,12 +1766,20 @@ body.light-theme .menu-secondary-btn { color: #55616f; border-color: rgba(127,95
 /* Entrada animada también para las tarjetas del dashboard */
 #screen-menu .dashboard-hero,
 #screen-menu .menu-card,
-#screen-menu .menu-secondary-row {
+#screen-menu .menu-secondary-row,
+#screen-menu-more .menu-card,
+#screen-menu-more .menu-secondary-row {
   opacity: 1;
 }
 body.run-menu-intro #screen-menu .dashboard-hero,
 body.run-menu-intro #screen-menu .menu-card,
 body.run-menu-intro #screen-menu .menu-secondary-row {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: menuItemIn 0.5s ease forwards;
+}
+body.run-menu-intro #screen-menu-more .menu-card,
+body.run-menu-intro #screen-menu-more .menu-secondary-row {
   opacity: 0;
   transform: translateY(14px);
   animation: menuItemIn 0.5s ease forwards;
@@ -1775,10 +1790,17 @@ body.run-menu-intro #screen-menu .menu-card:nth-of-type(2) { animation-delay: 0.
 body.run-menu-intro #screen-menu .menu-card:nth-of-type(3) { animation-delay: 0.46s; }
 body.run-menu-intro #screen-menu .menu-card:nth-of-type(4) { animation-delay: 0.54s; }
 body.run-menu-intro #screen-menu .menu-secondary-row { animation-delay: 0.62s; }
+body.run-menu-intro #screen-menu-more .menu-card:nth-of-type(1) { animation-delay: 0.3s; }
+body.run-menu-intro #screen-menu-more .menu-card:nth-of-type(2) { animation-delay: 0.38s; }
+body.run-menu-intro #screen-menu-more .menu-card:nth-of-type(3) { animation-delay: 0.46s; }
+body.run-menu-intro #screen-menu-more .menu-card:nth-of-type(4) { animation-delay: 0.54s; }
+body.run-menu-intro #screen-menu-more .menu-secondary-row { animation-delay: 0.62s; }
 @media (prefers-reduced-motion: reduce) {
   body.run-menu-intro #screen-menu .dashboard-hero,
   body.run-menu-intro #screen-menu .menu-card,
-  body.run-menu-intro #screen-menu .menu-secondary-row {
+  body.run-menu-intro #screen-menu .menu-secondary-row,
+  body.run-menu-intro #screen-menu-more .menu-card,
+  body.run-menu-intro #screen-menu-more .menu-secondary-row {
     animation: none; opacity: 1; transform: none;
   }
 }
@@ -2193,6 +2215,107 @@ body.light-theme #btnCompartirRepertorio {
 body.light-theme #btnCompartirRepertorio:hover {
   background: #1f827f !important;
   border-color: #1f827f !important;
+}
+
+.repertorio-footer-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  justify-content: center;
+  align-items: stretch;
+  margin-top: 12px;
+}
+.repertorio-footer-actions-top {
+  margin: 0 auto 12px;
+  width: 100%;
+  max-width: 420px;
+}
+.repertorio-footer-btn {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(232, 201, 122, 0.18);
+  border-radius: 14px;
+  padding: 8px 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--text);
+  background: rgba(28,28,63,0.68);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.10);
+  letter-spacing: 0.2px;
+  white-space: normal;
+  line-height: 1.05;
+}
+.repertorio-footer-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(232, 201, 122, 0.42);
+}
+.repertorio-footer-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+.repertorio-footer-btn.btn-exportar {
+  border-color: rgba(81, 155, 252, 0.28);
+}
+.repertorio-footer-btn.btn-vaciar {
+  border-color: rgba(192, 57, 43, 0.3);
+}
+.repertorio-footer-btn.btn-sugerir {
+  border-color: rgba(174, 122, 197, 0.3);
+}
+body.light-theme .repertorio-footer-btn {
+  background: rgba(255,255,255,0.86);
+  color: #31424f;
+  box-shadow: 0 3px 8px rgba(127,95,25,0.06);
+}
+body.light-theme .repertorio-footer-btn.btn-exportar {
+  border-color: rgba(25, 107, 170, 0.24);
+}
+body.light-theme .repertorio-footer-btn.btn-vaciar {
+  border-color: rgba(184, 92, 56, 0.28);
+}
+body.light-theme .repertorio-footer-btn.btn-sugerir {
+  border-color: rgba(142, 68, 173, 0.26);
+}
+.cierre-card {
+  width: 100%;
+  border: 1px solid rgba(232,201,122,0.16);
+  border-radius: 14px;
+  background: rgba(28,28,63,0.78);
+  color: var(--text);
+  padding: 12px 12px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.10);
+  text-align: left;
+}
+.cierre-card-active {
+  border-color: rgba(201,168,76,0.42);
+  box-shadow: 0 0 0 1px rgba(201,168,76,0.12), 0 4px 10px rgba(0,0,0,0.12);
+}
+.cierre-card-saved {
+  background: rgba(201,168,76,0.08);
+}
+.cierre-card:active {
+  transform: scale(0.99);
+}
+body.light-theme .cierre-card {
+  background: rgba(255,255,255,0.9);
+  color: #31424f;
+  border-color: rgba(127,95,25,0.14);
+}
+body.light-theme .cierre-card-active {
+  border-color: rgba(127,95,25,0.35);
+}
+body.light-theme .cierre-card-saved {
+  background: rgba(127,95,25,0.06);
+}
+@media (max-width: 420px) {
+  .repertorio-footer-actions {
+    gap: 6px;
+  }
+  .repertorio-footer-btn {
+    padding: 8px 6px;
+    font-size: 0.62rem;
+  }
 }
 body.light-theme #pianoModal > div {
   background: #fffaf0 !important;
@@ -3428,6 +3551,7 @@ document.addEventListener('DOMContentLoaded', function(){
     // Primera vez que alguien entra: mostramos el tutorial de bienvenida
     // (después, solo se abre manualmente desde "❓ Ayuda").
     setTimeout(function () {
+      if (typeof showScreen === 'function') showScreen('screen-menu');
       if (typeof mostrarTutorial === 'function') mostrarTutorial(false);
     }, 750);
   }
@@ -3443,11 +3567,21 @@ document.addEventListener('DOMContentLoaded', function(){
       var boton = document.getElementById('btnEntrarSplash');
       if (loader) loader.style.display = 'none';
       if (boton) boton.classList.add('show');
+      // Si el usuario no pulsa "Entrar", liberamos la app sola para no dejar la navegación bloqueada.
+      window.__splashAutoCloseTimer = setTimeout(function () {
+        if (document.getElementById('splashScreen')) ocultarSplashFinal();
+      }, 4000);
     }, esperar);
   }
 
   var btnEntrar = document.getElementById('btnEntrarSplash');
-  if (btnEntrar) btnEntrar.addEventListener('click', ocultarSplashFinal);
+  if (btnEntrar) btnEntrar.addEventListener('click', function () {
+    if (window.__splashAutoCloseTimer) {
+      clearTimeout(window.__splashAutoCloseTimer);
+      window.__splashAutoCloseTimer = null;
+    }
+    ocultarSplashFinal();
+  });
 
   if (document.readyState === 'complete') {
     mostrarBotonEntrar();
@@ -3475,39 +3609,58 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="dashboard-hero-meta" id="dashboardHeroMeta"></div>
 </div>
 
-<div class="menu-grid">
-  <button class="menu-card" onclick="showScreen('screen-chords')">
-    <span class="menu-card-icon">🙏🏻</span>
-    <span class="menu-card-title">Adoración</span>
-    <span class="menu-card-sub">Acordes y letras</span>
-  </button>
-  <button class="menu-card" onclick="showScreen('screen-jubilo')">
-    <span class="menu-card-icon">💃🏻</span>
-    <span class="menu-card-title">Júbilo</span>
-    <span class="menu-card-sub">Cadenas de alabanza</span>
-  </button>
-  <button class="menu-card" onclick="showScreen('screen-pdfs')">
-    <span class="menu-card-icon">🎤</span>
-    <span class="menu-card-title">Recursos PDF</span>
-    <span class="menu-card-sub">Partituras y letras</span>
-  </button>
-  <button class="menu-card" onclick="showScreen('screen-setlist')" id="btnMenuSetlist">
-    <span class="menu-card-icon">📘</span>
-    <span class="menu-card-title">Repertorio</span>
-    <span class="menu-card-sub" id="btnMenuSetlistCount">Arma el setlist</span>
-  </button>
-</div>
+<button class="menu-secondary-btn" onclick="showScreen('screen-menu-more')" style="width:100%;margin: 0 0 14px;justify-content:center;">
+  ⋯ Más opciones
+</button>
 
-<div class="menu-secondary-row">
-<button class="menu-secondary-btn" onclick="showScreen('screen-historia')" id="btnMenuHistoria">📖 Acerca de</button>
-<button class="menu-secondary-btn" onclick="showScreen('screen-teoria')" id="btnMenuTeoria">🎼 Teoría</button>
-<button class="menu-secondary-btn" onclick="toggleAdminLogin()" id="btnAdminLoginMenu">🔑 Admin</button>
-<button class="menu-secondary-btn" onclick="buscarActualizaciones()" id="btnActualizarMenu">🔄 Actualizar</button>
-<button class="menu-secondary-btn" onclick="mostrarTutorial(true)" id="btnAyudaMenu">❓ Ayuda</button>
-</div>
-
-</div>
     </div>
+    </div>
+
+<!-- PANTALLA 1B: MENÚ PRINCIPAL SIN PRÓXIMO SERVICIO -->
+<div id="screen-menu-more" class="app-screen">
+  <button id="btnClaroMenuMore" class="theme-fab" onclick="alternarModoClaroGlobal()" title="Cambiar tema">🌙</button>
+  <button id="btnVersoMenuMore" class="theme-fab verso-fab" onclick="abrirVersoModal()" title="Verso del día">📖</button>
+  <div class="network-status network-top" id="networkStatusMenuMore" style="margin: 10px auto 4px;">🌐 En la nube</div>
+  <div class="menu-container">
+    <h2 style="color: var(--gold); margin-bottom: 4px; font-family:'Parisienne','Inter',Arial,serif; font-weight:700;"><span style="color:var(--gold2)">Manantial de Alabanza</span></h2>
+    <p style="color: var(--text2); font-family:'Parisienne','Inter',Arial,serif; font-size: 1.15rem; letter-spacing: 0.2px; margin-bottom: 18px;">Recursos Digitales</p>
+
+    <button class="menu-secondary-btn" onclick="showScreen('screen-menu')" style="width:100%;margin: 0 0 14px;justify-content:center;">
+      ⬅ Volver al inicio
+    </button>
+
+    <div class="menu-grid">
+      <button class="menu-card" onclick="showScreen('screen-chords')">
+        <span class="menu-card-icon">🙏🏻</span>
+        <span class="menu-card-title">Adoración</span>
+        <span class="menu-card-sub">Acordes y letras</span>
+      </button>
+      <button class="menu-card" onclick="showScreen('screen-jubilo')">
+        <span class="menu-card-icon">💃🏻</span>
+        <span class="menu-card-title">Júbilo</span>
+        <span class="menu-card-sub">Cadenas de alabanza</span>
+      </button>
+      <button class="menu-card" onclick="showScreen('screen-pdfs')">
+        <span class="menu-card-icon">🎤</span>
+        <span class="menu-card-title">Recursos PDF</span>
+        <span class="menu-card-sub">Partituras y letras</span>
+      </button>
+      <button class="menu-card" onclick="showScreen('screen-setlist')" id="btnMenuSetlistMore">
+        <span class="menu-card-icon">📘</span>
+        <span class="menu-card-title">Repertorio</span>
+        <span class="menu-card-sub" id="btnMenuSetlistCountMore">Arma el setlist</span>
+      </button>
+    </div>
+
+    <div class="menu-secondary-row">
+      <button class="menu-secondary-btn" onclick="showScreen('screen-historia')" id="btnMenuHistoriaMore">📖 Acerca de</button>
+      <button class="menu-secondary-btn" onclick="showScreen('screen-teoria')" id="btnMenuTeoriaMore">🎼 Teoría</button>
+      <button class="menu-secondary-btn" onclick="toggleAdminLogin()" id="btnAdminLoginMenuMore">🔑 Admin</button>
+      <button class="menu-secondary-btn" onclick="buscarActualizaciones()" id="btnActualizarMenuMore">🔄 Actualizar</button>
+      <button class="menu-secondary-btn" onclick="mostrarTutorial(true)" id="btnAyudaMenuMore">❓ Ayuda</button>
+    </div>
+  </div>
+</div>
 
 <!-- PANTALLA 2: TU REPERTORIO CON TRANSPOSITOR (INICIO) -->
 <div id="screen-chords" class="app-screen">
@@ -3518,7 +3671,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <header class="scene-header">
   <!-- Fila Superior Izquierda: Menú y Título juntos -->
   <div class="header-brand">
-    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+    <button class="back-btn" onclick="volverAlMenu()">⬅ Menú</button>
     <div class="logo">&#10022; <span>Ministerio </span>YHWH</div>
     <div class="network-status network-inline-right" id="networkStatus">🌐 En la nube</div>
   </div>
@@ -3834,7 +3987,6 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
     </div>
   </div>
-</div>
 
 
  
@@ -3845,7 +3997,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <header class="scene-header" style="background:linear-gradient(135deg,#f1824b,#1d2677,#101038);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:100px;">
-      <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+      <button class="back-btn" onclick="volverAlMenu()">⬅ Menú</button>
       <div class="logo">🎹 <span>Alabanzas</span> de Júbilo</div>
     </div>
   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
@@ -3994,7 +4146,7 @@ document.addEventListener('DOMContentLoaded', function(){
     border-bottom:1px solid #2a2a45; padding:12px 16px;
     display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
     <div style="display:flex;align-items:center;gap:175px;">
-      <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+      <button class="back-btn" onclick="volverAlMenu()">⬅ Menú</button>
       <div class="logo">&#10022; <span>Repertorio</span></div>
     </div>
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
@@ -4010,64 +4162,84 @@ document.addEventListener('DOMContentLoaded', function(){
   </header>
   <div style="flex:1; padding:16px; overflow-y:auto;">
     <div style="display:flex;gap:8px;justify-content:center;margin:0 auto 14px;flex-wrap:wrap;width:100%;max-width:420px;">
-      <button id="btnRepHoy" onclick="irAFechaHoy()"
-        style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
-        Hoy
+      <button id="tabRepertorioServicio" onclick="mostrarTabRepertorio('servicio')"
+        style="border:1px solid var(--gold);border-radius:999px;padding:8px 16px;font-weight:bold;cursor:pointer;background:var(--gold);color:#000;">
+        Servicio
       </button>
-      <button id="btnRepAnterior" onclick="cambiarMesRepertorio(-1)"
-        style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
-        Mes -
+      <button id="tabRepertorioCalendario" onclick="mostrarTabRepertorio('calendario')"
+        style="border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
+        Calendario
       </button>
-      <button id="btnRepSiguiente" onclick="cambiarMesRepertorio(1)"
-        style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
-        Mes +
+      <button id="tabRepertorioCierre" onclick="mostrarTabRepertorio('cierre')"
+        style="border:1px solid var(--border);border-radius:999px;padding:8px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
+        Ministración
+      </button>
+    </div>
+
+    <div class="repertorio-footer-actions repertorio-footer-actions-top">
+      <button class="repertorio-footer-btn btn-exportar" onclick="abrirExportarSetlist()">
+        🖼️ Compartir
+      </button>
+      <button class="repertorio-footer-btn btn-vaciar" id="btnVaciarRepertorio" onclick="vaciarRepertorio()">
+        🗑️ Vaciar
+      </button>
+      <button class="repertorio-footer-btn btn-sugerir" onclick="abrirRecomendador()">
+        ✨ IA
       </button>
     </div>
 
     <!-- BUSCADOR DE HISTORIAL: ¿en qué mes/día se tocó tal alabanza o cadena? -->
-    <div style="width:100%;max-width:420px;margin:0 auto 14px;">
+    <div id="repertorioServicioPanel" style="width:100%;max-width:420px;margin:0 auto 14px;">
       <div class="search-wrap" style="margin-bottom:0;">
         <span class="si">&#128269;</span>
         <input type="text" id="buscadorHistorialRepertorio" placeholder="¿Cuándo se tocó esta alabanza o cadena?" oninput="buscarEnHistorialRepertorio()">
       </div>
       <div id="resultadosHistorialRepertorio" style="display:none;margin-top:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;"></div>
+      <div id="setlistContent"></div>
+      <div id="tiempoEstimado" style="text-align:center;color:var(--text2);font-size:0.82rem;margin:14px 0 12px;"></div>
+    </div>
+    <div id="repertorioCalendarioPanel" style="display:none;">
+      <div style="width:100%;max-width:420px;margin:0 auto 14px;">
+        <div class="search-wrap" style="margin-bottom:0;">
+          <span class="si">&#128269;</span>
+          <input type="text" id="buscadorHistorialRepertorioCalendario" placeholder="¿Cuándo se tocó esta alabanza o cadena?" oninput="buscarEnHistorialRepertorio()">
+        </div>
+        <div id="resultadosHistorialRepertorioCalendario" style="display:none;margin-top:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;"></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin:8px auto 14px;flex-wrap:wrap;width:100%;max-width:420px;">
+        <button id="btnRepHoy" onclick="irAFechaHoy()"
+          style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
+          Hoy
+        </button>
+        <button id="btnRepAnterior" onclick="cambiarMesRepertorio(-1)"
+          style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
+          Mes -
+        </button>
+        <button id="btnRepSiguiente" onclick="cambiarMesRepertorio(1)"
+          style="border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-weight:bold;cursor:pointer;background:var(--bg3);color:var(--text);">
+          Mes +
+        </button>
+      </div>
+      <div id="repertorioCalendario"></div>
     </div>
 
-    <div id="repertorioCalendario"></div>
-    <div id="setlistContent"></div>
-    <div style="text-align:center; margin-top:20px;">
-      <button id="btnVaciarRepertorio" onclick="vaciarRepertorio()"
-        style="background:#c0392b; color:#fff; border:none; padding:10px 18px;
-               border-radius:8px; font-size:0.9rem; font-weight:bold; cursor:pointer;">
-        🗑️ Vaciar Repertorio
-      </button>
-      
+    <div id="repertorioCierrePanel" style="display:none;width:100%;max-width:420px;margin:0 auto 14px;">
+      <div class="search-wrap" style="margin-bottom:10px;">
+        <span class="si">&#128269;</span>
+        <input type="text" id="buscadorCierreRepertorio" placeholder="Buscar alabanzas para cierre..." oninput="renderCierreRepertorio()">
+      </div>
+      <div style="text-align:center;color:var(--gold2);font-size:0.8rem;font-weight:700;margin-bottom:8px;">Opciones guardadas</div>
+      <div id="cierreRepertorioSeleccionadas" style="display:grid;gap:8px;margin-bottom:14px;"></div>
+      <div style="text-align:center;color:var(--gold2);font-size:0.8rem;font-weight:700;margin-bottom:8px;">Agregar alabanzas de adoración</div>
+      <div id="cierreRepertorioLista" style="display:grid;gap:8px;"></div>
     </div>
   </div>
-   <div id="tiempoEstimado" style="text-align:center;color:var(--text2);font-size:0.82rem;margin-bottom:12px;"></div>
-    <div style="display:flex;gap:8px;padding:0 16px 16px;justify-content:center;flex-wrap:wrap;">
-      <button id="btnCompartirRepertorio" onclick="exportarRepertorio()"
-        style="background:#1d2677;color:#fff;border:none;padding:10px 18px;
-               font-size:0.9rem;font-weight:bold;cursor:pointer;border-radius:8px;flex:1;min-width:140px;">
-        📤 Compartir lista
-      </button>
-      <button onclick="abrirExportarSetlist()"
-        style="background:linear-gradient(135deg,#c9a84c,#e8c97a);color:#000;border:none;padding:10px 18px;
-               font-size:0.9rem;font-weight:bold;cursor:pointer;border-radius:8px;flex:1;min-width:140px;">
-        🖼️ Exportar imagen
-      </button>
-      <button onclick="abrirRecomendador()"
-        style="background:linear-gradient(135deg,#8e44ad,#af7ac5);color:#fff;border:none;padding:10px 18px;
-               font-size:0.9rem;font-weight:bold;cursor:pointer;border-radius:8px;flex:1;min-width:140px;">
-        🎯 Sugerir cierre
-      </button>
-    </div>
-    </div>
-    
+</div>
+
 <!-- PANTALLA 3: VISOR DE PDFS -->
 <div id="screen-pdfs" class="app-screen">
   <header class="scene-header" style="background: linear-gradient(135deg,#f1824b,#1d2677,#101038); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
-    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+    <button class="back-btn" onclick="volverAlMenu()">⬅ Menú</button>
     <div class="logo">&#10022; <span>PDFs</span> Disponibles</div>
     <div class="network-status" id="networkStatusPdfs">🌐 En la nube</div>
   </header>
@@ -4114,7 +4286,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- PANTALLA: ACERCA DE (con pestañas: Visión y Misión / Historia) -->
 <div id="screen-historia" class="app-screen">
   <header class="scene-header" style="background: linear-gradient(135deg,#f1824b,#1d2677,#101038); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
-    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+    <button class="back-btn" onclick="volverAlMenu()">⬅ Menú</button>
     <div class="logo">&#10022; <span>Acerca de</span> Ministerio YHWH</div>
   </header>
 
@@ -4190,6 +4362,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <img class="galeria-thumb" src="foto10.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto10.jpeg')">
       <img class="galeria-thumb" src="foto11.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto11.jpeg')">
       <img class="galeria-thumb" src="foto12.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto12.jpeg')">
+       <img class="galeria-thumb" src="foto13.jpeg" alt="Foto del Ministerio 1" onclick="abrirGaleriaLightbox('foto12.jpeg')">
     </div>
   </div>
 </div>
@@ -4199,7 +4372,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- ============================================================ -->
 <div id="screen-teoria" class="app-screen">
   <header class="scene-header" style="background: linear-gradient(135deg,#1d2677,#101038,#1c1c3f); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 15px;">
-    <button class="back-btn" onclick="showScreen('screen-menu')">⬅ Menú</button>
+    <button class="back-btn" onclick="volverAlMenu()">⬅ Menú</button>
     <div class="logo">&#10022; <span>Teoría</span> de Acordes </div>
   </header>
 
@@ -5707,6 +5880,51 @@ window.addEventListener('DOMContentLoaded', function() {
   aplicarTemaClaro(modoClaro, false);
 });
 
+function mostrarMenuOpciones() {}
+function volverMenuPrincipal() {}
+function renderMenuPrincipal() {
+  renderDashboardResumen();
+  actualizarContadorRepertorio();
+}
+
+function volverAlMenu() {
+  showScreen(window.ultimoMenuPantalla || 'screen-menu');
+}
+
+function mostrarTabRepertorio(tab) {
+  var servicio = document.getElementById('repertorioServicioPanel');
+  var calendario = document.getElementById('repertorioCalendarioPanel');
+  var cierre = document.getElementById('repertorioCierrePanel');
+  var btnServicio = document.getElementById('tabRepertorioServicio');
+  var btnCalendario = document.getElementById('tabRepertorioCalendario');
+  var btnCierre = document.getElementById('tabRepertorioCierre');
+  var esCalendario = tab === 'calendario';
+  var esCierre = tab === 'cierre';
+
+  if (servicio) servicio.style.display = (esCalendario || esCierre) ? 'none' : 'block';
+  if (calendario) calendario.style.display = esCalendario ? 'block' : 'none';
+  if (cierre) cierre.style.display = esCierre ? 'block' : 'none';
+
+  if (btnServicio) {
+    btnServicio.style.background = (!esCalendario && !esCierre) ? 'var(--gold)' : 'var(--bg3)';
+    btnServicio.style.color = (!esCalendario && !esCierre) ? '#000' : 'var(--text)';
+    btnServicio.style.borderColor = (!esCalendario && !esCierre) ? 'var(--gold)' : 'var(--border)';
+  }
+  if (btnCalendario) {
+    btnCalendario.style.background = esCalendario ? 'var(--gold)' : 'var(--bg3)';
+    btnCalendario.style.color = esCalendario ? '#000' : 'var(--text)';
+    btnCalendario.style.borderColor = esCalendario ? 'var(--gold)' : 'var(--border)';
+  }
+  if (btnCierre) {
+    btnCierre.style.background = esCierre ? 'var(--gold)' : 'var(--bg3)';
+    btnCierre.style.color = esCierre ? '#000' : 'var(--text)';
+    btnCierre.style.borderColor = esCierre ? 'var(--gold)' : 'var(--border)';
+  }
+  if (esCierre) {
+    renderCierreRepertorio();
+  }
+}
+
 // Función para ocultar pantallas y mostrar la seleccionada (con transición)
 function showScreen(screenId) {
   if (screenId !== 'screen-jubilo' && typeof detenerAutoScrollJubilo === 'function') {
@@ -5718,12 +5936,20 @@ function showScreen(screenId) {
   if (!target) return;
 
   var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var esVolver = (screenId === 'screen-menu');
+  var esVolver = (screenId === 'screen-menu' || screenId === 'screen-menu-more');
+  if (screenId === 'screen-menu' || screenId === 'screen-menu-more') {
+    window.ultimoMenuPantalla = screenId;
+  }
 
   function activarPantalla() {
     for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active', 'screen-in', 'screen-out', 'dir-back');
     target.classList.add('active');
-    if (screenId === 'screen-setlist') renderSetlist();
+    if (screenId === 'screen-menu') renderMenuPrincipal();
+    if (screenId === 'screen-menu-more') renderMenuPrincipal();
+    if (screenId === 'screen-setlist') {
+      mostrarTabRepertorio('servicio');
+      renderSetlist();
+    }
     if (screenId === 'screen-teoria' && !teoriaInicializada && typeof inicializarTeoria === 'function') {
       inicializarTeoria();
       teoriaInicializada = true;
@@ -5756,6 +5982,8 @@ function actualizarContadorRepertorio() {
   if (typeof renderDashboardResumen === 'function') renderDashboardResumen();
   var badge = document.getElementById('btnMenuSetlistCount');
   var btn = document.getElementById('btnMenuSetlist');
+  var badgeMore = document.getElementById('btnMenuSetlistCountMore');
+  var btnMore = document.getElementById('btnMenuSetlistMore');
   if (!badge || !btn) return;
   var totalAdoracion = (typeof SONGS !== 'undefined' && Array.isArray(SONGS)) ? SONGS.length : 0;
   // Total de Mix (cadenas de Júbilo) que existen en toda la app.
@@ -5768,12 +5996,16 @@ function actualizarContadorRepertorio() {
   if (totalAdoracion > 0) partesBadge.push(totalAdoracion + ' alabanzas');
   if (totalMix > 0) partesBadge.push(totalMix + ' Mix de Júbilo');
   var nuevoTexto = partesBadge.length > 0 ? partesBadge.join('<br>') : 'Arma el setlist';
-  if (badge.innerHTML !== nuevoTexto) {
-    badge.innerHTML = nuevoTexto;
-    if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
-      btn.classList.remove('counter-bounce');
-      void btn.offsetWidth; // fuerza reflow para poder reiniciar la animación
-      btn.classList.add('counter-bounce');
+  if (badge.innerHTML !== nuevoTexto) badge.innerHTML = nuevoTexto;
+  if (badgeMore && badgeMore.innerHTML !== nuevoTexto) badgeMore.innerHTML = nuevoTexto;
+  if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    btn.classList.remove('counter-bounce');
+    void btn.offsetWidth; // fuerza reflow para poder reiniciar la animación
+    btn.classList.add('counter-bounce');
+    if (btnMore) {
+      btnMore.classList.remove('counter-bounce');
+      void btnMore.offsetWidth;
+      btnMore.classList.add('counter-bounce');
     }
   }
 }
@@ -5935,6 +6167,208 @@ function tipoCultoKey(dia) {
   return 'yhwh_tipo_culto_' + normalizarISO(dia || hoyISO());
 }
 
+function colorServidorKey(dia) {
+  return 'yhwh_color_servidor_' + normalizarISO(dia || hoyISO());
+}
+
+function guardarColorServidor(dia, valor) {
+  var iso = normalizarISO(dia || hoyISO());
+  if (valor === null || valor === undefined || !String(valor).trim()) {
+    localStorage.removeItem(colorServidorKey(iso));
+    if (window.fbDb && window.fbRef && window.fbSet) {
+      window.fbSet(window.fbRef(window.fbDb, 'colores_servidor/' + iso), null).catch(function(){});
+    }
+    return '';
+  }
+  var limpio = String(valor).trim();
+  localStorage.setItem(colorServidorKey(iso), limpio);
+  if (window.fbDb && window.fbRef && window.fbSet) {
+    window.fbSet(window.fbRef(window.fbDb, 'colores_servidor/' + iso), limpio).catch(function(){});
+  }
+  return limpio;
+}
+
+function getColorServidorGuardado(dia) {
+  var iso = normalizarISO(dia || hoyISO());
+  return localStorage.getItem(colorServidorKey(iso)) || '';
+}
+
+function contarNumeroCultoDelMes(dia) {
+  var iso = normalizarISO(dia || hoyISO());
+  var fecha = fechaLocalDesdeISO(iso);
+  var dow = fecha.getDay();
+  var count = 0;
+  var cursor = new Date(fecha.getFullYear(), fecha.getMonth(), 1);
+  while (cursor <= fecha) {
+    if (cursor.getDay() === dow) count++;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return count;
+}
+
+function getSugerenciaColorServidor(dia) {
+  var iso = normalizarISO(dia || hoyISO());
+  var fecha = fechaLocalDesdeISO(iso);
+  var dow = fecha.getDay();
+  var ciclo = ((parseInt(iso.slice(5, 7), 10) || 1) % 2) === 1 ? 1 : 2;
+  var n = contarNumeroCultoDelMes(iso);
+  var culto = (getTipoCultoDia(iso) || '').toLowerCase();
+  var esEspecial = !!getColorServidorGuardado(iso);
+
+  if (esEspecial) return getColorServidorGuardado(iso);
+
+  if (dow === 4) {
+    if (n === 1) return ciclo === 1 ? 'Azul eléctrico' : 'Amarillo';
+    if (n === 2) return ciclo === 1 ? 'Rojo' : 'Rosado';
+    if (n === 3) return ciclo === 1 ? 'Negro' : 'Azul marino';
+    if (n === 4) return ciclo === 1 ? 'Morado / Púrpura' : 'Verde';
+    if (n >= 5) return ciclo === 1 ? 'Verde' : 'Azul claro';
+    return 'Por elegir';
+  }
+
+  if (dow === 0) {
+    if (n === 1) return 'Blanco';
+    if (n === 2) return ciclo === 1 ? 'Azul claro' : 'Morado / Púrpura';
+    if (n === 3) return ciclo === 1 ? 'Amarillo' : 'Vino / Uva';
+    if (n === 4) return ciclo === 1 ? 'Rosado' : 'Rojo';
+    if (n >= 5) return ciclo === 1 ? 'Vino / Uva' : 'Negro';
+    return 'Por elegir';
+  }
+
+  if (culto.indexOf('caballero') !== -1) return ciclo === 1 ? 'Azul eléctrico' : 'Amarillo';
+  if (culto.indexOf('dama') !== -1) return ciclo === 1 ? 'Rojo' : 'Rosado';
+  if (culto.indexOf('joven') !== -1 || culto.indexOf('jóven') !== -1) return ciclo === 1 ? 'Negro' : 'Azul marino';
+  if (culto.indexOf('familia pastoral') !== -1) return 'Blanco';
+  if (culto.indexOf('familia') !== -1) return ciclo === 1 ? 'Morado / Púrpura' : 'Verde';
+  if (culto.indexOf('niño') !== -1) return ciclo === 1 ? 'Verde' : 'Azul claro';
+
+  return 'Por elegir';
+}
+
+function colorServidorEmoji(nombre) {
+  var t = String(nombre || '').toLowerCase();
+  if (t.indexOf('azul eléctrico') !== -1 || t.indexOf('azul electrico') !== -1) return '💙';
+  if (t.indexOf('blanco') !== -1) return '🤍';
+  if (t.indexOf('rojo') !== -1) return '❤️';
+  if (t.indexOf('azul claro') !== -1) return '🩵';
+  if (t.indexOf('negro') !== -1) return '🖤';
+  if (t.indexOf('amarillo') !== -1) return '💛';
+  if (t.indexOf('morado') !== -1 || t.indexOf('púrpura') !== -1 || t.indexOf('purpura') !== -1) return '💜';
+  if (t.indexOf('rosado') !== -1) return '🩷';
+  if (t.indexOf('verde') !== -1) return '💚';
+  if (t.indexOf('vino') !== -1 || t.indexOf('uva') !== -1) return '❤️';
+  if (t.indexOf('azul marino') !== -1) return '💙';
+  if (t.indexOf('por elegir') !== -1) return '❔';
+  if (t.indexOf('libre') !== -1) return '🆓';
+  return '🎨';
+}
+
+function colorServidorEtiqueta(nombre) {
+  var limpio = String(nombre || '').trim();
+  if (!limpio) return 'Color: Por elegir';
+  return 'Color: ' + escH(limpio);
+}
+
+function asegurarModalColorServidor() {
+  var modal = document.getElementById('colorServidorModal');
+  if (modal) return modal;
+  modal = document.createElement('div');
+  modal.id = 'colorServidorModal';
+  modal.className = 'modal-overlay';
+  modal.style.display = 'none';
+  modal.innerHTML =
+    '<div class="modal-card" style="max-width:380px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<div style="color:#c9a84c;font-weight:bold;font-size:1rem;">🎨 Color del servidor</div>' +
+        '<button onclick="cerrarModalColorServidor()" style="background:#42426e;border:none;color:#e8e6f0;border-radius:6px;padding:5px 10px;cursor:pointer;font-weight:bold;">✕</button>' +
+      '</div>' +
+      '<div style="color:#8888aa;font-size:0.78rem;margin-bottom:10px;">Elige un color sugerido, marca Libre o escribe uno especial.</div>' +
+      '<label style="display:block;color:#af7ac5;font-size:0.75rem;margin-bottom:5px;">Color sugerido</label>' +
+      '<select id="colorServidorSelect" style="width:100%;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;border-radius:8px;padding:11px 12px;font-size:0.92rem;outline:none;box-sizing:border-box;margin-bottom:10px;">' +
+        '<option value="Blanco">Blanco</option>' +
+        '<option value="Azul eléctrico">Azul eléctrico</option>' +
+        '<option value="Rojo">Rojo</option>' +
+        '<option value="Azul claro">Azul claro</option>' +
+        '<option value="Negro">Negro</option>' +
+        '<option value="Amarillo">Amarillo</option>' +
+        '<option value="Morado / Púrpura">Morado / Púrpura</option>' +
+        '<option value="Rosado">Rosado</option>' +
+        '<option value="Verde">Verde</option>' +
+        '<option value="Vino / Uva">Vino / Uva</option>' +
+        '<option value="Azul marino">Azul marino</option>' +
+        '<option value="Libre">Libre</option>' +
+        '<option value="Por elegir">Por elegir</option>' +
+        '<option value="__manual__">Escribir color especial</option>' +
+      '</select>' +
+      '<div id="colorServidorManualWrap" style="display:none;margin-bottom:10px;">' +
+        '<label style="display:block;color:#af7ac5;font-size:0.75rem;margin-bottom:5px;">Color especial</label>' +
+        '<input id="colorServidorManual" type="text" placeholder="Ej: camisa de mezclilla" style="width:100%;background:#0d0d14;border:1px solid #42426e;color:#e8e6f0;border-radius:8px;padding:11px 12px;font-size:0.92rem;outline:none;box-sizing:border-box;">' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;margin-top:8px;">' +
+        '<button onclick="cerrarModalColorServidor()" style="flex:1;background:#42426e;border:1px solid #2a2a45;color:#e8e6f0;border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">Cancelar</button>' +
+        '<button onclick="confirmarColorServidor()" style="flex:1;background:linear-gradient(135deg,#c9a84c,#e8c97a);border:none;color:#000;border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">Guardar</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+  var select = modal.querySelector('#colorServidorSelect');
+  var manual = modal.querySelector('#colorServidorManual');
+  if (select) select.onchange = function() {
+    var wrap = modal.querySelector('#colorServidorManualWrap');
+    if (wrap) wrap.style.display = select.value === '__manual__' ? 'block' : 'none';
+  };
+  return modal;
+}
+
+var _colorServidorDiaActivo = '';
+
+function abrirModalColorServidor(dia) {
+  if (!window.esAdmin) { mostrarToast('🔒 Solo el admin puede editar el color.'); return; }
+  var modal = asegurarModalColorServidor();
+  _colorServidorDiaActivo = normalizarISO(dia || hoyISO());
+  var actual = getColorServidorGuardado(_colorServidorDiaActivo) || getSugerenciaColorServidor(_colorServidorDiaActivo);
+  var select = modal.querySelector('#colorServidorSelect');
+  var manualWrap = modal.querySelector('#colorServidorManualWrap');
+  var manual = modal.querySelector('#colorServidorManual');
+  if (select) {
+    var found = false;
+    Array.prototype.forEach.call(select.options, function(opt) {
+      if (opt.value === actual) found = true;
+    });
+    select.value = found ? actual : '__manual__';
+  }
+  if (manualWrap) manualWrap.style.display = (select && select.value === '__manual__') ? 'block' : 'none';
+  if (manual) manual.value = (select && select.value === '__manual__') ? actual : '';
+  modal.style.display = 'flex';
+}
+
+function cerrarModalColorServidor() {
+  var modal = document.getElementById('colorServidorModal');
+  if (modal) modal.style.display = 'none';
+  _colorServidorDiaActivo = '';
+}
+
+function confirmarColorServidor() {
+  var modal = document.getElementById('colorServidorModal');
+  if (!modal || !_colorServidorDiaActivo) return;
+  var select = modal.querySelector('#colorServidorSelect');
+  var manual = modal.querySelector('#colorServidorManual');
+  var valor = select ? select.value : '';
+  if (valor === '__manual__') valor = manual ? manual.value.trim() : '';
+  guardarColorServidor(_colorServidorDiaActivo, valor);
+  cerrarModalColorServidor();
+  if (screenIdActiva() === 'screen-setlist') renderSetlist();
+  renderDashboardResumen();
+}
+
+function mostrarEditorColorServidor(dia) {
+  abrirModalColorServidor(dia);
+}
+
+function screenIdActiva() {
+  var active = document.querySelector('.app-screen.active');
+  return active ? active.id : '';
+}
+
 function contarDiaDelMes(iso, targetDow) {
   var fecha = fechaLocalDesdeISO(iso);
   var count = 0;
@@ -6046,23 +6480,27 @@ function proximaFechaServicio() {
 }
 
 function renderDashboardResumen() {
-  var titulo = document.getElementById('dashboardHeroTitulo');
-  var meta = document.getElementById('dashboardHeroMeta');
-  if (!titulo || !meta) return;
+  var titulos = document.querySelectorAll('#dashboardHeroTitulo, #dashboardHeroTituloMore');
+  var metas = document.querySelectorAll('#dashboardHeroMeta, #dashboardHeroMetaMore');
+  if (!titulos.length || !metas.length) return;
 
   var iso = proximaFechaServicio();
   var culto = getTipoCultoDia(iso) || 'Servicio';
   var horario = getHorarioCultoDia(iso);
   var lista = getRepertorioFecha(iso) || [];
   var esHoy = iso === hoyISO();
+  var color = getColorServidorGuardado(iso) || getSugerenciaColorServidor(iso);
 
-  titulo.textContent = culto;
+  titulos.forEach(function(el) {
+    el.textContent = culto;
+  });
 
   var chips = '<span class="dashboard-hero-chip chip-gold">' +
     (esHoy ? 'Hoy · ' : '') + getDiaLabel(iso) + '</span>';
   if (horario) {
     chips += '<span class="dashboard-hero-chip">🕐 ' + horario.split('\n')[0] + '</span>';
   }
+  chips += '<button class="dashboard-hero-chip" onclick="mostrarEditorColorServidor(\'' + iso + '\')" style="border:none;cursor:pointer;">' + colorServidorEtiqueta(color) + '</button>';
 
   var totalAdoracionHero = 0, totalCadenasHero = 0;
   lista.forEach(function(item) {
@@ -6081,7 +6519,9 @@ function renderDashboardResumen() {
     chips += '<span class="dashboard-hero-chip">📋 Repertorio pendiente</span>';
   }
 
-  meta.innerHTML = chips;
+  metas.forEach(function(el) {
+    el.innerHTML = chips;
+  });
 }
 
 function agregarAlRepertorio() {
@@ -6129,6 +6569,178 @@ function agregarItemAlRepertorio(item, dia) {
   actualizarContadorRepertorio();
 }
 
+var REPERTORIO_CIERRE_KEY = 'yhwh_repertorio_cierre';
+
+function cargarRepertorioCierre() {
+  try {
+    var data = JSON.parse(localStorage.getItem(REPERTORIO_CIERRE_KEY) || '[]');
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function guardarRepertorioCierre(lista) {
+  localStorage.setItem(REPERTORIO_CIERRE_KEY, JSON.stringify(lista));
+}
+
+function obtenerIdCierre(id) {
+  return String(id);
+}
+
+function toggleCierreRepertorioPorId(id) {
+  var lista = cargarRepertorioCierre();
+  var idStr = obtenerIdCierre(id);
+  var song = null;
+  if (typeof SONGS !== 'undefined' && Array.isArray(SONGS)) {
+    song = SONGS.find(function(s) { return String(s.id) === idStr; }) || null;
+  }
+  if (!song) return;
+
+  var idx = lista.findIndex(function(item) { return String(item.id) === idStr; });
+  if (idx >= 0) {
+    lista.splice(idx, 1);
+    mostrarToast('🗑️ Quitada de cierre');
+  } else {
+    lista.unshift({
+      id: song.id,
+      title: song.title,
+      tono: song.tono || ''
+    });
+    mostrarToast('✅ Agregada a cierre');
+  }
+  localStorage.setItem(REPERTORIO_CIERRE_KEY, JSON.stringify(lista));
+  renderCierreRepertorio();
+}
+
+function renderCierreRepertorio() {
+  var contSel = document.getElementById('cierreRepertorioSeleccionadas');
+  var contLista = document.getElementById('cierreRepertorioLista');
+  var qEl = document.getElementById('buscadorCierreRepertorio');
+  if (!contSel || !contLista) return;
+
+  var q = (qEl && qEl.value ? qEl.value.trim().toLowerCase() : '');
+  var seleccionadas = cargarRepertorioCierre();
+
+  if (seleccionadas.length === 0) {
+    contSel.innerHTML = '<div style="padding:12px;border:1px dashed var(--border);border-radius:12px;color:var(--text2);font-size:0.82rem;text-align:center;">Aún no hay opciones guardadas para cierre.</div>';
+  } else {
+    contSel.innerHTML = seleccionadas.map(function(s, idx) {
+      return '<button class="cierre-card cierre-card-saved" onclick="showScreen(\'screen-chords\');setTimeout(function(){loadSong(\'' + String(s.id) + '\');}, 180)" style="width:100%;text-align:left;">' +
+        '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">' +
+          '<div style="min-width:0;">' +
+            '<div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escH(s.title) + '</div>' +
+            '<div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">' + escH(s.tono || '') + '</div>' +
+          '</div>' +
+          '<div style="flex:0 0 auto;color:var(--gold2);font-size:0.78rem;font-weight:800;">Ver</div>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:flex-end;margin-top:8px;">' +
+          '<span onclick="event.stopPropagation();toggleCierreRepertorioPorId(\'' + String(s.id) + '\')" style="font-size:0.72rem;color:var(--text2);text-decoration:underline;cursor:pointer;">Quitar</span>' +
+        '</div>' +
+      '</button>';
+    }).join('');
+  }
+
+  if (!q) {
+    contLista.innerHTML = '<div style="padding:12px;border:1px dashed var(--border);border-radius:12px;color:var(--text2);font-size:0.82rem;text-align:center;">Usa el buscador para encontrar alabanzas y agregarlas a cierre.</div>';
+    return;
+  }
+
+  var songs = (typeof SONGS !== 'undefined' && Array.isArray(SONGS)) ? SONGS : [];
+  var filtradas = songs.filter(function(s) {
+    var texto = (s.title + ' ' + (s.tono || '')).toLowerCase();
+    return texto.indexOf(q) >= 0;
+  });
+
+  if (filtradas.length === 0) {
+    contLista.innerHTML = '<div style="padding:12px;border:1px dashed var(--border);border-radius:12px;color:var(--text2);font-size:0.82rem;text-align:center;">Sin coincidencias.</div>';
+    return;
+  }
+
+  var setSel = {};
+  seleccionadas.forEach(function(s) { setSel[String(s.id)] = true; });
+  contLista.innerHTML = filtradas.slice(0, 40).map(function(s) {
+    var activo = !!setSel[String(s.id)];
+    return '<button class="cierre-card' + (activo ? ' cierre-card-active' : '') + '" onclick="toggleCierreRepertorioPorId(\'' + String(s.id) + '\')" style="width:100%;text-align:left;">' +
+      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">' +
+        '<div style="min-width:0;">' +
+          '<div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escH(s.title) + '</div>' +
+          '<div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">' + escH(s.tono || '') + '</div>' +
+        '</div>' +
+        '<div style="flex:0 0 auto;color:' + (activo ? 'var(--gold2)' : 'var(--text2)') + ';font-size:0.78rem;font-weight:800;">' + (activo ? 'Guardada' : 'Agregar') + '</div>' +
+      '</div>' +
+    '</button>';
+  }).join('');
+}
+
+function limpiarTextoIA(texto) {
+  return String(texto || '')
+    .replace(/\*\*/g, '')
+    .replace(/^\s*[-•]\s*/gm, '')
+    .trim();
+}
+
+function extraerSugerenciasCierre(texto) {
+  var limpio = limpiarTextoIA(texto);
+  var lineas = limpio.split('\n').map(function(linea) { return linea.trim(); }).filter(Boolean);
+  var sugerencias = [];
+  for (var i = 0; i < lineas.length; i++) {
+    var linea = lineas[i];
+    var match = linea.match(/^\s*(\d+)\.\s*(.+)$/);
+    if (!match) continue;
+    var contenido = match[2].trim();
+    var titulo = contenido.split(' - ')[0].split(' — ')[0].split(' – ')[0].trim();
+    titulo = titulo.replace(/[:]+$/, '').trim();
+    if (!titulo) continue;
+    sugerencias.push({ titulo: titulo, texto: contenido });
+    if (sugerencias.length >= 3) break;
+  }
+  return sugerencias;
+}
+
+function buscarSongPorTitulo(titulo) {
+  var target = normSearchText(titulo);
+  var songs = (typeof SONGS !== 'undefined' && Array.isArray(SONGS)) ? SONGS : [];
+  for (var i = 0; i < songs.length; i++) {
+    if (normSearchText(songs[i].title) === target) return songs[i];
+  }
+  for (var j = 0; j < songs.length; j++) {
+    if (normSearchText(songs[j].title).indexOf(target) !== -1 || target.indexOf(normSearchText(songs[j].title)) !== -1) {
+      return songs[j];
+    }
+  }
+  return null;
+}
+
+function guardarSugerenciasIAEnCierre() {
+  if (!Array.isArray(window.ultimasSugerenciasCierre) || !window.ultimasSugerenciasCierre.length) {
+    mostrarToast('⚠️ No hay sugerencias para guardar.');
+    return;
+  }
+  var lista = cargarRepertorioCierre();
+  var idsExistentes = {};
+  lista.forEach(function(item) { idsExistentes[String(item.id)] = true; });
+
+  window.ultimasSugerenciasCierre.forEach(function(sug) {
+    var song = buscarSongPorTitulo(sug.titulo);
+    if (!song) return;
+    var id = String(song.id);
+    if (idsExistentes[id]) return;
+    lista.unshift({
+      id: song.id,
+      title: song.title,
+      tono: song.tono || ''
+    });
+    idsExistentes[id] = true;
+  });
+
+  localStorage.setItem(REPERTORIO_CIERRE_KEY, JSON.stringify(lista));
+  renderCierreRepertorio();
+  mostrarToast('✅ Sugerencias guardadas en Cierre');
+  showScreen('screen-setlist');
+  mostrarTabRepertorio('cierre');
+}
+
 function renderSetlist(animarCalendario) {
   var cont = document.getElementById('setlistContent');
   if (!cont) return;
@@ -6142,6 +6754,7 @@ function renderSetlist(animarCalendario) {
   var colorCulto = esClaro ? '#7f5f19' : 'var(--gold2)';
   var colorFecha = esClaro ? '#55616f' : 'var(--text2)';
   var colorHorario = esClaro ? '#31424f' : 'var(--text)';
+  var colorServidor = getColorServidorGuardado(repertorioFechaActiva) || getSugerenciaColorServidor(repertorioFechaActiva);
   var _isoHdr = normalizarISO(repertorioFechaActiva);
   var _dbNHdr = window.cultosNombresDB || JSON.parse(localStorage.getItem('yhwh_cultos_nombres_cache') || '{}');
   var cultoEditado = !!(_dbNHdr[_isoHdr] && _dbNHdr[_isoHdr].trim()) || !!(localStorage.getItem(tipoCultoKey(_isoHdr)) || '').trim();
@@ -6153,7 +6766,10 @@ function renderSetlist(animarCalendario) {
       '<div style="color:' + colorCulto + ';font-size:1.08rem;font-weight:700;line-height:1.2;">' + escH(cultoActual || 'Culto') + '</div>' +
       '<div style="color:' + colorFecha + ';font-size:0.76rem;margin-top:4px;">' + escH(getDiaLabel(repertorioFechaActiva)) + '</div>' +
       '<div style="color:' + colorHorario + ';font-size:0.78rem;margin-top:8px;line-height:1.35;white-space:pre-line;font-weight:600;">' + escH(horarioActual || '') + '</div>' +
-      '<button onclick="pedirTipoCulto(\'' + repertorioFechaActiva + '\')" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;">Editar culto</button>' +
+      '<button onclick="mostrarEditorColorServidor(\'' + repertorioFechaActiva + '\')" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">' + colorServidorEtiqueta(colorServidor) + '</button>' +
+      '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;">' +
+        '<button onclick="pedirTipoCulto(\'' + repertorioFechaActiva + '\')" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;">Editar culto</button>' +
+      '</div>' +
     '</div>';
 
   if (setlistDOM.length === 0) {
@@ -6350,14 +6966,20 @@ function renderCalendarioRepertorio(animar) {
 // qué día/mes se tocó cada una. Al tocar un resultado, salta directo a
 // ese día en el calendario.
 function buscarEnHistorialRepertorio() {
-  var input = document.getElementById('buscadorHistorialRepertorio');
-  var cont = document.getElementById('resultadosHistorialRepertorio');
+  var inputServicio = document.getElementById('buscadorHistorialRepertorio');
+  var inputCalendario = document.getElementById('buscadorHistorialRepertorioCalendario');
+  var contServicio = document.getElementById('resultadosHistorialRepertorio');
+  var contCalendario = document.getElementById('resultadosHistorialRepertorioCalendario');
+  var input = (document.activeElement === inputCalendario && inputCalendario) ? inputCalendario : inputServicio;
+  var cont = (input === inputCalendario && contCalendario) ? contCalendario : contServicio;
   if (!input || !cont) return;
   var q = normSearchText(input.value.trim());
 
   if (!q) {
     cont.style.display = 'none';
     cont.innerHTML = '';
+    if (contServicio && contServicio !== cont) { contServicio.style.display = 'none'; contServicio.innerHTML = ''; }
+    if (contCalendario && contCalendario !== cont) { contCalendario.style.display = 'none'; contCalendario.innerHTML = ''; }
     return;
   }
 
@@ -6378,6 +7000,8 @@ function buscarEnHistorialRepertorio() {
   if (resultados.length === 0) {
     cont.style.display = 'block';
     cont.innerHTML = '<div style="padding:14px;text-align:center;color:var(--text2);font-size:0.82rem;">Sin coincidencias en el historial.</div>';
+    if (contServicio && contServicio !== cont) { contServicio.style.display = 'none'; contServicio.innerHTML = ''; }
+    if (contCalendario && contCalendario !== cont) { contCalendario.style.display = 'none'; contCalendario.innerHTML = ''; }
     return;
   }
 
@@ -6389,7 +7013,7 @@ function buscarEnHistorialRepertorio() {
     var esJubilo = r.item.fuente === 'jubilo';
     var etiquetaFuente = esCadena ? '🔗 Cadena Júbilo' : (esJubilo ? '💃🏻 Júbilo' : '🎵 Adoración' + (r.item.tono ? ' · ' + escH(r.item.tono) : ''));
     html +=
-      '<button onclick="cambiarDiaRepertorio(\'' + r.fecha + '\');document.getElementById(\'buscadorHistorialRepertorio\').value=\'\';buscarEnHistorialRepertorio();" ' +
+      '<button onclick="cambiarDiaRepertorio(\'' + r.fecha + '\');document.getElementById(\'buscadorHistorialRepertorio\').value=\'\';var bCal=document.getElementById(\'buscadorHistorialRepertorioCalendario\');if(bCal) bCal.value=\'\';buscarEnHistorialRepertorio();" ' +
         'style="width:100%;text-align:left;background:transparent;border:none;' + (idx > 0 ? 'border-top:1px solid var(--border);' : '') + 'padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:2px;color:var(--text);" ' +
         'onmouseover="this.style.background=\'' + hoverBg + '\'" onmouseout="this.style.background=\'transparent\'">' +
         '<span style="font-weight:700;font-size:0.85rem;">' + escH(r.item.title) + '</span>' +
@@ -6402,6 +7026,8 @@ function buscarEnHistorialRepertorio() {
 
   cont.style.display = 'block';
   cont.innerHTML = html;
+  if (contServicio && contServicio !== cont) { contServicio.style.display = 'none'; contServicio.innerHTML = ''; }
+  if (contCalendario && contCalendario !== cont) { contCalendario.style.display = 'none'; contCalendario.innerHTML = ''; }
 }
 
 
@@ -7804,7 +8430,13 @@ async function generarRecomendacionCierre() {
 
     if (!texto) throw new Error('Respuesta vacía');
 
-    resultado.textContent = texto;
+    window.ultimasSugerenciasCierre = extraerSugerenciasCierre(texto);
+    var botonGuardar = window.ultimasSugerenciasCierre.length
+      ? '<div style="margin-top:12px;text-align:center;">' +
+          '<button onclick="guardarSugerenciasIAEnCierre()" style="background:var(--gold);color:#000;border:none;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:0.8rem;">Guardar en Cierre</button>' +
+        '</div>'
+      : '';
+    resultado.innerHTML = '<div style="white-space:pre-wrap;">' + escH(texto) + '</div>' + botonGuardar;
     resultado.style.display = 'block';
     apiKeyWrap.style.display = 'none';
   } catch (err) {
