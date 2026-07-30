@@ -18,12 +18,13 @@ var SONGS_JUBILO =
     "content": "[VERSO 1]:\n               Em                                      D                  Am               B       Em\nX2   Cantaré al Señor por siempre, su diestra es todo poder.   X2\n[CORO]:\n           Em            D                                Em                                D                             Em\nX2   Echó a la mar, quien los perseguía, jinete y caballo, echó a la mar.   X2\n        Em            D              Am                 B\nEchó a la mar los carros del faraón. ¡Hey, Hey!"
   },
   {
-    "id": 302,
+    "num": null,
     "title": "¿QUIÉN COMO JEHOVÁ?",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 15  |  EBENEZER\nMIX 15  |  EBENEZER\nTROMPETAS\nOirán las naciones lo que hizo, cantaran cuando vean sus prodigios,\nSu pueblo le alabara, con pandero danzara, y dirán quién, quién como Jehová.\nX2    Y dirán quién, quién como Jehová.   X2\nTROMPETAS\n[VERSO 1]:\n                Em                                                  G                            Am     B                     Em\nX4    ¿Quién, quién, quién como Jehová?, que con su poder el mar abrió.   X4\n[CORO]:\n   Am                  B                        Em        Am                            D               G-Em\nOirán las naciones lo que hizo Cantaran cuando vean sus prodigios,\n                       B                                               C                                   D        B                                      Em\nX2     Su pueblo le alabara, con pandero danzara, y dirán quién, quién como Jehová.  X2\nTROMPETAS                           —           VERSO 1   X2    |      CORO   X2\nX2   Y dirán quién, quién como Jehová.  X2"
+    "content": "[VERSO 1]:\n           Em                                         G\nX4    ¿Quién, quién, quién como Jehová?, \n             Am   B                 Em\nQue con su poder el mar abrió.   X4\n[CORO]:\n Am             B                   Em  \nOirán las naciones lo que hizo \n    Am                     D            G-Em\nCantaran cuando vean sus prodigios,\n                  B                                  C \nX2     Su pueblo le alabara, con pandero danzara, \n      D       B                           Em\nY dirán quién, quién como Jehová.  X2\nTROMPETAS                                      \n[VERSO 1]:   X2      |      [CORO]:   X2\n             D       B                            Em\nX2   Y dirán quién, quién como Jehová.  X2",
+    "id": 302
   },
   {
     "num": null,
@@ -62,12 +63,13 @@ var SONGS_JUBILO =
     "id": 306
   },
   {
-    "id": 307,
+    "num": null,
     "title": "JERUSALÉN",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n               Em         C                            B                                                     Em\nX2    Jerusalén      que bonita eres, calles de oro mar de cristal.  X2\n[CORO]:\n                                 Am                        Em                             B                       Em\nX4    Por esas calles yo voy a caminar calles de oro mar de cristal.    X4         SE REPITE TODO"
+    "content": "[VERSO 1]:\n            Em        C                     B    \nX2    Jerusalén      que bonita eres, \n                                    Em\nCalles de oro mar de cristal.  X2\n[CORO]:\n                         Am                    Em                             \nX4    Por esas calles yo voy a caminar \n                 B                Em\nCalles de oro mar de cristal.    X4         \n\n\n\n\nSE REPITE TODO",
+    "id": 307
   },
   {
     "num": null,
@@ -572,12 +574,13 @@ var SONGS_JUBILO =
     "content": "MIX 1  |  EBENEZER\nMIX 1  |  EBENEZER\n                                               Gm                               F                Gm\nX2    A que huele un guerrero… cuando viene de batalla,\n                          Gm                                                                                                        Gm\n(Huele a victoria, Huele a victoria)    X2    Porque Jehová está con él…\nTROMPETAS    | Gm | F | Gm | F |\n[VERSO 1]:\n                 Gm                                      F                          Gm\n X2     Somos como escudos, tres son los valientes,\n                                               F               Gm [D]\nY con su espíritu venceremos siempre.    X2\n                          Gm                                                    F                Gm [D]\n X4     A que huele un guerrero, cuando viene de la batalla.     X4\n                                                   Gm – F                     Eb [D]\n X2      CORO    Huele a victoria, huele a victoria       X2\n[VERSO 2]:\n          Cm                      Dm    Eb                      F [D]\n X2     Si con Dios peleas esto sabe a gloria…                        X2      Pausa pequeñita…\n                                                           Gm – F                         Eb\n X2      CORO    Esto sabe a gloria, esto sabe a gloria…     X2\n                                                  Gm – F                     Eb [D]\n X2      CORO    Huele a victoria, huele a victoria…              X2\nTROMPETAS"
   },
   {
-    "id": 368,
+    "num": null,
     "title": "JEHOVÁ GIBBOR",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Gm",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS    | Gm | F | Eb | Cm | D\n[VERSO 1]:\nX2   A la presencia de Jehová...                   X2   | Gm | F | Eb | Cm | D |\n[PRE-CORO]:\nX2  ¿Qué tuviste, oh mar que huiste?      X2   | D | Eb | Cm | D |\n[VERSO 1]:\nX2   A la presencia de Jehová...   X2\n[PRE-CORO]:\nX2  Él convirtió la peña...                X2\n[CORO]:\nD                       Eb                   Cm                       D\nX2   Y ahora salta, ahora salta, ahora salta, Para tu Dios…   X2   Danza  |  Gira  |  Grita  |  Corre"
+    "content": "TROMPETAS    | Gm | F | Eb | Cm | D\n[VERSO 1]:\nX2     A la presencia de Jehová...      X2   \n| Gm | F | Eb | Cm | D |\n[PRE-CORO]:\nX2  ¿Qué tuviste, oh mar que huiste?      X2   \n| D | Eb | Cm | D |\n[VERSO 1]:\nX2   A la presencia de Jehová...   X2\n[PRE-CORO]:\nX2  Él convirtió la peña...                X2\n[CORO]:\n                       D                Eb             Cm  \nX2   Y ahora salta, ahora salta, ahora salta, \n               D\nPara tu Dios…   X2   \n\nDanza  |  Gira  |  Grita  |  Corre",
+    "id": 368
   },
   {
     "id": 369,
@@ -804,12 +807,13 @@ var SONGS_JUBILO =
     "content": "[CORO]:\n1\n                    Em                 Am                                                 D                    G\nX3   Hay fiesta, fiesta, en el pueblo santo, hay fiesta, fiesta, en los desposados,\n            Em                               Am                                  B                                                             Em\nLos niños danzan, los jóvenes y viejos declaramos: que en este lugar hay fiesta.    X3\n[VERSO 1]:\n                                 Em                                                      D\nX2    Quiero alabarle, quiero gozarme, con alegría quiero danzarle,\n                            C                           Am                     Em                                             B\nMi Dios es bueno, todo el tiempo, quiero saltar, dar vueltas sin parar, quiero alabarle.    X2\n[CORO]:\n2\n           Em                                                                     D\nX2    Vivo en victoria cada día (Quiero alabarle), lleno mi vida de alegría,\n                   C                                                 Am                                           B                                                              Em\nQuiero alabar con acciones de gracias, con danza, con júbilo y gozo a mi rey, quiero alabarle.   X2\n[VERSO 2]:\n                  Em              G                  Am                                            B\nX2   A poseer, a poseer, a poseer la tierra que Él nos dio.    X2\n                  Am                   D                         G                  Em           Am                   D                           G                   Em\nX2   La victoria es nuestra en el nombre de Jesús, tomaremos naciones, en el nombre de Jesús,\n                                                          B\nNingún gigante nos podrá frenar.  X2                      —                VERSO 2"
   },
   {
-    "id": 396,
+    "num": null,
     "title": "ENTONCES LA IGLESIA",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS     | Em | Am-B | Em |\n[VERSO 1]:\n                 Em                                                                                          Am             B                      Em\nX2    Entonces la iglesia se alegrará en la danza, los jóvenes y ancianos juntamente. X2\n[CORO]:\n            Am-D                      G     Em      B                            Em\nX2   Cambiaré su lloro en gozo y los alegraré en él,\n          Am-D                 G   Em                  B                                                   Em\nCambiaré su lloro en gozo, me alegraré, me alegraré en el Señor.   X2\nTROMPETAS"
+    "content": "TROMPETAS     | Em | Am-B | Em |\n[VERSO 1]:\n             Em      \nX2    Entonces la iglesia se alegrará en la danza, \n         Am             B             Em\nLos jóvenes y ancianos juntamente. X2\n[CORO]:\n         Am-D                      G-Em    B                   Em\nX2   Cambiaré su lloro en gozo y los alegraré en él,\n  Am-D                     G-Em            B\nCambiaré su lloro en gozo, me alegraré, \n                               Em\nMe alegraré en el Señor.   X2\n\n\n\nTROMPETAS\n\n\n\nSE REPITE TODO",
+    "id": 396
   },
   {
     "id": 397,

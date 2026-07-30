@@ -285,7 +285,7 @@ body{background:#0f0f29;color:var(--text);font-family:'Inter',Arial,sans-serif;m
    2) touch-action:manipulation en botones evita el gesto de "doble toque
       para hacer zoom" que el usuario percibe al tocar botones rápido. */
 @media (max-width: 768px) {
-  input, select, textarea { font-size: 13px !important; }
+  input, select, textarea { font-size: 16px !important; }
 }
 button, .action-btn, .key-btn, .font-btn, .header-menu-toggle, .header-menu-item,
 .menu-card, .menu-secondary-btn, .back-btn {
@@ -6693,7 +6693,7 @@ function extraerSugerenciasCierre(texto) {
     titulo = titulo.replace(/[:]+$/, '').trim();
     if (!titulo) continue;
     sugerencias.push({ titulo: titulo, texto: contenido });
-    if (sugerencias.length >= 3) break;
+    if (sugerencias.length >= 5) break;
   }
   return sugerencias;
 }
@@ -8313,6 +8313,26 @@ function esClaveGeminiValida(valor) {
   return v.length >= 20 && v.length <= 200 && /^[A-Za-z0-9._-]+$/.test(v);
 }
 
+// Revisa el repertorio de los últimos N días (todas las fechas guardadas en
+// `repertorios`) y devuelve un set con los IDs de canciones ya cantadas, para
+// que la IA evite repetirlas si hay alternativas razonables.
+function obtenerIdsCancionesRecientes(dias) {
+  var limite = dias || 21;
+  var hoy = fechaLocalDesdeISO(hoyISO());
+  var usados = {};
+  Object.keys(repertorios || {}).forEach(function(fecha) {
+    var d = fechaLocalDesdeISO(fecha);
+    var diffDias = Math.round((hoy - d) / 86400000);
+    if (diffDias < 0 || diffDias > limite) return; // solo pasado reciente
+    var lista = repertorios[fecha];
+    if (!Array.isArray(lista)) return;
+    lista.forEach(function(item) {
+      if (item && item.id !== undefined) usados[String(item.id)] = true;
+    });
+  });
+  return usados;
+}
+
 // Arma un texto compacto "Título — etiqueta1, etiqueta2" con TODO el repertorio
 // disponible, para que la IA elija en base a las mismas etiquetas que ya usás.
 // Saca los acordes (líneas cortas con letras tipo "C  G  Am", típicas arriba
@@ -8324,10 +8344,9 @@ function extraerFragmentoLetra(content, maxChars) {
   var soloLetra = lineas.filter(function(linea) {
     var limpia = linea.trim();
     if (!limpia) return false;
-    // Una línea de acordes son solo notas/símbolos cortos separados por espacios
-    // (ej: "C  G  Am7  F"), sin palabras largas de letra real.
-    var pareceAcordes = /^[A-G0-9#bmsuspadimoj\/\s.\-]+$/.test(limpia) && limpia.length < 40;
-    return !pareceAcordes;
+    if (isChordLine(limpia)) return false;           // acordes (usa la misma lógica probada del resto de la app)
+    if (esLineaSeccionCantante(limpia)) return false; // etiquetas tipo "VERSO", "CORO", "[INTRO]"
+    return true;
   });
   var texto = soloLetra.join(' ').replace(/\s+/g, ' ').trim();
   return texto.length > maxChars ? texto.slice(0, maxChars) + '…' : texto;
@@ -8335,6 +8354,7 @@ function extraerFragmentoLetra(content, maxChars) {
 
 function construirListaRepertorioParaIA() {
   if (typeof SONGS === 'undefined' || !Array.isArray(SONGS)) return '';
+  var recientes = obtenerIdsCancionesRecientes(21);
   var lineas = [];
   for (var i = 0; i < SONGS.length; i++) {
     var s = SONGS[i];
@@ -8346,7 +8366,8 @@ function construirListaRepertorioParaIA() {
     var fragmento = extraerFragmentoLetra(s.content, 400);
     var linea = s.title +
       (textosEtiquetas.length ? ' — etiquetas: ' + textosEtiquetas.join(', ') : ' — sin etiquetas') +
-      (fragmento ? ' — letra: "' + fragmento + '"' : '');
+      (fragmento ? ' — letra: "' + fragmento + '"' : '') +
+      (recientes[String(s.id)] ? ' — (usada en las últimas 3 semanas)' : '');
     lineas.push(linea);
   }
   return lineas.join('\n');
@@ -8372,7 +8393,7 @@ async function generarRecomendacionCierre() {
   if (!apiKey && apiKeyInput && apiKeyInput.value.trim()) {
     var valorPegado = apiKeyInput.value.trim();
     if (!esClaveGeminiValida(valorPegado)) {
-      estado.textContent = '⚠️ Eso no parece una clave de Gemini válida. Debe empezar con "AIza" y no tener espacios. Verificá qué pegaste.';
+      estado.textContent = '⚠️ Eso no parece una clave de Gemini válida. Verificá que copiaste la clave completa, sin espacios ni saltos de línea.';
       return;
     }
     apiKey = valorPegado;
@@ -8402,9 +8423,11 @@ async function generarRecomendacionCierre() {
   resultado.style.display = 'none';
 
   var prompt = 'Eres un asistente de un ministerio de alabanza cristiano evangélico (Ministerio YHWH). ' +
-    'Te doy una lista de canciones disponibles (con sus etiquetas temáticas y un fragmento de la letra de cada una, cuando esté disponible) y el tema o llamado del culto de hoy. ' +
-    'Tu tarea: recomendar EXACTAMENTE 3 canciones de la lista dada para cerrar el culto (momento de invitación al altar / respuesta), ' +
-    'ordenadas de mejor a peor opción, numeradas 1, 2 y 3 (no inventes canciones que no estén en la lista). ' +
+    'Te doy una lista de canciones disponibles (con sus etiquetas temáticas, un fragmento de la letra de cada una cuando esté disponible, ' +
+    'y una marca "(usada en las últimas 3 semanas)" en las que ya se cantaron hace poco) y el tema o llamado del culto de hoy. ' +
+    'Tu tarea: recomendar EXACTAMENTE 5 canciones de la lista dada para cerrar el culto (momento de invitación al altar / respuesta), ' +
+    'ordenadas de mejor a peor opción, numeradas del 1 al 5 (no inventes canciones que no estén en la lista). ' +
+    'Preferí canciones que NO estén marcadas como usadas recientemente; solo incluí una marcada como reciente si de verdad no hay 5 opciones mejores que encajen con el tema. ' +
     'Para cada una escribe: el título tal cual aparece en la lista, seguido de un motivo de UNA sola línea (máximo 20 palabras) de por qué encaja con el tema. ' +
     'IMPORTANTE: ve directo al grano. NO escribas saludo, introducción, comentarios sobre lo lindo/profundo/interesante del tema, ni cierre o despedida al final. Empieza directo con "1. ". ' +
     'Responde en español, tono cálido y pastoral pero breve, sin encabezados markdown, texto plano.\n\n' +
@@ -8416,7 +8439,10 @@ async function generarRecomendacionCierre() {
     var response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { thinkingConfig: { thinkingLevel: 'low' } }
+      })
     });
     var data = await response.json();
 
@@ -8428,12 +8454,22 @@ async function generarRecomendacionCierre() {
       data.candidates[0].content.parts && data.candidates[0].content.parts[0] &&
       data.candidates[0].content.parts[0].text) || '';
 
-    if (!texto) throw new Error('Respuesta vacía');
+    if (!texto) {
+      var razon = (data.promptFeedback && data.promptFeedback.blockReason) ||
+        (data.candidates && data.candidates[0] && data.candidates[0].finishReason) || '';
+      var mensajes = {
+        SAFETY: 'La IA bloqueó la respuesta por sus filtros de contenido. Probá reformular el tema.',
+        MAX_TOKENS: 'La respuesta se cortó por longitud. Probá de nuevo.',
+        RECITATION: 'La IA bloqueó la respuesta por posible contenido protegido. Probá de nuevo.'
+      };
+      throw new Error(mensajes[razon] || 'Respuesta vacía. Probá de nuevo en un momento.');
+    }
 
     window.ultimasSugerenciasCierre = extraerSugerenciasCierre(texto);
     var botonGuardar = window.ultimasSugerenciasCierre.length
-      ? '<div style="margin-top:12px;text-align:center;">' +
+      ? '<div style="margin-top:12px;text-align:center;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">' +
           '<button onclick="guardarSugerenciasIAEnCierre()" style="background:var(--gold);color:#000;border:none;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:0.8rem;">Guardar en Cierre</button>' +
+          '<button onclick="generarRecomendacionCierre()" style="background:transparent;color:#af7ac5;border:1px solid #af7ac5;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:0.8rem;">🔄 Regenerar</button>' +
         '</div>'
       : '';
     resultado.innerHTML = '<div style="white-space:pre-wrap;">' + escH(texto) + '</div>' + botonGuardar;
@@ -12859,7 +12895,7 @@ function aplicarAjusteJubilo() {
     <div style="text-align:center;margin-bottom:16px;">
       <div style="font-size:2rem;margin-bottom:6px;">🎯</div>
       <div style="color:#c9a84c;font-weight:bold;font-size:1.05rem;">¿Cuál canción cierra el culto?</div>
-      <div style="color:#8888aa;font-size:0.78rem;margin-top:4px;">Contame el tema o el llamado de hoy y te sugiero 3 opciones de tu repertorio, ordenadas.</div>
+      <div style="color:#8888aa;font-size:0.78rem;margin-top:4px;">Contame el tema o el llamado de hoy y te sugiero 5 opciones de tu repertorio, ordenadas (evitando lo que ya cantaste hace poco).</div>
     </div>
 
     <div id="recomendadorApiKeyWrap" style="display:none;margin-bottom:14px;">
