@@ -3730,23 +3730,10 @@ document.addEventListener('DOMContentLoaded', function(){
     <option value="Bm">Bm</option>
   </select>
 
-  <select id="filtroEtiqueta" onchange="filterSongs()"
-  style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-         padding:7px 10px;color:var(--text);font-size:0.82rem;outline:none;
-         width:100%;margin-top:4px;
-         -webkit-appearance:none;appearance:none;">
-  <option value="">🏷️ Todas las etiquetas</option>
-  <option value="alabanza">Alabanza</option>
-  <option value="adoracion">Adoración</option>
-  <option value="arrepentimiento">Arrepentimiento</option>
-  <option value="comunion">Comunión</option>
-  <option value="ofertorio">Fe</option>
-  <option value="cruz">Cruz</option>
-  <option value="jubilo">Amor</option>
-  <option value="navidad">Presencia</option>
-  <option value="espiritu">Espíritu Santo</option>
-  <option value="sanidad">Sanidad</option>
-</select>
+  <div style="margin-top:4px;">
+    <div style="color:#8888aa;font-size:0.72rem;margin-bottom:4px;">🏷️ Etiquetas (podés elegir varias)</div>
+    <div id="filtroEtiquetaChips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+  </div>
 
   <select id="filtroDificultad" onchange="filterSongs()"
   style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
@@ -5505,8 +5492,9 @@ function filterSongs(){
     var coincideTexto = !q || textoBusqueda.indexOf(q) !== -1 || (q.length > 2 && contenido.indexOf(q) !== -1);
     var tonoOriginal = s.tono ? s.tono.split(/[\s|,]/)[0].trim() : '';
     var coincideTono = tonoFiltro === '' || tonoOriginal === tonoFiltro;
-    var etiquetaFiltro = document.getElementById('filtroEtiqueta') ? document.getElementById('filtroEtiqueta').value : '';
-    var coincideEtiqueta = etiquetaFiltro === '' || getEtiquetasCancion(s.id).indexOf(etiquetaFiltro) !== -1;
+    var etiquetasActivas = window.filtrosEtiquetasActivas || [];
+    var etiquetasCancion = getEtiquetasCancion(s.id);
+    var coincideEtiqueta = etiquetasActivas.length === 0 || etiquetasActivas.some(function(a) { return etiquetasCancion.indexOf(a) !== -1; });
     var dificultad = getDificultadCancion(s.id) || '';
     var coincideDificultad = dificultadFiltro === '' || dificultad === dificultadFiltro;
     var coincideFav = !soloFavoritos || esFavorito(s.id);
@@ -5527,10 +5515,10 @@ function actualizarResumenFiltros(total) {
   if (count) {
     var extra = [];
     var tono = document.getElementById('filtroTono');
-    var etq = document.getElementById('filtroEtiqueta');
     var dif = document.getElementById('filtroDificultad');
     if (tono && tono.value) extra.push('tono ' + tono.value);
-    if (etq && etq.value) extra.push('etiqueta');
+    var etiquetasActivas = window.filtrosEtiquetasActivas || [];
+    if (etiquetasActivas.length) extra.push('etiquetas (' + etiquetasActivas.length + ')');
     if (dif && dif.value) extra.push('dificultad ' + dif.value);
     if (window.modoFav) extra.push('favoritos');
     count.textContent = total + ' canciones' + (extra.length ? ' · ' + extra.join(', ') : '');
@@ -5674,17 +5662,18 @@ function seleccionarCancionDesdeCompositor(id) {
 function limpiarFiltrosBusqueda() {
   var searchInput = document.getElementById('searchInput');
   var tono = document.getElementById('filtroTono');
-  var etiqueta = document.getElementById('filtroEtiqueta');
   var dificultad = document.getElementById('filtroDificultad');
   if (searchInput) searchInput.value = '';
   if (tono) tono.value = '';
-  if (etiqueta) etiqueta.value = '';
   if (dificultad) dificultad.value = '';
   if (window.modoFav) toggleModoFav();
+  window.filtrosEtiquetasActivas = [];
   localStorage.removeItem('yhwh_search_query');
   localStorage.removeItem('yhwh_filter_tono');
   localStorage.removeItem('yhwh_filter_etiqueta');
+  localStorage.removeItem('yhwh_filter_etiquetas');
   localStorage.removeItem('yhwh_filter_dificultad');
+  if (typeof renderFiltroEtiquetasChips === 'function') renderFiltroEtiquetasChips();
   filterSongs();
 }
 
@@ -5700,10 +5689,6 @@ document.getElementById('filtroTono').addEventListener('change', function() {
   localStorage.setItem('yhwh_filter_tono', this.value || '');
   filterSongs();
 });
-document.getElementById('filtroEtiqueta').addEventListener('change', function() {
-  localStorage.setItem('yhwh_filter_etiqueta', this.value || '');
-  filterSongs();
-});
 document.getElementById('filtroDificultad').addEventListener('change', function() {
   localStorage.setItem('yhwh_filter_dificultad', this.value || '');
   filterSongs();
@@ -5715,12 +5700,16 @@ aplicarAjusteLatino();
 (function restaurarFiltrosBusqueda() {
   var searchInput = document.getElementById('searchInput');
   var tono = document.getElementById('filtroTono');
-  var etiqueta = document.getElementById('filtroEtiqueta');
   var dificultad = document.getElementById('filtroDificultad');
   if (searchInput) searchInput.value = localStorage.getItem('yhwh_search_query') || '';
   if (tono) tono.value = localStorage.getItem('yhwh_filter_tono') || '';
-  if (etiqueta) etiqueta.value = localStorage.getItem('yhwh_filter_etiqueta') || '';
   if (dificultad) dificultad.value = localStorage.getItem('yhwh_filter_dificultad') || '';
+  try {
+    window.filtrosEtiquetasActivas = JSON.parse(localStorage.getItem('yhwh_filter_etiquetas') || '[]') || [];
+  } catch (e) {
+    window.filtrosEtiquetasActivas = [];
+  }
+  if (!Array.isArray(window.filtrosEtiquetasActivas)) window.filtrosEtiquetasActivas = [];
 })();
 
 
@@ -8252,6 +8241,41 @@ function getEtiquetasCancion(id) {
   }
   return remapEtiquetasIds(JSON.parse(localStorage.getItem('yhwh_etiq_' + id) || '[]'));
 }
+
+// Filtro por etiquetas de la lista de Adoración: multi-selección por chips.
+// Antes era un <select> de una sola opción con solo 10 de las 17 etiquetas
+// disponibles (y 3 de esas 10 con ids viejos que ya no existían, por lo que
+// nunca filtraban nada). Ahora se genera siempre desde ETIQUETAS_DISPONIBLES,
+// así no puede quedar desincronizado, y se pueden marcar varias a la vez
+// (coincide una canción si tiene AL MENOS UNA de las etiquetas activas).
+window.filtrosEtiquetasActivas = window.filtrosEtiquetasActivas || [];
+
+function toggleFiltroEtiquetaChip(id) {
+  var activas = window.filtrosEtiquetasActivas || [];
+  var idx = activas.indexOf(id);
+  if (idx === -1) activas.push(id); else activas.splice(idx, 1);
+  window.filtrosEtiquetasActivas = activas;
+  localStorage.setItem('yhwh_filter_etiquetas', JSON.stringify(activas));
+  renderFiltroEtiquetasChips();
+  filterSongs();
+}
+
+function renderFiltroEtiquetasChips() {
+  var cont = document.getElementById('filtroEtiquetaChips');
+  if (!cont) return;
+  var activas = window.filtrosEtiquetasActivas || [];
+  cont.innerHTML = ETIQUETAS_DISPONIBLES.map(function(e) {
+    var activo = activas.indexOf(e.id) !== -1;
+    var bg = activo ? e.color : 'transparent';
+    var border = e.color;
+    var color = activo ? '#fff' : e.color;
+    return '<button type="button" onclick="toggleFiltroEtiquetaChip(\'' + e.id + '\')" ' +
+      'style="background:' + bg + ';border:1.5px solid ' + border + ';color:' + color + ';' +
+      'border-radius:999px;padding:5px 12px;font-size:0.76rem;font-weight:700;cursor:pointer;">' +
+      e.texto + '</button>';
+  }).join('');
+}
+if (typeof renderFiltroEtiquetasChips === 'function') renderFiltroEtiquetasChips();
 
 function getDificultadCancion(id) {
   var sid = String(id);
