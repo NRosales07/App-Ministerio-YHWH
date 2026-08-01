@@ -203,15 +203,22 @@ onValue(ref(db, 'jubilo'), function(snapshot) {
 
 
 onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
-  var data = snapshot.val();
-  if (data) {
-    Object.keys(data).forEach(function(id) {
-      localStorage.setItem('yhwh_jubilo_edit_' + id, data[id]);
-    });
-    // ← ESTAS DOS LÍNEAS SON LAS QUE FALTABAN:
-    if (window.rerenderJubiloActive) window.rerenderJubiloActive();
-    if (window.aplicarFuenteJubilo) window.aplicarFuenteJubilo();
+  var data = snapshot.val() || {};
+  Object.keys(data).forEach(function(id) {
+    localStorage.setItem('yhwh_jubilo_edit_' + id, data[id]);
+  });
+  // Reconciliar: si una edición ya no está en Firebase (se borró o se
+  // restauró al original desde otro dispositivo), también hay que
+  // quitarla del cache local; si no, se queda pegada para siempre aquí.
+  for (var i = localStorage.length - 1; i >= 0; i--) {
+    var k = localStorage.key(i);
+    if (k && k.indexOf('yhwh_jubilo_edit_') === 0) {
+      var id = k.slice('yhwh_jubilo_edit_'.length);
+      if (!(id in data)) localStorage.removeItem(k);
+    }
   }
+  if (window.rerenderJubiloActive) window.rerenderJubiloActive();
+  if (window.aplicarFuenteJubilo) window.aplicarFuenteJubilo();
 });
 
   onValue(ref(db, 'notas_director'), function(snapshot) {
