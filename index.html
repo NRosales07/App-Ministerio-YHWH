@@ -9550,7 +9550,13 @@ getJubiloContent(song).split('\n').forEach(function(raw){    var s = raw.trim();
       return;
     }
     if (isChordLine(raw)) {
-      if (st.hideChords) return;
+      if (st.hideChords) {
+        var cueMatchJubilo = raw.match(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/i);
+        if (cueMatchJubilo) {
+          out += '<span class="ll"><span class="word-red">' + escH(cueMatchJubilo[1]) + '</span></span>';
+        }
+        return;
+      }
       var line = st.semitones === 0 ? raw : transposeChordLine(raw, st.semitones);
       if (st.latino) line = lineToLatino(line);
       line = escH(line).replace(/\b(X[0-9]+)\b/g, '<span class="word-repeticion">$1</span>');

@@ -29,19 +29,19 @@ var SONGS_JUBILO =
   {
     "num": null,
     "title": "EN EL PRINCIPIO",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS\n[VERSO 1]:\n                      Em                             B                                                \nX2     En el principio el Espíritu de Dios, \n                                  Em\nSe movía sobre las aguas.     X2\n\n[CORO]:\n                  Am-D              G-Em\nX2     Pero ahora se está moviendo \n             B          Em\nDentro de mi corazón.    X2\n\n\n\nTROMPETAS\n[CORO]:  X4\n",
+    "content": "[VERSO 1]:    |    JOSELINE CANTA LENTO:\n\n                      Em                             B                                                \nX2     En el principio el Espíritu de Dios, \n                                  Em\nSe movía sobre las aguas.     X2\n\n\n[CORO]:   |    NAIN CANTA LENTO\n                  Am-D              G-Em\nX2     Pero ahora se está moviendo \n             B          Em\nDentro de mi corazón.    X2\n\n\n\n\n\n\nENTRA LA BATERIA... Y SE CANTA DE NUEVO:\n[VERSO 1]:  X2         |       [CORO]:  X2\n\n\nSe movía (Se movía),  Se movía (Se movía) Se movía...\n\n\n\n\nTROMPETAS     |   SE CANTA RÁPIDO:\n[VERSO 1]: X2       |      [CORO]:  X4\n\n\n\nTROMPETAS \n [CORO]:  X4\n",
     "id": 303
   },
   {
     "num": null,
     "title": "VEN ESPÍRITU DIVINO",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nEm                                            B \nX2    Ven, ven, ven, Espíritu Divino, \n                                             Em\nVen, ven, ven, Apodérate de mí.   X2\n[CORO]:\n            Am-D         G-Em   \nX4    Apodérate, apodérate, \n        B                        Em\nApodérate de todo mi ser.   X4",
+    "content": "[VERSO 1]:\nEm                                            B \nX2    Ven, ven, ven, Espíritu Divino, \n                                             Em\nVen, ven, ven, Apodérate de mí.   X2\n[CORO]:\n            Am-D         G-Em   \nX4    Apodérate, apodérate, \n        B                        Em\nApodérate de todo mi ser.   X4\n\n\n\n\n\nSE REPITE TODO",
     "id": 304
   },
   {
@@ -225,7 +225,7 @@ var SONGS_JUBILO =
     "compositor": "Ebenezer",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS | Em | B | Em-E | Am | Em-B-Em |\n[VERSO 1]:\n                 Em           \nX2    Pon aceite en mi lámpara Señor, \n                                             B\nPon aceite en mi lámpara Señor\n                E                          Am\nQue yo quiero servirte con amor, \n          Em                  B       Em         \nPon aceite en mi lámpara Señor.   X2\n[CORO]:\n              B                     Em\nSeñor Jesús tu eres mi vida, \n              B                      Em\nSeñor Jesús tu eres mi amor,\n    Am                     Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón,\n    Am                    Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón.       \n\n",
+    "content": "TROMPETAS | Em | B | Em-E | Am | Em-B-Em |\n[VERSO 1]:\n                 Em           \nX2    Pon aceite en mi lámpara Señor, \n                                             B\nPon aceite en mi lámpara Señor\n                E                          Am\nQue yo quiero servirte con amor, \n          Em                  B       Em         \nPon aceite en mi lámpara Señor.   X2\n[CORO]:\n              B                     Em\nSeñor Jesús tu eres mi vida, \n              B                      Em\nSeñor Jesús tu eres mi amor,\n    Am                     Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón,\n    Am                    Em\nSalvaste mi alma perdida, \n                    B                   Em\nPor eso te alabo con el corazón.   \n\n\n\n\n\n\n\n\n\nCANTAR SIGUIENTE ALABANZA   \n\n",
     "id": 325
   },
   {
@@ -579,7 +579,7 @@ var SONGS_JUBILO =
     "compositor": "Ebenezer",
     "tono": "Gm",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS    | Gm | F | Eb | Cm | D\n[VERSO 1]:\nX2     A la presencia de Jehová...      X2   \n| Gm | F | Eb | Cm | D |\n[PRE-CORO]:\nX2  ¿Qué tuviste, oh mar que huiste?      X2   \n| D | Eb | Cm | D |\n[VERSO 1]:\nX2   A la presencia de Jehová...   X2\n[PRE-CORO]:\nX2  Él convirtió la peña...                X2\n[CORO]:\n                       D                Eb             Cm  \nX2   Y ahora salta, ahora salta, ahora salta, \n               D\nPara tu Dios…   X2   \n\nDanza  |  Gira  |  Grita  |  Corre",
+    "content": "TROMPETAS    | Gm | F | Eb | Cm | D\n[VERSO 1]:\nX2     A la presencia de Jehová...      X2   \n| Gm | F | Eb | Cm | D |\n[PRE-CORO]:\nX2  ¿Qué tuviste, oh mar que huiste?      X2   \n| D | Eb | Cm | D |\n[VERSO 1]:\nX2   A la presencia de Jehová...   X2\n[PRE-CORO]:\nX2  Él convirtió la peña...                X2\n[CORO]:\n                       D                Eb             Cm  \nX2   Y ahora salta, ahora salta, ahora salta, \n               D\nPara tu Dios…   X2   \n\nDanza  |  Gira  |  Grita  |  Corre\n\n\n\n\n\nTROMPETAS\nFINAL",
     "id": 368
   },
   {
