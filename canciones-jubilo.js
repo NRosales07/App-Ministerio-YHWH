@@ -591,12 +591,13 @@ var SONGS_JUBILO =
     "content": "Gm                  Eb                         F                                        Gm\nX4   CORO    Abrió el mar, abrió el Jordán, y a sus enemigos destruyó…    X4    TROMPETAS\n                              Am                     F                           G                                    Am\nX4   CORO    Abrió el mar, abrió el Jordán, y a sus enemigos destruyó...    X4    TROMPETAS"
   },
   {
-    "id": 370,
+    "num": null,
     "title": "ME GOZARÉ",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Am",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 1  |  EBENEZER\nMIX 1  |  EBENEZER\nTROMPETAS  | Am | G | Dm | E7 |T\n[VERSO 1]:\nX2   Cuando el Señor hiciere volver la cautividad…    X2\n                        X2   Mi boca llenará de risa...   X2\n[CORO]:\nX2   Me gozaré, me gozaré, me gozaré...   X2\n[VERSO 2]:\nX2  Así como David cantaba...   X2\n                        X2   Yo cantaré, Yo danzaré...    X2\nTROMPETAS              |        CORO     X2"
+    "content": "TROMPETAS   | Am | G | Dm | E7 |\n[VERSO 1]:\nX2   Cuando el Señor hiciere volver la cautividad…    X2\nX2   Mi boca llenará de risa...   X2\n[CORO]:\nX2   Me gozaré, me gozaré, me gozaré...   X2\n\n\n\nSE REPITE TODO\n[VERSO 2]:\nX2  Así como David cantaba...   X2\nX2   Yo cantaré, Yo danzaré...    X2\n\n\n\nTROMPETAS              \n\n[CORO]:  X2",
+    "id": 370
   },
   {
     "num": null,
@@ -750,12 +751,13 @@ var SONGS_JUBILO =
     "content": "MIX 7  |  EBENEZER\nMIX 7  |  EBENEZER\n                                G                                                                          C         G\nHay un río que hoy fluye, de la puerta del oriente...\n                                                                C             D                             G                           C               D-G\n(Y todo aquel que en él se mueva, vivirá…) Para Siempre… (Es el Río del Señor…)\nTROMPETAS    | D | C | D | C | D | C |\n[VERSO 1]:\n                          C\nX2    Hay un río que hoy fluye, de la puerta del oriente X2\n                           D                     C                             D                       C\nEl que se mueva en ese río, el que se mueva en ese río,\n                            D                     C       D-C                   G\nEl que se mueva en ese río, vivirá para siempre.              —             SE REPITE\nTROMPETAS\n[VERSO 2]:\n                       C\nX2    Y está subiendo a los tobillos, es el río del Señor.   X2\n                              D                  C                   D               C\nA nuestros lomos ha subido, es el río del Señor,\n                                    D                          C                          D              C\nX3      Mira cómo ha crecido el río, que yo he sido sumergido.   X3\nTROMPETAS\n[VERSO 3]:\n                             C                   G                                       C\nX2    Y voy nadando, nadando, en el río del Señor.    X2\n                              D                C                     D              C\nA nuestros lomos ha subido, es el río del Señor,\n                                     D                        C                             D              C\nX3      Mira cómo ha crecido el río, que yo he sido sumergido.   X3"
   },
   {
-    "id": 389,
+    "num": null,
     "title": "TODA LA NOCHE SIN PARAR",
     "compositor": "Tradicional",
     "tono": "Am",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 17  |  EBENEZER\nMIX 17  |  EBENEZER\nTROMPETAS     | Am | G | F | E |\n[CORO]:\n            Am                                                   G\nX2     Toda la noche sin parar, cantando alabanzas al Señor,\n         F                                          Dm                          E\nDiciendo de su gloria y majestad Él es el Rey.   X2                    —         De Israel.\nTROMPETAS"
+    "content": "TROMPETAS     | Am | G | F | E |\n[CORO]:\n           Am\nX2     Toda la noche sin parar, \n       G\nCantando alabanzas al Señor,\n      F                                 Dm                           E\nDiciendo de su gloria y majestad que Él es el Rey.   X2\n       Am      E\nDe Israel.\n",
+    "id": 389
   },
   {
     "id": 390,
@@ -1003,12 +1005,13 @@ var SONGS_JUBILO =
     "content": "MIX 22  |  EBENEZER\nMIX 22  |  EBENEZER\nTROMPETAS    | Am | G-Am | E |   —    | F | Am | G | Dm |\n[VERSO 1]:\n           Am                                         C          Dm              G          Am              Bb\nReconocerán que Jesús es Dios, toda lengua lo confesará.\n          Am                            C                             Dm                    G                Am\nNo habrá duda ni argumento, esta sentado a la diestra del Señor.\n[VERSO 2]:\n           F           C      G                                        Am           F                         C      E                         Am\nSe levanta hoy,        el canto de los redimidos,       Jesús es Dios,       Mesías escogido.\n[CORO]:\n                          F                                                             Am         G                Dm\nX2     El preparará mesa delante de mis enemigos, yo cenaré y beberé.  X2\nTROMPETAS"
   },
   {
-    "id": 420,
+    "num": null,
     "title": "LA VOZ DE MI AMADO",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Am",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS    | Am | F | E |\n[VERSO 1]:\n                  Am                                                                                         Dm       Am                                   F        G     Am\nX2      La voz de mi amado se oye ya.    X2     |    X2      Ya viene saltando sobre los montes y collados.    X2\n[CORO]:\n            G                              Am             G                        Am         F             G      Am\nMi amado habló y me dijo, Levántate amada mía hermosa mía y ven.\n                         G                                     Am                           G                                  Am\nPorque he aquí ha pasado el invierno, se ha marchado la lluvia se fue.\n                      Dm                                       Am                   Dm                   Am                E\nSe han mostrado las flores del campo, y el tiempo de la canción, ya llegó.\nTROMPETAS"
+    "content": "TROMPETAS    | Am | F | E |\n[VERSO 1]:\n              Am \nX2      La voz de mi amado se oye ya.    X2     \n             Dm      Am                          F \nX2   Ya viene saltando sobre los montes \nG    Am\nY collados. X2\n[CORO]:\n        G                        Am         G                   Am     \nMi amado habló y me dijo, Levántate amada mía \n       F        G     Am\nHermosa mía y ven.\n                   G                             Am \nPorque he aquí ha pasado el invierno, \n                 G                         Am\nSe ha marchado la lluvia se fue.\n                Dm                              Am \nSe han mostrado las flores del campo, \n         Dm                Am             E                \nY el tiempo de la canción, ya llegó.\n\n\n\nTROMPETAS\n\n\n\nSE REPITE TODO",
+    "id": 420
   },
   {
     "num": null,
