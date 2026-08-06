@@ -72,7 +72,7 @@
 
   // Refresca texto y estilo (activado/desactivado) de todos los botones "Admin" de la app
   function actualizarBotonesAdmin() {
-    var ids = ['btnAdminLoginMenu', 'btnAdminLogin', 'btnAdminLoginJubilo', 'btnAdminLoginSetlist'];
+    var ids = ['btnAdminLoginMenuMore', 'btnAdminLogin', 'btnAdminLoginJubilo', 'btnAdminLoginSetlist'];
     ids.forEach(function(id) {
       var btn = document.getElementById(id);
       if (!btn) return;
@@ -1503,15 +1503,6 @@ table.teoria-tabla tr:hover td{ background:rgba(201,168,76,0.06); }
 #pianoModalContent{
   touch-action:none;
 }
-#pianoFallZone{
-  contain: layout paint;
-}
-.piano-fall-note{
-  background: rgba(127,119,221,0.32);
-  border: 1px solid rgba(127,119,221,0.22);
-  border-radius: 4px;
-  box-shadow: none;
-}
 .pk-key.pk-touching{
   transform: translateY(3px) scale(0.98) !important;
   filter: brightness(0.92);
@@ -1915,6 +1906,14 @@ body.light-theme .btn-guardar-cadena {
 #pianoModal.modal-pop-in > div { transform: scale(1); }
 @media (prefers-reduced-motion: reduce) {
   .modal-overlay, #pianoModal, .modal-card, #pianoModal > div { transition: none !important; }
+}
+
+/* Resalte punteado que "pulsa" en los mini-dibujos de la guía de Ayuda,
+   para señalar el botón u opción del que se está hablando. */
+@keyframes helpPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.help-pulse { animation: helpPulse 1.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .help-pulse { animation: none; opacity: 0.85; }
 }
 
 .back-btn {
@@ -4174,8 +4173,14 @@ document.addEventListener('DOMContentLoaded', function(){
       <button class="repertorio-footer-btn btn-exportar" onclick="abrirExportarSetlist()">
         🖼️ Compartir
       </button>
+      <button class="repertorio-footer-btn btn-copiar" onclick="copiarRepertorioAOtraFecha()">
+        📋 Copiar a...
+      </button>
       <button class="repertorio-footer-btn btn-vaciar" id="btnVaciarRepertorio" onclick="vaciarRepertorio()">
         🗑️ Vaciar
+      </button>
+      <button class="repertorio-footer-btn" id="btnDeshacerVaciarRepertorio" style="display:none;" onclick="deshacerVaciarRepertorio()">
+        ↩️ Deshacer
       </button>
       <button class="repertorio-footer-btn btn-sugerir" onclick="abrirRecomendador()">
         ✨ IA
@@ -6050,6 +6055,60 @@ function exportarRepertorio() {
   }
 }
 
+// Copia todas las alabanzas/cadenas del repertorio que se está viendo hacia
+// otra fecha. Si la fecha destino ya tiene contenido, pregunta si se
+// reemplaza todo o si se combina (sin duplicar lo que ya coincida).
+function copiarRepertorioAOtraFecha() {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  var origen = repertorioFechaActiva;
+  var itemsOrigen = getRepertorioFecha(origen).slice();
+  if (!itemsOrigen.length) { mostrarToast('⚠️ El repertorio de ' + getDiaLabel(origen) + ' está vacío.'); return; }
+
+  pedirFechaRepertorio(function(destino) {
+    destino = normalizarISO(destino);
+    if (destino === origen) { mostrarToast('⚠️ Elige una fecha distinta a la actual.'); return; }
+
+    var listaDestino = getRepertorioFecha(destino);
+
+    function copiar(reemplazar) {
+      if (reemplazar) listaDestino.length = 0;
+      var agregadas = 0;
+      itemsOrigen.forEach(function(item) {
+        var fuente = item.fuente || 'adoracion';
+        var yaExiste = listaDestino.some(function(x){ return String(x.id) === String(item.id) && (x.fuente || 'adoracion') === fuente; });
+        if (yaExiste) return;
+        listaDestino.push({
+          id: item.id,
+          title: item.title,
+          tono: item.tono,
+          fuente: fuente,
+          seccion: item.seccion || '',
+          minutos: item.minutos,
+          grupoId: item.grupoId || '',
+          cadenaId: item.cadenaId || ''
+        });
+        agregadas++;
+      });
+      repertorios[destino] = listaDestino;
+      guardarRepertorios();
+      if (destino === repertorioFechaActiva) { setlistDOM = getRepertorioFecha(destino); renderSetlist(); }
+      renderCalendarioRepertorio();
+      actualizarContadorRepertorio();
+      mostrarToast('✅ ' + agregadas + ' alabanza(s) copiada(s) a ' + getDiaLabel(destino) + '.');
+    }
+
+    if (listaDestino.length > 0) {
+      if (confirm('El ' + getDiaLabel(destino) + ' ya tiene ' + listaDestino.length + ' alabanza(s).\n\nAceptar = reemplazar ese repertorio con el de ' + getDiaLabel(origen) + '.\nCancelar = combinar sin duplicar lo que ya coincida.')) {
+        copiar(true);
+      } else {
+        copiar(false);
+      }
+    } else {
+      copiar(false);
+    }
+  });
+}
+
 
 
 
@@ -6527,13 +6586,69 @@ function agregarAlRepertorio() {
     return;
   }
   pedirFechaRepertorio(function(fecha){
-    agregarItemAlRepertorio({
-      id: currentSong.id,
-      title: currentSong.title,
-      tono: currentSong.tono,
-      fuente: 'adoracion'
-    }, fecha);
+    pedirSeccionAdoracion(function(seccion){
+      agregarItemAlRepertorio({
+        id: currentSong.id,
+        title: currentSong.title,
+        tono: currentSong.tono,
+        fuente: 'adoracion',
+        seccion: seccion
+      }, fecha);
+    });
   });
+}
+
+// Pregunta a qué parte del culto va una alabanza de adoración: Inicial o
+// Ministración. Se usa al agregar desde una canción al repertorio.
+function pedirSeccionAdoracion(cb) {
+  var overlay = document.getElementById('seccionAdoracionOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'seccionAdoracionOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(6,8,20,0.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;';
+    overlay.innerHTML = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:16px;max-width:360px;width:100%;box-shadow:0 18px 40px rgba(0,0,0,0.4);">' +
+      '<div style="font-weight:700;color:var(--gold2);font-size:1rem;margin-bottom:8px;">¿A qué parte del culto va?</div>' +
+      '<div style="color:var(--text2);font-size:0.82rem;margin-bottom:14px;">Elige si esta alabanza es para la adoración inicial o para la ministración.</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px;">' +
+        '<button id="seccionAdoracionInicial" style="padding:11px 12px;border:none;border-radius:10px;background:var(--gold);color:#000;font-weight:800;cursor:pointer;">🎤 Adoración Inicial</button>' +
+        '<button id="seccionAdoracionMinistracion" style="padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg3);color:var(--text);font-weight:800;cursor:pointer;">🙏 Ministración</button>' +
+        '<button id="seccionAdoracionCancel" style="padding:9px 12px;border:none;border-radius:10px;background:transparent;color:var(--text2);cursor:pointer;font-size:0.85rem;">Cancelar</button>' +
+      '</div></div>';
+    document.body.appendChild(overlay);
+  }
+  var btnInicial = overlay.querySelector('#seccionAdoracionInicial');
+  var btnMinistracion = overlay.querySelector('#seccionAdoracionMinistracion');
+  var btnCancel = overlay.querySelector('#seccionAdoracionCancel');
+  function cerrar() { overlay.style.display = 'none'; }
+  btnCancel.onclick = function(){ cerrar(); };
+  btnInicial.onclick = function(){ cerrar(); if (cb) cb('inicial'); };
+  btnMinistracion.onclick = function(){ cerrar(); if (cb) cb('ministracion'); };
+  overlay.style.display = 'flex';
+}
+
+// Días de "ventana" para avisar que una alabanza/cadena ya se usó hace poco.
+var REPERTORIO_DIAS_AVISO_RECIENTE = 21;
+
+// Busca la fecha más cercana (antes de diaObjetivo, dentro de la ventana)
+// en la que ya se usó ese mismo id+fuente en algún otro repertorio.
+function buscarUsoRecienteRepertorio(itemId, fuente, diaObjetivo, diasVentana) {
+  var idStr = String(itemId);
+  var objetivoDate = fechaLocalDesdeISO(diaObjetivo);
+  var mejorFecha = null;
+  var mejorDiff = Infinity;
+  Object.keys(repertorios).forEach(function(fecha) {
+    if (fecha === diaObjetivo) return;
+    var lista = repertorios[fecha];
+    if (!Array.isArray(lista)) return;
+    var coincide = lista.some(function(x){ return String(x.id) === idStr && (x.fuente || 'adoracion') === fuente; });
+    if (!coincide) return;
+    var diffDias = Math.round(Math.abs((objetivoDate - fechaLocalDesdeISO(fecha)) / 86400000));
+    if (diffDias <= diasVentana && diffDias < mejorDiff) {
+      mejorDiff = diffDias;
+      mejorFecha = fecha;
+    }
+  });
+  return mejorFecha ? { fecha: mejorFecha, diasDiff: mejorDiff } : null;
 }
 
 function agregarItemAlRepertorio(item, dia) {
@@ -6547,11 +6662,20 @@ function agregarItemAlRepertorio(item, dia) {
       return;
     }
   }
+
+  var usoReciente = buscarUsoRecienteRepertorio(item.id, fuente, dia, REPERTORIO_DIAS_AVISO_RECIENTE);
+  if (usoReciente) {
+    var diasTxt = usoReciente.diasDiff === 0 ? 'el mismo día' : ('hace ' + usoReciente.diasDiff + (usoReciente.diasDiff === 1 ? ' día' : ' días'));
+    var msg = '"' + item.title + '" ya se usó el ' + getDiaLabel(usoReciente.fecha) + ' (' + diasTxt + ').\n\n¿Agregarla de todas formas?';
+    if (!confirm(msg)) return;
+  }
+
   lista.push({
     id: item.id,
     title: item.title,
     tono: item.tono,
     fuente: fuente,
+    seccion: item.seccion || '',
     grupoId: item.grupoId || '',
     cadenaId: item.cadenaId || ''
   });
@@ -6737,6 +6861,53 @@ function guardarSugerenciasIAEnCierre() {
   mostrarTabRepertorio('cierre');
 }
 
+// Minutos estimados de un ítem del repertorio: usa el valor personalizado
+// (item.minutos) si el director lo definió, si no cae al valor por defecto
+// según el tipo (adoración vs júbilo).
+function minutosEstimadosItem(item) {
+  var esJub = item.fuente === 'cadena_jubilo' || item.fuente === 'jubilo';
+  if (item.minutos !== undefined && item.minutos !== null && item.minutos !== '' && !isNaN(Number(item.minutos))) {
+    return Number(item.minutos);
+  }
+  return esJub ? 20 : 4;
+}
+
+// A qué sección del culto pertenece un ítem del repertorio: 'inicial'
+// (adoración inicial), 'jubilo' o 'ministracion'. Las alabanzas de
+// adoración sin "seccion" guardada (repertorios viejos) caen en 'inicial'.
+function categoriaItemRepertorio(item) {
+  if (item.fuente === 'cadena_jubilo' || item.fuente === 'jubilo') return 'jubilo';
+  if (item.seccion === 'ministracion') return 'ministracion';
+  return 'inicial';
+}
+
+// Alterna una alabanza de adoración entre Adoración Inicial y Ministración.
+function cambiarSeccionItemRepertorio(index) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  var item = setlistDOM[index];
+  if (!item || item.fuente !== 'adoracion') return;
+  var actual = categoriaItemRepertorio(item);
+  item.seccion = actual === 'ministracion' ? 'inicial' : 'ministracion';
+  guardarRepertorios();
+  renderSetlist();
+  mostrarToast(item.seccion === 'ministracion' ? '🙏 Movida a Ministración.' : '🎤 Movida a Adoración Inicial.');
+}
+
+function editarMinutosItemRepertorio(index) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  var item = setlistDOM[index];
+  if (!item) return;
+  var actual = minutosEstimadosItem(item);
+  var valor = prompt('Minutos estimados para "' + item.title + '":', actual);
+  if (valor === null) return;
+  var num = parseFloat(String(valor).replace(',', '.'));
+  if (isNaN(num) || num < 0) { mostrarToast('⚠️ Ingresa un número de minutos válido.'); return; }
+  item.minutos = num;
+  guardarRepertorios();
+  renderSetlist();
+  mostrarToast('⏱ Tiempo actualizado.');
+}
+
 function renderSetlist(animarCalendario) {
   var cont = document.getElementById('setlistContent');
   if (!cont) return;
@@ -6782,23 +6953,45 @@ function renderSetlist(animarCalendario) {
   }
 
   var html = encabezadoCulto;
-  for (var i = 0; i < setlistDOM.length; i++) {
-    var s = setlistDOM[i];
-    html +=
-      '<div class="song-item setlist-item' + (window._recienAgregadoSetlist && String(window._recienAgregadoSetlist.id) === String(s.id) && (window._recienAgregadoSetlist.fuente || 'adoracion') === (s.fuente || 'adoracion') ? ' setlist-item-new' : '') + '" data-id="' + s.id + '" data-fuente="' + (s.fuente || 'adoracion') + '" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px; gap:6px;">' +
-        '<div class="drag-handle" title="Mantén presionado y arrastra para reordenar" style="touch-action:none;cursor:grab;color:var(--text2);font-size:1.05rem;padding:8px 4px;flex-shrink:0;user-select:none;">⠿</div>' +
-        '<div style="flex:1; display:flex; align-items:center; gap:10px; padding: 6px 8px; min-width:0;" onclick="abrirDesdeRepertorio(' + i + ')">' +
-          '<div class="snum">#' + (i + 1) + '</div>' +
-          '<div class="sbody" style="flex:1; min-width:0;">' +
-            '<div class="stitle">' + escH(s.title) + '</div>' +
-          '</div>' +
-        '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? escH(nombreGrupoDeItemRepertorio(s)) : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
-        '</div>' +
-        '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' +
-          '<button onclick="eliminarDelRepertorio(' + i + ');event.stopPropagation();" title="Eliminar" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
-        '</div>' +
+
+  var SECCIONES_REPERTORIO = [
+    { key: 'inicial', titulo: '🎤 Adoración Inicial' },
+    { key: 'jubilo', titulo: '🎶 Júbilo' },
+    { key: 'ministracion', titulo: '🙏 Ministración' }
+  ];
+
+  SECCIONES_REPERTORIO.forEach(function(sec) {
+    var indicesSeccion = [];
+    for (var k = 0; k < setlistDOM.length; k++) {
+      if (categoriaItemRepertorio(setlistDOM[k]) === sec.key) indicesSeccion.push(k);
+    }
+    if (!indicesSeccion.length) return;
+
+    html += '<div class="repertorio-seccion-header" style="margin:16px 0 8px;padding:0 2px;display:flex;align-items:center;gap:8px;">' +
+        '<div style="font-size:0.76rem;font-weight:800;color:var(--gold2);letter-spacing:0.4px;text-transform:uppercase;white-space:nowrap;">' + sec.titulo + '</div>' +
+        '<div style="flex:1;height:1px;background:var(--border);"></div>' +
       '</div>';
-  }
+
+    indicesSeccion.forEach(function(i, posEnSeccion) {
+      var s = setlistDOM[i];
+      html +=
+        '<div class="song-item setlist-item' + (window._recienAgregadoSetlist && String(window._recienAgregadoSetlist.id) === String(s.id) && (window._recienAgregadoSetlist.fuente || 'adoracion') === (s.fuente || 'adoracion') ? ' setlist-item-new' : '') + '" data-id="' + s.id + '" data-fuente="' + (s.fuente || 'adoracion') + '" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px; gap:6px;">' +
+          '<div class="drag-handle" title="Mantén presionado y arrastra para reordenar" style="touch-action:none;cursor:grab;color:var(--text2);font-size:1.05rem;padding:8px 4px;flex-shrink:0;user-select:none;">⠿</div>' +
+          '<div style="flex:1; display:flex; align-items:center; gap:10px; padding: 6px 8px; min-width:0;" onclick="abrirDesdeRepertorio(' + i + ')">' +
+            '<div class="snum">#' + (posEnSeccion + 1) + '</div>' +
+            '<div class="sbody" style="flex:1; min-width:0;">' +
+              '<div class="stitle">' + escH(s.title) + '</div>' +
+            '</div>' +
+          '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? escH(nombreGrupoDeItemRepertorio(s)) : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' +
+            (s.fuente === 'adoracion' ? '<button onclick="cambiarSeccionItemRepertorio(' + i + ');event.stopPropagation();" title="Mover a ' + (sec.key === 'ministracion' ? 'Adoración Inicial' : 'Ministración') + '" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.85rem; flex-shrink: 0; padding: 4px 6px;">🔀</button>' : '') +
+            '<button onclick="editarMinutosItemRepertorio(' + i + ');event.stopPropagation();" title="Editar minutos estimados" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.72rem; flex-shrink: 0; padding: 4px 6px; white-space:nowrap;">⏱' + minutosEstimadosItem(s) + 'm</button>' +
+            '<button onclick="eliminarDelRepertorio(' + i + ');event.stopPropagation();" title="Eliminar" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
+          '</div>' +
+        '</div>';
+    });
+  });
 
   cont.innerHTML = html;
   window._recienAgregadoSetlist = null;
@@ -6808,8 +7001,10 @@ function renderSetlist(animarCalendario) {
     var minutosAdoracion = 0;
     var minutosJubilo = 0;
     for (var j = 0; j < setlistDOM.length; j++) {
-      if (setlistDOM[j].fuente === 'cadena_jubilo' || setlistDOM[j].fuente === 'jubilo') minutosJubilo += 20;
-      else minutosAdoracion += 4;
+      var esJubItem = setlistDOM[j].fuente === 'cadena_jubilo' || setlistDOM[j].fuente === 'jubilo';
+      var minsItem = minutosEstimadosItem(setlistDOM[j]);
+      if (esJubItem) minutosJubilo += minsItem;
+      else minutosAdoracion += minsItem;
     }
     var totalMin = minutosAdoracion + minutosJubilo;
     var partes = [];
@@ -7081,9 +7276,9 @@ function eliminarDelRepertorio(index) {
     actualizarContadorRepertorio();
   }
 
+  var item = setlistDOM[index];
   var cont = document.getElementById('setlistContent');
-  var items = cont ? cont.querySelectorAll('.setlist-item') : null;
-  var el = items ? items[index] : null;
+  var el = (cont && item) ? cont.querySelector('.setlist-item[data-id="' + String(item.id).replace(/"/g,'') + '"][data-fuente="' + (item.fuente || 'adoracion') + '"]') : null;
   var sinMovimiento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (!el || sinMovimiento) {
@@ -7133,14 +7328,48 @@ function abrirDesdeRepertorio(index) {
 }
 function vaciarRepertorio() {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
-  if (confirm('¿Vaciar el repertorio del ' + getDiaLabel(repertorioFechaActiva) + '?')) {
-    repertorios[repertorioFechaActiva] = [];
-    setlistDOM = getRepertorioDia(repertorioFechaActiva);
+  var fechaActual = repertorioFechaActiva;
+  var itemsActuales = getRepertorioDia(fechaActual).slice();
+  if (!itemsActuales.length) { mostrarToast('⚠️ El repertorio de ' + getDiaLabel(fechaActual) + ' ya está vacío.'); return; }
+
+  if (confirm('¿Vaciar el repertorio del ' + getDiaLabel(fechaActual) + '?')) {
+    window._ultimoRepertorioVaciado = { fecha: fechaActual, items: itemsActuales };
+    repertorios[fechaActual] = [];
+    setlistDOM = getRepertorioDia(fechaActual);
     guardarRepertorios();
-    
+
     renderSetlist();
     actualizarContadorRepertorio();
+
+    var btn = document.getElementById('btnDeshacerVaciarRepertorio');
+    if (btn) {
+      btn.style.display = 'inline-flex';
+      if (window._deshacerVaciarTimeout) clearTimeout(window._deshacerVaciarTimeout);
+      window._deshacerVaciarTimeout = setTimeout(ocultarBotonDeshacerVaciar, 8000);
+    }
+    mostrarToast('🗑️ Repertorio vaciado. Puedes deshacer por unos segundos.');
   }
+}
+
+// Restaura el repertorio que se acaba de vaciar (disponible por unos
+// segundos después de "Vaciar", mientras el botón "Deshacer" esté visible).
+function deshacerVaciarRepertorio() {
+  var snap = window._ultimoRepertorioVaciado;
+  if (!snap) return;
+  repertorios[snap.fecha] = snap.items;
+  guardarRepertorios();
+  if (snap.fecha === repertorioFechaActiva) { setlistDOM = getRepertorioFecha(snap.fecha); renderSetlist(); }
+  renderCalendarioRepertorio();
+  actualizarContadorRepertorio();
+  window._ultimoRepertorioVaciado = null;
+  ocultarBotonDeshacerVaciar();
+  mostrarToast('↩️ Repertorio restaurado.');
+}
+
+function ocultarBotonDeshacerVaciar() {
+  var btn = document.getElementById('btnDeshacerVaciarRepertorio');
+  if (btn) btn.style.display = 'none';
+  if (window._deshacerVaciarTimeout) { clearTimeout(window._deshacerVaciarTimeout); window._deshacerVaciarTimeout = null; }
 }
 
 // 1. Dibuja la lista a la izquierda automáticamente
@@ -7353,7 +7582,7 @@ if ('serviceWorker' in navigator) {
 // canciones-adoracion.js, canciones-jubilo.js, etc.), ya que esos
 // se sirven con estrategia "red primero" (network-first).
 window.buscarActualizaciones = async function() {
-  var btn = document.getElementById('btnActualizarMenu');
+  var btn = document.getElementById('btnActualizarMenuMore');
   var textoOriginal = btn ? btn.innerHTML : '';
   if (btn) {
     btn.disabled = true;
@@ -7631,7 +7860,7 @@ function toggleFav(id, event) {
 function toggleModoFav() {
   modoFav = !modoFav;
   window.modoFav = modoFav;
-  var btn = document.getElementById('btnFavToggle');
+  var btn = document.getElementById('btnFavFiltro');
   if (btn) {
     btn.textContent = modoFav ? '📋 Ver todos' : '⭐ Favoritos';
     btn.style.borderColor = modoFav ? 'var(--gold)' : 'var(--border)';
@@ -8907,6 +9136,7 @@ function renderJubiloSidebar(){
       '<summary style="display:flex;align-items:center;justify-content:space-between;">' +
         '<span>' + escH(g.nombre) + '</span>' +
         '<span style="display:flex;gap:2px;">' +
+          (g.cadenas && g.cadenas.length > 1 ? '<button class="jubilo-chain-icon-btn" onclick="event.stopPropagation();abrirEditorOrdenCadenas(\'' + g.id + '\')" title="Ordenar cadenas">↕️</button>' : '') +
           '<button class="jubilo-chain-icon-btn" onclick="event.stopPropagation();renombrarGrupo(\'' + g.id + '\')" title="Renombrar grupo">✏️</button>' +
           '<button class="jubilo-chain-icon-btn danger" onclick="event.stopPropagation();eliminarGrupo(\'' + g.id + '\')" title="Eliminar grupo">🗑</button>' +
         '</span>' +
@@ -9529,6 +9759,199 @@ function activarDragEditorOrdenJubilo() {
 
     if (window.jubiloOrdenEditorState && Array.isArray(window.jubiloOrdenEditorState.orden)) {
       window.jubiloOrdenEditorState.orden = nuevoOrden;
+    }
+
+    dragEl = null;
+    placeholder = null;
+    activePointerId = null;
+  }
+
+  document.addEventListener('pointerdown', onPointerDown, { passive: false });
+}
+
+// === Editor de orden de las CADENAS dentro de un grupo de Júbilo ===
+function crearEditorOrdenCadenasOverlay() {
+  var overlay = document.getElementById('jubiloOrdenCadenasOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'jubiloOrdenCadenasOverlay';
+    overlay.className = 'modal-overlay';
+    overlay.style.cssText = 'display:none;z-index:9900;';
+    overlay.innerHTML =
+      '<div class="modal-card" style="max-width:760px;width:min(96vw,760px);max-height:90vh;display:flex;flex-direction:column;gap:12px;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
+          '<div>' +
+            '<div id="jubiloOrdenCadenasTitulo" style="font-size:1.05rem;font-weight:800;color:var(--gold2);">Editar orden de las cadenas</div>' +
+            '<div style="font-size:0.78rem;color:var(--text2);margin-top:4px;">Mantén presionado el ícono ⠿ y arrastra cada cadena a su nueva posición.</div>' +
+          '</div>' +
+          '<button onclick="cerrarEditorOrdenCadenas()" style="background:transparent;border:none;color:var(--text2);font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>' +
+        '</div>' +
+        '<div id="jubiloOrdenCadenasList" style="overflow-y:auto;display:grid;gap:8px;max-height:60vh;padding-right:2px;"></div>' +
+        '<div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">' +
+          '<button onclick="cerrarEditorOrdenCadenas()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:9px 14px;font-weight:700;cursor:pointer;">Cancelar</button>' +
+          '<button onclick="guardarOrdenCadenasDesdeEditor()" style="background:var(--gold);border:none;color:#111;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;">💾 Guardar orden</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(overlay);
+  }
+  return overlay;
+}
+
+function abrirEditorOrdenCadenas(grupoId) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  if (window.jubiloGrupos) jubiloGrupos = window.jubiloGrupos;
+  var grupo = jubiloGrupos.find(function(g){ return g.id === grupoId; });
+  if (!grupo) { mostrarToast('⚠️ No se encontró el grupo.'); return; }
+  if (!grupo.cadenas || grupo.cadenas.length < 2) { mostrarToast('Este grupo necesita al menos 2 cadenas para reordenar.'); return; }
+
+  var overlay = crearEditorOrdenCadenasOverlay();
+  var titulo = document.getElementById('jubiloOrdenCadenasTitulo');
+  if (titulo) titulo.textContent = 'Editar orden de las cadenas · ' + grupo.nombre;
+
+  window.jubiloOrdenCadenasEditorState = window.jubiloOrdenCadenasEditorState || {};
+  window.jubiloOrdenCadenasEditorState.grupoId = grupo.id;
+  window.jubiloOrdenCadenasEditorState.orden = grupo.cadenas.map(function(c){ return c.id; });
+  renderEditorOrdenCadenas();
+  overlay.style.display = 'flex';
+  setTimeout(function(){ overlay.classList.add('modal-pop-in'); }, 10);
+}
+
+function renderEditorOrdenCadenas() {
+  var overlay = document.getElementById('jubiloOrdenCadenasOverlay');
+  var cont = document.getElementById('jubiloOrdenCadenasList');
+  var state = window.jubiloOrdenCadenasEditorState;
+  if (!overlay || !cont || !state || !Array.isArray(state.orden)) return;
+
+  var grupo = jubiloGrupos.find(function(g){ return g.id === state.grupoId; });
+  if (!grupo) return;
+
+  var html = '';
+  state.orden.forEach(function(id, index) {
+    var cadena = grupo.cadenas.find(function(c){ return c.id === id; });
+    if (!cadena) return;
+    var cantidad = (cadena.alabanzas || []).length;
+    html +=
+      '<div class="setlist-item" data-index="' + index + '" data-id="' + cadena.id + '" style="border-radius:8px;display:flex;align-items:center;padding-right:8px;gap:6px;background:var(--bg2);border:1px solid var(--border);">' +
+        '<div class="drag-handle" title="Mantén presionado y arrastra para reordenar" style="touch-action:none;cursor:grab;color:var(--text2);font-size:1.05rem;padding:8px 4px;flex-shrink:0;user-select:none;">⠿</div>' +
+        '<div style="flex:1;min-width:0;padding:8px 4px 8px 2px;">' +
+          '<div style="font-weight:800;color:var(--text);font-size:0.9rem;white-space:normal;word-break:break-word;">' + escH(cadena.nombre) + '</div>' +
+          '<div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">' + cantidad + (cantidad === 1 ? ' alabanza' : ' alabanzas') + '</div>' +
+        '</div>' +
+      '</div>';
+  });
+  cont.innerHTML = html || '<div style="color:var(--text2);text-align:center;padding:16px 8px;">No hay cadenas en este grupo.</div>';
+  activarDragEditorOrdenCadenas();
+}
+
+function cerrarEditorOrdenCadenas() {
+  var overlay = document.getElementById('jubiloOrdenCadenasOverlay');
+  if (overlay) overlay.style.display = 'none';
+  window.jubiloOrdenCadenasEditorState = null;
+}
+
+function guardarOrdenCadenasDesdeEditor() {
+  var state = window.jubiloOrdenCadenasEditorState;
+  if (!state || !state.grupoId || !Array.isArray(state.orden)) return;
+  var grupo = jubiloGrupos.find(function(g){ return g.id === state.grupoId; });
+  if (!grupo) return;
+  var nuevasCadenas = state.orden.map(function(id){
+    return grupo.cadenas.find(function(c){ return c.id === id; });
+  }).filter(Boolean);
+  grupo.cadenas = nuevasCadenas;
+  guardarJubiloGrupos();
+  cerrarEditorOrdenCadenas();
+  renderJubiloSidebar();
+  mostrarToast('↕ Orden de cadenas actualizado');
+}
+
+function activarDragEditorOrdenCadenas() {
+  var cont = document.getElementById('jubiloOrdenCadenasList');
+  if (!cont) return;
+  if (cont._jubiloCadenaDragReady) return;
+  cont._jubiloCadenaDragReady = true;
+
+  var dragEl = null;
+  var placeholder = null;
+  var startY = 0;
+  var startTop = 0;
+  var activePointerId = null;
+
+  function onPointerDown(e) {
+    var handle = e.target.closest ? e.target.closest('.drag-handle') : null;
+    if (!handle) return;
+    if (!cont.contains(handle)) return;
+    if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin para reordenar.'); return; }
+    var item = handle.closest('.setlist-item');
+    if (!item) return;
+
+    e.preventDefault();
+    dragEl = item;
+    activePointerId = e.pointerId;
+    startY = e.clientY;
+    startTop = dragEl.getBoundingClientRect().top;
+
+    var rect = dragEl.getBoundingClientRect();
+    placeholder = document.createElement('div');
+    placeholder.className = 'setlist-drag-placeholder';
+    placeholder.style.height = rect.height + 'px';
+    dragEl.parentNode.insertBefore(placeholder, dragEl.nextSibling);
+
+    dragEl.classList.add('dragging');
+    dragEl.style.width = rect.width + 'px';
+    dragEl.style.position = 'fixed';
+    dragEl.style.top = rect.top + 'px';
+    dragEl.style.left = rect.left + 'px';
+    dragEl.style.zIndex = '999';
+    dragEl.style.pointerEvents = 'none';
+
+    try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+    document.addEventListener('pointermove', onPointerMove, { passive: false });
+    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointercancel', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!dragEl || e.pointerId !== activePointerId) return;
+    e.preventDefault();
+    var dy = e.clientY - startY;
+    dragEl.style.top = (startTop + dy) + 'px';
+    var siblings = Array.prototype.slice.call(cont.querySelectorAll('.setlist-item:not(.dragging)'));
+    var colocado = false;
+    for (var i = 0; i < siblings.length; i++) {
+      var r = siblings[i].getBoundingClientRect();
+      var mid = r.top + r.height / 2;
+      if (e.clientY < mid) {
+        cont.insertBefore(placeholder, siblings[i]);
+        colocado = true;
+        break;
+      }
+    }
+    if (!colocado) cont.appendChild(placeholder);
+  }
+
+  function onPointerUp(e) {
+    if (!dragEl || (activePointerId !== null && e.pointerId !== activePointerId)) return;
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+    document.removeEventListener('pointercancel', onPointerUp);
+
+    placeholder.parentNode.insertBefore(dragEl, placeholder);
+    placeholder.parentNode.removeChild(placeholder);
+
+    dragEl.classList.remove('dragging');
+    dragEl.style.position = '';
+    dragEl.style.top = '';
+    dragEl.style.left = '';
+    dragEl.style.width = '';
+    dragEl.style.zIndex = '';
+    dragEl.style.pointerEvents = '';
+
+    var nuevoOrden = Array.prototype.map.call(cont.querySelectorAll('.setlist-item'), function (el) {
+      return el.getAttribute('data-id');
+    }).filter(Boolean);
+
+    if (window.jubiloOrdenCadenasEditorState && Array.isArray(window.jubiloOrdenCadenasEditorState.orden)) {
+      window.jubiloOrdenCadenasEditorState.orden = nuevoOrden;
     }
 
     dragEl = null;
@@ -10436,10 +10859,7 @@ pianoCargarTransposeMelodia();
 // las teclas resaltadas (con su destello) y actualiza la barra de progreso.
 // Antes esto eran 3 requestAnimationFrame separados compitiendo entre sí por
 // el hilo principal; ahora es uno solo con un único "t".
-function pianoLoopReproduccionMelodia(overlay, notas, playBaseMs){
-  var barras = overlay ? overlay.barras : [];
-  var zoneHeight = overlay ? overlay.zoneHeight : 0;
-  var finMax = overlay ? overlay.finMax : 0;
+function pianoLoopReproduccionMelodia(finMax, notas, playBaseMs){
   var bar = document.getElementById('pianoMelodyProgressBar');
   var text = document.getElementById('pianoMelodyProgressText');
 
@@ -10450,15 +10870,7 @@ function pianoLoopReproduccionMelodia(overlay, notas, playBaseMs){
     }
     var t = (performance.now() - playBaseMs) / 1000;
 
-    // 1) Barras que caen
-    for (var bIdx = 0; bIdx < barras.length; bIdx++){
-      var b = barras[bIdx];
-      var distArriba = (b.start - t) * PIANO_FALL_SPEED; // px sobre la línea de teclas
-      b.el.style.transform = 'translate3d(0,' + (zoneHeight - distArriba - b.alto) + 'px,0)';
-      b.el.style.opacity = (t > b.start + b.duration) ? '0' : '1';
-    }
-
-    // 2) Resaltado de teclas + destello
+    // 1) Resaltado de teclas + destello
     for (var i = 0; i < notas.length; i++){
       var n = notas[i];
       var start = Math.max(0, Number(n.start) || 0);
@@ -10474,7 +10886,7 @@ function pianoLoopReproduccionMelodia(overlay, notas, playBaseMs){
       }
     }
 
-    // 3) Barra de progreso
+    // 2) Barra de progreso
     pianoMelodyModalState.elapsed = Math.max(0, t);
     if (bar && pianoMelodyModalState.duration) {
       var pct = Math.max(0, Math.min(100, (pianoMelodyModalState.elapsed / pianoMelodyModalState.duration) * 100));
@@ -10486,24 +10898,13 @@ function pianoLoopReproduccionMelodia(overlay, notas, playBaseMs){
       pianoMelodyPlaybackRAF = requestAnimationFrame(frame);
     } else {
       pianoMelodyPlaybackRAF = null;
-      pianoLimpiarFallOverlay();
     }
   }
   pianoMelodyPlaybackRAF = requestAnimationFrame(frame);
 }
 
-// === EFECTO "BARRAS QUE CAEN" (estilo Synthesia) =============
-// Al reproducir una melodía guardada, dibujamos una barra por nota que cae
-// desde arriba y llega exactamente a la tecla en el instante en que suena.
-var PIANO_FALL_ZONE_H = 170; // alto (px) de la zona donde caen las barras
-// Antes en 130px/s: con una zona de solo 150-170px de alto, la barra tardaba
-// más de 1 segundo en cruzarla y se veía en cámara lenta. Subida a 260px/s
-// para que el recorrido sea de apenas ~0.6s, mucho más parecido a un
-// "Synthesia" real.
-var PIANO_FALL_SPEED  = 260; // velocidad de caída (px por segundo)
-var PIANO_FALL_COLORS = ['#7F77DD','#3ddc84','#e8824a','#4fc3f7','#f3d58a'];
 // Un solo requestAnimationFrame para TODA la reproducción visual de la
-// melodía (barras que caen + resaltado de teclas + barra de progreso).
+// melodía (resaltado de teclas + barra de progreso).
 // Antes eran 3 rAF independientes corriendo en paralelo, cada uno leyendo
 // performance.now() y escribiendo al DOM por su cuenta; eso era trabajo de
 // más en cada frame y es lo que sumaba al trabón en iPhone. Ahora todo se
@@ -10527,30 +10928,10 @@ function pianoTeclaEl(midi){
   return pianoTeclaElCache[String(midi)] || null;
 }
 
-function pianoLimpiarFallOverlay(){
+// Cancela el requestAnimationFrame de la reproducción visual en curso
+// (resaltado de teclas + barra de progreso) si hay uno corriendo.
+function pianoDetenerLoopVisual(){
   if (pianoMelodyPlaybackRAF) { cancelAnimationFrame(pianoMelodyPlaybackRAF); pianoMelodyPlaybackRAF = null; }
-  var zone = document.getElementById('pianoFallZone');
-  if (zone) zone.innerHTML = '';
-}
-
-// Crea (si no existe) la zona de caída justo encima del teclado y arma una
-// barra por cada nota de `notas`. Ya NO arranca su propio requestAnimationFrame:
-// eso ahora lo hace pianoLoopReproduccionMelodia, que anima esto junto con el
-// resaltado de teclas y el progreso en un único bucle.
-function pianoIniciarFallOverlay(notas, playBaseMs){
-  var content = document.getElementById('pianoModalContent');
-  if (!content) return null;
-  var stage = content.querySelector('.piano-keyboard-stage');
-  if (!stage) return null;
-  pianoLimpiarFallOverlay();
-  var zone = document.getElementById('pianoFallZone');
-  if (zone && zone.parentNode) zone.parentNode.removeChild(zone);
-
-  var finMax = notas.reduce(function(max, n){
-    return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
-  }, 0);
-
-  return { barras: [], zoneHeight: 0, finMax: finMax };
 }
 
 function pianoMelodyClaveDeDestino(){
@@ -10561,7 +10942,7 @@ function pianoLimpiarPlaybackMelodia(){
   while (pianoMelodyPlaybackTimers.length) {
     clearTimeout(pianoMelodyPlaybackTimers.pop());
   }
-  pianoLimpiarFallOverlay();
+  pianoDetenerLoopVisual();
   var modal = document.getElementById('pianoModalContent');
   if (!modal) return;
   var keys = modal.querySelectorAll('.pk-key.pk-playing');
@@ -10593,7 +10974,7 @@ function pianoModalActualizarControlesMelodia(){
 
 function pianoModalDetenerMelodia(resetearEstado){
   if (resetearEstado === undefined) resetearEstado = true;
-  pianoLimpiarFallOverlay();
+  pianoDetenerLoopVisual();
   pianoMelodyPlaybackTimers.forEach(function(t){ clearTimeout(t); });
   pianoMelodyPlaybackTimers.length = 0;
   var audio = window.audioPrincipalEl;
@@ -10602,7 +10983,6 @@ function pianoModalDetenerMelodia(resetearEstado){
     try { audio.currentTime = 0; } catch (e) {}
   }
   pianoSetMelodyMuted(!resetearEstado);
-  pianoLimpiarFallOverlay();
   if (resetearEstado) {
     pianoMelodyModalState.active = false;
     pianoMelodyModalState.paused = false;
@@ -10669,7 +11049,9 @@ function pianoModalProgramarMelodiaDesde(offsetSegundos){
     if (!pianoMelodyModalState.active || pianoMelodyModalState.paused) return;
     var base = ctx.currentTime + 0.05;
     var playBaseMs = performance.now() + 50;
-    var overlay = pianoIniciarFallOverlay(notasPendientes, playBaseMs);
+    var finMax = notasPendientes.reduce(function(max, n){
+      return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
+    }, 0);
     pianoConstruirCacheTeclas();
     notasPendientes.forEach(function(n){
       var start = Math.max(0, Number(n.start) || 0);
@@ -10679,7 +11061,7 @@ function pianoModalProgramarMelodiaDesde(offsetSegundos){
       pianoPlayNoteSample(ctx, n.midi, base + delay, dur);
     });
     // Resaltado de teclas y progreso corren en un único requestAnimationFrame.
-    pianoLoopReproduccionMelodia(overlay, notasPendientes, playBaseMs);
+    pianoLoopReproduccionMelodia(finMax, notasPendientes, playBaseMs);
     var lastEnd = notasPendientes.reduce(function(max, n){
       return Math.max(max, (Number(n.start) || 0) + (Number(n.duration) || 0.35));
     }, inicio);
@@ -12615,38 +12997,196 @@ function seleccionarRol(rol) {
   mostrarToast(rol === 'cantante' ? '🎤 Rol guardado: Cantante' : '🎸 Rol guardado: Músico');
 }
 
-// ===== TUTORIAL DE BIENVENIDA (primera vez) =====
-// Antes todo se aprendía por prueba y error (como el viejo gesto de tocar
-// arriba/abajo, que casi nadie descubría). Este mini-tutorial se muestra
-// una sola vez, automáticamente, y queda disponible después desde
-// "❓ Ayuda" en el menú principal.
-var TUTORIAL_VISTO_KEY = 'yhwh_tutorial_visto_v1';
+// ===== AYUDA / GUÍA DE LA APP =====
+// Guía completa de la app: se muestra una sola vez automáticamente, y
+// queda disponible después desde "❓ Ayuda" en el menú principal. Cada
+// paso trae un pequeño dibujo (no es una captura real de la app, sino una
+// ilustración fiel a sus colores y botones) que resalta con un marco
+// punteado justo la opción de la que se está hablando.
+var TUTORIAL_VISTO_KEY = 'yhwh_tutorial_visto_v2';
 var tutorialSlideActual = 0;
+
+// ---- Helpers para armar los mini-dibujos en SVG ----
+function tgFrame(inner, h) {
+  h = h || 150;
+  return '<svg viewBox="0 0 300 ' + h + '" xmlns="http://www.w3.org/2000/svg" ' +
+    'style="width:100%;max-width:250px;display:block;margin:0 auto 12px;">' +
+    '<rect x="3" y="3" width="294" height="' + (h - 6) + '" rx="16" fill="#15152a" stroke="#2a2a45" stroke-width="1.5"/>' +
+    inner +
+    '</svg>';
+}
+function tgBtn(x, y, w, h, label, activo) {
+  var fill = activo ? '#e8c97a' : '#2a2a45';
+  var color = activo ? '#1a1a1a' : '#c8c6d8';
+  return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (h / 2) + '" fill="' + fill + '"/>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + h / 2 + 3.7) + '" text-anchor="middle" font-size="10" ' +
+    'font-family="Inter,Arial,sans-serif" font-weight="700" fill="' + color + '">' + label + '</text>';
+}
+function tgChip(x, y, w, h, label, fill, color) {
+  return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (h / 2) + '" fill="' + fill + '" stroke="' + color + '" stroke-width="1"/>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + h / 2 + 3.2) + '" text-anchor="middle" font-size="8.5" ' +
+    'font-family="Inter,Arial,sans-serif" font-weight="700" fill="' + color + '">' + label + '</text>';
+}
+function tgBox(x, y, w, h, fill, stroke) {
+  return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="8" fill="' + fill + '" stroke="' + (stroke || '#2a2a45') + '" stroke-width="1"/>';
+}
+function tgTxt(x, y, label, size, color, anchor) {
+  return '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || 'start') + '" font-size="' + (size || 10) + '" ' +
+    'font-family="Inter,Arial,sans-serif" fill="' + (color || '#8888aa') + '">' + label + '</text>';
+}
+function tgHi(x, y, w, h, rx) {
+  return '<rect class="help-pulse" x="' + (x - 4) + '" y="' + (y - 4) + '" width="' + (w + 8) + '" height="' + (h + 8) + '" ' +
+    'rx="' + (rx != null ? rx : (h / 2 + 4)) + '" fill="none" stroke="#e8c97a" stroke-width="2" stroke-dasharray="4 3"/>';
+}
+
 var TUTORIAL_SLIDES = [
   {
-    icono: '👋',
     titulo: '¡Bienvenido a Ministerio YHWH!',
-    texto: 'Un recorrido rápido de 5 pasos para que conozcas lo esencial. Puedes verlo de nuevo cuando quieras desde "❓ Ayuda" en el menú.'
+    texto: 'Esta es una guía completa de la app, no solo lo básico. Puedes verla de nuevo cuando quieras desde "❓ Ayuda" en el menú principal. Usa "Siguiente" y "Atrás" para recorrerla, o "Saltar" para cerrarla.',
+    svg: tgFrame(
+      '<circle cx="150" cy="55" r="34" fill="none" stroke="#c9a84c" stroke-width="2"/>' +
+      '<text x="150" y="66" text-anchor="middle" font-size="36" fill="#e8c97a">&#10022;</text>',
+      110)
   },
   {
-    icono: '📘',
+    titulo: 'Buscar, filtrar y favoritos',
+    texto: 'El buscador encuentra canciones por título, frase, tono o compositor. El botón "🔍 Filtros" abre opciones para afinar por tono, etiquetas o dificultad; "⭐ Favoritos" muestra solo tus favoritas. "🎤 Ver por grupo/artista" agrupa todo el repertorio por compositor o grupo, en vez de listarlo todo junto.',
+    svg: tgFrame(
+      tgBox(20, 18, 260, 26, '#0d0d14') +
+      tgTxt(34, 35, '&#128269;', 12, '#8888aa') +
+      tgTxt(48, 35, 'Buscar canción, tono, autor...', 9, '#55607a') +
+      tgBtn(20, 56, 80, 24, '🔍 Filtros') +
+      tgHi(20, 56, 80, 24) +
+      tgBtn(108, 56, 92, 24, '⭐ Favoritos') +
+      tgBtn(20, 90, 260, 24, '🎤 Ver por grupo/artista') +
+      tgTxt(20, 128, 'Dentro de Filtros:', 9, '#8888aa') +
+      tgChip(20, 134, 48, 20, 'Tono', '#1c1c3f', '#c9a84c') +
+      tgChip(74, 134, 70, 20, 'Etiquetas', '#1c1c3f', '#c9a84c') +
+      tgChip(150, 134, 78, 20, 'Dificultad', '#1c1c3f', '#c9a84c'),
+      166)
+  },
+  {
+    titulo: 'Tono, cifrado y acordes latinos',
+    texto: 'En Vista músico, los botones ♭ / ♯ transportan la canción semitono a semitono (o elige el tono directo). "Cifrado" alterna entre notación Americana (C, D, E) y Latina (Do, Re, Mi). Si usas cifrado latino, los botones "Acordes ← / →" mueven los acordes para que no choquen con la letra.',
+    svg: tgFrame(
+      tgTxt(20, 26, 'Tono', 9.5, '#8888aa') +
+      tgBtn(20, 32, 40, 30, '♭') +
+      tgBox(70, 32, 80, 30, '#42426e', '#c9a84c') +
+      tgTxt(110, 52, 'Sol (G)', 11, '#e8c97a', 'middle') +
+      tgHi(70, 32, 80, 30) +
+      tgBtn(160, 32, 40, 30, '♯') +
+      tgBtn(20, 78, 130, 26, 'Cifrado: Americano') +
+      tgBtn(20, 112, 38, 26, '←') +
+      tgBtn(64, 112, 120, 26, 'Latino -7px') +
+      tgBtn(190, 112, 38, 26, '→'),
+      150)
+  },
+  {
+    titulo: 'Vista Cantante y Vista Músico',
+    texto: '"Vista cantante" agranda la letra y oculta los acordes: ideal solo para cantar. "Vista músico" muestra acordes, tono y todos los controles. Tu Rol (ver más adelante) decide cuál se usa por defecto, pero puedes cambiarla en cualquier canción.',
+    svg: tgFrame(
+      tgBtn(20, 26, 122, 34, '🎤 Vista cantante', true) +
+      tgHi(20, 26, 122, 34) +
+      tgBtn(158, 26, 122, 34, '🎸 Vista músico') +
+      tgTxt(81, 82, 'Letra grande', 9, '#c8c6d8', 'middle') +
+      tgTxt(81, 94, 'sin acordes', 9, '#8888aa', 'middle') +
+      tgTxt(219, 82, 'Acordes + tono', 9, '#c8c6d8', 'middle') +
+      tgTxt(219, 94, '+ controles', 9, '#8888aa', 'middle'),
+      112)
+  },
+  {
+    titulo: 'Melodía, dificultad y notas',
+    texto: 'El botón "🎼 Melodía" (Vista músico) abre un piano virtual para grabar o repasar la melodía de la canción. Marca la "Dificultad" (🟢 Fácil / 🟡 Media / 🔴 Difícil) para saber de un vistazo qué tanto hay que ensayar. En "Notas del director" escribe indicaciones para el equipo: se guardan solas, sin botón de guardar.',
+    svg: tgFrame(
+      tgBtn(70, 16, 160, 28, '🎼 Melodía', true) +
+      tgHi(70, 16, 160, 28) +
+      tgTxt(20, 62, 'Dificultad:', 9, '#8888aa') +
+      tgChip(20, 68, 62, 22, '🟢 Fácil', '#1a4a1a', '#4caf50') +
+      tgChip(90, 68, 66, 22, '🟡 Media', '#4a3a00', '#f1c40f') +
+      tgChip(164, 68, 66, 22, '🔴 Difícil', '#4a1a1a', '#e74c3c') +
+      tgBox(20, 100, 260, 36, '#0d0d14') +
+      tgTxt(30, 115, '📝 Notas del director', 9.5, '#8bc7ff') +
+      tgTxt(30, 129, 'Se guardan solas mientras escribes', 8, '#55607a'),
+      150)
+  },
+  {
+    titulo: 'Compartir y comparar tonos',
+    texto: '"Compartir" envía la canción por WhatsApp u otra app. "Comparar tonos" (Vista músico) abre una pantalla dividida para ver la misma canción en dos tonalidades distintas, lado a lado, antes de decidir en cuál tocarla.',
+    svg: tgFrame(
+      tgBtn(20, 20, 122, 28, '📤 Compartir', true) +
+      tgHi(20, 20, 122, 28) +
+      tgBtn(158, 20, 122, 28, '🎼 Comparar tonos') +
+      tgBox(20, 62, 120, 56, '#0d0d14') +
+      tgTxt(80, 76, 'Tono A', 9, '#c9a84c', 'middle') +
+      tgTxt(30, 90, '▬▬▬▬▬▬', 8, '#3a3a5a') +
+      tgTxt(30, 102, '▬▬▬▬', 8, '#3a3a5a') +
+      tgBox(160, 62, 120, 56, '#0d0d14') +
+      tgTxt(220, 76, 'Tono B', 9, '#c9a84c', 'middle') +
+      tgTxt(170, 90, '▬▬▬▬▬▬', 8, '#3a3a5a') +
+      tgTxt(170, 102, '▬▬▬▬', 8, '#3a3a5a'),
+      134)
+  },
+  {
     titulo: 'Arma tu Repertorio',
-    texto: 'Agrega canciones o cadenas de Júbilo al Repertorio del día. Para reordenarlas, mantén presionado el ícono ⠿ y arrastra la alabanza a su nueva posición.'
+    texto: 'Toca "Repertorio" dentro de una canción o cadena de Júbilo para agregarla al repertorio del día. Ya en la pantalla Repertorio, mantén presionado el ícono ⠿ y arrastra para reordenar. Deslizando el dedo izquierda/derecha sobre la letra pasas a la siguiente o anterior canción sin salir de la pantalla.',
+    svg: tgFrame(
+      tgBox(20, 16, 260, 26, '#1c1c3f') + tgTxt(30, 33, '⠿', 11, '#8888aa') + tgTxt(46, 33, 'Al Dios que sana', 9.5, '#c8c6d8') +
+      tgBox(20, 50, 260, 26, '#2a2a45') + tgTxt(30, 67, '⠿', 11, '#e8c97a') + tgTxt(46, 67, 'Cadena Júbilo: Victoria', 9.5, '#e8e6f0') + tgTxt(268, 67, '↕', 12, '#e8c97a', 'middle') +
+      tgHi(20, 50, 260, 26) +
+      tgBox(20, 84, 260, 26, '#1c1c3f') + tgTxt(30, 101, '⠿', 11, '#8888aa') + tgTxt(46, 101, 'Sublime Gracia', 9.5, '#c8c6d8') +
+      tgTxt(150, 130, 'Desliza ← → sobre la letra para cambiar de canción', 8, '#55607a', 'middle'),
+      148)
   },
   {
-    icono: '🎹',
-    titulo: 'Cadenas de Júbilo',
-    texto: 'Organiza alabanzas de júbilo en Grupos y Cadenas. ¿Ya tienes una cadena parecida? Usa el botón 📄 para duplicarla y usarla como punto de partida.'
+    titulo: 'Comparte el Repertorio como imagen',
+    texto: 'Desde el Repertorio puedes exportar una imagen prolija con la lista de canciones, tonos, notas del director y el tiempo estimado del culto — ideal para enviar al equipo por WhatsApp. Antes de descargarla, eliges qué información incluir.',
+    svg: tgFrame(
+      tgBox(50, 14, 200, 66, '#1c1c3f') +
+      tgBox(60, 22, 180, 6, '#c9a84c') +
+      tgTxt(150, 42, 'Culto de Adoración', 9, '#c9a84c', 'middle') +
+      tgTxt(70, 56, '#1  Al Dios que sana', 8, '#c8c6d8') +
+      tgTxt(70, 68, '#2  Sublime Gracia', 8, '#c8c6d8') +
+      tgChip(30, 92, 56, 18, '✓ Notas', '#1c1c3f', '#8bc7ff') +
+      tgChip(92, 92, 52, 18, '✓ Tono', '#1c1c3f', '#8bc7ff') +
+      tgChip(150, 92, 58, 18, '✓ Tiempo', '#1c1c3f', '#8bc7ff') +
+      tgBtn(85, 118, 130, 26, '⬇️ Descargar imagen', true) +
+      tgHi(85, 118, 130, 26),
+      154)
   },
   {
-    icono: '👆',
-    titulo: 'Navega entre canciones',
-    texto: 'Dentro de una canción, desliza el dedo hacia la izquierda o derecha sobre la letra/acordes para pasar a la siguiente o anterior.'
+    titulo: 'Júbilo: Grupos y Cadenas',
+    texto: 'En Júbilo organizas las alabanzas en Grupos, y dentro de cada grupo en Cadenas (el orden en que se tocan varias alabanzas seguidas). ¿Ya tienes una cadena parecida? Usa el botón "📄" para duplicarla y editarla en vez de armarla desde cero. Júbilo también tiene su propia Vista cantante/músico y ajuste de posición de acordes.',
+    svg: tgFrame(
+      tgBox(20, 16, 260, 26, '#1c1c3f') + tgTxt(30, 33, '📁', 11, '#c9a84c') + tgTxt(48, 33, 'Grupo: Alabanza', 9.5, '#e8e6f0') +
+      tgBox(40, 50, 190, 24, '#2a2a45') + tgTxt(50, 66, '🔗', 10, '#8888aa') + tgTxt(66, 66, 'Cadena: Victoria', 9, '#c8c6d8') +
+      tgBtn(238, 50, 32, 24, '📄', true) + tgHi(238, 50, 32, 24) +
+      tgBox(40, 82, 190, 24, '#2a2a45') + tgTxt(50, 98, '🔗', 10, '#8888aa') + tgTxt(66, 98, 'Cadena: Restauración', 9, '#c8c6d8') +
+      tgTxt(150, 128, 'Duplicar una cadena existente ahorra tiempo', 8, '#55607a', 'middle'),
+      148)
   },
   {
-    icono: '⋯',
-    titulo: 'Admin y Rol',
-    texto: 'El botón "⋯" arriba a la derecha del encabezado agrupa el acceso de Admin y la selección de tu Rol (Cantante o Músico).'
+    titulo: 'Tema, Verso del día y Recursos',
+    texto: 'Los botones flotantes 🌙 y 📖 cambian el tema claro/oscuro y muestran el Verso del día. "Recursos PDF" reúne partituras, letras u otros documentos. "Acerca de" cuenta la historia del ministerio, y "Teoría" trae apuntes de teoría musical.',
+    svg: tgFrame(
+      '<circle cx="242" cy="30" r="15" fill="#2a2a45"/>' + tgTxt(242, 35, '&#127769;', 13, '#e8e6f0', 'middle') +
+      '<circle cx="272" cy="30" r="15" fill="#2a2a45"/>' + tgTxt(272, 35, '&#128214;', 13, '#e8e6f0', 'middle') +
+      tgHi(227, 15, 60, 30, 20) +
+      tgBtn(20, 60, 260, 26, '🎤 Recursos PDF') +
+      tgBtn(20, 96, 122, 24, '📖 Acerca de') +
+      tgBtn(158, 96, 122, 24, '🎼 Teoría'),
+      134)
+  },
+  {
+    titulo: 'Admin, Rol y Actualizar',
+    texto: '"🔑 Admin" es solo para el equipo de dirección: permite editar canciones, cadenas y ajustes desde el celular. "🎤 Rol" define si usas la app como Cantante o Músico (cambia la vista y el tamaño de letra por defecto). "🔄 Actualizar" busca manualmente una versión nueva de la app instalada, sin esperar a que se actualice sola.',
+    svg: tgFrame(
+      tgBtn(15, 20, 78, 26, '🔑 Admin', true) + tgHi(15, 20, 78, 26) +
+      tgBtn(101, 20, 60, 26, '🎤 Rol') +
+      tgBtn(169, 20, 116, 26, '🔄 Actualizar', true) + tgHi(169, 20, 116, 26) +
+      tgTxt(20, 66, '🔑 Solo directores: edición y contenido', 8.5, '#8888aa') +
+      tgTxt(20, 82, '🎤 Cantante o Músico: tu vista por defecto', 8.5, '#8888aa') +
+      tgTxt(20, 98, '🔄 Revisa si hay una versión nueva', 8.5, '#8888aa'),
+      112)
   }
 ];
 
@@ -12654,11 +13194,12 @@ function renderTutorialSlide() {
   var s = TUTORIAL_SLIDES[tutorialSlideActual];
   var cont = document.getElementById('tutorialSlideContent');
   if (cont) {
+    var textoHtml = s.texto.split('\n').map(function(linea){ return escH(linea); }).join('<br><br>');
     cont.innerHTML =
-      '<div style="text-align:center;margin-bottom:8px;">' +
-        '<div style="font-size:2.4rem;margin-bottom:8px;">' + s.icono + '</div>' +
+      '<div style="text-align:center;">' +
+        (s.svg || '') +
         '<div style="color:#c9a84c;font-weight:bold;font-size:1.05rem;margin-bottom:8px;">' + escH(s.titulo) + '</div>' +
-        '<div style="color:#c8c6d8;font-size:0.86rem;line-height:1.5;">' + escH(s.texto) + '</div>' +
+        '<div style="color:#c8c6d8;font-size:0.84rem;line-height:1.55;text-align:left;">' + textoHtml + '</div>' +
       '</div>';
   }
   var dots = document.getElementById('tutorialDots');
@@ -13002,7 +13543,7 @@ function aplicarAjusteJubilo() {
 
 <!-- ===== MODAL TUTORIAL DE BIENVENIDA (primera vez / botón ❓ Ayuda) ===== -->
 <div id="tutorialModal" class="modal-overlay">
-  <div class="modal-card" style="max-width:400px;">
+  <div class="modal-card" style="max-width:440px;">
     <div style="text-align:right;margin:-6px -6px 4px 0;">
       <button onclick="cerrarTutorial()" style="background:transparent;border:none;color:#8888aa;cursor:pointer;font-size:0.78rem;text-decoration:underline;">Saltar</button>
     </div>
@@ -13151,8 +13692,8 @@ function generarCanvasSetlist() {
   // ---- calcular tiempo estimado ----
   var minAd = 0, minJub = 0;
   lista.forEach(function(s) {
-    if (s.fuente === 'cadena_jubilo' || s.fuente === 'jubilo') minJub += 20;
-    else minAd += 4;
+    if (s.fuente === 'cadena_jubilo' || s.fuente === 'jubilo') minJub += minutosEstimadosItem(s);
+    else minAd += minutosEstimadosItem(s);
   });
   var tiempoStr = 'Tiempo estimado: ' + (minAd + minJub) + ' min';
   if (minAd && minJub) tiempoStr += ' (' + minAd + ' adoración + ' + minJub + ' júbilo)';
