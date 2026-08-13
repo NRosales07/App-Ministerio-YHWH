@@ -1265,5 +1265,55 @@ var SONGS_JUBILO =
     "album": "",
     "content": "[VERSO 1]:\nEm                                            B \nX2    Ven, ven, ven, Espíritu Divino, \n                                             Em\nVen, ven, ven, Apodérate de mí.   X2\n[CORO]:\n            Am-D         G-Em   \nX4    Apodérate, apodérate, \n        B                        Em\nApodérate de todo mi ser.   X4\n\n\nTROMPETAS ",
     "id": 449
+  },
+  {
+    "num": 20,
+    "title": "DAVID, DAVID DANZABA",
+    "compositor": "Inspiración",
+    "tono": "Am",
+    "album": "",
+    "content": "[VERSO 1]:\n         Am                                            G                Am \nX2   David, David danzaba en la presencia del Señor\n            F           G  -  Am\nY el pueblo se regocijaba.    X2\n\n[CORO]:\n           Dm                Am\nX2   Porque David andaba, \n        F                G              Am\nConforme al corazón de Jehová...     X2\n\n\n\n\n\n[VERSO 2]:\nX2   David, David peleó contra el oso y el león\nY el pueblo se regocijaba...   X2 \n\n[CORO]:   X2\n\n\n\n\n\n[VERSO 3]:\nX2   Saúl mató a mil y David a sus diez mil\nY el pueblo se regocijaba...   X2\n\n[CORO]:   X2\n",
+    "id": 450,
+    "version": "Centro Vida"
+  },
+  {
+    "num": 21,
+    "title": "MI COPA ESTÁ REBOSANDO",
+    "compositor": "Inspiración",
+    "tono": "Am",
+    "album": "",
+    "content": "[VERSO 1]:\n                            Am\nX4   Y es que mi copa está rebosando\n         G                            Am\nDel gozo del Espíritu de Dios...    X4\n\n[VERSO 2]:\n            Am          F         G        Am\nX4    Aleluya, Aleluya, Amén, Aleluya...    X4",
+    "id": 451,
+    "version": "Centro Vida"
+  },
+  {
+    "num": 22,
+    "title": "NO HAY SANTO COMO EL SEÑOR",
+    "compositor": "",
+    "tono": "Fm",
+    "album": "",
+    "content": "[CORO]:\n                      Fm                                                    \nX4    No hay santo como el Señor, \n               C#\nNo hay santo como el Señor,\n               Eb                    C                  Fm\nNo hay santo como el Señor, nuestro Dios.   X4",
+    "id": 452,
+    "version": "Centro Vida"
+  },
+  {
+    "num": 23,
+    "title": "YA SE OYE EL SHOFAR",
+    "compositor": "",
+    "tono": "Fm",
+    "album": "",
+    "content": "[VERSO 1]:\n        Fm                           C#                                 Eb\nX2    Ya se oye el Shofar...   En los cielos se oirá\n                         C#           Fm\nA su amada Él,     está llamando...    X2\n\n[CORO]:\n       Fm\nX2   Ven, ven, ven, Ven Señor...\nC#\nVen, ven, ven, Ven Señor...\n       Eb          C#              Fm\nEsperándote...    Está tu novia...   X2",
+    "id": 453,
+    "version": "Centro Vida"
+  },
+  {
+    "num": 24,
+    "title": "GRITA, CANTA, DANZA",
+    "compositor": "",
+    "tono": "Fm",
+    "album": "",
+    "content": "[CORO]:\n           Fm                                                           Bb\nX4    Grita, canta, danza alegremente en su presencia, \n                                                 Eb\nGira, salta dando vueltas par Cristo\n              C                                       Fm\nÉl vive, vive para siempre, Él es el Rey.     X4",
+    "id": 454,
+    "version": "Centro Vida"
   }
 ];
