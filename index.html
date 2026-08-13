@@ -961,9 +961,9 @@ body.light-theme .pdf-list-wrap{
 .setlist-item.dragging{opacity:0.55;background:var(--bg3);box-shadow:0 6px 18px rgba(0,0,0,0.35);}
 .setlist-item .drag-handle:active{cursor:grabbing;}
 .setlist-drag-placeholder{border-radius:8px;margin-bottom:6px;border:2px dashed var(--gold);background:rgba(201,168,76,0.08);}
-.snum{font-size: 0.85rem;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:1px;}
-.stitle{font-size:0.95rem;font-weight:700;color:var(--text);}
-.skey{font-size:0.95rem;color:var(--chord);margin-top:1px;font-family:monospace;}
+.snum{font-size: 0.75rem;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:1px;}
+.stitle{font-size:0.75rem;font-weight:700;color:var(--text);}
+.skey{font-size:0.75rem;color:var(--chord);margin-top:1px;font-family:monospace;}
 .ssearch-match{
   font-size:0.72rem;
   color:var(--text2);
@@ -3431,7 +3431,7 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 /* Mantiene el título limpio */
 .stitle {
-  font-size: 0.85rem !important;
+  font-size: 0.75rem !important;
   text-transform: none !important; /* Títulos también en letra normal */
   font-weight: 600 !important;
 }
@@ -6986,8 +6986,8 @@ function renderSetlist(animarCalendario) {
           '</div>' +
           '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' +
             (s.fuente === 'adoracion' ? '<button onclick="cambiarSeccionItemRepertorio(' + i + ');event.stopPropagation();" title="Mover a ' + (sec.key === 'ministracion' ? 'Adoración Inicial' : 'Ministración') + '" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.85rem; flex-shrink: 0; padding: 4px 6px;">🔀</button>' : '') +
-            '<button onclick="editarMinutosItemRepertorio(' + i + ');event.stopPropagation();" title="Editar minutos estimados" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.72rem; flex-shrink: 0; padding: 4px 6px; white-space:nowrap;">⏱' + minutosEstimadosItem(s) + 'm</button>' +
-            '<button onclick="eliminarDelRepertorio(' + i + ');event.stopPropagation();" title="Eliminar" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.9rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
+            '<button onclick="editarMinutosItemRepertorio(' + i + ');event.stopPropagation();" title="Editar minutos estimados" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.7rem; flex-shrink: 0; padding: 4px 6px; white-space:nowrap;">⏱' + minutosEstimadosItem(s) + 'm</button>' +
+            '<button onclick="eliminarDelRepertorio(' + i + ');event.stopPropagation();" title="Eliminar" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.7rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
           '</div>' +
         '</div>';
     });
