@@ -596,7 +596,7 @@ var SONGS_JUBILO =
     "compositor": "Ebenezer",
     "tono": "Am",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS   | Am | G | Dm | E7 |\n[VERSO 1]:\nX2   Cuando el Señor hiciere volver la cautividad…    X2\nX2   Mi boca llenará de risa...   X2\n[CORO]:\nX2   Me gozaré, me gozaré, me gozaré...   X2\n\n\n\nSE REPITE TODO\n[VERSO 2]:\nX2  Así como David cantaba...   X2\nX2   Yo cantaré, Yo danzaré...    X2\n\n\n\nTROMPETAS              \n\n[CORO]:  X2",
+    "content": "TROMPETAS   | Am | G | Dm | E7 |\n[VERSO 1]:\nX2   Cuando el Señor hiciere volver la cautividad…    X2\nX2   Mi boca llenará de risa...   X2\n[CORO]:\nX2   Me gozaré, me gozaré, me gozaré...   X2\n\n\n\n\nSE REPITE TODO\n\n\n\n\n\nTROMPETAS              \n[VERSO 2]:\nX2  Así como David cantaba...   X2\nX2   Yo cantaré, Yo danzaré...    X2\n\n\n\nTROMPETAS              \n\n[CORO]:  X2",
     "id": 370
   },
   {
@@ -673,7 +673,7 @@ var SONGS_JUBILO =
     "compositor": "Ebenezer San Francisco",
     "tono": "Em",
     "album": "De Gloria en Gloria",
-    "content": "VIOLIN    | C | G | B | Em |\n[VERSO 1]:\n              C                                  G                                             \nFue tu amor y tu poder el que sanó mi corazón, \n              B                     Em\nAhora fuerte soy y libre soy.\n            C                               G                                                      \nMe apartaste para ti pusiste de tu gozo en mí, \n                   B                 Em\nTe ofrendo mi vida en gratitud.\n[CORO]:\n                     Am           Em                 B               Em\nX2     Heme aquí, aquí estoy, tú me envías con unción,\n      Am             Em         B                   Em\nTu poder sobre mí, me hace confiar en ti.    X2\n\n\n\n\nTROMPETAS     | Am | Em | B | Em | \n\n[VERSO 1]:         |         [CORO]: X2",
+    "content": "VIOLIN    | C | G | B | Em |\n[VERSO 1]:\n              C                                  G                                             \nFue tu amor y tu poder el que sanó mi corazón, \n              B                     Em\nAhora fuerte soy y libre soy.\n            C                               G                                                      \nMe apartaste para ti pusiste de tu gozo en mí, \n                   B                 Em\nTe ofrendo mi vida en gratitud.\n\n\n\n\nTROMPETAS     | Am | Em | B | Em | \n\n\n[VERSO 1]:\n\n[CORO]:\n                     Am           Em                 B               Em\nX2     Heme aquí, aquí estoy, tú me envías con unción,\n      Am             Em         B                   Em\nTu poder sobre mí, me hace confiar en ti.    X2\n\n\n\n\n\nTROMPETAS     | Am | Em | B | Em | \n\n[CORO]: X2",
     "id": 379
   },
   {
@@ -756,7 +756,7 @@ var SONGS_JUBILO =
     "compositor": "Tradicional",
     "tono": "Am",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS     | Am | G | F | E |\n[CORO]:\n           Am\nX2     Toda la noche sin parar, \n       G\nCantando alabanzas al Señor,\n      F                                 Dm                           E\nDiciendo de su gloria y majestad que Él es el Rey.   X2\n       Am      E\nDe Israel.\n",
+    "content": "TROMPETAS     | Am | G | F | E |\n[CORO]:\n           Am\nX2     Toda la noche sin parar, \n       G\nCantando alabanzas al Señor,\n      F                                 Dm                           E\nDiciendo de su gloria y majestad que Él es el Rey.   X2\n       Am      E\nDe Israel.\n\n\n\n\n\nTROMPETAS\n\nSE REPITE TODO",
     "id": 389
   },
   {
