@@ -633,12 +633,13 @@ var SONGS_JUBILO =
     "content": "MIX 2  |  EBENEZER\nMIX 2  |  EBENEZER\nTROMPETAS      | Am | G | Dm | E7 |\n[VERSO 1]:\n                               Am                                                          G\nX2     Hay una llama que arde en mí, un gran poder que está en ti,\n                          Dm                                                             E7\nMe está quemando su fuego santo, puedo sentirlo está aquí.   X2\n[CORO]:\n               Am                        G\nX2     Fuego (fuego) Fuego del Señor (fuego del Señor)\n   Dm                                                        E\nFuego (fuego) Fuego (fuego)  Fuego purificador.  X2\nTROMPETAS\n                      Am\nX2      Fuego, fuego, fuego, fuego, fuego, fuego, fuego\n     G\nFuego, fuego, fuego, fuego, fuego, fuego, fuego\n   Dm\nFuego, fuego, fuego, fuego, fuego, fuego, fuego\n     E\nFuego purificador.    X2                                —               CORO"
   },
   {
-    "id": 375,
+    "num": null,
     "title": "¿QUIÉN LO DIRÍA?",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Cm",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 2  |  EBENEZER\nMIX 2  |  EBENEZER\nTROMPETAS    | Cm | Bb | Ab-Fm | G |\n[VERSO 1]:\n      Cm         Bb            Ab-Fm             G\n¿Quién lo diría? Que yo            danzaría en tu casa, Señor,\n      Cm         Bb             Ab-Fm             G\n¿Quién lo diría? Que yo            abrazaría tu gloria, Señor.\n[CORO]:\n                 Cm                                                          Bb\nVoy a perder la compostura, delante de ti,\n                 Ab                                             Fm                 G\nVoy a cantar, voy a danzar voy a reír, yo lo hago solo para ti.\n                Cm                                                           Bb\nVoy a perder la compostura, delante de ti,\n                       Ab                                         Fm                    G\nQué me importa que me digan aleluya, yo lo hago solo para ti.\nTROMPETAS\n[VERSO 2]:\n| Cm | Bb | Ab-Fm | G |\n                                Cm                                                                                                                              Bb\nX3    Que me importa que critiquen  que no entiendan que me digan que estoy loco,\n   Ab-Fm           G\nSi yo,        lo hago solo para ti.     X3\n                                                                                                                                                                      G\n[CORO]:\n—             X2   Yo lo hago solo para ti.  X2"
+    "content": "TROMPETAS    | Cm | Bb | Ab-Fm | G |\n[VERSO 1]:\n   Cm         Bb           Ab-Fm             \n¿Quién lo diría? Que yo            \n      G\nDanzaría en tu casa, Señor,\n   Cm         Bb            Ab-Fm             \n¿Quién lo diría? Que yo            \n      G\nAbrazaría tu gloria, Señor.\n[CORO]:\n           Cm                                             Bb\nVoy a perder la compostura, delante de ti,\n            Ab                                    Fm   \nVoy a cantar, voy a danzar voy a reír, \n           G\nYo lo hago solo para ti.\n            Cm                                            Bb\nVoy a perder la compostura, delante de ti,\n                 Ab                              Fm                    \nQué me importa que me digan aleluya,\n           G\nYo lo hago solo para ti.\n\n\n\n\nTROMPETAS\n[VERSO 2]:\n| Cm | Bb | Ab-Fm | G |\n                         Cm    \nX3    Que me importa que critiquen  que no entiendan \n                                         Bb\nQue me digan que estoy loco,\n    Ab-Fm        G\nSi yo,        lo hago solo para ti.     X3                                                                                                                                                           \n[CORO]:\nX2   Yo lo hago solo para ti.  X2",
+    "id": 375
   },
   {
     "num": null,
@@ -793,12 +794,13 @@ var SONGS_JUBILO =
     "id": 393
   },
   {
-    "id": 394,
+    "num": null,
     "title": "LOS ENEMIGOS DE LA FE",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Cm",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 10  |  EBENEZER\nMIX 10  |  EBENEZER\n                       Ab                                   Eb                     Cm        Ab\nX2    Se burlaban de mí, los enemigos de la fe y clamaban:\n  Fm                 G                                                Ab                                                Eb          Cm\n“No hay salvación para él” Mas yo tomado de su mano, este desierto pasaré,\n               Ab        Fm               G                         Ab      Fm             Cm\nEstoy seguro de mi salvación, estoy seguro de mi salvación.     X2\n[VERSO 1]:\n                                                 Cm\nX2   No me avergüenzo, del evangelio, que ha sido gran poder\n                                                                    Eb                   Fm               G                  Cm\nY libertad en la verdad gracias a él… Hoy levanto el nombre de Jehová.   X2\n[CORO]:\n                                      Ab                  Eb           Bb                     Cm                Ab-Eb    Bb             Cm\nX2     Hoy me encuentro en corros, porque lo que siento, es salvación en mi corazón,\n                  Ab              Eb     Bb             Cm                   Ab-Eb   Bb              Cm\nHoy levanto mis pies, no me cansaré, hay salvación en mi corazón.     X2\n[INSTRUMENTAL]:\n| Ab | Eb | Bb | Cm |\nX4     Bueno es Dios, (Bueno es Dios) Bueno es Dios, (Bueno es Dios)   X4"
+    "content": "SE CANTA LENTO:\n               Ab                             Eb              Cm        \nX2   Se burlaban de mí, los enemigos de la fe \n         Ab        Fm             G   \nY clamaban: “No hay salvación para él”\n                Ab                                     Eb        Cm\nMas yo tomado de su mano, este desierto pasaré,\n            Ab    Fm          G     \nEstoy seguro de mi salvación, \n             Ab   Fm          Cm        \nEstoy seguro de mi salvación...     X2\n[VERSO 1]:\n                          Cm\nX2   No me avergüenzo, del evangelio, \n\nQue ha sido gran poder y libertad\n                                    Eb   \nEn la verdad gracias a él… \n          Fm             G             Cm\nHoy levanto el nombre de Jehová.   X2\n[CORO]:\n                           Ab              Eb    \nX2     Hoy me encuentro en corros, \n   Bb                 Cm          Ab-Eb    Bb        Cm\nPorque lo que siento, es salvación en mi corazón,\n           Ab           Eb   Bb         Cm    \nHoy levanto mis pies, no me cansaré, \n         Ab-Eb   Bb         Cm\nHay salvación en mi corazón.     X2\n\n\n\n[INSTRUMENTAL]\n\n\n\n| Ab | Eb | Bb | Cm |\nX4     Bueno es Dios, (Bueno es Dios) \nBueno es Dios, (Bueno es Dios)   X4\n\n\n\n\n\nTROMPETAS\n\n[INSTRUMENTAL]\n\n\n\n| Ab | Eb | Bb | Cm |\nX4     Bueno es Dios, (Bueno es Dios) \nBueno es Dios, (Bueno es Dios)   X4",
+    "id": 394
   },
   {
     "id": 395,
@@ -818,12 +820,13 @@ var SONGS_JUBILO =
     "id": 396
   },
   {
-    "id": 397,
+    "num": null,
     "title": "GRITA, CANTA, DANZA",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Cm",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 11  |  EBENEZER\nMIX 11  |  EBENEZER\nTROMPETAS   | Cm | Ab | Bb | G |\n[CORO]:\n           Cm                                                                                 Ab\nX2    Grita, canta, danza alegremente en su presencia, gira, salta dando vueltas\n               Bb                         G                                                Cm\nPara Cristo, Él vive, vive para siempre, Él es el Rey.     X2"
+    "content": "TROMPETAS   | Cm | Ab | Bb | G |\n[CORO]:\n         Cm                                                            Ab\nX2    Grita, canta, danza alegremente en su presencia, \n                                                    Bb\nGira, salta dando vueltas para Cristo\n              G                                       Cm\nÉl vive, vive para siempre, Él es el Rey.     X2\n\n\n\n\nTROMPETAS \n[CORO]:   X2\n\nTROMPETAS",
+    "id": 397
   },
   {
     "id": 398,
@@ -842,20 +845,22 @@ var SONGS_JUBILO =
     "content": "TROMPETAS"
   },
   {
-    "id": 400,
+    "num": null,
     "title": "YO VOY A IR A OTRA DIMENSIÓN",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Cm",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 21  |  EBENEZER\nMIX 21  |  EBENEZER\n[VERSO 1]:\n         Cm                                                    Eb                                                         Fm\nX2     Yo voy a ir a otra dimensión,     yo voy a ir a otra dimensión,\n                                                                   G\nYo voy a ir a otra dimensión, yo voy, yo voy, yo voy, yo voy, yo voy.    X2\n[CORO]:\n                               Ab                              Eb              Ab                Eb            Fm\nX2    Porque grandes, son sus obras, su poder, maravilloso,\n                                                                  G\nCielos y tierra su nombre glorifica  -  a  -  ar.    X2           —    SE REPITE TODO       |     X2   Glorificar...  X2"
+    "content": "[VERSO 1]:\nCm                                                   Eb   \nX2     Yo voy a ir a otra dimensión,     \n                                              Fm\nYo voy a ir a otra dimensión,                                         \nYo voy a ir a otra dimensión, \n      G\nYo voy, yo voy, yo voy, yo voy, yo voy.    X2\n[CORO]:\n                         Ab                      Eb        \nX2    Porque grandes, son sus obras,\n       Ab           Eb          Fm     \nSu poder, maravilloso,\n                                                  G\nCielos y tierra su nombre glorifica  -  a  -  ar.    X2 \n\n\n\n\n\n\n\n\nSE REPITE TODO            \n\n\n\n\n             G\nX2   Glorificar...  X2",
+    "id": 400
   },
   {
-    "id": 401,
+    "num": null,
     "title": "El SEÑOR ES MI REY",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Cm",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS   | Cm | Bb-Cm | Bb-Ab | Eb-Cm-Ab | Eb-Ab | Cm-Ab | Cm-Bb-Cm |\n[CORO]:\n       Cm                                            Bb-Cm                                                  Bb-Ab\nX2      El Señor es mi Rey mi todo,       el Señor es mi luz mi Rey,\n                                                      Eb-Cm-Ab                                        Eb    Ab\nEl que me hace vibrar de gozo,               el que guía mis pasos,\n                                              Cm   Ab                               Cm – Bb – Cm\nEl que extiende sus brazos,      el creador de los ci-e–los…   X2\nTROMPETAS"
+    "content": "TROMPETAS   \n[CORO]:\n                 Cm                         Bb - Cm \nX2      El Señor es mi Rey mi todo,       \n                                   Bb                                 Ab\nEl Señor es mi luz mi Rey, (El que me hace vibrar...)\n                                           Eb - Cm - Ab  \nEl que me hace vibrar de gozo,               \n                            Eb        Ab\nEl que guía mis pasos,\n                                  Cm        Ab   \nEl que extiende sus brazos,      \n                          Cm – Bb – Cm\nEl creador de los cie - ee – los…   X2\n\n\n\n\n\nTROMPETAS",
+    "id": 401
   },
   {
     "num": null,
