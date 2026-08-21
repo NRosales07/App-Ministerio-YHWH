@@ -1629,9 +1629,9 @@ var SONGS =
     "compositor": "Julio Melgar - 2013",
     "tono": "D",
     "album": "Culto en Vivo",
-    "version": "Ebenezer HN",
-    "content": "[INTRO]:\n                                 | D | A | Bm | A | G | E | A |\n        [VERSO 1]:\n        D                       A Bm                         A G\nQué hermoso que estás aquí,         aquí tan cerca de mí,\n        D Em                        A\nEres todo lo que quiero,      me desespero por ti,\n  D                     A Bm                           A     G                         D Em\nSorpréndeme una vez más,        no me conformo, Señor,         \nC\n Eres todo lo que anhelo,\n        A F#m-G F#m Bm7                   A         G\nQuiero vivir para ti... Déjame estar, aquí, junto a ti, mi Jesús.\n        [CORO]:\n        D     Bm7     A            F#    Bm              G        A7\nX2 Hoy, yo soy un altar, donde puede morar, hoy tu dulce presencia,\n        D          Bm7    A            F#     Bm7 G               A\nVen y toma todo de mí, que sea digno de ti, agradarte yo quiero. X2\n        [VERSO 1]:       |         [CORO] X2 ",
-    "id": 157
+    "content": "[INTRO]:\n                                 | D | A | Bm | A | G | E | A |\n        [VERSO 1]:\n  D                                     A      Bm                               A     G\nQué hermoso que estás aquí,         aquí tan cerca de mí,\n                               D     Em                              A\nEres todo lo que quiero,      me desespero por ti,\n          D                          A     Bm                                 A       G                       \nSorpréndeme una vez más,        no me conformo, Señor,         \n                                 D      Em\n Eres todo lo que anhelo,\n                           A     F#m-G        F#    Bm7            A         G  \nQuiero vivir para ti... Déjame      estar, aquí, junto a ti, mi Jesús.\n        [CORO]:\n       D         Bm7      A                  F#      Bm                 G        A7\nX2 Hoy, yo soy un altar, donde puede morar, hoy tu dulce presencia,\n  D               Bm7     A                    F#     Bm7      G               A\nVen y toma todo de mí, que sea digno de ti, agradarte yo quiero. X2\n       \n\n [VERSO 1]:       |         [CORO] X2 ",
+    "id": 157,
+    "version": "Ebenezer HN"
   },
   {
     "num": 24,
