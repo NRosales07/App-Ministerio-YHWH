@@ -77,7 +77,7 @@ var SONGS_JUBILO =
     "compositor": "Tradicional",
     "tono": "Em",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                        Em                                            B     Em\nX2  Los que esperan, Los que esperan en Jehová. X2\n                           Am-D                   G-Em\nX2      Como las águilas, como las águilas, \n         B         Em\nSus alas levantarán.    X2\n[CORO]:\n       D                         G    \n Correrán y no se cansarán, \n        D                         G\nCaminarán y no se fatigarán,\n                     Am-D                              G-Em\nX2   Nuevas fuerzas tendrán, nuevas fuerzas tendrán\n                   B                                          Em\nLos que esperan, los que esperan en Jehová.   X2",
+    "content": "[VERSO 1]:\nTROMPETAS\n                        Em                                            B     Em\nX2  Los que esperan, Los que esperan en Jehová. X2\n                           Am-D                   G-Em\nX2      Como las águilas, como las águilas, \n         B         Em\nSus alas levantarán.    X2\n[CORO]:\n       D                         G    \n Correrán y no se cansarán, \n        D                         G\nCaminarán y no se fatigarán,\n                     Am-D                              G-Em\nX2   Nuevas fuerzas tendrán, nuevas fuerzas tendrán\n                   B                                          Em\nLos que esperan, los que esperan en Jehová.   X2",
     "id": 308
   },
   {
@@ -1320,5 +1320,32 @@ var SONGS_JUBILO =
     "content": "[CORO]:\n           Fm                                                           Bb\nX4    Grita, canta, danza alegremente en su presencia, \n                                                 Eb\nGira, salta dando vueltas par Cristo\n              C                                       Fm\nÉl vive, vive para siempre, Él es el Rey.     X4",
     "id": 454,
     "version": "Centro Vida"
+  },
+  {
+    "num": 25,
+    "title": "EN EL PRINCIPIO",
+    "compositor": "",
+    "tono": "Em",
+    "album": "Coros",
+    "content": "[VERSO 1]:\nTROMPETAS\n                      Em                             B                                                \nX2     En el principio el Espíritu de Dios, \n                                  Em\nSe movía sobre las aguas.     X2\n\n\n[CORO]:   \n                  Am-D              G-Em\nX4     Pero ahora se está moviendo \n             B          Em\nDentro de mi corazón.    X4",
+    "id": 455
+  },
+  {
+    "num": 26,
+    "title": "¿QUIEN COMO JEHOVA?",
+    "compositor": "",
+    "tono": "Em",
+    "album": "Coros",
+    "content": "[VERSO 1]:\n           Em                                         G\nX4    ¿Quién, quién, quién como Jehová?, \n             Am   B                 Em\nQue con su poder el mar abrió.   X4\n[CORO]:\n Am             B                   Em  \nOirán las naciones lo que hizo \n    Am                     D            G-Em\nCantaran cuando vean sus prodigios,\n                  B                                  C \nX2     Su pueblo le alabara, con pandero danzara, \n      D       B                           Em\nY dirán quién, quién como Jehová.  X2\n\n\n                                      \n[VERSO 1]:   X2      |      [CORO]:   X2\n",
+    "id": 456
+  },
+  {
+    "num": 27,
+    "title": "YO ME ALEGRÉ",
+    "compositor": "",
+    "tono": "Em",
+    "album": "Coros",
+    "content": "[VERSO 1]:\n                   Em                        C      B   \nX2  Yo me alegré con los que me decían, \n                                    Em\nA la casa de Jehová iremos…  X2\n[CORO]:\n             Am-D       G-Em        B          \nX4     Yo iré,       tú irás, a la casa de Jehová \n    Em\nYo iré…   X4\n\n\n\n\n\nSE REPITE TODO",
+    "id": 457
   }
 ];

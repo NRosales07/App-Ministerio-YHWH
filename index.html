@@ -2224,8 +2224,8 @@ body.light-theme #btnCompartirRepertorio:hover {
 }
 
 .repertorio-footer-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
   align-items: stretch;
@@ -2237,7 +2237,8 @@ body.light-theme #btnCompartirRepertorio:hover {
   max-width: 420px;
 }
 .repertorio-footer-btn {
-  width: 100%;
+  flex: 1 1 calc(33.333% - 6px);
+  max-width: calc(33.333% - 6px);
   min-width: 0;
   border: 1px solid rgba(232, 201, 122, 0.18);
   border-radius: 14px;
@@ -6113,7 +6114,15 @@ function copiarRepertorioAOtraFecha() {
 
 
 var REPERTORIOS_KEY = 'yhwh_repertorios_v3';
-var repertorioFechaActiva = localStorage.getItem('yhwh_repertorio_fecha') || hoyISO();
+var _repertorioFechaGuardada = localStorage.getItem('yhwh_repertorio_fecha');
+var _repertorioFechaGuardadaEl = localStorage.getItem('yhwh_repertorio_fecha_guardada_el');
+// Solo respetar la última fecha vista si se guardó HOY mismo. Si fue otro
+// día (o nunca se guardó), abrir directo en el próximo día de servicio
+// (viernes o domingo) en vez de quedarse pegado en una fecha vieja o de
+// mostrar un día de ensayo/grupo que no es el servicio real.
+var repertorioFechaActiva = (_repertorioFechaGuardada && _repertorioFechaGuardadaEl === hoyISO())
+  ? _repertorioFechaGuardada
+  : proximoDiaServicio();
 var repertorioMesActivo = localStorage.getItem('yhwh_repertorio_mes') || repertorioFechaActiva.slice(0, 7);
 var repertorios = cargarRepertorios();
 var setlistDOM = getRepertorioFecha(repertorioFechaActiva);
@@ -6170,6 +6179,20 @@ function esViernesODomingo(iso) {
   return d === 5 || d === 0;
 }
 
+// Devuelve el próximo día de servicio real (viernes o domingo) a partir de
+// una fecha. Si "desde" ya es viernes o domingo, devuelve esa misma fecha.
+function proximoDiaServicio(desde) {
+  var iso = normalizarISO(desde || hoyISO());
+  if (esViernesODomingo(iso)) return iso;
+  var d = fechaLocalDesdeISO(iso);
+  for (var i = 1; i <= 7; i++) {
+    var siguiente = new Date(d.getFullYear(), d.getMonth(), d.getDate() + i);
+    var isoSig = siguiente.getFullYear() + '-' + pad2(siguiente.getMonth() + 1) + '-' + pad2(siguiente.getDate());
+    if (esViernesODomingo(isoSig)) return isoSig;
+  }
+  return iso;
+}
+
 function existeRepertorioEnFecha(iso) {
   return Array.isArray(repertorios[getCalendarioKey(iso)]) && repertorios[getCalendarioKey(iso)].length > 0;
 }
@@ -6194,6 +6217,7 @@ function guardarRepertorios() {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
   localStorage.setItem('yhwh_repertorio_fecha', repertorioFechaActiva);
+  localStorage.setItem('yhwh_repertorio_fecha_guardada_el', hoyISO());
   localStorage.setItem('yhwh_repertorio_mes', repertorioMesActivo);
   if (window.esAdmin && window.fbDb) {
     window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios);
@@ -6206,6 +6230,7 @@ function guardarRepertorios() {
 // NUEVO: guarda solo qué fecha/mes estás viendo. No requiere admin, no toca el repertorio compartido.
 function guardarVistaRepertorio() {
   localStorage.setItem('yhwh_repertorio_fecha', repertorioFechaActiva);
+  localStorage.setItem('yhwh_repertorio_fecha_guardada_el', hoyISO());
   localStorage.setItem('yhwh_repertorio_mes', repertorioMesActivo);
 }
 
