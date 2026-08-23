@@ -4766,9 +4766,21 @@ function transitionChordHTML(chord) {
   return '<span onclick="abrirPiano(\'' + chordEscapado + '\')" style="cursor:pointer;text-decoration:none;" title="Ver acorde en piano">' + escH(display) + '</span>';
 }
 
+// Tono "efectivo" de una canción para calcular transiciones: si es la
+// canción que se está tocando ahora mismo, usa el tono ya transportado en
+// pantalla (currentKey); si no, revisa si esa canción tiene un tono
+// transportado guardado (aunque no sea la que está activa); si no hay
+// ninguno, cae al tono original guardado en la canción.
+function getTonoEfectivo(song) {
+  if (!song) return '';
+  if (currentSong && currentKey && String(song.id) === String(currentSong.id)) return currentKey;
+  var guardado = song.id !== undefined ? localStorage.getItem('yhwh_tono_' + song.id) : null;
+  return guardado || song.tono || '';
+}
+
 function buildTransitionText(prevSong, nextSong) {
-  var prevKey = prevSong && prevSong.tono ? prevSong.tono : prevSong;
-  var nextKey = nextSong && nextSong.tono ? nextSong.tono : nextSong;
+  var prevKey = prevSong && prevSong.tono ? getTonoEfectivo(prevSong) : prevSong;
+  var nextKey = nextSong && nextSong.tono ? getTonoEfectivo(nextSong) : nextSong;
   var fromRoot = getToneRoot(prevKey);
   var toRoot = getToneRoot(nextKey);
   if (!fromRoot || !toRoot) return '';
@@ -5137,13 +5149,24 @@ function selectKey(key){
   updateSemDisplay();
   animarCambioAcordes();
     localStorage.setItem('yhwh_tono_' + currentSong.id, key);
+  actualizarTransicionActual();
 
 }
 
 function shiftSemitone(delta){
   currentSemitones=((currentSemitones+delta)%12+12)%12;
+  if (currentSong) {
+    var orig = getOrigKey(currentSong);
+    var esMenor = orig.slice(-1) === 'm';
+    var origRoot = esMenor ? orig.slice(0, -1) : orig;
+    var nuevaKey = transposeNote(origRoot, currentSemitones) + (esMenor ? 'm' : '');
+    currentKey = nuevaKey;
+    setActiveKey(nuevaKey);
+    localStorage.setItem('yhwh_tono_' + currentSong.id, nuevaKey);
+  }
   updateSemDisplay();
   animarCambioAcordes();
+  actualizarTransicionActual();
 }
 
 // Aplica un fade rápido al contenido de la canción cuando cambian los acordes
