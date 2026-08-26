@@ -1347,5 +1347,32 @@ var SONGS_JUBILO =
     "album": "Coros",
     "content": "[VERSO 1]:\n                   Em                        C      B   \nX2  Yo me alegré con los que me decían, \n                                    Em\nA la casa de Jehová iremos…  X2\n[CORO]:\n             Am-D       G-Em        B          \nX4     Yo iré,       tú irás, a la casa de Jehová \n    Em\nYo iré…   X4\n\n\n\n\n\nSE REPITE TODO",
     "id": 457
+  },
+  {
+    "num": 28,
+    "title": "YO TENGO UN ABOGADO",
+    "compositor": "",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n\nYo tengo un abogado que me defiende\n\nÉl nunca está ocupado, siempre me atiende\n\nÉl nunca pierde un caso, todos los gana\n\nSi alguno le interesa saber su nombre Jesús se llama\n\nSi alguno le interesa saber su nombre Jesús se llama... ",
+    "id": 458
+  },
+  {
+    "num": 29,
+    "title": "UN MILAGRO",
+    "compositor": "",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n\nUn milagro Dios quiere hacer en ti,\n \nUn milagro Dios quiere hacer en ti,\n\nQuiere salvarte, quiere sanarte,\n\nQuiere ayudarte y hacerte el bien...\n\n[VERSO 2]:\n\nUn milagro Dios quiere hacer en ti,\n \nUn milagro Dios quiere hacer en ti,\n\nEn Jesucristo cree solamente,\n\nY el milagro sucederá.",
+    "id": 459
+  },
+  {
+    "num": 30,
+    "title": "DESPUES DE LA BATALLA",
+    "compositor": "",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n\nDespués de la batalla nos coronará,\n\nDios nos coronará, Dios nos coronará;\n\nDespués de la batalla nos coronará\n\nen aquella santa Sion.\n\n[CORO]:\n\nMás allá, más allá, en aquella Santa Sión...\n\nDespués de la batalla nos coronará\n\nen aquella santa Sion.",
+    "id": 460
   }
 ];
