@@ -351,28 +351,31 @@ var SONGS_JUBILO =
     "content": "[VERSO 1]:\nF# | C# | G#m | C# | A#m | D#m | G#m | C# | F# |\nVa bajando ya, va bajando ya, Va bajando la gloria\nDe Jehová, Si este pueblo empieza a orar,\nEl Señor va a contestar, va bajando la gloria de Jehová.\n[VERSO 2]:\nF# | C# | F# |\nLa gloria de Jehová cayó en el Sinaí y aquel monte temblaba porque Dios estaba ahí.\n[CORO]:\nB | F# | G#m | C# | F# |\nX2    Dios estaba ahí, Dios estaba ahí Y aquel monte, temblaba porque Dios estaba ahí.    X2"
   },
   {
-    "id": 341,
+    "num": null,
     "title": "OH SEÑOR",
-    "compositor": "Tradicional",
-    "tono": "D",
+    "compositor": "Coros",
+    "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                    C                                                                                                                                             F\nX2   Oh Señor quiero que ardas en mi ser, Como la zarza quiero arder con tu poder,\n                           Dm                                                    G                          F                            G               C\nEn nuevas lenguas quiero hablar como señal, Estoy ardiendo con el fuego celestial,\n       C                                                                                                                                          F\nQuiero alabarte y adorarte solo a ti, Como se adora en Espíritu y en Verdad;\n                                                                       C-Am                Dm                     G                        C\nOh Señor quiero que ardas en mi ser, Como la zarza quiero arder con tu poder.    X2"
+    "content": "[VERSO 1]:\n                C\nX2   Oh Señor quiero que ardas en mi ser, \n                                                          F\nComo la zarza quiero arder con tu poder,\n                     Dm                                      G \nEn nuevas lenguas quiero hablar como señal, \n                F                    G         C\nEstoy ardiendo con el fuego celestial,\n                  C      \nQuiero alabarte y adorarte solo a ti, \n                                                         F\nComo se adora en Espíritu y en Verdad;\n                                                     C-Am \nOh Señor quiero que ardas en mi ser, \n                Dm                G                  C\nComo la zarza quiero arder con tu poder.    X2",
+    "id": 341
   },
   {
-    "id": 342,
+    "num": null,
     "title": "ARDIENDO EN FUEGO",
-    "compositor": "Tradicional",
-    "tono": "D",
+    "compositor": "Coros",
+    "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n                                      C                              Dm\nX2    Ardiendo el fuego en mi alma esta,\n                             G                                C\nArdiendo el fuego en mi alma esta, gloriosa llama,\n                                         F              G                               C\nMe limpiará, Oh aleluya ardiendo mi alma está.   X2"
+    "content": "[VERSO 1]:\n                              C                        Dm\nX2    Ardiendo el fuego en mi alma esta,\n                       G                        C\nArdiendo el fuego en mi alma esta, gloriosa llama,\n           F                 G                                     C\nMe limpiará, Oh aleluya ardiendo mi alma está.   X2",
+    "id": 342
   },
   {
-    "id": 343,
+    "num": null,
     "title": "TODOS NOSOTROS POR LA FE",
-    "compositor": "Tradicional",
-    "tono": "D",
+    "compositor": "Coros",
+    "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\n              C                                      F                      G                  F         C\nX2    Todos nosotros por la fe, nos acercamos Cristo a ti,\n                          A                 Dm                          G                       C\nAunque tu rostro no se ve, sabemos que tú estás aquí.     X2\n[CORO]:\n                                  C                                     G\nX2   Jesús está aquí, pide lo que quieras,\n                        Dm     G                      C\nJesús está aquí, pide lo que quieras,\n                                                   F                               C                          G                       C\nÉl tiene poder, Él te lo dará, Jesús está aquí ¡aleluya! Pide lo que quieras.   X2"
+    "content": "[VERSO 1]:\n           C                              F               G              F       C\nX2    Todos nosotros por la fe, nos acercamos Cristo a ti,\n                     A            Dm                   G                  C\nAunque tu rostro no se ve, sabemos que tú estás aquí.     X2\n[CORO]:\n                            C                           G\nX2   Jesús está aquí, pide lo que quieras,\n                   Dm    G                  C\nJesús está aquí, pide lo que quieras,\n                                      F                         C\nÉl tiene poder, Él te lo dará, Jesús está aquí \n                 G                   C\n¡Aleluya! Pide lo que quieras.   X2",
+    "id": 343
   },
   {
     "num": null,
@@ -533,12 +536,13 @@ var SONGS_JUBILO =
     "content": "[VERSO 1]:\n                                                         A                                    D\nX2   Se mueve la mano de Dios en su palabra viva.  X2\n                   A                                                                    D\nX2   Se mueve, se mueve, Se mueve con poder.  X2\n          A                              D                                                                  D\nX3  Con, con, con poder.   X3   Se mueve la mano de Dios\n            D                A                             D\nX4   Todo es posible si puedes creer.  X4"
   },
   {
-    "id": 363,
+    "num": null,
     "title": "BIENVENIDO",
     "compositor": "Tradicional",
-    "tono": "D",
+    "tono": "C",
     "album": "Alabanzas de Júbilo",
-    "content": "[VERSO 1]:\nC | G | C | F | Dm | G | C |\nX2    Bienvenido a esta iglesia que te ama, a la iglesia de Cristo Jesús\nSi tu corazón es como el mío, dame la mano y mi hermano será.    X2\n[CORO]:\nG | C | G | C |\nX2     Dame la mano, querido hermano, dame la mano y mi hermano serás.   X2"
+    "content": "[VERSO 1]:\n                 C\nX2    Bienvenido a esta iglesia que te ama, \n                                     G\nA la iglesia de Cristo Jesús\n              F                         G\nSi tu corazón es como el mío, \n                Dm                G         C\nDame la mano y mi hermano será.    X2\n[CORO]:\n                           G                        C   \nX2     Dame la mano, querido hermano, \n                Dm                G          C\nDame la mano y mi hermano serás.   X2",
+    "id": 363
   },
   {
     "id": 364,
@@ -1374,5 +1378,50 @@ var SONGS_JUBILO =
     "album": "",
     "content": "[VERSO 1]:\n\nDespués de la batalla nos coronará,\n\nDios nos coronará, Dios nos coronará;\n\nDespués de la batalla nos coronará\n\nen aquella santa Sion.\n\n[CORO]:\n\nMás allá, más allá, en aquella Santa Sión...\n\nDespués de la batalla nos coronará\n\nen aquella santa Sion.",
     "id": 460
+  },
+  {
+    "num": 31,
+    "title": "GOZO YO QUERIA",
+    "compositor": "Coros",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n            C                               G\nX2    Gozo, gozo, gozo yo quería,\n                  F          G                 C\nPero lo buscaba donde no lo había.    X2\n[CORO]:\n                            F                              C\nX2    Pero vino Cristo el dador de la vida\n                      G                         C\nMe llenó de gozo del que yo quería...    X2\n\n[VERSO 2]:\n             C                                       G\nX2    Fuente de vida la que yo encontré... \n                             F               G      C\nCuando vine a Cristo por primera vez...    X2\n\n[CORO]:\n                               F                                  C\nX2    Pero no lo cambio mi hermano por nada\n                       G                         C\nMe llenó de Gozo del que yo quería...   X2\n",
+    "id": 461
+  },
+  {
+    "num": 32,
+    "title": "EN EL ALTAR DE DIOS",
+    "compositor": "Coros",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n                     C\nX2     En el altar de Dios, en el altar de Dios\n                             G                                 C\nEl fuego está encendido, en el altar de Dios...   X2\n[CORO]:\n                                      F                                   C\nX2    Nadie lo podrá apagar, nadie lo podrá apagar\n                  Dm             G                               C\nPorque el fuego de Jehová, en mi corazón está...   X2\n",
+    "id": 462
+  },
+  {
+    "num": 33,
+    "title": "EL AMOR DE DIOS",
+    "compositor": "Coros",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n       C                             G\nEl amor de Dios es maravilloso\n       F                              C\nEl amor de Dios es maravilloso\n                                        F\nEl amor de Dios es maravilloso\n  Dm                 G           C\nGrande es el amor de Dios\n\n[VERSO 2]:\n        C                                                         G\nTan alto que no puedo estar más alto que Él\n         F                                       G         C              \nTan bajo que no puedo estar abajo de Él\n                                                                   F       \nTan ancho que no puedo estar afuera de Él\n  Dm                 G           C\nGrande es el amor de Dios!\n",
+    "id": 463
+  },
+  {
+    "num": 34,
+    "title": "EN EL HOGAR",
+    "compositor": "Coros",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n                    C\nX2   En el hogar, En el hogar, En el hogar...   X2\n                       G\nNecesitas a Jesús...\n                    F \nX2   En el hogar, En el hogar, En el hogar...   X2\n       G              C\nNecesitas a Jesús...\n\n[VERSO 2]:\n             C                                                        G\nVieras que feliz se vive, Vieras que feliz se vive\n                                F\nCon Jesús, en el Hogar...\n             C                                   G          \nVieras que feliz se vive, Vieras que feliz se vive\n                                C\nCon Jesús, en el Hogar...\n",
+    "id": 464
+  },
+  {
+    "num": 35,
+    "title": "HAY PODER",
+    "compositor": "Coros",
+    "tono": "C",
+    "album": "",
+    "content": "[VERSO 1]:\n                   C\nX2    Hay poder, poder, sin igual poder\n         G                              C\nEn Jesús, que murió y resucitó,\n                            \nHay poder, poder, sin igual poder,\n              G               C\nEn la sangre que perdió...     X2\n",
+    "id": 465
   }
 ];
