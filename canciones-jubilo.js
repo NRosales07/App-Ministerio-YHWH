@@ -1331,7 +1331,7 @@ var SONGS_JUBILO =
     "compositor": "",
     "tono": "Em",
     "album": "Coros",
-    "content": "[VERSO 1]:\nTROMPETAS\n                      Em                             B                                                \nX2     En el principio el Espíritu de Dios, \n                                  Em\nSe movía sobre las aguas.     X2\n\n\n[CORO]:   \n                  Am-D              G-Em\nX4     Pero ahora se está moviendo \n             B          Em\nDentro de mi corazón.    X4",
+    "content": "[VERSO 1]:\nTROMPETAS\n                      Em                             B                                                \nX2     En el principio el Espíritu de Dios, \n                                  Em\nSe movía sobre las aguas.     X2\n\n\n[CORO]:   \n                  Am-D              G-Em\nX4     Pero ahora se está moviendo \n             B          Em\nDentro de mi corazón.    X4\n\n\n\nTROMPETAS\n\n[CORO]:  X4",
     "id": 455
   },
   {
