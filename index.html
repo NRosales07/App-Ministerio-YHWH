@@ -7186,7 +7186,7 @@ function renderCalendarioRepertorio(animar) {
         else                                                                             cultoEmoji = '📅';
       }
 
-      html += '<button onclick="cambiarDiaRepertorio(\'' + iso + '\')" title="' + (tipoCulto || '') + '" style="min-height:66px;border:1px solid ' + border + ';border-radius:10px;background:' + bg + ';color:' + color + ';padding:7px 6px;text-align:left;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;">';
+      html += '<button onclick="cambiarDiaRepertorio(\'' + iso + '\');mostrarTabRepertorio(\'servicio\');" title="' + (tipoCulto || '') + '" style="min-height:66px;border:1px solid ' + border + ';border-radius:10px;background:' + bg + ';color:' + color + ';padding:7px 6px;text-align:left;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-start;">';
       html += '<div style="font-size:0.68rem;font-weight:700;line-height:1;">' + actual.getDate() + '</div>';
       if (cultoEmoji) { var emojiOpacity = enSemana ? '1' : '0.28'; html += '<div style="font-size:0.85rem;line-height:1;margin-top:4px;text-align:center;width:100%;opacity:' + emojiOpacity + ';filter:' + (enSemana ? 'none' : 'grayscale(0.4)') + ';transition:opacity 0.2s;">' + cultoEmoji + '</div>'; }
       html += etiqueta || '<div style="min-height:12px;"></div>';
@@ -7252,7 +7252,7 @@ function buscarEnHistorialRepertorio() {
     var esJubilo = r.item.fuente === 'jubilo';
     var etiquetaFuente = esCadena ? '🔗 Cadena Júbilo' : (esJubilo ? '💃🏻 Júbilo' : '🎵 Adoración' + (r.item.tono ? ' · ' + escH(r.item.tono) : ''));
     html +=
-      '<button onclick="cambiarDiaRepertorio(\'' + r.fecha + '\');document.getElementById(\'buscadorHistorialRepertorio\').value=\'\';var bCal=document.getElementById(\'buscadorHistorialRepertorioCalendario\');if(bCal) bCal.value=\'\';buscarEnHistorialRepertorio();" ' +
+      '<button onclick="cambiarDiaRepertorio(\'' + r.fecha + '\');mostrarTabRepertorio(\'servicio\');document.getElementById(\'buscadorHistorialRepertorio\').value=\'\';var bCal=document.getElementById(\'buscadorHistorialRepertorioCalendario\');if(bCal) bCal.value=\'\';buscarEnHistorialRepertorio();" ' +
         'style="width:100%;text-align:left;background:transparent;border:none;' + (idx > 0 ? 'border-top:1px solid var(--border);' : '') + 'padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:2px;color:var(--text);" ' +
         'onmouseover="this.style.background=\'' + hoverBg + '\'" onmouseout="this.style.background=\'transparent\'">' +
         '<span style="font-weight:700;font-size:0.85rem;">' + escH(r.item.title) + '</span>' +
@@ -7304,6 +7304,7 @@ function pedirFechaRepertorio(cb) {
 
 function irAFechaHoy() {
   cambiarDiaRepertorio(hoyISO());
+  mostrarTabRepertorio('servicio');
 }
 
 function cambiarMesRepertorio(delta) {
