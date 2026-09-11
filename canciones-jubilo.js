@@ -933,12 +933,13 @@ var SONGS_JUBILO =
     "content": "MIX 16  |  EBENEZER\nMIX 16  |  EBENEZER\n            C                                                G                                                           C\nX2     Con mi voz o con mis manos, con mis pies  o con mi alma,\n                                                 G                                                          C\nO es que ya me fui con Él... (O es que ya me fui con Él).    X2\n[VERSO 1]:\n                                                G                                                   C\nX2     Yo le alabo de corazón, yo le alabo con mi voz,\n                                      G                                                 C\nYo le alabo de corazón, yo le alabo con mi voz,\n                                 G                                                   C\nY si me falta la voz, yo le alabo con las manos,\n                                          G                                                   C\nY si me faltan las manos, yo le alabo con los pies,\n                                       G                                              C\nY si me faltan los pies, yo le alabo con el alma,\n                                        G                                                 C\nY si me faltara el alma, es que ya me fui con Él.     X2"
   },
   {
-    "id": 410,
+    "num": null,
     "title": "YESHUA HAMASCHIACH",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "F",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 24  |  NEW WINE\nMIX 24  |  NEW WINE\n[INSTRUMENTAL]:\n|  TROMPETAS   | F | C | G | Am |\n                                                        F                          C                     G              Am\n[CORO]:\nX4    Me gozaré y me alegraré en el Dios de Israel.   X4"
+    "content": "SE CANTA LENTO: \n[CORO]:\n                   F                   C                 G          Am\nX4    Me gozaré y me alegraré en el Dios de Israel.   X4\n\n\n\n\n\n\n\n\n[INSTRUMENTAL]:\n\n\n\n\n\n\n\n\n\nTROMPETAS     | F | C | G | Am |\n[CORO]:\n                   F                   C                 G          Am\nX4    Me gozaré y me alegraré en el Dios de Israel.   X4",
+    "id": 410
   },
   {
     "id": 411,
@@ -1423,5 +1424,14 @@ var SONGS_JUBILO =
     "album": "",
     "content": "[VERSO 1]:\n                   C\nX2    Hay poder, poder, sin igual poder\n         G                              C\nEn Jesús, que murió y resucitó,\n                            \nHay poder, poder, sin igual poder,\n              G               C\nEn la sangre que perdió...     X2\n",
     "id": 465
+  },
+  {
+    "num": 36,
+    "title": "BUENO ES DIOS",
+    "compositor": "Ebenezer",
+    "tono": "Cm",
+    "album": "",
+    "content": "[INSTRUMENTAL]\n\n\n\n\n\n\n\n| Ab | Eb | Bb | Cm |\nX4     Bueno es Dios, (Bueno es Dios) \nBueno es Dios, (Bueno es Dios)   X4\n\n\n\n\nTROMPETAS\n\n[VERSO 1]:\n                          Cm\nX2   No me avergüenzo, del evangelio, \n\nQue ha sido gran poder y libertad\n                                    Eb   \nEn la verdad gracias a él… \n          Fm             G             Cm\nHoy levanto el nombre de Jehová.   X2\n[CORO]:\n                           Ab              Eb    \nX2     Hoy me encuentro en corros, \n   Bb                 Cm          Ab-Eb    Bb        Cm\nPorque lo que siento, es salvación en mi corazón,\n           Ab           Eb   Bb         Cm    \nHoy levanto mis pies, no me cansaré, \n         Ab-Eb   Bb         Cm\nHay salvación en mi corazón.     X2\n\n\n\n\n\n\n[INSTRUMENTAL]\n\n\n\n\n\n\n\n| Ab | Eb | Bb | Cm |\nX4     Bueno es Dios, (Bueno es Dios) \nBueno es Dios, (Bueno es Dios)   X4\n\n\n",
+    "id": 466
   }
 ];
