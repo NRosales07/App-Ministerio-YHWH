@@ -1955,10 +1955,10 @@ var SONGS =
     "title": "NECESITO UN ENCUENTRO",
     "compositor": "New Wine",
     "tono": "Cm",
-    "youtube": "https://www.youtube.com/embed/",
     "album": "Encuéntranos Espíritu Santo - 2017",
-    "content": "[INTRO]: MELODÍA\n                                   | Cm | Gm | Ab | Fm | Cm |\n        [VERSO 1]:\n        Cm                       Bb                           Eb          Ab\n2x   Yo quiero ser uno contigo, y compartir en comunión, \n\nEn el lugar santísimo.   X2\n        \nMELODÍA\n  \n             [VERSO 1] X3 \n        Cm Bb         Eb     Ab\nX3    Y Oh, oh, oh, ohohohoh-oh.    X3\n        [CORO]: \n        Ab                   Bb                      Cm\nX2   Necesito un encuentro con el Dios vivo,\n        Eb                     Ab\nEstar en tu presencia y decir aquí estoy,\n        Bb                    Cm\nNecesito un encuentro con el Dios vivo,\n        Eb                     Ab\nY estar cara a cara con el Gran Yo Soy. X2\n        Ab-Bb                   Cm-Eb\nX2   Con el Gran Yo Soy,       Con el Gran Yo Soy…    X2\n        [INSTRUMENTAL]: \n        Ab-Bb                Cm-Eb\n        X2 Con el Gran Yo Soy,  Con el Gran Yo Soy… X2\n        [PUENTE]:\n        Cm                   Gm              Ab          Fm\nX3   Nada nunca me saciará, como t - ú Dios lo ha - ces,\n        Cm                       Gm              Ab          Fm\nEn un encuentro sobrenatural, todo flu - ye de tu tro - no.    X3\n        Cm Bb            Eb     Ab\n       [CORO]: X2     |     X2  Y Oh, oh, oh, ohohohoh-oh.  X2",
-    "id": 188
+    "content": "[INTRO]: MELODÍA\n                                   | Cm | Gm | Ab | Fm | Cm |\n        [VERSO 1]:\n              Cm                                      Bb                      \nX2   Yo quiero ser uno contigo, y compartir en comunión, \n          Eb          Ab\nEn el lugar santísimo.   X2\n        \n\n\n\nMELODÍA\nCm-Bb-Eb-Ab  \n\n\n\n             [VERSO 1] X3 \n\n\n\n\n         Cm         Bb        Eb      Ab\nX3    Y Oh, oh, oh, ohohohoh-oh.    X3\n        [CORO]: \nAb                           Bb                  Gm7                Cm\nX2   Necesito un encuentro con el Dios vivo,\n                        Eb                  Cm7            Ab\nEstar en tu presencia y decir aquí estoy,\n                          Bb                                  Cm\nNecesito un encuentro con el Dios vivo,\n                        Eb             Cm7              Ab\nY estar cara a cara con el Gran Yo Soy. X2\n                                  Ab-Bb                          Cm-Eb\nX2   Con el Gran Yo Soy,       Con el Gran Yo Soy…    X2\n\n\n        [PUENTE]:\nCm                              Gm                Ab                Fm\nX3   Nada nunca me saciará, como t - ú Dios lo ha - ces,\nCm                              Gm                   Ab               Fm\nEn un encuentro sobrenatural, todo flu - ye de tu tro - no.    X3\n\n\n\n       [CORO]: X2    \n\n\n         Cm         Bb        Eb      Ab\nX2  Y Oh, oh, oh, ohohohoh-oh.  X2",
+    "id": 188,
+    "youtube": "https://www.youtube.com/embed/"
   },
   {
     "num": 2,
@@ -1966,7 +1966,7 @@ var SONGS =
     "compositor": "New Wine",
     "tono": "D",
     "album": "Encuéntranos Espíritu Santo - 2017",
-    "content": "[INTRO]: MELODÍA \n                                           | D | Bm | G | D |\n        [VERSO 2]: \n        D                                                Bm\nQue los cielos se abran aquí, tu presencia irrumpa en mí,\n        G                                            D\nMi sacrificio provoque, que el cielo se una a la tie - rra.\n        \nMELODÍA  \n       [VERSO 1] X2\n        [CORO]: \n        D                                           Bm7\nX2   Se estan rompiendo los cielos, su gloria está descendiendo,\n        G                                   D\nUn hueco se abre en las nubes, podemos ver al Rey.   X2\n        G-Bm-A-F#m\n        [INSTRUMENTAL] \n        [PUENTE]: \n    A[F#m]          G                 Bm                   A\nX4   Ángeles que suben, Ángeles que bajan, \nB\nÁngeles que suben, Ángeles que bajan.   X4\n        A-Em-A D                              Bm\nX2   Oh señor si rompieses los cielos,\n        G                          D     A\nPara ver tu presencia descendiendo en nosotros.   X2",
+    "content": "[INTRO]: MELODÍA \n                                           | D | Bm | G | D |\n        [VERSO 2]: \n                                D                                    Bm\nQue los cielos se abran aquí, tu presencia irrumpa en mí,\n                          G                                                  D\nMi sacrificio provoque, que el cielo se una a la tie - rra.\n        \nMELODÍA  \n       [VERSO 1] X2\n        [CORO]: \n                              D                                        Bm7\nX2   Se estan rompiendo los cielos, su gloria está descendiendo,\n                       G                                                     D\nUn hueco se abre en las nubes, podemos ver al Rey.   X2\n\n\n\n\n        [INSTRUMENTAL] \n                                             G - Bm - A - A\n\n\n\n        [PUENTE]: \n A                            G                             Bm          \nX4   Ángeles que suben, Ángeles que bajan, \n                         A                                      [Em - A]\nÁngeles que suben, Ángeles que bajan.   X4\n                               \n\n        D                                        Bm7\nX2   Oh señor si rompieses los cielos,\n                         G                                         D           A\nPara ver tu presencia descendiendo en nosotros.   X2\n\n\n\n        [PUENTE]: \nX4   Ángeles que suben, Ángeles que bajan,\nÁngeles que suben, Ángeles que bajan.   X4\n\n\nX2   Oh señor si rompieses los cielos,\nPara ver tu presencia descendiendo en nosotros.   X2",
     "id": 189
   },
   {
@@ -2127,5 +2127,23 @@ var SONGS =
     "album": "Proyecto JES - 1995",
     "content": "[INTRO]:\n                                          | A | D | E | D | A |\n        [VERSO 1]: \n      A                                                   D                         A\nX2     El Espíritu del Señor está sobre ti, te ha ungido para darnos Buenas nuevas,\n        E                   C# F#m\nA proclamarnos libertad, y darnos vida,\n        D                            A\nA liberar de la opresión, a proclamar el tiempo del Señor,\n        E                 D A\nTú eres digno, Jesús de adoración...    X2\n        [CORO]:\n        A       D                             A\nX2   A liberar de la opresión, a proclamar el tiempo del Señor,\n        E      D          A\nTú eres digno, Jesús de adoración...   X2\n[VERSO 1]: X2       |         [CORO]: X2 ",
     "id": 205
+  },
+  {
+    "num": 37,
+    "title": "EN PIE DE GUERRA",
+    "compositor": "Eddie Jr Rivera",
+    "tono": "Am",
+    "album": "",
+    "content": "[VERSO 1]:\n                Am                   Am7                F  \nX2    El enemigo se ha levantado, a declarado verme derrotado\n           Dm7                  \nEn el proceso mucho he pasado, \n               Esus4                  E [E7]\nMas sobre todo me he levantado    X2\n\n[PRE-CORO]:\n                  Am\nX3    Y yo estoy (En pie de guerra)\n          F\nY tú estás (En pie de guerra)\n         Dm\nY yo estoy (En pie de guerra)\n           E7\nY tú estás (En pie de guerra)    X3\n\n[CORO]:\n\nX3     En la tormenta pero sigo de pie\n\nEn la batalla pero sigo de pie\n\nEn la crisis pero sigo de pie\n\nQue lo sepa el enemigo que sigo de pie...    X3\n \n\nQue lo sepa el enemigo que sigo de pie...\nQue lo sepa el enemigo que sigo de pie...\nQue lo sepa el enemigo que sigo de pie...\nQue lo sepa el enemigo que sigo de pie...\n\n[PRE-CORO]:\nX2    Y yo estoy (En pie de guerra)\nY tú estás (En pie de guerra)\nY yo estoy (En pie de guerra)\nY tú estás (En pie de guerra)    X2\n\n\n\n\n\n\n[VERSO 1]:\nX2    El enemigo se ha levantado, a declarado verme derrotado\nEn el proceso mucho he pasado, \nMas sobre todo me he levantado    X2\n\n[PRE-CORO]:\nX2    Y yo estoy (En pie de guerra)\nY tú estás (En pie de guerra)\nY yo estoy (En pie de guerra)\nY tú estás (En pie de guerra)    X2",
+    "id": 206
+  },
+  {
+    "num": 38,
+    "title": "HAZ LLOVER",
+    "compositor": "New Wine",
+    "tono": "Am",
+    "album": "Ven y llena esta casa",
+    "content": "[VERSO 1]:\n                  Am7            F         C                                G  \nX6     Haz llover, haz llover, Rompe las fuentes del cielo\n        Am7            F         C                                G  \nHaz llover, haz llover, Rompe las fuentes del cielo    X6\n\n\n\nMINISTRACIÓN - VERSO BIBLICO\n\n\n[VERSO 1]:\nX6     Haz llover, haz llover, Rompe las fuentes del cielo\nHaz llover, haz llover, Rompe las fuentes del cielo    X6",
+    "id": 207
   }
 ];
