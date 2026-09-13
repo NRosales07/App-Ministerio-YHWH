@@ -938,7 +938,7 @@ var SONGS_JUBILO =
     "compositor": "Ebenezer",
     "tono": "F",
     "album": "Alabanzas de Júbilo",
-    "content": "SE CANTA LENTO: \n[CORO]:\n                   F                   C                 G          Am\nX4    Me gozaré y me alegraré en el Dios de Israel.   X4\n\n\n\n\n\n\n\n\n[INSTRUMENTAL]:\n\n\n\n\n\n\n\n\n\nTROMPETAS     | F | C | G | Am |\n[CORO]:\n                   F                   C                 G          Am\nX4    Me gozaré y me alegraré en el Dios de Israel.   X4",
+    "content": "SE CANTA LENTO: \n[CORO]:\n                   F                   C                 G          Am\nX4    Me gozaré y me alegraré en el Dios de Israel.   X4\n\n\n\n\n\n\n\n\n[INSTRUMENTAL]:\n\n\n\n\n\n\n\n\n\nTROMPETAS     | F | C | G | Am |\n[CORO]:\n                   F                   C                 G          Am\nX4    Me gozaré y me alegraré en el Dios de Israel.   X4\n\n\n\n\n\n\nTROMPETAS\n\n\n\n                  F                          C\nX4    Mi Cristo (Hey!),   Mi Cristo (Hey, Hey!),   \n        G               Am\nMi Cristo es el Mesías    X4",
     "id": 410
   },
   {
