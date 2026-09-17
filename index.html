@@ -114,6 +114,20 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
     }
   });
 
+  // Escuchar la LISTA de etiquetas disponibles (nombres/colores) en tiempo real,
+  // para que renombrar o agregar una etiqueta se sincronice en todos los dispositivos.
+  onValue(ref(db, 'etiquetas_config'), function(snapshot) {
+    var data = snapshot.val();
+    if (Array.isArray(data) && data.length) {
+      localStorage.setItem('yhwh_etiquetas_config_cache', JSON.stringify(data));
+      window.ETIQUETAS_DISPONIBLES = data;
+      if (window.renderFiltroEtiquetasChips) window.renderFiltroEtiquetasChips();
+      if (window.renderEtiquetas) window.renderEtiquetas();
+      if (window.renderGestionEtiquetas) window.renderGestionEtiquetas();
+      if (window.filterSongs) window.filterSongs();
+    }
+  });
+
   // Escuchar dificultad en tiempo real
   function sincronizarDificultadesDesdeCache() {
     var cache = {};
@@ -257,6 +271,17 @@ onValue(ref(db, 'cultos_nombres'), function(snapshot) {
   if (data && typeof data === 'object') {
     window.cultosNombresDB = data;
     localStorage.setItem('yhwh_cultos_nombres_cache', JSON.stringify(data));
+    if (window.renderSetlist) window.renderSetlist();
+    if (window.renderCalendarioRepertorio) window.renderCalendarioRepertorio();
+  }
+});
+
+// Escuchar horarios de culto editados en tiempo real (igual que los nombres).
+onValue(ref(db, 'cultos_horarios'), function(snapshot) {
+  var data = snapshot.val();
+  if (data && typeof data === 'object') {
+    window.cultosHorariosDB = data;
+    localStorage.setItem('yhwh_cultos_horarios_cache', JSON.stringify(data));
     if (window.renderSetlist) window.renderSetlist();
     if (window.renderCalendarioRepertorio) window.renderCalendarioRepertorio();
   }
@@ -961,6 +986,7 @@ body.light-theme .pdf-list-wrap{
 .setlist-item.dragging{opacity:0.55;background:var(--bg3);box-shadow:0 6px 18px rgba(0,0,0,0.35);}
 .setlist-item .drag-handle:active{cursor:grabbing;}
 .setlist-drag-placeholder{border-radius:8px;margin-bottom:6px;border:2px dashed var(--gold);background:rgba(201,168,76,0.08);}
+.setlist-item.bloque-ghost{opacity:0.5;outline:1px dashed var(--gold);outline-offset:-1px;}
 .snum{font-size: 0.75rem;color:var(--gold);font-family:'Cinzel',serif;margin-bottom:1px;}
 .stitle{font-size:0.75rem;font-weight:700;color:var(--text);}
 .skey{font-size:0.75rem;color:var(--chord);margin-top:1px;font-family:monospace;}
@@ -2831,6 +2857,83 @@ body.light-theme .media-badge {
 .etiqueta-chip.activa  { opacity: 1;   transform: scale(1.08); }
 .etiqueta-chip.inactiva{ opacity: 0.45; transform: scale(1); }
 
+/* === PANEL DE FILTROS AVANZADOS (tono / etiquetas / dificultad) ===
+   Antes flotaba directo sobre el degradado del header, sin fondo propio:
+   los chips de colores chocaban con el fondo y se veia desordenado,
+   sobre todo en movil. Ahora es una tarjeta opaca separada, con
+   secciones etiquetadas y chips de tamaño mas uniforme. */
+.filtros-avanzados-card {
+  margin-top: 8px;
+  padding: 14px 14px 12px;
+  border-radius: 14px;
+  background: rgba(10, 13, 28, 0.82);
+  border: 1px solid rgba(255,255,255,0.10);
+  box-shadow: 0 8px 22px rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+body.light-theme .filtros-avanzados-card {
+  background: #ffffff;
+  border-color: #e6ddc9;
+  box-shadow: 0 6px 18px rgba(95, 76, 39, 0.12);
+}
+.filtros-grupo { margin-top: 12px; }
+.filtros-grupo:first-child { margin-top: 0; }
+.filtros-grupo-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #9a9fc2;
+  margin-bottom: 7px;
+}
+body.light-theme .filtros-grupo-label { color: #7f8397; }
+.filtro-select {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 10px;
+  color: var(--text);
+  font-size: 0.82rem;
+  outline: none;
+  width: 100%;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+body.light-theme .filtro-select {
+  background: #ffffff;
+  border-color: #d8cdb8;
+}
+#filtroEtiquetaChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+#filtroEtiquetaChips button {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1.1;
+  transition: transform 0.12s, opacity 0.12s;
+}
+#filtroEtiquetaChips button:active { transform: scale(0.96); }
+.filtros-botones-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.filtros-botones-row .action-btn { flex: 1; min-width: 140px; }
+
 
 .fila-botones {
   display: flex;
@@ -3272,26 +3375,85 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 
 /* === ALABANZAS DE JUBILO === */
 .jubilo-layout{display:grid;grid-template-columns:320px 1fr;gap:0;flex:1;min-height:0;overflow:hidden;}
-.jubilo-sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:12px;}
+.jubilo-sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:14px;}
 .jubilo-main{overflow-y:auto;padding:16px;background:var(--bg);}
 .jubilo-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
 .jubilo-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:9px 10px;font-weight:bold;cursor:pointer;font-size:.82rem;}
 .jubilo-btn:hover{border-color:var(--gold);color:var(--gold);}
 .jubilo-add-btn{width:100%;background:#f1824b;color:#111;border:none;border-radius:8px;padding:14px 18px;font-weight:bold;font-size:1rem;cursor:pointer;margin:18px 0 28px;}
-.jubilo-group{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;background:var(--bg2);overflow:hidden;transition:border-color .15s;}
-.jubilo-group:hover{border-color:rgba(201,168,76,0.35);}
-.jubilo-group summary{cursor:pointer;padding:11px 12px;color:var(--gold);font-weight:bold;list-style:none;font-size:.88rem;letter-spacing:.2px;}
-.jubilo-group summary::before{content:"🗂";margin-right:7px;font-size:.85rem;}
-.jubilo-chain-row{padding:3px 6px 3px 8px;}
-.jubilo-chain{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;background:rgba(255,255,255,0.02);border:none;border-left:3px solid transparent;border-radius:7px;color:var(--text);padding:9px 10px;text-align:left;cursor:pointer;transition:all .15s;}
-.jubilo-chain:hover{background:var(--bg3);color:var(--gold2);border-left-color:var(--gold);}
-.jubilo-chain.active{background:var(--bg3);color:var(--gold2);border-left-color:var(--gold2);}
-.jubilo-chain span::before{content:"🎵";margin-right:6px;font-size:.78rem;opacity:.8;}
-.jubilo-chain small{color:var(--text2);font-size:.68rem;white-space:nowrap;}
-.jubilo-chain-icon-btn{background:none;border:none;color:#aaa;cursor:pointer;font-size:.8rem;padding:4px 5px;border-radius:5px;transition:background .12s,color .12s;}
+
+/* --- Grupos (carpetas) de Júbilo --- */
+.jubilo-group{
+  --jg-accent: var(--gold);
+  position:relative;border:1px solid var(--border);border-radius:12px;margin-bottom:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));
+  overflow:hidden;transition:border-color .18s, box-shadow .18s;
+  animation:fadeIn .25s ease;
+}
+.jubilo-group::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--jg-accent);opacity:.85;
+}
+.jubilo-group:hover{border-color:color-mix(in srgb, var(--jg-accent) 45%, var(--border));}
+.jubilo-group[open]{box-shadow:0 4px 14px rgba(0,0,0,0.18);}
+.jubilo-group summary{
+  cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 12px 12px 16px;
+}
+.jubilo-group summary::-webkit-details-marker{display:none;}
+.jubilo-group summary .jg-left{display:flex;align-items:center;gap:9px;min-width:0;}
+.jubilo-group summary .jg-icon{
+  flex:0 0 auto;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb, var(--jg-accent) 22%, transparent);font-size:.9rem;
+}
+.jubilo-group summary .jg-name{color:var(--gold2);font-weight:700;font-size:.9rem;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.jubilo-group summary .jg-count{display:block;color:var(--text2);font-size:.66rem;font-weight:600;opacity:.85;margin-top:1px;}
+.jubilo-group summary .jg-chevron{
+  flex:0 0 auto;color:var(--text2);font-size:.7rem;transition:transform .2s ease;margin-left:2px;
+}
+.jubilo-group[open] summary .jg-chevron{transform:rotate(90deg);color:var(--jg-accent);}
+.jubilo-group summary .jg-actions{display:flex;gap:1px;flex:0 0 auto;}
+.jubilo-chain-list{padding:2px 8px 8px 8px;display:flex;flex-direction:column;gap:4px;}
+.jubilo-chain-row{
+  padding:0 0 0 14px;position:relative;
+}
+.jubilo-chain-row::before{
+  content:"";position:absolute;left:5px;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--jg-accent) 40%, transparent), transparent);
+}
+.jubilo-chain{
+  display:flex;align-items:center;gap:9px;width:100%;background:rgba(255,255,255,0.025);
+  border:1px solid transparent;border-radius:9px;color:var(--text);padding:8px 10px;
+  text-align:left;cursor:pointer;transition:all .15s;
+}
+.jubilo-chain:hover{background:var(--bg3);color:var(--gold2);border-color:color-mix(in srgb, var(--jg-accent) 40%, transparent);}
+.jubilo-chain.active{background:color-mix(in srgb, var(--jg-accent) 16%, var(--bg3));color:var(--gold2);border-color:var(--jg-accent);}
+.jubilo-chain .jc-icon{
+  flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb, var(--jg-accent) 28%, transparent);font-size:.62rem;
+}
+.jubilo-chain .jc-name{flex:1;min-width:0;font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.jubilo-chain small{color:var(--text2);font-size:.66rem;white-space:nowrap;flex:0 0 auto;}
+.jubilo-chain-icon-btn{background:none;border:none;color:#999;cursor:pointer;font-size:.76rem;padding:5px 5px;border-radius:5px;transition:background .12s,color .12s;}
   .jubilo-chain-icon-btn:hover{background:var(--bg3);color:var(--gold2);}
   .jubilo-chain-icon-btn.danger:hover{color:#e74c3c;}
-  .jubilo-empty{color:var(--text2);text-align:center;margin:50px auto;max-width:420px;line-height:1.6;}
+
+/* --- Nivel superior: categorías Solista / Grupo --- */
+.jubilo-group.jubilo-cat{margin-bottom:14px;}
+.jubilo-group.jubilo-cat summary{padding:14px 14px 14px 18px;}
+.jubilo-group.jubilo-cat summary .jg-icon{width:34px;height:34px;font-size:1.05rem;}
+.jubilo-group.jubilo-cat summary .jg-name{font-size:.96rem;}
+.jubilo-group-nested-wrap{padding:8px 8px 10px 16px;position:relative;}
+.jubilo-group-nested-wrap::before{content:"";position:absolute;left:7px;top:0;bottom:10px;width:1px;background:var(--border);}
+.jubilo-group.jubilo-group-nested{margin-bottom:8px;}
+.jubilo-group.jubilo-group-nested summary{padding:9px 10px 9px 12px;}
+.jubilo-group.jubilo-group-nested summary .jg-icon{width:26px;height:26px;font-size:.8rem;}
+
+  .jubilo-empty{color:var(--text2);text-align:center;margin:40px auto;max-width:380px;line-height:1.6;
+    background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px 22px;}
+  .jubilo-empty .nr-icon{font-size:2.4rem;opacity:.7;margin-bottom:12px;}
+  .jubilo-empty .nr-title{font-size:1rem;font-weight:700;color:var(--gold2);margin-bottom:6px;}
+  .jubilo-empty .nr-sub{font-size:.82rem;color:var(--text2);opacity:.9;line-height:1.5;}
   .jubilo-chain-head{border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:18px;text-align:center;}
 .jubilo-chain-head h2{color:var(--gold2);font-size:1.3rem;text-align:center;margin:0;}
 .jubilo-chain-head p{text-align:center;color:var(--text2);font-size:.86rem;}
@@ -3709,13 +3871,12 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 
 <div id="filtrosAvanzados" style="display:none;">
+ <div class="filtros-avanzados-card">
 
- <select id="filtroTono" onchange="filterSongs()" 
-  style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-         padding:7px 10px;color:var(--text);font-size:0.82rem;outline:none;
-         width:100%;margin-top:4px;
-         -webkit-appearance:none;-moz-appearance:none;appearance:none;">
-    <option value="">🎹 Todos los tonos</option>
+  <div class="filtros-grupo">
+   <div class="filtros-grupo-label">🎹 Tono</div>
+   <select id="filtroTono" onchange="filterSongs()" class="filtro-select">
+    <option value="">Todos los tonos</option>
     <option value="C">C / Do</option>
     <option value="C#">C# / Db</option>
     <option value="D">D / Re</option>
@@ -3735,29 +3896,30 @@ document.addEventListener('DOMContentLoaded', function(){
     <option value="Gm">Gm</option>
     <option value="Am">Am</option>
     <option value="Bm">Bm</option>
-  </select>
-
-  <div style="margin-top:4px;">
-    <div style="color:#8888aa;font-size:0.72rem;margin-bottom:4px;">🏷️ Etiquetas (podés elegir varias)</div>
-    <div id="filtroEtiquetaChips" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+   </select>
   </div>
 
-  <select id="filtroDificultad" onchange="filterSongs()"
-  style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;
-         padding:7px 10px;color:var(--text);font-size:0.82rem;outline:none;
-         width:100%;margin-top:4px;
-         -webkit-appearance:none;appearance:none;">
-  <option value="">⭐ Todas las dificultades</option>
-  <option value="facil">🟢 Fácil</option>
-  <option value="media">🟡 Media</option>
-  <option value="dificil">🔴 Difícil</option>
-</select>
-
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
-    <button id="btnFavFiltro" class="action-btn" onclick="toggleFiltroFavoritos()" style="flex:1;min-width:140px;">⭐ Favoritos</button>
-    <button id="btnLimpiarFiltros" class="action-btn" onclick="limpiarFiltrosBusqueda()" style="flex:1;min-width:140px;">Limpiar filtros</button>
+  <div class="filtros-grupo">
+   <div class="filtros-grupo-label">🏷️ Etiquetas (podés elegir varias)</div>
+   <div id="filtroEtiquetaChips"></div>
   </div>
 
+  <div class="filtros-grupo">
+   <div class="filtros-grupo-label">⭐ Dificultad</div>
+   <select id="filtroDificultad" onchange="filterSongs()" class="filtro-select">
+    <option value="">Todas las dificultades</option>
+    <option value="facil">🟢 Fácil</option>
+    <option value="media">🟡 Media</option>
+    <option value="dificil">🔴 Difícil</option>
+   </select>
+  </div>
+
+  <div class="filtros-botones-row">
+   <button id="btnFavFiltro" class="action-btn" onclick="toggleFiltroFavoritos()">⭐ Favoritos</button>
+   <button id="btnLimpiarFiltros" class="action-btn" onclick="limpiarFiltrosBusqueda()">Limpiar filtros</button>
+  </div>
+
+ </div>
 </div>
 
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
@@ -3790,6 +3952,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="song-title" id="viewTitle"></div>
   <div class="song-meta" id="viewMeta"></div>
   <button id="btnVolverRepertorioAdoracion" class="volver-repertorio-btn" onclick="showScreen('screen-setlist')" style="display:none;">&#128214; Volver al Repertorio</button>
+  <button id="btnVolverMinistracionAdoracion" class="volver-repertorio-btn" onclick="showScreen('screen-setlist');setTimeout(function(){mostrarTabRepertorio('cierre');}, 260);" style="display:none;">&#128591; Volver a Ministración</button>
 </div>
 
 <div class="media-card" id="mediaCard">
@@ -3935,7 +4098,10 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 
   <div class="etiquetas-panel" id="etiquetasPanel" style="display:none;">
-    <span class="etiquetas-titulo">🏷️ Etiquetas</span>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;position:relative;">
+      <span class="etiquetas-titulo">🏷️ Etiquetas</span>
+      <button type="button" onclick="abrirModalGestionEtiquetas()" title="Renombrar o agregar etiquetas" style="background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:2px 7px;font-size:0.68rem;cursor:pointer;position:absolute;right:0;">✏️ Editar</button>
+    </div>
     <div id="etiquetasChips"></div>
   </div>
 </div>
@@ -4119,8 +4285,9 @@ document.addEventListener('DOMContentLoaded', function(){
     </aside>
     <main class="jubilo-main" id="jubiloMain">
       <div class="jubilo-empty">
-        <h2 style="color:var(--gold);margin-bottom:8px;">Alabanzas de Júbilo</h2>
-        <p>Crea un grupo y una cadena, o abre una cadena existente para añadir alabanzas.</p>
+        <div class="nr-icon">🎶</div>
+        <div class="nr-title">Alabanzas de Júbilo</div>
+        <div class="nr-sub">Crea un grupo y una cadena, o abre una cadena existente para añadir alabanzas.</div>
       </div>
     </main>
   </div>
@@ -4224,13 +4391,26 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <div id="repertorioCierrePanel" style="display:none;width:100%;max-width:420px;margin:0 auto 14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+        <div>
+          <div style="color:var(--gold2);font-weight:800;font-size:0.95rem;">🙏 Ministración</div>
+          <div id="cierreRepertorioContador" style="color:var(--text2);font-size:0.74rem;margin-top:2px;">Sin alabanzas guardadas</div>
+        </div>
+        <button type="button" id="btnCierreVaciarLista" onclick="vaciarRepertorioCierre()" style="display:none;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:8px;padding:7px 11px;font-size:0.72rem;font-weight:700;cursor:pointer;white-space:nowrap;">🗑️ Vaciar</button>
+      </div>
+
+      <div id="cierreRepertorioSeleccionadas" style="display:grid;gap:8px;margin-bottom:18px;"></div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin:0 0 10px;">
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+        <div style="color:var(--text2);font-size:0.7rem;font-weight:800;letter-spacing:0.03em;white-space:nowrap;">AGREGAR ALABANZAS</div>
+        <div style="flex:1;height:1px;background:var(--border);"></div>
+      </div>
+
       <div class="search-wrap" style="margin-bottom:10px;">
         <span class="si">&#128269;</span>
-        <input type="text" id="buscadorCierreRepertorio" placeholder="Buscar alabanzas para cierre..." oninput="renderCierreRepertorio()">
+        <input type="text" id="buscadorCierreRepertorio" placeholder="Buscar por título o tono..." oninput="renderCierreRepertorio()">
       </div>
-      <div style="text-align:center;color:var(--gold2);font-size:0.8rem;font-weight:700;margin-bottom:8px;">Opciones guardadas</div>
-      <div id="cierreRepertorioSeleccionadas" style="display:grid;gap:8px;margin-bottom:14px;"></div>
-      <div style="text-align:center;color:var(--gold2);font-size:0.8rem;font-weight:700;margin-bottom:8px;">Agregar alabanzas de adoración</div>
       <div id="cierreRepertorioLista" style="display:grid;gap:8px;"></div>
     </div>
   </div>
@@ -4813,8 +4993,14 @@ function getNextAdoracionItem(index) {
 }
 
 function getActiveNavigationList() {
+  var vigiliaActivaNav = esCultoVigilia(repertorioFechaActiva);
+  var servicioActivoNav = vigiliaActivaNav ? getServicioVigiliaActivo(repertorioFechaActiva) : null;
   var listaRepertorioAdoracion = Array.isArray(setlistDOM)
-    ? setlistDOM.filter(function(item) { return (item.fuente || 'adoracion') === 'adoracion'; })
+    ? setlistDOM.filter(function(item) {
+        if ((item.fuente || 'adoracion') !== 'adoracion') return false;
+        if (vigiliaActivaNav && !itemPerteneceAServicioVigilia(item, servicioActivoNav)) return false;
+        return true;
+      })
     : [];
   if (listaRepertorioAdoracion.length > 0) return listaRepertorioAdoracion;
   return Array.isArray(SONGS) ? SONGS : [];
@@ -4858,10 +5044,15 @@ function getNextSongForCurrent() {
 
 function getNextRepertorioItemForCurrent() {
   if (!currentSong || !Array.isArray(setlistDOM)) return null;
-  for (var i = 0; i < setlistDOM.length; i++) {
-    if (String(setlistDOM[i].id) === String(currentSong.id)) {
-      var nextIdx = (i + 1) % setlistDOM.length;
-      return setlistDOM[nextIdx] || null;
+  var vigiliaActivaNav = esCultoVigilia(repertorioFechaActiva);
+  var servicioActivoNav = vigiliaActivaNav ? getServicioVigiliaActivo(repertorioFechaActiva) : null;
+  var listaServicio = vigiliaActivaNav
+    ? setlistDOM.filter(function(item) { return itemPerteneceAServicioVigilia(item, servicioActivoNav); })
+    : setlistDOM;
+  for (var i = 0; i < listaServicio.length; i++) {
+    if (String(listaServicio[i].id) === String(currentSong.id)) {
+      var nextIdx = (i + 1) % listaServicio.length;
+      return listaServicio[nextIdx] || null;
     }
   }
   return null;
@@ -5318,6 +5509,9 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
   var vieneDeRepertorio = origenRepertorioPendiente;
   origenRepertorioPendiente = false;
   cancionActualVieneDeRepertorio = vieneDeRepertorio;
+  var vieneDeMinistracion = origenMinistracionPendiente;
+  origenMinistracionPendiente = false;
+  cancionActualVieneDeMinistracion = vieneDeMinistracion;
   actualizarVisibilidadBotonVolverRepertorio();
   if (window.aplicarVistaSegunRolCanciones) aplicarVistaSegunRolCanciones();
   initTransitionUI();
@@ -6097,9 +6291,17 @@ function copiarRepertorioAOtraFecha() {
     function copiar(reemplazar) {
       if (reemplazar) listaDestino.length = 0;
       var agregadas = 0;
+      var destinoVigilia = esCultoVigilia(destino);
       itemsOrigen.forEach(function(item) {
         var fuente = item.fuente || 'adoracion';
-        var yaExiste = listaDestino.some(function(x){ return String(x.id) === String(item.id) && (x.fuente || 'adoracion') === fuente; });
+        // Si el destino también es vigilia, se respeta a qué servicio
+        // pertenecía la alabanza en la fecha de origen; si no, se copia
+        // como culto normal (sin etiqueta de servicio).
+        var servicioVigilia = destinoVigilia ? (item.servicioVigilia === 'segundo' ? 'segundo' : 'primero') : '';
+        var yaExiste = listaDestino.some(function(x){
+          return String(x.id) === String(item.id) && (x.fuente || 'adoracion') === fuente &&
+            (!destinoVigilia || (x.servicioVigilia || 'primero') === servicioVigilia);
+        });
         if (yaExiste) return;
         listaDestino.push({
           id: item.id,
@@ -6109,7 +6311,8 @@ function copiarRepertorioAOtraFecha() {
           seccion: item.seccion || '',
           minutos: item.minutos,
           grupoId: item.grupoId || '',
-          cadenaId: item.cadenaId || ''
+          cadenaId: item.cadenaId || '',
+          servicioVigilia: servicioVigilia
         });
         agregadas++;
       });
@@ -6518,8 +6721,114 @@ function getTipoCultoDia(dia) {
   return '';
 }
 
+// ============================================================
+// === VIGILIAS: 1er y 2do servicio en la misma fecha ==========
+// ============================================================
+// Una fecha se considera "vigilia" si el nombre del culto (el que ya
+// devuelve getTipoCultoDia, editado o automático) contiene la palabra
+// "vigilia". No se guarda ninguna bandera aparte: basta con que el
+// admin escriba/edite el nombre del culto para que la fecha active o
+// desactive el modo de 2 servicios.
+function esCultoVigilia(dia) {
+  var nombre = (getTipoCultoDia(dia) || '').toLowerCase();
+  return nombre.indexOf('vigilia') !== -1;
+}
+
+function servicioVigiliaKey(dia) {
+  return 'yhwh_servicio_vigilia_' + normalizarISO(dia || hoyISO());
+}
+
+// Qué servicio (1er o 2do) se está viendo/editando ahora mismo para esa
+// fecha. Es solo una preferencia de vista por dispositivo (como la pestaña
+// activa), no algo que haga falta sincronizar entre músicos.
+function getServicioVigiliaActivo(dia) {
+  var guardado = localStorage.getItem(servicioVigiliaKey(dia));
+  return guardado === 'segundo' ? 'segundo' : 'primero';
+}
+
+function setServicioVigiliaActivo(dia, servicio) {
+  localStorage.setItem(servicioVigiliaKey(dia), servicio === 'segundo' ? 'segundo' : 'primero');
+}
+
+// Cambia la pestaña de servicio visible dentro de una vigilia y vuelve a
+// dibujar el repertorio para que se vean solo las alabanzas de ese servicio.
+function cambiarServicioVigilia(servicio) {
+  setServicioVigiliaActivo(repertorioFechaActiva, servicio);
+  renderSetlist();
+}
+
+// Indica si un ítem del repertorio pertenece al servicio dado. Los ítems
+// guardados antes de esta función (o de días que no son vigilia) no tienen
+// "servicioVigilia" guardado; por compatibilidad se consideran del 1er
+// servicio para que nunca "desaparezcan" de la vista.
+function itemPerteneceAServicioVigilia(item, servicio) {
+  return (item.servicioVigilia || 'primero') === servicio;
+}
+
+// Si la fecha es una vigilia, pregunta a qué servicio (1ro o 2do) va la
+// alabanza antes de guardarla. Si no es vigilia, llama a cb('') directo,
+// sin mostrar nada, para no molestar en cultos normales.
+function pedirServicioVigiliaSiAplica(dia, cb) {
+  if (!esCultoVigilia(dia)) { if (cb) cb(''); return; }
+  var overlay = document.getElementById('servicioVigiliaOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'servicioVigiliaOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(6,8,20,0.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;';
+    overlay.innerHTML = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:16px;max-width:360px;width:100%;box-shadow:0 18px 40px rgba(0,0,0,0.4);">' +
+      '<div style="font-weight:700;color:var(--gold2);font-size:1rem;margin-bottom:8px;">¿Para cuál servicio?</div>' +
+      '<div style="color:var(--text2);font-size:0.82rem;margin-bottom:14px;">Esta fecha es una vigilia con dos servicios. Elige a cuál va esta alabanza.</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px;">' +
+        '<button id="servicioVigiliaPrimero" style="padding:11px 12px;border:none;border-radius:10px;background:var(--gold);color:#000;font-weight:800;cursor:pointer;">1️⃣ Primer servicio</button>' +
+        '<button id="servicioVigiliaSegundo" style="padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg3);color:var(--text);font-weight:800;cursor:pointer;">2️⃣ Segundo servicio</button>' +
+        '<button id="servicioVigiliaCancel" style="padding:9px 12px;border:none;border-radius:10px;background:transparent;color:var(--text2);cursor:pointer;font-size:0.85rem;">Cancelar</button>' +
+      '</div></div>';
+    document.body.appendChild(overlay);
+  }
+  var btnP = overlay.querySelector('#servicioVigiliaPrimero');
+  var btnS = overlay.querySelector('#servicioVigiliaSegundo');
+  var btnC = overlay.querySelector('#servicioVigiliaCancel');
+  function cerrar() { overlay.style.display = 'none'; }
+  btnC.onclick = function(){ cerrar(); };
+  btnP.onclick = function(){ cerrar(); if (cb) cb('primero'); };
+  btnS.onclick = function(){ cerrar(); if (cb) cb('segundo'); };
+  overlay.style.display = 'flex';
+}
+
+function horarioCultoKey(dia) {
+  return 'yhwh_horario_culto_' + normalizarISO(dia || hoyISO());
+}
+
+// Guarda (o borra, si va vacío) el horario que el admin escribió a mano
+// para un día. Si no hay nada guardado, getHorarioCultoDia() vuelve a
+// calcularlo solo según el día de la semana, igual que antes de esto.
+function guardarHorarioCultoDia(dia, valor) {
+  var iso = normalizarISO(dia || hoyISO());
+  valor = (valor || '').replace(/\r/g, '').trim();
+
+  if (!valor) localStorage.removeItem(horarioCultoKey(iso));
+  else localStorage.setItem(horarioCultoKey(iso), valor);
+
+  var _dbH = window.cultosHorariosDB || JSON.parse(localStorage.getItem('yhwh_cultos_horarios_cache') || '{}');
+  if (!valor) delete _dbH[iso]; else _dbH[iso] = valor;
+  window.cultosHorariosDB = _dbH;
+  localStorage.setItem('yhwh_cultos_horarios_cache', JSON.stringify(_dbH));
+
+  if (window.fbDb && window.fbRef && window.fbSet) {
+    return window.fbSet(window.fbRef(window.fbDb, 'cultos_horarios'), _dbH);
+  }
+  return Promise.resolve();
+}
+
 function getHorarioCultoDia(dia) {
   var iso = normalizarISO(dia || hoyISO());
+
+  // Un horario escrito a mano manda sobre el horario automático.
+  var _dbH = window.cultosHorariosDB || JSON.parse(localStorage.getItem('yhwh_cultos_horarios_cache') || '{}');
+  if (_dbH[iso] && _dbH[iso].trim()) return _dbH[iso].trim();
+  var guardadoLocal = localStorage.getItem(horarioCultoKey(iso));
+  if (guardadoLocal && guardadoLocal.trim()) return guardadoLocal.trim();
+
   var fecha = fechaLocalDesdeISO(iso);
   var dow = fecha.getDay();
 
@@ -6533,25 +6842,80 @@ function getHorarioCultoDia(dia) {
   return '';
 }
 
+// Editor del culto de un día: nombre del culto Y su horario, en el mismo
+// modal. El horario admite varias líneas (ej: domingos de ayuno con dos
+// horarios el mismo día) y "Restablecer horario automático" borra el
+// horario manual sin tocar el nombre que se haya escrito.
 function pedirTipoCulto(dia) {
-  if (!window.esAdmin) { mostrarToast('🔒 Solo el admin puede editar el nombre del culto.'); return; }
-  var actual = getTipoCultoDia(dia);
-  var valor = prompt('Nombre del culto o evento para este día:', actual);
-  if (valor === null) return;
-  valor = valor.trim();
+  if (!window.esAdmin) { mostrarToast('🔒 Solo el admin puede editar el culto.'); return; }
   var iso = normalizarISO(dia || hoyISO());
-  if (!valor) localStorage.removeItem(tipoCultoKey(iso));
-  else localStorage.setItem(tipoCultoKey(iso), valor);
-  var _dbN = window.cultosNombresDB || JSON.parse(localStorage.getItem('yhwh_cultos_nombres_cache') || '{}');
-  if (!valor) delete _dbN[iso]; else _dbN[iso] = valor;
-  window.cultosNombresDB = _dbN;
-  localStorage.setItem('yhwh_cultos_nombres_cache', JSON.stringify(_dbN));
-  if (window.fbDb && window.fbRef && window.fbSet) {
-    window.fbSet(window.fbRef(window.fbDb, 'cultos_nombres'), _dbN)
-      .then(function() { mostrarToast('✅ Nombre del culto guardado.'); })
-      .catch(function() { mostrarToast('❌ Error al guardar en la nube.'); });
-  } else { mostrarToast('✅ Guardado localmente.'); }
-  renderSetlist();
+
+  var overlay = document.getElementById('editorCultoOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'editorCultoOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(6,8,20,0.72);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px;';
+    overlay.innerHTML = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:16px;max-width:380px;width:100%;box-shadow:0 18px 40px rgba(0,0,0,0.4);">' +
+      '<div style="font-weight:700;color:var(--gold2);font-size:1rem;margin-bottom:12px;">Editar culto</div>' +
+      '<div style="color:var(--text2);font-size:0.74rem;margin-bottom:4px;">Nombre del culto o evento</div>' +
+      '<input id="editorCultoNombreInput" type="text" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 10px;color:var(--text);font-size:0.86rem;outline:none;margin-bottom:12px;">' +
+      '<div style="color:var(--text2);font-size:0.74rem;margin-bottom:4px;">Horario</div>' +
+      '<textarea id="editorCultoHorarioInput" rows="2" style="width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 10px;color:var(--text);font-size:0.86rem;outline:none;resize:vertical;font-family:inherit;margin-bottom:4px;"></textarea>' +
+      '<div style="color:#8888aa;font-size:0.68rem;margin-bottom:12px;line-height:1.35;">Podés escribir varias líneas si el día tiene más de un horario. Dejalo vacío para volver al horario automático.</div>' +
+      '<div style="display:flex;flex-direction:column;gap:8px;">' +
+        '<button id="editorCultoGuardar" style="padding:11px 12px;border:none;border-radius:10px;background:var(--gold);color:#000;font-weight:800;cursor:pointer;">Guardar</button>' +
+        '<button id="editorCultoRestablecerHorario" style="padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg3);color:var(--text);cursor:pointer;font-size:0.8rem;font-weight:700;">⏱ Restablecer horario automático</button>' +
+        '<button id="editorCultoCancel" style="padding:9px 12px;border:none;border-radius:10px;background:transparent;color:var(--text2);cursor:pointer;font-size:0.85rem;">Cancelar</button>' +
+      '</div></div>';
+    document.body.appendChild(overlay);
+  }
+
+  var inputNombre = overlay.querySelector('#editorCultoNombreInput');
+  var inputHorario = overlay.querySelector('#editorCultoHorarioInput');
+  var btnGuardar = overlay.querySelector('#editorCultoGuardar');
+  var btnRestablecer = overlay.querySelector('#editorCultoRestablecerHorario');
+  var btnCancel = overlay.querySelector('#editorCultoCancel');
+
+  inputNombre.value = getTipoCultoDia(iso);
+  inputHorario.value = getHorarioCultoDia(iso);
+
+  function cerrar() { overlay.style.display = 'none'; }
+
+  btnCancel.onclick = function () { cerrar(); };
+
+  btnRestablecer.onclick = function () {
+    // Solo limpia el horario manual del campo; el nombre escrito se
+    // mantiene hasta que se toque "Guardar" o "Cancelar".
+    inputHorario.value = '';
+  };
+
+  btnGuardar.onclick = function () {
+    var valorNombre = (inputNombre.value || '').trim();
+    var valorHorario = (inputHorario.value || '').trim();
+
+    if (!valorNombre) localStorage.removeItem(tipoCultoKey(iso));
+    else localStorage.setItem(tipoCultoKey(iso), valorNombre);
+    var _dbN = window.cultosNombresDB || JSON.parse(localStorage.getItem('yhwh_cultos_nombres_cache') || '{}');
+    if (!valorNombre) delete _dbN[iso]; else _dbN[iso] = valorNombre;
+    window.cultosNombresDB = _dbN;
+    localStorage.setItem('yhwh_cultos_nombres_cache', JSON.stringify(_dbN));
+
+    cerrar();
+    renderSetlist();
+
+    if (window.fbDb && window.fbRef && window.fbSet) {
+      Promise.all([
+        window.fbSet(window.fbRef(window.fbDb, 'cultos_nombres'), _dbN),
+        guardarHorarioCultoDia(iso, valorHorario)
+      ]).then(function () { mostrarToast('✅ Culto actualizado.'); })
+        .catch(function () { mostrarToast('❌ Error al guardar en la nube.'); });
+    } else {
+      guardarHorarioCultoDia(iso, valorHorario);
+      mostrarToast('✅ Guardado localmente.');
+    }
+  };
+
+  overlay.style.display = 'flex';
 }
 
 
@@ -6635,13 +6999,16 @@ function agregarAlRepertorio() {
   }
   pedirFechaRepertorio(function(fecha){
     pedirSeccionAdoracion(function(seccion){
-      agregarItemAlRepertorio({
-        id: currentSong.id,
-        title: currentSong.title,
-        tono: currentSong.tono,
-        fuente: 'adoracion',
-        seccion: seccion
-      }, fecha);
+      pedirServicioVigiliaSiAplica(fecha, function(servicioVigilia){
+        agregarItemAlRepertorio({
+          id: currentSong.id,
+          title: currentSong.title,
+          tono: currentSong.tono,
+          fuente: 'adoracion',
+          seccion: seccion,
+          servicioVigilia: servicioVigilia
+        }, fecha);
+      });
     });
   });
 }
@@ -6704,9 +7071,12 @@ function agregarItemAlRepertorio(item, dia) {
   dia = normalizarISO(dia || repertorioFechaActiva);
   var lista = getRepertorioFecha(dia);
   var fuente = item.fuente || 'adoracion';
+  var esVigiliaDia = esCultoVigilia(dia);
+  var servicioVigilia = esVigiliaDia ? (item.servicioVigilia === 'segundo' ? 'segundo' : 'primero') : '';
   for (var i = 0; i < lista.length; i++) {
-    if (String(lista[i].id) === String(item.id) && (lista[i].fuente || 'adoracion') === fuente) {
-      mostrarToast('⚠️ Ya está en el repertorio de ' + getDiaLabel(dia) + '.');
+    if (String(lista[i].id) === String(item.id) && (lista[i].fuente || 'adoracion') === fuente &&
+        (!esVigiliaDia || (lista[i].servicioVigilia || 'primero') === servicioVigilia)) {
+      mostrarToast('⚠️ Ya está en el repertorio de ' + getDiaLabel(dia) + (servicioVigilia ? (' (' + (servicioVigilia === 'segundo' ? '2do' : '1er') + ' servicio)') : '') + '.');
       return;
     }
   }
@@ -6718,22 +7088,24 @@ function agregarItemAlRepertorio(item, dia) {
     if (!confirm(msg)) return;
   }
 
-  lista.push({
+  insertarItemEnRepertorio(lista, {
     id: item.id,
     title: item.title,
     tono: item.tono,
     fuente: fuente,
     seccion: item.seccion || '',
     grupoId: item.grupoId || '',
-    cadenaId: item.cadenaId || ''
-  });
+    cadenaId: item.cadenaId || '',
+    servicioVigilia: servicioVigilia
+  }, esVigiliaDia ? servicioVigilia : '');
   repertorioFechaActiva = dia;
   repertorioMesActivo = dia.slice(0, 7);
   setlistDOM = getRepertorioFecha(repertorioFechaActiva);
+  if (servicioVigilia) setServicioVigiliaActivo(dia, servicioVigilia);
   guardarRepertorios();
   window._recienAgregadoSetlist = { id: item.id, fuente: fuente };
 
-  mostrarToast('✅ "' + item.title + '" añadida al repertorio de ' + getDiaLabel(dia) + '.');
+  mostrarToast('✅ "' + item.title + '" añadida al repertorio de ' + getDiaLabel(dia) + (servicioVigilia ? (' (' + (servicioVigilia === 'segundo' ? '2do' : '1er') + ' servicio)') : '') + '.');
   actualizarContadorRepertorio();
 }
 
@@ -6768,49 +7140,86 @@ function toggleCierreRepertorioPorId(id) {
   var idx = lista.findIndex(function(item) { return String(item.id) === idStr; });
   if (idx >= 0) {
     lista.splice(idx, 1);
-    mostrarToast('🗑️ Quitada de cierre');
+    mostrarToast('🗑️ Quitada de Ministración');
   } else {
-    lista.unshift({
+    lista.push({
       id: song.id,
       title: song.title,
       tono: song.tono || ''
     });
-    mostrarToast('✅ Agregada a cierre');
+    mostrarToast('✅ Agregada a Ministración');
   }
-  localStorage.setItem(REPERTORIO_CIERRE_KEY, JSON.stringify(lista));
+  guardarRepertorioCierre(lista);
   renderCierreRepertorio();
+}
+
+// Cambia el orden de una alabanza guardada un puesto hacia arriba (-1) o abajo (1).
+function moverCierreRepertorio(idx, direccion) {
+  var lista = cargarRepertorioCierre();
+  var destino = idx + direccion;
+  if (destino < 0 || destino >= lista.length) return;
+  var tmp = lista[idx];
+  lista[idx] = lista[destino];
+  lista[destino] = tmp;
+  guardarRepertorioCierre(lista);
+  renderCierreRepertorio();
+}
+
+function vaciarRepertorioCierre() {
+  var lista = cargarRepertorioCierre();
+  if (!lista.length) return;
+  if (!confirm('¿Vaciar toda la lista de Ministración?\n\nEsto no se puede deshacer.')) return;
+  guardarRepertorioCierre([]);
+  renderCierreRepertorio();
+  mostrarToast('🗑️ Lista de Ministración vaciada.');
 }
 
 function renderCierreRepertorio() {
   var contSel = document.getElementById('cierreRepertorioSeleccionadas');
   var contLista = document.getElementById('cierreRepertorioLista');
+  var contador = document.getElementById('cierreRepertorioContador');
+  var btnVaciar = document.getElementById('btnCierreVaciarLista');
   var qEl = document.getElementById('buscadorCierreRepertorio');
   if (!contSel || !contLista) return;
 
   var q = (qEl && qEl.value ? qEl.value.trim().toLowerCase() : '');
   var seleccionadas = cargarRepertorioCierre();
 
+  if (contador) {
+    contador.textContent = seleccionadas.length
+      ? (seleccionadas.length + (seleccionadas.length === 1 ? ' alabanza guardada' : ' alabanzas guardadas'))
+      : 'Sin alabanzas guardadas';
+  }
+  if (btnVaciar) btnVaciar.style.display = seleccionadas.length ? 'inline-block' : 'none';
+
   if (seleccionadas.length === 0) {
-    contSel.innerHTML = '<div style="padding:12px;border:1px dashed var(--border);border-radius:12px;color:var(--text2);font-size:0.82rem;text-align:center;">Aún no hay opciones guardadas para cierre.</div>';
+    contSel.innerHTML =
+      '<div style="text-align:center;padding:26px 14px;border:1px dashed var(--border);border-radius:14px;color:var(--text2);">' +
+        '<div style="font-size:1.7rem;margin-bottom:8px;">🙏</div>' +
+        '<div style="font-weight:800;color:var(--text);font-size:0.88rem;margin-bottom:4px;">Aún no hay alabanzas para Ministración</div>' +
+        '<div style="font-size:0.78rem;">Búscalas más abajo y toca "+" para agregarlas aquí.</div>' +
+      '</div>';
   } else {
     contSel.innerHTML = seleccionadas.map(function(s, idx) {
-      return '<button class="cierre-card cierre-card-saved" onclick="showScreen(\'screen-chords\');setTimeout(function(){loadSong(\'' + String(s.id) + '\');}, 180)" style="width:100%;text-align:left;">' +
-        '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">' +
-          '<div style="min-width:0;">' +
-            '<div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escH(s.title) + '</div>' +
-            '<div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">' + escH(s.tono || '') + '</div>' +
-          '</div>' +
-          '<div style="flex:0 0 auto;color:var(--gold2);font-size:0.78rem;font-weight:800;">Ver</div>' +
+      var primero = idx === 0;
+      var ultimo = idx === seleccionadas.length - 1;
+      return '<div class="cierre-card cierre-card-saved" style="display:flex;align-items:center;gap:10px;cursor:default;">' +
+        '<div style="flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#000;font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;">' + (idx + 1) + '</div>' +
+        '<div onclick="origenMinistracionPendiente=true;showScreen(\'screen-chords\');setTimeout(function(){loadSong(\'' + String(s.id) + '\');}, 180)" style="flex:1;min-width:0;cursor:pointer;">' +
+          '<div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escH(s.title) + '</div>' +
+          (s.tono ? '<div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">' + escH(s.tono) + '</div>' : '') +
         '</div>' +
-        '<div style="display:flex;justify-content:flex-end;margin-top:8px;">' +
-          '<span onclick="event.stopPropagation();toggleCierreRepertorioPorId(\'' + String(s.id) + '\')" style="font-size:0.72rem;color:var(--text2);text-decoration:underline;cursor:pointer;">Quitar</span>' +
+        '<div style="display:flex;flex-direction:column;gap:3px;flex:0 0 auto;">' +
+          '<button ' + (primero ? 'disabled' : '') + ' onclick="moverCierreRepertorio(' + idx + ',-1)" title="Subir" style="background:transparent;border:1px solid var(--border);color:' + (primero ? 'var(--border)' : 'var(--text2)') + ';border-radius:6px;padding:1px 7px;font-size:0.68rem;cursor:' + (primero ? 'default' : 'pointer') + ';line-height:1.4;">▲</button>' +
+          '<button ' + (ultimo ? 'disabled' : '') + ' onclick="moverCierreRepertorio(' + idx + ',1)" title="Bajar" style="background:transparent;border:1px solid var(--border);color:' + (ultimo ? 'var(--border)' : 'var(--text2)') + ';border-radius:6px;padding:1px 7px;font-size:0.68rem;cursor:' + (ultimo ? 'default' : 'pointer') + ';line-height:1.4;">▼</button>' +
         '</div>' +
-      '</button>';
+        '<button onclick="toggleCierreRepertorioPorId(\'' + String(s.id) + '\')" title="Quitar" style="flex:0 0 auto;background:transparent;border:1px solid var(--border);color:#e57373;border-radius:8px;padding:9px 11px;font-size:0.85rem;cursor:pointer;">✕</button>' +
+      '</div>';
     }).join('');
   }
 
   if (!q) {
-    contLista.innerHTML = '<div style="padding:12px;border:1px dashed var(--border);border-radius:12px;color:var(--text2);font-size:0.82rem;text-align:center;">Usa el buscador para encontrar alabanzas y agregarlas a cierre.</div>';
+    contLista.innerHTML = '<div style="text-align:center;padding:16px 12px;color:var(--text2);font-size:0.8rem;">Escribe un título o tono para buscar alabanzas y agregarlas.</div>';
     return;
   }
 
@@ -6829,14 +7238,12 @@ function renderCierreRepertorio() {
   seleccionadas.forEach(function(s) { setSel[String(s.id)] = true; });
   contLista.innerHTML = filtradas.slice(0, 40).map(function(s) {
     var activo = !!setSel[String(s.id)];
-    return '<button class="cierre-card' + (activo ? ' cierre-card-active' : '') + '" onclick="toggleCierreRepertorioPorId(\'' + String(s.id) + '\')" style="width:100%;text-align:left;">' +
-      '<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">' +
-        '<div style="min-width:0;">' +
-          '<div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escH(s.title) + '</div>' +
-          '<div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">' + escH(s.tono || '') + '</div>' +
-        '</div>' +
-        '<div style="flex:0 0 auto;color:' + (activo ? 'var(--gold2)' : 'var(--text2)') + ';font-size:0.78rem;font-weight:800;">' + (activo ? 'Guardada' : 'Agregar') + '</div>' +
+    return '<button class="cierre-card' + (activo ? ' cierre-card-active' : '') + '" onclick="toggleCierreRepertorioPorId(\'' + String(s.id) + '\')" style="width:100%;text-align:left;display:flex;align-items:center;gap:10px;">' +
+      '<div style="flex:1;min-width:0;">' +
+        '<div style="font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escH(s.title) + '</div>' +
+        (s.tono ? '<div style="font-size:0.72rem;color:var(--text2);margin-top:2px;">' + escH(s.tono) + '</div>' : '') +
       '</div>' +
+      '<div style="flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:800;background:' + (activo ? 'var(--gold)' : 'transparent') + ';color:' + (activo ? '#000' : 'var(--text2)') + ';border:1px solid ' + (activo ? 'var(--gold)' : 'var(--border)') + ';">' + (activo ? '✓' : '+') + '</div>' +
     '</button>';
   }).join('');
 }
@@ -6894,7 +7301,7 @@ function guardarSugerenciasIAEnCierre() {
     if (!song) return;
     var id = String(song.id);
     if (idsExistentes[id]) return;
-    lista.unshift({
+    lista.push({
       id: song.id,
       title: song.title,
       tono: song.tono || ''
@@ -6902,9 +7309,9 @@ function guardarSugerenciasIAEnCierre() {
     idsExistentes[id] = true;
   });
 
-  localStorage.setItem(REPERTORIO_CIERRE_KEY, JSON.stringify(lista));
+  guardarRepertorioCierre(lista);
   renderCierreRepertorio();
-  mostrarToast('✅ Sugerencias guardadas en Cierre');
+  mostrarToast('✅ Sugerencias guardadas en Ministración');
   showScreen('screen-setlist');
   mostrarTabRepertorio('cierre');
 }
@@ -6918,6 +7325,153 @@ function minutosEstimadosItem(item) {
     return Number(item.minutos);
   }
   return esJub ? 20 : 4;
+}
+
+// === TIPO / BLOQUES DEL REPERTORIO ==========================
+// El repertorio ya NO usa tres secciones fijas. Ahora el ORDEN del arreglo
+// manda: se recorre la lista y cada vez que cambia el tipo de item se abre
+// un bloque nuevo con su propio encabezado. Asi, si una alabanza de
+// adoracion queda despues de las cadenas, se crea un bloque "Adoracion"
+// abajo; y si una cadena se sube arriba de todo, Jubilo queda primero.
+function tipoItemRepertorio(item) {
+  if (!item) return 'adoracion';
+  return (item.fuente === 'cadena_jubilo' || item.fuente === 'jubilo') ? 'jubilo' : 'adoracion';
+}
+
+// Clave de agrupacion de un item: 'jubilo', 'ministracion' o 'adoracion'.
+// Se usa Ministracion como su PROPIA clave (no solo como una etiqueta sobre
+// un bloque de adoracion) para que nunca se mezcle con un bloque plano de
+// Adoracion que este al lado, sin importar la posicion en el repertorio.
+function claveBloqueItem(item) {
+  if (tipoItemRepertorio(item) === 'jubilo') return 'jubilo';
+  return (item && item.seccion === 'ministracion') ? 'ministracion' : 'adoracion';
+}
+
+// Agrupa los indices del repertorio en bloques consecutivos de la misma
+// clave (jubilo / ministracion / adoracion). Si se pasa "servicio"
+// (vigilias), solo considera los items de ese servicio.
+function construirBloquesRepertorio(lista, servicio) {
+  var bloques = [];
+  if (!Array.isArray(lista)) return bloques;
+  for (var i = 0; i < lista.length; i++) {
+    if (servicio && !itemPerteneceAServicioVigilia(lista[i], servicio)) continue;
+    var t = tipoItemRepertorio(lista[i]);
+    var c = claveBloqueItem(lista[i]);
+    var ult = bloques.length ? bloques[bloques.length - 1] : null;
+    if (ult && ult.clave === c) ult.idxs.push(i);
+    else bloques.push({ tipo: t, clave: c, idxs: [i] });
+  }
+  return bloques;
+}
+
+// Un bloque es de Ministracion si su clave lo dice, sin importar que otro
+// bloque de Adoracion (plano) este pegado justo al lado en la lista.
+function bloqueEsMinistracion(bloque) {
+  return !!(bloque && bloque.clave === 'ministracion');
+}
+
+// Titulo del bloque segun su posicion: el primer bloque de adoracion (antes
+// de cualquier jubilo) es "Adoracion Inicial"; los que quedan despues del
+// jubilo son simplemente "Adoracion".
+function tituloBloqueRepertorio(bloque, lista, huboJubiloAntes) {
+  if (bloque.tipo === 'jubilo') return '\ud83c\udfb6 J\u00fabilo';
+  if (bloqueEsMinistracion(bloque)) return '\ud83d\ude4f Ministraci\u00f3n';
+  return huboJubiloAntes ? '\ud83c\udfb5 Adoraci\u00f3n' : '\ud83c\udfa4 Adoraci\u00f3n Inicial';
+}
+
+// --- Orden manual vs orden por defecto ---
+// Mientras nadie haya movido nada a mano, el repertorio se acomoda solo en
+// el orden clasico (Adoracion Inicial -> Jubilo -> Ministracion) para que los
+// repertorios viejos se sigan viendo igual. En cuanto el admin arrastra algo,
+// se marca "ordenManual" y desde ahi manda el orden que el dejo.
+function repertorioTieneOrdenManual(lista) {
+  if (!Array.isArray(lista)) return false;
+  for (var i = 0; i < lista.length; i++) if (lista[i] && lista[i].ordenManual) return true;
+  return false;
+}
+
+function marcarOrdenManualRepertorio(lista) {
+  if (!Array.isArray(lista)) return;
+  lista.forEach(function (x) { if (x) x.ordenManual = true; });
+}
+
+function rangoOrdenDefectoRepertorio(item) {
+  if (tipoItemRepertorio(item) === 'jubilo') return 1;
+  return (item && item.seccion === 'ministracion') ? 2 : 0;
+}
+
+// Reacomoda en memoria (sin guardar) los repertorios que nunca se han
+// ordenado a mano. Es estable: respeta el orden relativo dentro de cada tipo.
+function normalizarOrdenLegacyRepertorio(lista) {
+  if (!Array.isArray(lista) || lista.length < 2) return;
+  if (repertorioTieneOrdenManual(lista)) return;
+  var conIdx = lista.map(function (x, i) { return { x: x, i: i }; });
+  conIdx.sort(function (a, b) {
+    var d = rangoOrdenDefectoRepertorio(a.x) - rangoOrdenDefectoRepertorio(b.x);
+    return d !== 0 ? d : (a.i - b.i);
+  });
+  var cambio = conIdx.some(function (o, i) { return o.x !== lista[i]; });
+  if (!cambio) return;
+  var copia = conIdx.map(function (o) { return o.x; });
+  for (var k = 0; k < lista.length; k++) lista[k] = copia[k];
+}
+
+// Marca/desmarca un bloque completo de adoracion como Ministracion.
+function alternarEtiquetaBloqueRepertorio(index) {
+  if (!window.esAdmin) { mostrarToast('\ud83d\udd12 Debes iniciar sesi\u00f3n como admin.'); return; }
+  var vig = esCultoVigilia(repertorioFechaActiva);
+  var serv = vig ? getServicioVigiliaActivo(repertorioFechaActiva) : null;
+  var bloques = construirBloquesRepertorio(setlistDOM, serv);
+  var bloque = null;
+  bloques.forEach(function (b) { if (b.idxs.indexOf(index) !== -1) bloque = b; });
+  if (!bloque || bloque.tipo !== 'adoracion') return;
+  var esMin = bloqueEsMinistracion(bloque);
+  bloque.idxs.forEach(function (i) { if (setlistDOM[i]) setlistDOM[i].seccion = esMin ? '' : 'ministracion'; });
+  marcarOrdenManualRepertorio(setlistDOM);
+  guardarRepertorios();
+  renderSetlist();
+  mostrarToast(esMin ? '\ud83c\udfa4 Bloque marcado como Adoraci\u00f3n.' : '\ud83d\ude4f Bloque marcado como Ministraci\u00f3n.');
+}
+
+// Devuelve el repertorio del dia al orden clasico.
+function restaurarOrdenPorDefectoRepertorio() {
+  if (!window.esAdmin) { mostrarToast('\ud83d\udd12 Debes iniciar sesi\u00f3n como admin.'); return; }
+  if (!confirm('\u00bfVolver al orden por defecto?\n\nAdoraci\u00f3n Inicial \u2192 J\u00fabilo \u2192 Ministraci\u00f3n')) return;
+  setlistDOM.forEach(function (x) { if (x) delete x.ordenManual; });
+  normalizarOrdenLegacyRepertorio(setlistDOM);
+  guardarRepertorios();
+  renderSetlist();
+  mostrarToast('\u2195 Orden por defecto restaurado.');
+}
+
+// Inserta una alabanza/cadena al final del bloque que le corresponde, en vez
+// de mandarla siempre al final de la lista (eso abriria un bloque nuevo).
+function insertarItemEnRepertorio(lista, nuevo, servicio) {
+  var bloques = construirBloquesRepertorio(lista, servicio || null);
+  var clave = claveBloqueItem(nuevo);
+  var destino = null, i;
+
+  if (clave === 'jubilo') {
+    for (i = bloques.length - 1; i >= 0; i--) if (bloques[i].clave === 'jubilo') { destino = bloques[i]; break; }
+    if (!destino) {
+      // No hay bloque de Jubilo todavia: entra justo antes de Ministracion
+      // si existe (Jubilo va antes que Ministracion por defecto).
+      for (i = 0; i < bloques.length; i++) {
+        if (bloques[i].clave === 'ministracion') { lista.splice(bloques[i].idxs[0], 0, nuevo); return; }
+      }
+    }
+  } else if (clave === 'ministracion') {
+    // Ministracion es SIEMPRE su propio bloque: nunca se mezcla con un
+    // bloque de Adoracion (plano) aunque este justo al lado en la lista.
+    for (i = bloques.length - 1; i >= 0; i--) if (bloques[i].clave === 'ministracion') { destino = bloques[i]; break; }
+  } else {
+    for (i = 0; i < bloques.length; i++) {
+      if (bloques[i].clave === 'adoracion') { destino = bloques[i]; break; }
+    }
+  }
+
+  if (destino) lista.splice(destino.idxs[destino.idxs.length - 1] + 1, 0, nuevo);
+  else lista.push(nuevo);
 }
 
 // A qué sección del culto pertenece un ítem del repertorio: 'inicial'
@@ -6960,6 +7514,7 @@ function renderSetlist(animarCalendario) {
   var cont = document.getElementById('setlistContent');
   if (!cont) return;
   setlistDOM = getRepertorioFecha(repertorioFechaActiva);
+  normalizarOrdenLegacyRepertorio(setlistDOM);
 
   // Bug #3 fix: declarar divTiempo al inicio para que esté disponible en todo el bloque
   var divTiempo = document.getElementById('tiempoEstimado');
@@ -6972,9 +7527,14 @@ function renderSetlist(animarCalendario) {
   var colorServidor = getColorServidorGuardado(repertorioFechaActiva) || getSugerenciaColorServidor(repertorioFechaActiva);
   var _isoHdr = normalizarISO(repertorioFechaActiva);
   var _dbNHdr = window.cultosNombresDB || JSON.parse(localStorage.getItem('yhwh_cultos_nombres_cache') || '{}');
-  var cultoEditado = !!(_dbNHdr[_isoHdr] && _dbNHdr[_isoHdr].trim()) || !!(localStorage.getItem(tipoCultoKey(_isoHdr)) || '').trim();
+  var _dbHHdr = window.cultosHorariosDB || JSON.parse(localStorage.getItem('yhwh_cultos_horarios_cache') || '{}');
+  var nombreEditado = !!(_dbNHdr[_isoHdr] && _dbNHdr[_isoHdr].trim()) || !!(localStorage.getItem(tipoCultoKey(_isoHdr)) || '').trim();
+  var horarioEditado = !!(_dbHHdr[_isoHdr] && _dbHHdr[_isoHdr].trim()) || !!(localStorage.getItem(horarioCultoKey(_isoHdr)) || '').trim();
+  var cultoEditado = nombreEditado || horarioEditado;
   var _borderHdr = cultoEditado ? '2px solid var(--gold)' : '1px solid var(--border)';
   var _bgHdr = cultoEditado ? 'rgba(201,168,76,0.07)' : 'rgba(255,255,255,0.02)';
+  var vigiliaActiva = esCultoVigilia(repertorioFechaActiva);
+  var servicioActivoVigilia = vigiliaActiva ? getServicioVigiliaActivo(repertorioFechaActiva) : null;
   var encabezadoCulto =
     '<div style="text-align:center;margin:2px 0 14px 0;padding:12px 10px 10px;border-radius:14px;border:' + _borderHdr + ';background:' + _bgHdr + ';">' +
     (cultoEditado ? '<div style="font-size:0.65rem;color:var(--gold);font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">✏️ Editado</div>' : '') +
@@ -6984,15 +7544,38 @@ function renderSetlist(animarCalendario) {
       '<button onclick="mostrarEditorColorServidor(\'' + repertorioFechaActiva + '\')" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">' + colorServidorEtiqueta(colorServidor) + '</button>' +
       '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px;">' +
         '<button onclick="pedirTipoCulto(\'' + repertorioFechaActiva + '\')" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;">Editar culto</button>' +
+        '<button onclick="restaurarOrdenPorDefectoRepertorio()" title="Adoraci\u00f3n Inicial \u2192 J\u00fabilo \u2192 Ministraci\u00f3n" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:0.72rem;font-weight:700;cursor:pointer;">\u2195 Orden por defecto</button>' +
       '</div>' +
     '</div>';
 
-  if (setlistDOM.length === 0) {
+  // En vigilias se agrega un segundo nivel de pestañas (1er / 2do servicio)
+  // justo debajo del encabezado, para elegir qué mitad del repertorio ver.
+  var subTabsVigilia = '';
+  if (vigiliaActiva) {
+    var esPrimero = servicioActivoVigilia === 'primero';
+    subTabsVigilia =
+      '<div style="display:flex;gap:8px;justify-content:center;margin:0 auto 14px;max-width:420px;">' +
+        '<button onclick="cambiarServicioVigilia(\'primero\')" style="flex:1;border:1px solid ' + (esPrimero ? 'var(--gold)' : 'var(--border)') + ';border-radius:999px;padding:8px 10px;font-weight:bold;cursor:pointer;font-size:0.8rem;background:' + (esPrimero ? 'var(--gold)' : 'var(--bg3)') + ';color:' + (esPrimero ? '#000' : 'var(--text)') + ';">1️⃣ Primer servicio</button>' +
+        '<button onclick="cambiarServicioVigilia(\'segundo\')" style="flex:1;border:1px solid ' + (!esPrimero ? 'var(--gold)' : 'var(--border)') + ';border-radius:999px;padding:8px 10px;font-weight:bold;cursor:pointer;font-size:0.8rem;background:' + (!esPrimero ? 'var(--gold)' : 'var(--bg3)') + ';color:' + (!esPrimero ? '#000' : 'var(--text)') + ';">2️⃣ Segundo servicio</button>' +
+      '</div>';
+  }
+
+  // Ítems visibles con la pestaña de servicio actual (todos si no es vigilia).
+  var hayItemsVisibles = false;
+  for (var _v = 0; _v < setlistDOM.length; _v++) {
+    if (!vigiliaActiva || itemPerteneceAServicioVigilia(setlistDOM[_v], servicioActivoVigilia)) { hayItemsVisibles = true; break; }
+  }
+
+  if (!hayItemsVisibles) {
+    var mensajeVacio = (vigiliaActiva && setlistDOM.length > 0)
+      ? ('No hay alabanzas para el ' + (servicioActivoVigilia === 'segundo' ? '2do servicio' : '1er servicio') + ' de ' + getDiaLabel(repertorioFechaActiva))
+      : ('No hay alabanzas para ' + getDiaLabel(repertorioFechaActiva));
     cont.innerHTML =
       encabezadoCulto +
+      subTabsVigilia +
       '<div style="text-align:center; margin-top: 10px;">' +
         '<div style="font-size: 2rem;">&#127925;</div>' +
-        '<p style="color:#e0946a;font-size:1rem;margin-top:16px;font-weight:bold;">No hay alabanzas para ' + getDiaLabel(repertorioFechaActiva) + '</p>' +
+        '<p style="color:#e0946a;font-size:1rem;margin-top:16px;font-weight:bold;">' + mensajeVacio + '</p>' +
         '<p style="color:#8888aa;font-size:0.8rem;margin-top:8px;line-height:1.4;">Abre una cancion o una cadena de jubilo y presiona<br><strong style="color:#f1824b;">Repertorio</strong>.</p>' +
       '</div>';
     if (divTiempo) divTiempo.textContent = '';
@@ -7000,31 +7583,30 @@ function renderSetlist(animarCalendario) {
     return;
   }
 
-  var html = encabezadoCulto;
+  var html = encabezadoCulto + subTabsVigilia;
 
-  var SECCIONES_REPERTORIO = [
-    { key: 'inicial', titulo: '🎤 Adoración Inicial' },
-    { key: 'jubilo', titulo: '🎶 Júbilo' },
-    { key: 'ministracion', titulo: '🙏 Ministración' }
-  ];
+  // Bloques segun el ORDEN real de la lista (no secciones fijas).
+  var bloquesRepertorio = construirBloquesRepertorio(setlistDOM, vigiliaActiva ? servicioActivoVigilia : null);
+  var huboJubiloAntes = false;
 
-  SECCIONES_REPERTORIO.forEach(function(sec) {
-    var indicesSeccion = [];
-    for (var k = 0; k < setlistDOM.length; k++) {
-      if (categoriaItemRepertorio(setlistDOM[k]) === sec.key) indicesSeccion.push(k);
-    }
-    if (!indicesSeccion.length) return;
+  bloquesRepertorio.forEach(function (bloque) {
+    var titulo = tituloBloqueRepertorio(bloque, setlistDOM, huboJubiloAntes);
+    if (bloque.tipo === 'jubilo') huboJubiloAntes = true;
+    var esMinBloque = bloqueEsMinistracion(bloque);
 
-    html += '<div class="repertorio-seccion-header" style="margin:16px 0 8px;padding:0 2px;display:flex;align-items:center;gap:8px;">' +
-        '<div style="font-size:0.76rem;font-weight:800;color:var(--gold2);letter-spacing:0.4px;text-transform:uppercase;white-space:nowrap;">' + sec.titulo + '</div>' +
+    html += '<div class="repertorio-seccion-header" data-tipo="' + bloque.tipo + '" style="margin:16px 0 8px;padding:0 2px;display:flex;align-items:center;gap:8px;">' +
+        '<div style="font-size:0.76rem;font-weight:800;color:var(--gold2);letter-spacing:0.4px;text-transform:uppercase;white-space:nowrap;">' + titulo + '</div>' +
         '<div style="flex:1;height:1px;background:var(--border);"></div>' +
+        (bloque.tipo === 'adoracion'
+          ? '<button onclick="alternarEtiquetaBloqueRepertorio(' + bloque.idxs[0] + ')" title="' + (esMinBloque ? 'Quitar la etiqueta de Ministraci\u00f3n' : 'Marcar este bloque como Ministraci\u00f3n') + '" style="background:transparent;border:1px solid var(--border);border-radius:8px;color:#8888aa;cursor:pointer;font-size:0.68rem;padding:3px 7px;flex-shrink:0;">' + (esMinBloque ? '\ud83c\udfa4' : '\ud83d\ude4f') + '</button>'
+          : '') +
       '</div>';
 
-    indicesSeccion.forEach(function(i, posEnSeccion) {
+    bloque.idxs.forEach(function (i, posEnSeccion) {
       var s = setlistDOM[i];
       html +=
-        '<div class="song-item setlist-item' + (window._recienAgregadoSetlist && String(window._recienAgregadoSetlist.id) === String(s.id) && (window._recienAgregadoSetlist.fuente || 'adoracion') === (s.fuente || 'adoracion') ? ' setlist-item-new' : '') + '" data-id="' + s.id + '" data-fuente="' + (s.fuente || 'adoracion') + '" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px; gap:6px;">' +
-          '<div class="drag-handle" title="Mantén presionado y arrastra para reordenar" style="touch-action:none;cursor:grab;color:var(--text2);font-size:1.05rem;padding:8px 4px;flex-shrink:0;user-select:none;">⠿</div>' +
+        '<div class="song-item setlist-item' + (window._recienAgregadoSetlist && String(window._recienAgregadoSetlist.id) === String(s.id) && (window._recienAgregadoSetlist.fuente || 'adoracion') === (s.fuente || 'adoracion') ? ' setlist-item-new' : '') + '" data-id="' + s.id + '" data-fuente="' + (s.fuente || 'adoracion') + '" data-idx="' + i + '" data-tipo="' + tipoItemRepertorio(s) + '" style="border-radius:8px; margin-bottom:6px; display:flex; align-items:center; padding-right:8px; gap:6px;">' +
+          '<div class="drag-handle" title="Mant\u00e9n presionado y arrastra para reordenar" style="touch-action:none;cursor:grab;color:var(--text2);font-size:1.05rem;padding:8px 4px;flex-shrink:0;user-select:none;">\u283f</div>' +
           '<div style="flex:1; display:flex; align-items:center; gap:10px; padding: 6px 8px; min-width:0;" onclick="abrirDesdeRepertorio(' + i + ')">' +
             '<div class="snum">#' + (posEnSeccion + 1) + '</div>' +
             '<div class="sbody" style="flex:1; min-width:0;">' +
@@ -7033,9 +7615,8 @@ function renderSetlist(animarCalendario) {
           '<div class="skey">' + (s.fuente === 'cadena_jubilo' ? escH(nombreGrupoDeItemRepertorio(s)) : ((s.fuente === 'jubilo') ? 'Jubilo' : '&#9836; ' + escH(s.tono || ''))) + '</div>' +
           '</div>' +
           '<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">' +
-            (s.fuente === 'adoracion' ? '<button onclick="cambiarSeccionItemRepertorio(' + i + ');event.stopPropagation();" title="Mover a ' + (sec.key === 'ministracion' ? 'Adoración Inicial' : 'Ministración') + '" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.85rem; flex-shrink: 0; padding: 4px 6px;">🔀</button>' : '') +
-            '<button onclick="editarMinutosItemRepertorio(' + i + ');event.stopPropagation();" title="Editar minutos estimados" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.7rem; flex-shrink: 0; padding: 4px 6px; white-space:nowrap;">⏱' + minutosEstimadosItem(s) + 'm</button>' +
-            '<button onclick="eliminarDelRepertorio(' + i + ');event.stopPropagation();" title="Eliminar" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.7rem; flex-shrink: 0; padding: 4px 8px;">✕</button>' +
+            '<button onclick="editarMinutosItemRepertorio(' + i + ');event.stopPropagation();" title="Editar minutos estimados" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.7rem; flex-shrink: 0; padding: 4px 6px; white-space:nowrap;">\u23f1' + minutosEstimadosItem(s) + 'm</button>' +
+            '<button onclick="eliminarDelRepertorio(' + i + ');event.stopPropagation();" title="Eliminar" style="background: transparent; border: none; color: #8888aa; cursor: pointer; font-size: 0.7rem; flex-shrink: 0; padding: 4px 8px;">\u2715</button>' +
           '</div>' +
         '</div>';
     });
@@ -7049,6 +7630,7 @@ function renderSetlist(animarCalendario) {
     var minutosAdoracion = 0;
     var minutosJubilo = 0;
     for (var j = 0; j < setlistDOM.length; j++) {
+      if (vigiliaActiva && !itemPerteneceAServicioVigilia(setlistDOM[j], servicioActivoVigilia)) continue;
       var esJubItem = setlistDOM[j].fuente === 'cadena_jubilo' || setlistDOM[j].fuente === 'jubilo';
       var minsItem = minutosEstimadosItem(setlistDOM[j]);
       if (esJubItem) minutosJubilo += minsItem;
@@ -8082,8 +8664,12 @@ function navegarCancion(direccion) {
   if (!currentSong) return;
 
   // Detectar si estamos navegando desde el repertorio del domingo
+  var vigiliaActivaNav = esCultoVigilia(repertorioFechaActiva);
+  var servicioActivoNav = vigiliaActivaNav ? getServicioVigiliaActivo(repertorioFechaActiva) : null;
   var listaRepertorioAdoracion = setlistDOM.filter(function(item) {
-    return (item.fuente || 'adoracion') === 'adoracion';
+    if ((item.fuente || 'adoracion') !== 'adoracion') return false;
+    if (vigiliaActivaNav && !itemPerteneceAServicioVigilia(item, servicioActivoNav)) return false;
+    return true;
   });
   var listaActiva = listaRepertorioAdoracion.length > 0 ? listaRepertorioAdoracion : SONGS;
   var usandoRepertorio = listaRepertorioAdoracion.length > 0;
@@ -8500,7 +9086,12 @@ function remapEtiquetasIds(arr) {
   return arr.map(function(id) { return ETIQUETAS_MIGRACION_IDS[id] || id; });
 }
 
-var ETIQUETAS_DISPONIBLES = [
+// Valores de fábrica: se usan solo si todavía no hay nada guardado en Firebase
+// ni en la caché local. A partir de ahí, la lista real vive en
+// ETIQUETAS_DISPONIBLES y puede renombrarse / ampliarse desde la app
+// (ver "GESTIÓN DE ETIQUETAS" más abajo), sincronizándose por Firebase
+// bajo la clave 'etiquetas_config'.
+var ETIQUETAS_DEFAULT = [
   { id: 'alabanza',      texto: 'Alabanza',      color: '#2980b9', bg: '#1a3a4a' },
   { id: 'adoracion',     texto: 'Adoración',      color: '#8e44ad', bg: '#3a1a4a' },
   { id: 'arrepentimiento', texto: 'Arrepentimiento', color: '#c0392b', bg: '#4a1a1a' },
@@ -8519,6 +9110,19 @@ var ETIQUETAS_DISPONIBLES = [
   { id: 'victoria',      texto: 'Victoria',       color: '#f1c40f', bg: '#4a3f10' },
   { id: 'gratitud',      texto: 'Gratitud',       color: '#2ecc71', bg: '#123d1f' }
 ];
+
+function cargarEtiquetasConfigInicial() {
+  if (Array.isArray(window.ETIQUETAS_DISPONIBLES) && window.ETIQUETAS_DISPONIBLES.length) {
+    return window.ETIQUETAS_DISPONIBLES;
+  }
+  try {
+    var cache = JSON.parse(localStorage.getItem('yhwh_etiquetas_config_cache') || 'null');
+    if (Array.isArray(cache) && cache.length) return cache;
+  } catch (e) {}
+  return ETIQUETAS_DEFAULT.map(function(e) { return { id: e.id, texto: e.texto, color: e.color, bg: e.bg }; });
+}
+
+var ETIQUETAS_DISPONIBLES = cargarEtiquetasConfigInicial();
 
 function getEtiquetasCancion(id) {
   if (window.etiquetasDB && window.etiquetasDB[id]) {
@@ -8551,12 +9155,11 @@ function renderFiltroEtiquetasChips() {
   var activas = window.filtrosEtiquetasActivas || [];
   cont.innerHTML = ETIQUETAS_DISPONIBLES.map(function(e) {
     var activo = activas.indexOf(e.id) !== -1;
-    var bg = activo ? e.color : 'transparent';
+    var bg = activo ? e.color : 'rgba(255,255,255,0.05)';
     var border = e.color;
     var color = activo ? '#fff' : e.color;
     return '<button type="button" onclick="toggleFiltroEtiquetaChip(\'' + e.id + '\')" ' +
-      'style="background:' + bg + ';border:1.5px solid ' + border + ';color:' + color + ';' +
-      'border-radius:999px;padding:5px 12px;font-size:0.76rem;font-weight:700;cursor:pointer;">' +
+      'style="background:' + bg + ';border:1.5px solid ' + border + ';color:' + color + ';">' +
       e.texto + '</button>';
   }).join('');
 }
@@ -8777,7 +9380,7 @@ async function generarRecomendacionCierre() {
     window.ultimasSugerenciasCierre = extraerSugerenciasCierre(texto);
     var botonGuardar = window.ultimasSugerenciasCierre.length
       ? '<div style="margin-top:12px;text-align:center;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">' +
-          '<button onclick="guardarSugerenciasIAEnCierre()" style="background:var(--gold);color:#000;border:none;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:0.8rem;">Guardar en Cierre</button>' +
+          '<button onclick="guardarSugerenciasIAEnCierre()" style="background:var(--gold);color:#000;border:none;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:0.8rem;">Guardar en Ministración</button>' +
           '<button onclick="generarRecomendacionCierre()" style="background:transparent;color:#af7ac5;border:1px solid #af7ac5;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:0.8rem;">🔄 Regenerar</button>' +
         '</div>'
       : '';
@@ -8859,6 +9462,153 @@ function renderEtiquetas() {
   chips.innerHTML = html;
 }
 
+// ============================================================
+// === GESTIÓN DE ETIQUETAS (renombrar / agregar / eliminar) ==
+// ============================================================
+// Guarda la lista actual de ETIQUETAS_DISPONIBLES en caché local y, si hay
+// sesión de admin, la sube a Firebase para que se sincronice en todos los
+// dispositivos del ministerio.
+function guardarEtiquetasDisponibles() {
+  localStorage.setItem('yhwh_etiquetas_config_cache', JSON.stringify(ETIQUETAS_DISPONIBLES));
+  if (window.esAdmin && window.fbDb && window.fbSet && window.fbRef) {
+    window.fbSet(window.fbRef(window.fbDb, 'etiquetas_config'), ETIQUETAS_DISPONIBLES);
+  }
+}
+
+// Genera un id único (sin tildes/espacios) a partir del texto de una etiqueta nueva.
+function slugEtiqueta(texto) {
+  var base = String(texto || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+  if (!base) base = 'etiqueta';
+  var id = base, n = 1;
+  while (ETIQUETAS_DISPONIBLES.some(function(e) { return e.id === id; })) {
+    n++; id = base + '_' + n;
+  }
+  return id;
+}
+
+// Paleta de colores para asignar automáticamente a las etiquetas nuevas.
+var PALETA_ETIQUETAS_NUEVAS = [
+  { color: '#2980b9', bg: '#1a3a4a' }, { color: '#8e44ad', bg: '#3a1a4a' },
+  { color: '#c0392b', bg: '#4a1a1a' }, { color: '#27ae60', bg: '#1a4a2a' },
+  { color: '#d35400', bg: '#4a2a00' }, { color: '#f39c12', bg: '#4a3a00' },
+  { color: '#3498db', bg: '#1a2a4a' }, { color: '#1abc9c', bg: '#1a3a3a' },
+  { color: '#9b59b6', bg: '#2e1a3d' }, { color: '#e74c3c', bg: '#4a1f1f' },
+  { color: '#e67e22', bg: '#4a2a10' }, { color: '#2ecc71', bg: '#123d1f' },
+  { color: '#16a085', bg: '#0e3d35' }, { color: '#af7ac5', bg: '#33204a' }
+];
+
+function refrescarTrasCambioEtiquetas() {
+  if (typeof renderFiltroEtiquetasChips === 'function') renderFiltroEtiquetasChips();
+  if (typeof renderEtiquetas === 'function') renderEtiquetas();
+  if (typeof renderGestionEtiquetas === 'function') renderGestionEtiquetas();
+  if (typeof filterSongs === 'function') filterSongs();
+}
+
+function agregarEtiquetaNueva() {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  mostrarModalJubilo({
+    titulo: 'Nueva etiqueta',
+    subtitulo: 'Se agregará a la lista de etiquetas disponibles para todas las alabanzas.',
+    placeholder: 'Ej: Navidad, Cena del Señor...'
+  }, function(nombre) {
+    var texto = nombre.trim();
+    if (!texto) return;
+    var dup = ETIQUETAS_DISPONIBLES.some(function(e) { return e.texto.toLowerCase() === texto.toLowerCase(); });
+    if (dup) { mostrarToast('⚠️ Ya existe una etiqueta con ese nombre.'); return; }
+    var paleta = PALETA_ETIQUETAS_NUEVAS[ETIQUETAS_DISPONIBLES.length % PALETA_ETIQUETAS_NUEVAS.length];
+    ETIQUETAS_DISPONIBLES.push({ id: slugEtiqueta(texto), texto: texto, color: paleta.color, bg: paleta.bg });
+    guardarEtiquetasDisponibles();
+    refrescarTrasCambioEtiquetas();
+    mostrarToast('✅ Etiqueta "' + texto + '" agregada.');
+  });
+}
+
+function renombrarEtiquetaExistente(id) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  var e = ETIQUETAS_DISPONIBLES.find(function(x) { return x.id === id; });
+  if (!e) return;
+  mostrarModalJubilo({
+    titulo: 'Renombrar etiqueta',
+    placeholder: 'Nombre de la etiqueta',
+    valor: e.texto
+  }, function(nombre) {
+    var texto = nombre.trim();
+    if (!texto) return;
+    var dup = ETIQUETAS_DISPONIBLES.some(function(x) { return x.id !== id && x.texto.toLowerCase() === texto.toLowerCase(); });
+    if (dup) { mostrarToast('⚠️ Ya existe otra etiqueta con ese nombre.'); return; }
+    e.texto = texto;
+    guardarEtiquetasDisponibles();
+    refrescarTrasCambioEtiquetas();
+    mostrarToast('✅ Etiqueta renombrada.');
+  });
+}
+
+function eliminarEtiquetaExistente(id) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  var e = ETIQUETAS_DISPONIBLES.find(function(x) { return x.id === id; });
+  if (!e) return;
+  if (!confirm('¿Eliminar la etiqueta "' + e.texto + '"?\n\nLas alabanzas que la tengan asignada la perderán.')) return;
+  ETIQUETAS_DISPONIBLES = ETIQUETAS_DISPONIBLES.filter(function(x) { return x.id !== id; });
+  window.filtrosEtiquetasActivas = (window.filtrosEtiquetasActivas || []).filter(function(x) { return x !== id; });
+  guardarEtiquetasDisponibles();
+  refrescarTrasCambioEtiquetas();
+  mostrarToast('🗑️ Etiqueta eliminada.');
+}
+
+function asegurarModalGestionEtiquetas() {
+  var modal = document.getElementById('gestionEtiquetasModal');
+  if (modal) return modal;
+  modal = document.createElement('div');
+  modal.id = 'gestionEtiquetasModal';
+  modal.className = 'modal-overlay';
+  modal.style.display = 'none';
+  modal.innerHTML =
+    '<div class="modal-card" style="max-width:400px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">' +
+        '<div style="color:#c9a84c;font-weight:bold;font-size:1rem;">🏷️ Editar etiquetas</div>' +
+        '<button onclick="cerrarModalGestionEtiquetas()" style="background:#42426e;border:none;color:#e8e6f0;border-radius:6px;padding:5px 10px;cursor:pointer;font-weight:bold;">✕</button>' +
+      '</div>' +
+      '<div style="color:#8888aa;font-size:0.78rem;margin-bottom:10px;">Renombra una etiqueta existente o agrega una nueva. Los cambios se aplican a todas las alabanzas y a todos los dispositivos.</div>' +
+      '<div id="gestionEtiquetasLista" style="display:grid;gap:8px;max-height:50vh;overflow-y:auto;margin-bottom:12px;padding-right:2px;"></div>' +
+      '<button onclick="agregarEtiquetaNueva()" style="width:100%;background:linear-gradient(135deg,#c9a84c,#e8c97a);border:none;color:#000;border-radius:8px;padding:11px;cursor:pointer;font-weight:bold;font-size:0.9rem;">+ Agregar etiqueta</button>' +
+    '</div>';
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function renderGestionEtiquetas() {
+  var modal = document.getElementById('gestionEtiquetasModal');
+  if (!modal || modal.style.display === 'none') return;
+  var cont = modal.querySelector('#gestionEtiquetasLista');
+  if (!cont) return;
+  if (!ETIQUETAS_DISPONIBLES.length) {
+    cont.innerHTML = '<div style="padding:12px;border:1px dashed #42426e;border-radius:10px;color:#8888aa;font-size:0.8rem;text-align:center;">No hay etiquetas todavía.</div>';
+    return;
+  }
+  cont.innerHTML = ETIQUETAS_DISPONIBLES.map(function(e) {
+    return '<div style="display:flex;align-items:center;gap:8px;background:#0d0d14;border:1px solid #2a2a45;border-radius:9px;padding:8px 10px;">' +
+      '<span style="width:12px;height:12px;border-radius:50%;background:' + e.color + ';flex-shrink:0;"></span>' +
+      '<span style="flex:1;min-width:0;color:#e8e6f0;font-weight:700;font-size:0.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escH(e.texto) + '</span>' +
+      '<button onclick="renombrarEtiquetaExistente(\'' + e.id + '\')" title="Renombrar" style="background:transparent;border:1px solid #42426e;color:#e8e6f0;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.82rem;">✏️</button>' +
+      '<button onclick="eliminarEtiquetaExistente(\'' + e.id + '\')" title="Eliminar" style="background:transparent;border:1px solid #42426e;color:#e57373;border-radius:6px;padding:5px 8px;cursor:pointer;font-size:0.82rem;">🗑️</button>' +
+    '</div>';
+  }).join('');
+}
+
+function abrirModalGestionEtiquetas() {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+  var modal = asegurarModalGestionEtiquetas();
+  modal.style.display = 'flex';
+  renderGestionEtiquetas();
+}
+
+function cerrarModalGestionEtiquetas() {
+  var modal = document.getElementById('gestionEtiquetasModal');
+  if (modal) modal.style.display = 'none';
+}
 
 
 
@@ -9030,14 +9780,30 @@ function mostrarModalJubilo(opts, cb) {
   }
   var selectHtml = '';
   if (opts.mostrarSelectGrupo) {
+    var porTipoSel = { solista: [], grupo: [] };
+    jubiloGrupos.forEach(function(g){ porTipoSel[tipoGrupoJubilo(g)].push(g); });
+    var opcionesDe = function(arr){
+      return arr.map(function(g){ return '<option value="' + g.id + '"' + (g.id === opts.grupoSeleccionado ? ' selected' : '') + '>' + escH(g.nombre) + '</option>'; }).join('');
+    };
     selectHtml = '<select id="jubiloFormSelect" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin-bottom:12px;box-sizing:border-box;">' +
-      jubiloGrupos.map(function(g){ return '<option value="' + g.id + '"' + (g.id === opts.grupoSeleccionado ? ' selected' : '') + '>' + escH(g.nombre) + '</option>'; }).join('') +
+      (porTipoSel.solista.length ? '<optgroup label="🎤 Solistas">' + opcionesDe(porTipoSel.solista) + '</optgroup>' : '') +
+      (porTipoSel.grupo.length ? '<optgroup label="👥 Grupos">' + opcionesDe(porTipoSel.grupo) + '</optgroup>' : '') +
       '</select>';
+  }
+  var tipoHtml = '';
+  if (opts.mostrarTipoSelector) {
+    tipoHtml = '<div style="margin-bottom:12px;">' +
+      '<div style="color:var(--text2);font-size:.74rem;font-weight:600;margin-bottom:6px;">¿Es un solista o un grupo?</div>' +
+      '<div style="display:flex;gap:8px;">' +
+        '<button type="button" id="jubiloFormTipoSolista" class="jubilo-small-btn" style="flex:1;">🎤 Solista</button>' +
+        '<button type="button" id="jubiloFormTipoGrupo" class="jubilo-small-btn" style="flex:1;">👥 Grupo</button>' +
+      '</div></div>';
   }
   overlay.innerHTML = '<div style="background:#1b2152;border:1px solid var(--border);border-radius:14px;padding:16px;max-width:360px;width:100%;box-shadow:0 18px 40px rgba(0,0,0,0.4);">' +
     '<div style="font-weight:700;color:var(--gold2);font-size:1rem;margin-bottom:8px;">' + escH(opts.titulo || '') + '</div>' +
     (opts.subtitulo ? '<div style="color:var(--text2);font-size:0.82rem;margin-bottom:12px;">' + escH(opts.subtitulo) + '</div>' : '') +
     '<input id="jubiloFormInput" type="text" placeholder="' + escH(opts.placeholder || '') + '" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin-bottom:12px;box-sizing:border-box;" />' +
+    tipoHtml +
     selectHtml +
     '<div style="display:flex;gap:8px;justify-content:flex-end;">' +
       '<button id="jubiloFormCancel" style="padding:9px 12px;border:none;border-radius:8px;background:#39406b;color:#fff;cursor:pointer;">Cancelar</button>' +
@@ -9052,6 +9818,19 @@ function mostrarModalJubilo(opts, cb) {
   input.value = opts.valor || '';
   setTimeout(function(){ input.focus(); input.select(); }, 20);
 
+  var tipoActual = opts.tipoSeleccionado === 'solista' ? 'solista' : 'grupo';
+  var btnTipoSolista = overlay.querySelector('#jubiloFormTipoSolista');
+  var btnTipoGrupo = overlay.querySelector('#jubiloFormTipoGrupo');
+  function actualizarTipoUI(){
+    if (btnTipoSolista) btnTipoSolista.classList.toggle('active', tipoActual === 'solista');
+    if (btnTipoGrupo) btnTipoGrupo.classList.toggle('active', tipoActual === 'grupo');
+  }
+  if (opts.mostrarTipoSelector) {
+    actualizarTipoUI();
+    btnTipoSolista.onclick = function(){ tipoActual = 'solista'; actualizarTipoUI(); };
+    btnTipoGrupo.onclick = function(){ tipoActual = 'grupo'; actualizarTipoUI(); };
+  }
+
   function cerrar() { overlay.style.display = 'none'; }
   cancel.onclick = function(){ cerrar(); };
   input.onkeydown = function(e){ if (e.key === 'Enter') { e.preventDefault(); ok.onclick(); } };
@@ -9060,7 +9839,7 @@ function mostrarModalJubilo(opts, cb) {
     if (!nombre) { input.focus(); return; }
     var grupoId = select ? select.value : null;
     cerrar();
-    cb(nombre, grupoId);
+    cb(nombre, grupoId, tipoActual);
   };
 }
 
@@ -9070,10 +9849,12 @@ function crearGrupoJubilo(){
   if (!Array.isArray(jubiloGrupos)) jubiloGrupos = []; // ← AGREGA
   mostrarModalJubilo({
     titulo: 'Nuevo grupo',
-    subtitulo: 'Ponle un nombre al nuevo grupo de Júbilo.',
-    placeholder: 'Nombre del grupo'
-  }, function(nombre){
-    jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre, cadenas: [] });
+    subtitulo: 'Ponle un nombre y elige si es un solista o un grupo.',
+    placeholder: 'Nombre del grupo',
+    mostrarTipoSelector: true,
+    tipoSeleccionado: 'grupo'
+  }, function(nombre, _grupoId, tipo){
+    jubiloGrupos.push({ id: 'grupo_' + Date.now(), nombre: nombre, tipo: tipo, cadenas: [] });
     guardarJubiloGrupos();
     renderJubiloSidebar();
     mostrarToast('✅ Grupo creado.');
@@ -9085,18 +9866,21 @@ function renombrarGrupo(id) {
   var g = jubiloGrupos.find(function(x){ return x.id === id; });
   if (!g) return;
   mostrarModalJubilo({
-    titulo: 'Renombrar grupo',
+    titulo: 'Editar grupo',
+    subtitulo: 'Puedes renombrarlo y también moverlo entre Solista y Grupo.',
     placeholder: 'Nombre del grupo',
-    valor: g.nombre
-  }, function(nombre){
-    g.nombre = nombre; guardarJubiloGrupos(); renderJubiloSidebar();
+    valor: g.nombre,
+    mostrarTipoSelector: true,
+    tipoSeleccionado: tipoGrupoJubilo(g)
+  }, function(nombre, _grupoId, tipo){
+    g.nombre = nombre; g.tipo = tipo; guardarJubiloGrupos(); renderJubiloSidebar();
   });
 }
 function eliminarGrupo(id) {
     if (window.jubiloGrupos !== undefined) jubiloGrupos = window.jubiloGrupos; // ← AGREGA
   if (!confirm('¿Eliminar este grupo y todas sus cadenas?')) return;
   jubiloGrupos = jubiloGrupos.filter(function(g){ return g.id !== id; });
-  if (jubiloGrupoActivo === id) { jubiloGrupoActivo = null; jubiloCadenaActiva = null; document.getElementById('jubiloMain').innerHTML = '<div class="jubilo-empty"><h2 style="color:var(--gold)">Alabanzas de Júbilo</h2><p>Selecciona una cadena.</p></div>'; document.getElementById('jubiloControlsBar').style.display = 'none'; }
+  if (jubiloGrupoActivo === id) { jubiloGrupoActivo = null; jubiloCadenaActiva = null; document.getElementById('jubiloMain').innerHTML = '<div class="jubilo-empty"><div class="nr-icon">🎶</div><div class="nr-title">Alabanzas de Júbilo</div><div class="nr-sub">Selecciona una cadena.</div></div>'; document.getElementById('jubiloControlsBar').style.display = 'none'; }
   guardarJubiloGrupos(); renderJubiloSidebar();
 }
 function renombrarCadena(grupoId, cadenaId) {
@@ -9116,7 +9900,7 @@ function eliminarCadena(grupoId, cadenaId) {
   var found = buscarGrupoCadena(grupoId, cadenaId);
   if (!found || !confirm('¿Eliminar la cadena "' + found.cadena.nombre + '"?')) return;
   found.grupo.cadenas = found.grupo.cadenas.filter(function(c){ return c.id !== cadenaId; });
-  if (jubiloCadenaActiva === cadenaId) { jubiloCadenaActiva = null; jubiloGrupoActivo = null; document.getElementById('jubiloMain').innerHTML = '<div class="jubilo-empty"><h2 style="color:var(--gold)">Alabanzas de Júbilo</h2><p>Selecciona una cadena.</p></div>'; document.getElementById('jubiloControlsBar').style.display = 'none'; }
+  if (jubiloCadenaActiva === cadenaId) { jubiloCadenaActiva = null; jubiloGrupoActivo = null; document.getElementById('jubiloMain').innerHTML = '<div class="jubilo-empty"><div class="nr-icon">🎶</div><div class="nr-title">Alabanzas de Júbilo</div><div class="nr-sub">Selecciona una cadena.</div></div>'; document.getElementById('jubiloControlsBar').style.display = 'none'; }
   guardarJubiloGrupos(); renderJubiloSidebar();
 }
 
@@ -9166,6 +9950,18 @@ function crearCadenaJubilo(){
   });
 }
 
+var JUBILO_GRUPO_ACCENTS = ['#c9a84c', '#8bc7ff', '#e0946a', '#9ad1a0', '#c98bdc', '#e8c97a'];
+function accentGrupoJubilo(index){ return JUBILO_GRUPO_ACCENTS[index % JUBILO_GRUPO_ACCENTS.length]; }
+
+var JUBILO_TIPOS = [
+  { key: 'solista', label: 'Solista', plural: 'Solistas', icon: '🎤', accent: '#8bc7ff' },
+  { key: 'grupo', label: 'Grupo', plural: 'Grupos', icon: '👥', accent: '#c9a84c' }
+];
+// Los grupos creados antes de existir esta clasificación no tienen "tipo"
+// guardado; por compatibilidad los tratamos como "grupo" hasta que se
+// editen y se les asigne uno explícitamente.
+function tipoGrupoJubilo(g){ return (g && g.tipo === 'solista') ? 'solista' : 'grupo'; }
+
 function renderJubiloSidebar(){
   var list = document.getElementById('jubiloGroupList');
   if (!list) return;
@@ -9175,39 +9971,88 @@ function renderJubiloSidebar(){
   if (!Array.isArray(jubiloGrupos)) jubiloGrupos = [];
   window.jubiloGrupos = jubiloGrupos;
 
-  if (!jubiloGrupos.length) {
-    list.innerHTML = '<div class="no-results">No hay grupos todavia.</div>';
+  var gruposValidos = jubiloGrupos.filter(function(g){ return g && g.id && g.nombre; });
+
+  if (!gruposValidos.length) {
+    list.innerHTML = '<div class="no-results"><div class="nr-icon">🗂</div>' +
+      '<div class="nr-title">Todavía no hay grupos</div>' +
+      '<div class="nr-sub">Crea tu primer solista o grupo para empezar a armar cadenas de júbilo.</div></div>';
     return;
   }
-  var html = '';
-  jubiloGrupos.filter(function(g){ return g && g.id && g.nombre; }).forEach(function(g){
-    html += '<details class="jubilo-group">' +
-      '<summary style="display:flex;align-items:center;justify-content:space-between;">' +
-        '<span>' + escH(g.nombre) + '</span>' +
-        '<span style="display:flex;gap:2px;">' +
-          (g.cadenas && g.cadenas.length > 1 ? '<button class="jubilo-chain-icon-btn" onclick="event.stopPropagation();abrirEditorOrdenCadenas(\'' + g.id + '\')" title="Ordenar cadenas">↕️</button>' : '') +
-          '<button class="jubilo-chain-icon-btn" onclick="event.stopPropagation();renombrarGrupo(\'' + g.id + '\')" title="Renombrar grupo">✏️</button>' +
-          '<button class="jubilo-chain-icon-btn danger" onclick="event.stopPropagation();eliminarGrupo(\'' + g.id + '\')" title="Eliminar grupo">🗑</button>' +
-        '</span>' +
-      '</summary>';
 
-    if (!g.cadenas.length) {
-      html += '<div class="no-results" style="padding:10px;">Sin cadenas</div>';
+  // Si hay una cadena activa, se usa para auto-expandir tanto su categoría
+  // (Solista/Grupo) como su tarjeta, así siempre queda a la vista.
+  var grupoActivoTipo = null;
+  var gActivo = gruposValidos.find(function(g){ return g.id === jubiloGrupoActivo; });
+  if (gActivo) grupoActivoTipo = tipoGrupoJubilo(gActivo);
+
+  var html = '';
+  JUBILO_TIPOS.forEach(function(cat){
+    var delTipo = gruposValidos.filter(function(g){ return tipoGrupoJubilo(g) === cat.key; });
+    var abiertoCat = cat.key === grupoActivoTipo ? ' open' : '';
+
+    html += '<details class="jubilo-group jubilo-cat" style="--jg-accent:' + cat.accent + ';"' + abiertoCat + '>' +
+      '<summary>' +
+        '<span class="jg-left">' +
+          '<span class="jg-icon">' + cat.icon + '</span>' +
+          '<span style="min-width:0;">' +
+            '<span class="jg-name">' + cat.label + '</span>' +
+            '<small class="jg-count">' + delTipo.length + (delTipo.length === 1 ? ' grupo' : ' grupos') + '</small>' +
+          '</span>' +
+        '</span>' +
+        '<span class="jg-chevron">▶</span>' +
+      '</summary>' +
+      '<div class="jubilo-group-nested-wrap">';
+
+    if (!delTipo.length) {
+      html += '<div class="no-results" style="padding:8px 10px;">Sin ' + cat.plural.toLowerCase() + ' todavía.</div>';
     }
 
-    g.cadenas.forEach(function(c){
-      var active = c.id === jubiloCadenaActiva ? ' active' : '';
-      html += '<div class="jubilo-chain-row" style="display:flex;align-items:center;gap:2px;">' +
-        '<button class="jubilo-chain' + active + '" style="flex:1;" onclick="renderJubiloCadena(\'' + g.id + '\',\'' + c.id + '\')">' +
-          '<span>' + escH(c.nombre) + '</span><small>' + (c.alabanzas||[]).length + ' ✦</small>' +
-        '</button>' +
-        '<button class="jubilo-chain-icon-btn" onclick="duplicarCadenaJubilo(\'' + g.id + '\',\'' + c.id + '\')" title="Duplicar cadena">📄</button>' +
-        '<button class="jubilo-chain-icon-btn" onclick="renombrarCadena(\'' + g.id + '\',\'' + c.id + '\')" title="Renombrar">✏️</button>' +
-        '<button class="jubilo-chain-icon-btn danger" onclick="eliminarCadena(\'' + g.id + '\',\'' + c.id + '\')" title="Eliminar">🗑</button>' +
-      '</div>';
+    delTipo.forEach(function(g, gi){
+      var accent = accentGrupoJubilo(gi);
+      var abierto = g.id === jubiloGrupoActivo ? ' open' : '';
+      var cantidad = (g.cadenas || []).length;
+
+      html += '<details class="jubilo-group jubilo-group-nested" style="--jg-accent:' + accent + ';"' + abierto + '>' +
+        '<summary>' +
+          '<span class="jg-left">' +
+            '<span class="jg-icon">🎵</span>' +
+            '<span style="min-width:0;">' +
+              '<span class="jg-name">' + escH(g.nombre) + '</span>' +
+              '<small class="jg-count">' + cantidad + (cantidad === 1 ? ' cadena' : ' cadenas') + '</small>' +
+            '</span>' +
+          '</span>' +
+          '<span style="display:flex;align-items:center;">' +
+            '<span class="jg-actions">' +
+              (g.cadenas && g.cadenas.length > 1 ? '<button class="jubilo-chain-icon-btn" onclick="event.stopPropagation();abrirEditorOrdenCadenas(\'' + g.id + '\')" title="Ordenar cadenas">↕️</button>' : '') +
+              '<button class="jubilo-chain-icon-btn" onclick="event.stopPropagation();renombrarGrupo(\'' + g.id + '\')" title="Renombrar / cambiar tipo">✏️</button>' +
+              '<button class="jubilo-chain-icon-btn danger" onclick="event.stopPropagation();eliminarGrupo(\'' + g.id + '\')" title="Eliminar grupo">🗑</button>' +
+            '</span>' +
+            '<span class="jg-chevron">▶</span>' +
+          '</span>' +
+        '</summary>' +
+        '<div class="jubilo-chain-list">';
+
+      if (!g.cadenas.length) {
+        html += '<div class="no-results" style="padding:10px;">Sin cadenas</div>';
+      }
+
+      g.cadenas.forEach(function(c){
+        var active = c.id === jubiloCadenaActiva ? ' active' : '';
+        html += '<div class="jubilo-chain-row" style="display:flex;align-items:center;gap:2px;">' +
+          '<button class="jubilo-chain' + active + '" onclick="renderJubiloCadena(\'' + g.id + '\',\'' + c.id + '\')">' +
+            '<span class="jc-icon">🎵</span>' +
+            '<span class="jc-name">' + escH(c.nombre) + '</span><small>' + (c.alabanzas||[]).length + ' ✦</small>' +
+          '</button>' +
+          '<button class="jubilo-chain-icon-btn" onclick="duplicarCadenaJubilo(\'' + g.id + '\',\'' + c.id + '\')" title="Duplicar cadena">📄</button>' +
+          '<button class="jubilo-chain-icon-btn" onclick="renombrarCadena(\'' + g.id + '\',\'' + c.id + '\')" title="Renombrar">✏️</button>' +
+          '<button class="jubilo-chain-icon-btn danger" onclick="eliminarCadena(\'' + g.id + '\',\'' + c.id + '\')" title="Eliminar">🗑</button>' +
+        '</div>';
+      });
+      html += '</div></details>';
     });
 
-    html += '</details>';
+    html += '</div></details>';
   });
   list.innerHTML = html;
 }
@@ -10503,14 +11348,17 @@ function agregarCadenaJubiloAlRepertorio(){
   var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva);
   if (!found) return;
   pedirFechaRepertorio(function(fecha){
-    agregarItemAlRepertorio({
-      id: found.cadena.id,
-      title: 'Cadena: ' + found.cadena.nombre,
-      tono: (found.cadena.alabanzas || []).length + ' alabanzas',
-      fuente: 'cadena_jubilo',
-      grupoId: found.grupo.id,
-      cadenaId: found.cadena.id
-    }, fecha);
+    pedirServicioVigiliaSiAplica(fecha, function(servicioVigilia){
+      agregarItemAlRepertorio({
+        id: found.cadena.id,
+        title: 'Cadena: ' + found.cadena.nombre,
+        tono: (found.cadena.alabanzas || []).length + ' alabanzas',
+        fuente: 'cadena_jubilo',
+        grupoId: found.grupo.id,
+        cadenaId: found.cadena.id,
+        servicioVigilia: servicioVigilia
+      }, fecha);
+    });
   });
 }
 
@@ -10579,17 +11427,53 @@ function moverRepertorioIndice(desde, hasta) {
   var startY = 0;
   var startTop = 0;
   var activePointerId = null;
+  var ctx = null;        // contexto del arrastre (secuencia visible, bloque, etc.)
+  var dropInfo = null;   // { gap, modo }  modo: 'simple' | 'bloque'
+
+  function limpiarGhost() {
+    if (!cont) return;
+    Array.prototype.forEach.call(cont.querySelectorAll('.setlist-item.bloque-ghost'), function (el) {
+      el.classList.remove('bloque-ghost');
+    });
+  }
 
   function onPointerDown(e) {
     var handle = e.target.closest ? e.target.closest('.drag-handle') : null;
     if (!handle) return;
-    if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin para reordenar.'); return; }
+    if (!window.esAdmin) { mostrarToast('\ud83d\udd12 Debes iniciar sesi\u00f3n como admin para reordenar.'); return; }
     var item = handle.closest('.setlist-item');
     cont = document.getElementById('setlistContent');
     if (!item || !cont) return;
 
+    // Secuencia visible (en vigilias, solo el servicio que se esta viendo).
+    var vig = esCultoVigilia(repertorioFechaActiva);
+    var serv = vig ? getServicioVigiliaActivo(repertorioFechaActiva) : null;
+    var posVisibles = [];
+    for (var p = 0; p < setlistDOM.length; p++) {
+      if (!vig || itemPerteneceAServicioVigilia(setlistDOM[p], serv)) posVisibles.push(p);
+    }
+    var absIdx = parseInt(item.getAttribute('data-idx'), 10);
+    var dragVis = posVisibles.indexOf(absIdx);
+    if (dragVis < 0) return;
+
+    var tipos = posVisibles.map(function (pp) { return tipoItemRepertorio(setlistDOM[pp]); });
+    var tipo = tipos[dragVis];
+    var runStart = dragVis, runEnd = dragVis;
+    while (runStart > 0 && tipos[runStart - 1] === tipo) runStart--;
+    while (runEnd < tipos.length - 1 && tipos[runEnd + 1] === tipo) runEnd++;
+
+    ctx = {
+      posVisibles: posVisibles,
+      tipos: tipos,
+      tipo: tipo,
+      dragVis: dragVis,
+      runStart: runStart,
+      runEnd: runEnd
+    };
+    dropInfo = null;
+
     e.preventDefault();
-    vibrar(18); // se "levanta" la canción del setlist
+    vibrar(18); // se "levanta" la cancion del setlist
     dragEl = item;
     activePointerId = e.pointerId;
     startY = e.clientY;
@@ -10622,17 +11506,47 @@ function moverRepertorioIndice(desde, hasta) {
     dragEl.style.top = (startTop + dy) + 'px';
 
     var siblings = Array.prototype.slice.call(cont.querySelectorAll('.setlist-item:not(.dragging)'));
-    var colocado = false;
+    var gap = siblings.length;
     for (var i = 0; i < siblings.length; i++) {
       var r = siblings[i].getBoundingClientRect();
-      var mid = r.top + r.height / 2;
-      if (e.clientY < mid) {
-        cont.insertBefore(placeholder, siblings[i]);
-        colocado = true;
-        break;
+      if (e.clientY < r.top + r.height / 2) { gap = i; break; }
+    }
+
+    // Tipos de la secuencia visible SIN el item arrastrado.
+    var tiposSib = ctx.tipos.filter(function (_, idx) { return idx !== ctx.dragVis; });
+    var modo = 'simple';
+
+    if (ctx.tipo === 'adoracion') {
+      // Una alabanza de adoracion no puede quedar DENTRO del bloque de
+      // jubilo: si el dedo cae ahi, se pega al borde mas cercano (arriba o
+      // abajo del bloque completo). Al soltarla abajo se abre el bloque
+      // "Adoracion" despues del jubilo.
+      if (gap > 0 && gap < tiposSib.length && tiposSib[gap - 1] === 'jubilo' && tiposSib[gap] === 'jubilo') {
+        var ini = gap, fin = gap;
+        while (ini > 0 && tiposSib[ini - 1] === 'jubilo') ini--;
+        while (fin < tiposSib.length && tiposSib[fin] === 'jubilo') fin++;
+        gap = (gap - ini) <= (fin - gap) ? ini : fin;
+      }
+    } else {
+      // Una cadena/mix que sale de su propio bloque se lleva el bloque
+      // completo de jubilo. Dentro de su bloque solo se reordena ella.
+      var restantes = ctx.runEnd - ctx.runStart; // miembros del bloque sin el arrastrado
+      if (gap < ctx.runStart || gap > ctx.runStart + restantes) modo = 'bloque';
+    }
+
+    limpiarGhost();
+    if (modo === 'bloque') {
+      for (var b = ctx.runStart; b <= ctx.runEnd; b++) {
+        if (b === ctx.dragVis) continue;
+        var absB = ctx.posVisibles[b];
+        var elB = cont.querySelector('.setlist-item[data-idx="' + absB + '"]');
+        if (elB) elB.classList.add('bloque-ghost');
       }
     }
-    if (!colocado) cont.appendChild(placeholder);
+
+    dropInfo = { gap: gap, modo: modo };
+    if (gap >= siblings.length) cont.appendChild(placeholder);
+    else cont.insertBefore(placeholder, siblings[gap]);
   }
 
   function onPointerUp(e) {
@@ -10643,6 +11557,7 @@ function moverRepertorioIndice(desde, hasta) {
 
     placeholder.parentNode.insertBefore(dragEl, placeholder);
     placeholder.parentNode.removeChild(placeholder);
+    limpiarGhost();
 
     dragEl.classList.remove('dragging');
     dragEl.style.position = '';
@@ -10652,28 +11567,45 @@ function moverRepertorioIndice(desde, hasta) {
     dragEl.style.zIndex = '';
     dragEl.style.pointerEvents = '';
 
-    // Reconstruir el nuevo orden a partir del DOM (usa id + fuente por si hay ids repetidos entre Adoración/Júbilo)
-    var nuevoOrden = Array.prototype.map.call(cont.querySelectorAll('.setlist-item'), function (el) {
-      var id = el.getAttribute('data-id');
-      var fuente = el.getAttribute('data-fuente') || 'adoracion';
-      return setlistDOM.find(function (s) {
-        return String(s.id) === String(id) && (s.fuente || 'adoracion') === fuente;
-      });
-    }).filter(Boolean);
-
-    var huboCambio = nuevoOrden.length === setlistDOM.length && nuevoOrden.some(function (s, idx) { return s !== setlistDOM[idx]; });
-
+    var info = dropInfo;
+    var c = ctx;
     dragEl = null;
     placeholder = null;
     activePointerId = null;
+    ctx = null;
+    dropInfo = null;
+
+    if (!info || !c) { renderSetlist(); return; }
+
+    // Que se mueve: solo el item, o todo su bloque de jubilo.
+    var moverVis = [];
+    if (info.modo === 'bloque') {
+      for (var m = c.runStart; m <= c.runEnd; m++) moverVis.push(m);
+    } else {
+      moverVis.push(c.dragVis);
+    }
+
+    // "gap" viene en coordenadas de la lista sin el arrastrado; se convierte
+    // a una frontera de la secuencia visible original.
+    var V = info.gap < c.dragVis ? info.gap : info.gap + 1;
+
+    var items = c.posVisibles.map(function (pp) { return setlistDOM[pp]; });
+    var moving = moverVis.map(function (idx) { return items[idx]; });
+    var rest = items.filter(function (_, idx) { return moverVis.indexOf(idx) === -1; });
+    var restGap = 0;
+    for (var q = 0; q < V && q < items.length; q++) if (moverVis.indexOf(q) === -1) restGap++;
+    var nuevoOrden = rest.slice(0, restGap).concat(moving, rest.slice(restGap));
+
+    var huboCambio = nuevoOrden.length === items.length &&
+      nuevoOrden.some(function (x, idx) { return x !== items[idx]; });
 
     if (huboCambio) {
       // Mutar en el mismo array (no reasignar) para que el cambio quede
       // ligado a repertorios[fecha], igual que hace moverRepertorioIndice.
-      setlistDOM.length = 0;
-      Array.prototype.push.apply(setlistDOM, nuevoOrden);
+      c.posVisibles.forEach(function (pos, idx) { setlistDOM[pos] = nuevoOrden[idx]; });
+      marcarOrdenManualRepertorio(setlistDOM);
       guardarRepertorios();
-      mostrarToast('↕ Orden actualizado');
+      mostrarToast(info.modo === 'bloque' ? '\ud83c\udfb6 Bloque de J\u00fabilo movido completo' : '\u2195 Orden actualizado');
     }
     renderSetlist();
   }
@@ -12928,11 +13860,14 @@ function cambiarAjusteJubilo(delta) {
 var ROL_USUARIO_KEY = 'yhwh_rol_usuario';
 var origenRepertorioPendiente = false; // true justo antes de abrir una canción/cadena desde el Repertorio
 var cancionActualVieneDeRepertorio = false; // true si la canción cargada actualmente vino del Repertorio
+var origenMinistracionPendiente = false; // true justo antes de abrir una canción desde Ministración
+var cancionActualVieneDeMinistracion = false; // true si la canción cargada actualmente vino de Ministración
 function actualizarVisibilidadBotonVolverRepertorio() {
   var btnVolverRep = document.getElementById('btnVolverRepertorioAdoracion');
-  if (!btnVolverRep) return;
+  var btnVolverMin = document.getElementById('btnVolverMinistracionAdoracion');
   var enVistaPresentacion = document.body.classList.contains('singer-view') || document.body.classList.contains('musician-view');
-  btnVolverRep.style.display = (cancionActualVieneDeRepertorio && enVistaPresentacion) ? '' : 'none';
+  if (btnVolverRep) btnVolverRep.style.display = (cancionActualVieneDeRepertorio && enVistaPresentacion) ? '' : 'none';
+  if (btnVolverMin) btnVolverMin.style.display = (cancionActualVieneDeMinistracion && enVistaPresentacion) ? '' : 'none';
 }
 
 function storageDisponible() {
@@ -13734,8 +14669,13 @@ function generarCanvasSetlist() {
   var mostrarTono   = document.getElementById('expOptTono')   ? document.getElementById('expOptTono').checked   : true;
   var mostrarTiempo = document.getElementById('expOptTiempo') ? document.getElementById('expOptTiempo').checked : true;
 
-  var lista = setlistDOM || [];
-  var cultoDia   = getTipoCultoDia(repertorioFechaActiva) || 'Culto';
+  var vigiliaActivaExport = esCultoVigilia(repertorioFechaActiva);
+  var servicioActivoExport = vigiliaActivaExport ? getServicioVigiliaActivo(repertorioFechaActiva) : null;
+  var lista = (setlistDOM || []).filter(function(s){
+    return !vigiliaActivaExport || itemPerteneceAServicioVigilia(s, servicioActivoExport);
+  });
+  var cultoDia   = (getTipoCultoDia(repertorioFechaActiva) || 'Culto') +
+    (vigiliaActivaExport ? (' · ' + (servicioActivoExport === 'segundo' ? '2do servicio' : '1er servicio')) : '');
   var fechaLabel = getDiaLabel(repertorioFechaActiva);
 
   // ---- calcular tiempo estimado ----
