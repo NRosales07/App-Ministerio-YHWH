@@ -613,28 +613,22 @@ var SONGS_JUBILO =
     "id": 371
   },
   {
-    "id": 372,
+    "num": null,
     "title": "DESIERTO EN PARAÍSO",
     "compositor": "Tradicional",
     "tono": "Gm",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 2  |  EBENEZER\nMIX 2  |  EBENEZER\nTROMPETAS  | Gm | Eb | Bb | F |\n[VERSO 1]:\n                     Gm                                Bb                        Cm                                            D\nX2    Mi Desierto en paraíso convirtió, mis tierras secas ahora son huertos de Jehová\n             Gm                                   Bb                   Cm                                          Eb                                        D\nCada una de mis ruinas consoló, de lugares desolados y de oscura soledad él me sacó.    X2"
+    "content": "TROMPETAS    | Gm | Eb | Bb | F |\n[VERSO 1]:\n                Gm                            Bb\nX2    Mi Desierto en paraíso convirtió, \n        Cm                                    D\nMis tierras secas ahora son huertos de Jehová\n         Gm                           Bb              Cm\nCada una de mis ruinas consoló, De lugares\n      Cm                 Eb                              D\nDesolados y de oscura soledad él me sacó X2\n\n[PRE-CORO]:\n                Eb                                   Bb \nY en Él encontré, mi alegría y mi consuelo, \n           Dm                                         Gm – F\nY mi gratitud, me hace darle canto nuevo.\n                          Eb                                   Bb       \nPorque en él encontré, mi alegría y mi consuelo, \n             F                      Cm                 D\nY mi gratitud, me hace darle canto nuevo…\n[CORO]:\n       Gm                             Eb  \nX2   ¡Ven y toca hoy mi corazón Señor! \n               Bb                   F         D\n¡Pon tu alegría donde había lamento!\n Gm                          Eb    \n¡Ven y toca hoy mi corazón Señor! \n Bb                                   F         D\n¡Que tu rio fluya donde había desierto! X2\n\n\n\n\n\nTROMPETAS                         \n\n\n\n\n[PRE-CORO]:      |     [CORO]:   X2\n\n\n\n\n\n[PUENTE]:\n                               Eb                              Bb\nX2     Y en un de repente, todo puedes cambiar,\n                  Eb                                      Bb\nEn un de repente, haces ríos en la sequedad.    X2\n[PUENTE]:\n                                           Gm  \nX2      Soplas vida en los huesos secos, \n                          Bb\nCambiaste mi lamento en baile,\n                     Cm                     \nTomaste mi corazón de piedra \n                                             D\nY me diste un corazón de carne.     X2\n\n\n\n\n\n\n\n\nTROMPETAS",
+    "id": 372
   },
   {
-    "id": 373,
-    "title": "TROMPETAS — VERSO 1",
-    "compositor": "Tradicional",
-    "tono": "Gm",
-    "album": "Alabanzas de Júbilo",
-    "content": "[PRE-CORO]:\n                       Eb                                             Bb                       Dm                                                        Gm – F\nY en Él encontré, mi alegría y mi consuelo, y mi gratitud, me hace darle canto nuevo.\n                                 Eb                                                Bb                          F                              Cm                     D\nPorque en él encontré, mi alegría y mi consuelo, y mi gratitud, me hace darle canto nuevo…\n[CORO]:\n            Gm                                  Eb                       Bb                                           F             D\nX2   ¡Ven y toca hoy mi corazón Señor! ¡Pon tu alegría donde había lamento!\n   Gm                                  Eb                          Bb                                            F             D\n¡Ven y toca hoy mi corazón Señor! ¡Que tu rio fluya donde había desierto! X2\nTROMPETAS                         —             PRE - CORO      |     CORO\n[PUENTE]:\n1\n                                     Eb                                             Bb                                Eb                                               Bb\nX2     Y en un de repente, todo puedes cambiar, en un de repente, haces ríos en la sequedad.    X2\n[PUENTE]:\n2\n                                                       Gm                                                        Bb\nX2      Soplas vida en los huesos secos, cambiaste mi lamento en baile,\n                                Cm                                                                                   D\nTomaste mi corazón de piedra y me diste un corazón de carne.     X2"
-  },
-  {
-    "id": 374,
+    "num": null,
     "title": "FUEGO",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Am",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 2  |  EBENEZER\nMIX 2  |  EBENEZER\nTROMPETAS      | Am | G | Dm | E7 |\n[VERSO 1]:\n                               Am                                                          G\nX2     Hay una llama que arde en mí, un gran poder que está en ti,\n                          Dm                                                             E7\nMe está quemando su fuego santo, puedo sentirlo está aquí.   X2\n[CORO]:\n               Am                        G\nX2     Fuego (fuego) Fuego del Señor (fuego del Señor)\n   Dm                                                        E\nFuego (fuego) Fuego (fuego)  Fuego purificador.  X2\nTROMPETAS\n                      Am\nX2      Fuego, fuego, fuego, fuego, fuego, fuego, fuego\n     G\nFuego, fuego, fuego, fuego, fuego, fuego, fuego\n   Dm\nFuego, fuego, fuego, fuego, fuego, fuego, fuego\n     E\nFuego purificador.    X2                                —               CORO"
+    "content": "TROMPETAS      | Am | G | Dm | E7 |\n[VERSO 1]:\n                        Am          \nX2     Hay una llama que arde en mí, \n                G\nUn gran poder que está en ti,\n                   Dm  \nMe está quemando su fuego santo, \n                E7\nPuedo sentirlo está aquí.   X2\n[CORO]:\n           Am                   G\nX2     Fuego (fuego) Fuego del Señor (fuego del Señor)\n  Dm                                            E\nFuego (fuego) Fuego (fuego)  Fuego purificador.  X2\n\n\n\n\n\nTROMPETAS\n\n\n\n\n[PUENTE]:\n             Am\nX3      Fuego, fuego, fuego, fuego, fuego, fuego, fuego\n    G\nFuego, fuego, fuego, fuego, fuego, fuego, fuego\n  Dm\nFuego, fuego, fuego, fuego, fuego, fuego, fuego\n    E\nFuego purificador.    X3                                \n[CORO]:  X2",
+    "id": 374
   },
   {
     "num": null,
@@ -733,10 +727,10 @@ var SONGS_JUBILO =
   {
     "num": null,
     "title": "PORQUE NUESTRO CAPITÁN",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "G",
     "album": "Alabanzas de Júbilo",
-    "content": "TROMPETAS      | G | D | G | D | G | Em | Bm |\n[CORO]:\n               G                                        D \nX2      Porque nuestro Capitán es Cristo, \n           G                           D\nSus huellas estamos siguiendo,\n    G         Em      Bm\nContra nosotros nada se levantará.     X2\n                                                                                                                                  G            Em         Bm\nTROMPETAS            —          SE REPITE TODO                 \n             G         Em      Bm\nX2    Contra nosotros nada se levantará.   X2",
+    "content": "TROMPETAS      | G | D | G | D | G | Em | Bm |\n[CORO]:\n               G                                        D \nX2      Porque nuestro Capitán es Cristo, \n           G                           D\nSus huellas estamos siguiendo,\n    G         Em      Bm\nContra nosotros nada se levantará.     X2\n\n\n\n\n\nTROMPETAS            —          SE REPITE TODO                 \n",
     "id": 386
   },
   {
@@ -748,12 +742,13 @@ var SONGS_JUBILO =
     "content": "MIX 12  |  EBENEZER\nMIX 12  |  EBENEZER\nTROMPETAS    | Cm | Fm7 | Ab7  | G7 |\n[VERSO 1]:\n                  G      Cm                                       Fm7\nX2     ¿Cantos de liberación, son los que me rodearán\n        Ab7                G7                Cm                       Ab7\nAl shofar del jubileo, las cadenas se abren ya.   X2\n[CORO]:\nG    Fm7             Cm            Fm                  Cm              Fm            Cm    Ab      G7\nEl triste tiene vino, el ansioso tiene paz, pues hoy ha llegado tu libertad.\nG    Fm7                     Cm               Fm            Cm                  Fm                  Cm                Ab                   G7\nEl cansado tiene fuerza, el enfermo sanidad, el pecador se arrepiente, y limpio queda ya.\nTROMPETAS"
   },
   {
-    "id": 388,
+    "num": null,
     "title": "EL RÍO DE DIOS",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "G",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 7  |  EBENEZER\nMIX 7  |  EBENEZER\n                                G                                                                          C         G\nHay un río que hoy fluye, de la puerta del oriente...\n                                                                C             D                             G                           C               D-G\n(Y todo aquel que en él se mueva, vivirá…) Para Siempre… (Es el Río del Señor…)\nTROMPETAS    | D | C | D | C | D | C |\n[VERSO 1]:\n                          C\nX2    Hay un río que hoy fluye, de la puerta del oriente X2\n                           D                     C                             D                       C\nEl que se mueva en ese río, el que se mueva en ese río,\n                            D                     C       D-C                   G\nEl que se mueva en ese río, vivirá para siempre.              —             SE REPITE\nTROMPETAS\n[VERSO 2]:\n                       C\nX2    Y está subiendo a los tobillos, es el río del Señor.   X2\n                              D                  C                   D               C\nA nuestros lomos ha subido, es el río del Señor,\n                                    D                          C                          D              C\nX3      Mira cómo ha crecido el río, que yo he sido sumergido.   X3\nTROMPETAS\n[VERSO 3]:\n                             C                   G                                       C\nX2    Y voy nadando, nadando, en el río del Señor.    X2\n                              D                C                     D              C\nA nuestros lomos ha subido, es el río del Señor,\n                                     D                        C                             D              C\nX3      Mira cómo ha crecido el río, que yo he sido sumergido.   X3"
+    "content": "TROMPETAS    | D | C | D | C | D | C |\n[VERSO 1]:\n                   C\nX2  Hay un río que hoy fluye, de la puerta del oriente X2\n                    D                 C                       D                  C\nEl que se mueva en ese río, el que se mueva en ese río,\n                    D                  C    D-C               G\nEl que se mueva en ese río, vivirá para siempre.             \n\n\n\n\n\n\nSE REPITE TODO\n\n\n\n\nTROMPETAS\n[VERSO 2]:\n                       C\nX2 Y está subiendo a los tobillos, es el río del Señor X2\n                      D             C               D           C\nA nuestros lomos ha subido, es el río del Señor,\n                             D                   C       \nX3      Mira cómo ha crecido el río, \n                    D          C\nQue yo he sido sumergido.   X3\n\n\n\n\n\n\nTROMPETAS\n[VERSO 3]:\n                        C             G                              C\nX2    Y voy nadando, nadando, en el río del Señor.    X2\n                      D             C               D           C\nA nuestros lomos ha subido, es el río del Señor,\n                             D                   C       \nX3      Mira cómo ha crecido el río, \n                    D          C\nQue yo he sido sumergido.   X3",
+    "id": 388
   },
   {
     "num": null,
