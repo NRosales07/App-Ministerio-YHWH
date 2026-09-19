@@ -169,15 +169,21 @@ onValue(ref(db, 'repertorio'), function(snapshot) {
   window.sincronizarDificultadesDesdeCache = sincronizarDificultadesDesdeCache;
 
   onValue(ref(db, 'dificultad'), function(snapshot) {
-    var data = snapshot.val();
-    if (data !== null && data !== undefined) {
-      window.dificultadDB = data;
-      localStorage.setItem('yhwh_dificultad_cache', JSON.stringify(data));
-      if (window.actualizarBotonesDificultad) window.actualizarBotonesDificultad();
-      if (window.filterSongs) window.filterSongs();
-    } else {
-      sincronizarDificultadesDesdeCache();
+    // Si llega vacío es un borrado real (se quitó la última dificultad): también se limpia aquí.
+    var data = snapshot.val() || {};
+    window.dificultadDB = data;
+    localStorage.setItem('yhwh_dificultad_cache', JSON.stringify(data));
+    // Reconciliar las claves sueltas por canción (yhwh_dif_<id>): getDificultadCancion()
+    // las usa como último respaldo y harían "revivir" una dificultad ya quitada.
+    for (var i = localStorage.length - 1; i >= 0; i--) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('yhwh_dif_') === 0) {
+        var id = k.slice('yhwh_dif_'.length);
+        if (!(id in data)) localStorage.removeItem(k);
+      }
     }
+    if (window.actualizarBotonesDificultad) window.actualizarBotonesDificultad();
+    if (window.filterSongs) window.filterSongs();
   });
 
   // Escuchar jubilo en tiempo real
@@ -236,11 +242,24 @@ onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
 });
 
   onValue(ref(db, 'notas_director'), function(snapshot) {
-  var data = snapshot.val();
-  if (data) {
-    Object.keys(data).forEach(function(id) {
-      localStorage.setItem('yhwh_nota_' + id, data[id]);
-    });
+  // Si llega vacío es un borrado real (se quitó la última nota): también se limpia aquí.
+  var data = snapshot.val() || {};
+  Object.keys(data).forEach(function(id) {
+    localStorage.setItem('yhwh_nota_' + id, data[id]);
+  });
+  // Reconciliar: si una nota ya no está en Firebase (otro admin la borró),
+  // también hay que quitarla de este teléfono; si no, se queda como "nota zombi".
+  for (var i = localStorage.length - 1; i >= 0; i--) {
+    var k = localStorage.key(i);
+    if (k && k.indexOf('yhwh_nota_') === 0) {
+      var id = k.slice('yhwh_nota_'.length);
+      if (!(id in data)) localStorage.removeItem(k);
+    }
+  }
+  // Refrescar la nota visible (sin pisar lo que se esté escribiendo ahora mismo).
+  var ta = document.getElementById('notasTextarea');
+  if (ta && document.activeElement !== ta && window.currentSong && window.cargarNotas) {
+    window.cargarNotas(window.currentSong.id);
   }
 });
 
@@ -267,24 +286,33 @@ onValue(ref(db, 'jubilo_ediciones'), function(snapshot) {
 
 // Escuchar nombres de cultos editados en tiempo real
 onValue(ref(db, 'cultos_nombres'), function(snapshot) {
-  var data = snapshot.val();
-  if (data && typeof data === 'object') {
-    window.cultosNombresDB = data;
-    localStorage.setItem('yhwh_cultos_nombres_cache', JSON.stringify(data));
-    if (window.renderSetlist) window.renderSetlist();
-    if (window.renderCalendarioRepertorio) window.renderCalendarioRepertorio();
+  // Vacío = borrado real (se quitó el último nombre editado): también se limpia aquí.
+  var data = snapshot.val() || {};
+  window.cultosNombresDB = data;
+  localStorage.setItem('yhwh_cultos_nombres_cache', JSON.stringify(data));
+  // Quitar también las copias sueltas por fecha (getTipoCultoDia las usa de respaldo).
+  for (var i = localStorage.length - 1; i >= 0; i--) {
+    var k = localStorage.key(i);
+    if (k && k.indexOf('yhwh_tipo_culto_') === 0 && !(k.slice('yhwh_tipo_culto_'.length) in data)) localStorage.removeItem(k);
   }
+  if (window.renderSetlist) window.renderSetlist();
+  if (window.renderCalendarioRepertorio) window.renderCalendarioRepertorio();
 });
 
 // Escuchar horarios de culto editados en tiempo real (igual que los nombres).
 onValue(ref(db, 'cultos_horarios'), function(snapshot) {
-  var data = snapshot.val();
-  if (data && typeof data === 'object') {
-    window.cultosHorariosDB = data;
-    localStorage.setItem('yhwh_cultos_horarios_cache', JSON.stringify(data));
-    if (window.renderSetlist) window.renderSetlist();
-    if (window.renderCalendarioRepertorio) window.renderCalendarioRepertorio();
+  // Vacío = borrado real (se restableció el último horario manual): también se limpia aquí.
+  var data = snapshot.val() || {};
+  window.cultosHorariosDB = data;
+  localStorage.setItem('yhwh_cultos_horarios_cache', JSON.stringify(data));
+  // Quitar también las copias sueltas por fecha (getHorarioCultoDia las usa de respaldo);
+  // si no, "Restablecer horario automático" no se vería en los demás teléfonos.
+  for (var i = localStorage.length - 1; i >= 0; i--) {
+    var k = localStorage.key(i);
+    if (k && k.indexOf('yhwh_horario_culto_') === 0 && !(k.slice('yhwh_horario_culto_'.length) in data)) localStorage.removeItem(k);
   }
+  if (window.renderSetlist) window.renderSetlist();
+  if (window.renderCalendarioRepertorio) window.renderCalendarioRepertorio();
 });
 
 // Respaldo local inicial por si Firebase tarda o no hay red
@@ -4765,11 +4793,32 @@ function chordLatinoToAmericano(chordStr) {
 var KEYS = ['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B',
             'Cm','C#m','Dm','Ebm','Em','Fm','F#m','Gm','G#m','Am','Bbm','Bm'];
 
+// Fila de tonos que se está viendo en la pantalla principal (true = menores,
+// false = mayores, null = la del tono actual). Solo cambia lo que se VE.
+var verFilaMenores = null;
+
 function norm(n){ return FLAT_MAP[n]||n; }
+
+// Nombre de tono TAL COMO aparece en los botones (KEYS): Eb/Ab/Bb en mayores,
+// G# en menores. idx = posición cromática (0 = C ... 11 = B).
+function nombreTonoBoton(idx, esMenor){
+  var i = ((idx % 12) + 12) % 12;
+  return esMenor ? KEYS[12 + i] : KEYS[i];
+}
+
+// Traduce cualquier nombre (D#, Db, Abm...) al que usan los botones (Eb, C#, G#m...).
+// Si no lo reconoce, lo devuelve igual.
+function normalizarTono(key){
+  if(!key) return key;
+  var esMenor = /m$/.test(key);
+  var idx = CHROMATIC.indexOf(norm(key.replace(/m$/, '')));
+  return idx === -1 ? key : nombreTonoBoton(idx, esMenor);
+}
 
 function useFlats(key){
   if(!key) return false;
-  return key.indexOf('b')!==-1||['F','Cm','Fm','Gm','Dm','Am','Bbm','Ebm','Abm','Db','Eb','Ab'].indexOf(key)!==-1;
+  // Am no lleva bemoles (su relativo mayor es Do): no debe estar en esta lista.
+  return key.indexOf('b')!==-1||['F','Cm','Fm','Gm','Dm','Bbm','Ebm','Abm','Db','Eb','Ab'].indexOf(key)!==-1;
 }
 
 function transposeNote(root,st){
@@ -4801,17 +4850,33 @@ function transposeChordLine(line,st){
   var protegidas = [];
   var lineProtegida = line.replace(/\b(TROMPETAS|VIOLIN|VIOLÍN)\b/gi, function(match){
     protegidas.push(match);
-    return '\u0000' + (protegidas.length - 1) + '\u0000';
+    // La marca mide lo mismo que la palabra original, para no descuadrar las columnas.
+    var marca = '\u0000' + (protegidas.length - 1) + '\u0000';
+    while (marca.length < match.length) marca += '\u0001';
+    return marca;
   });
-  // Replace chord tokens but preserve surrounding spaces exactly
-  var resultado = lineProtegida.replace(/([A-G][b#]?(?:m(?:aj)?|M|dim|aug|sus[24]?|add[0-9]?|[679]|[24])?)(?=[^a-z]|$)/g, function(match){
-    var transposed = transposeChord(match, st);
-    // Pad or trim to same length to preserve spacing of following chords
-    while(transposed.length < match.length) transposed += ' ';
-    return transposed.slice(0, match.length + (transposed.length > match.length ? transposed.length - match.length : 0));
-  });
+  // Cada acorde debe EMPEZAR en la misma columna que el original (así sigue sobre su
+  // sílaba): si el acorde crece (C → C#) se quita un espacio del hueco siguiente, y si
+  // encoge (C# → D) se agrega uno. Siempre queda al menos un espacio entre acordes.
+  var regexAcorde = /([A-G][b#]?(?:m(?:aj)?|M|dim|aug|sus[24]?|add[0-9]?|[679]|[24])?)(?=[^a-z]|$)/g;
+  var resultado = '';
+  var pos = 0;
+  var m;
+  while ((m = regexAcorde.exec(lineProtegida)) !== null) {
+    resultado += lineProtegida.slice(pos, m.index);
+    if (resultado.length > m.index) {
+      var espaciosFinales = resultado.match(/ *$/)[0].length;
+      var quitar = Math.min(resultado.length - m.index, Math.max(0, espaciosFinales - 1));
+      if (quitar > 0) resultado = resultado.slice(0, resultado.length - quitar);
+    } else if (resultado.length < m.index) {
+      resultado += new Array(m.index - resultado.length + 1).join(' ');
+    }
+    resultado += transposeChord(m[0], st);
+    pos = m.index + m[0].length;
+  }
+  resultado += lineProtegida.slice(pos);
   // Restaurar las palabras protegidas
-  resultado = resultado.replace(/\u0000(\d+)\u0000/g, function(m, idx){
+  resultado = resultado.replace(/\u0000(\d+)\u0000\u0001*/g, function(m, idx){
     return protegidas[parseInt(idx, 10)];
   });
   return resultado;
@@ -4887,14 +4952,6 @@ function getToneRoot(tono) {
   return m ? m[1] : '';
 }
 
-function getDominante(root) {
-  var r = getToneRoot(root);
-  if (!r) return '';
-  var idx = CHROMATIC.indexOf(norm(r));
-  if (idx === -1) return '';
-  var dominant = CHROMATIC[(idx + 7) % 12];
-  return dominant;
-}
 
 function transposeRoot(root, semitones) {
   var idx = CHROMATIC.indexOf(norm(root));
@@ -5047,13 +5104,6 @@ function buildTransitionText(prevSong, nextSong) {
   return 'Actual <strong>' + escH(prevSong && prevSong.title ? prevSong.title : '') + '</strong> en <strong>' + transitionChordHTML(actualKey) + '</strong>. Siguiente <strong>' + escH(actualTitulo) + '</strong> en <strong>' + transitionChordHTML(nextKeyLabel) + '</strong>. Transición: <strong>' + moves.join(' - ') + '</strong>.<small>' + shortHint + ': usa ese cierre para entrar con seguridad.</small>';
 }
 
-function getNextAdoracionItem(index) {
-  if (!Array.isArray(setlistDOM)) return null;
-  for (var i = index + 1; i < setlistDOM.length; i++) {
-    if ((setlistDOM[i].fuente || 'adoracion') === 'adoracion') return setlistDOM[i];
-  }
-  return null;
-}
 
 function getActiveNavigationList() {
   var vigiliaActivaNav = esCultoVigilia(repertorioFechaActiva);
@@ -5172,13 +5222,6 @@ function actualizarSiguienteAlabanza() {
   box.style.display = 'block';
 }
 
-function getPrevAdoracionItem(index) {
-  if (!Array.isArray(setlistDOM)) return null;
-  for (var i = index - 1; i >= 0; i--) {
-    if ((setlistDOM[i].fuente || 'adoracion') === 'adoracion') return setlistDOM[i];
-  }
-  return null;
-}
 
 function ocultarTransicionSugerida() {
   transicionOculta = true;
@@ -5411,9 +5454,15 @@ function shiftSemitone(delta){
   currentSemitones=((currentSemitones+delta)%12+12)%12;
   if (currentSong) {
     var orig = getOrigKey(currentSong);
-    var esMenor = orig.slice(-1) === 'm';
-    var origRoot = esMenor ? orig.slice(0, -1) : orig;
-    var nuevaKey = transposeNote(origRoot, currentSemitones) + (esMenor ? 'm' : '');
+    // El modo (mayor/menor) lo da el tono que se está viendo ahora, no solo el original.
+    var esMenor = (currentKey || orig).slice(-1) === 'm';
+    var origRoot = orig.slice(-1) === 'm' ? orig.slice(0, -1) : orig;
+    var idxOrig = CHROMATIC.indexOf(norm(origRoot));
+    // Siempre con el nombre que usan los botones (Eb, no D#), para que el botón se ilumine
+    // y los acordes salgan igual que si se hubiera tocado el botón directamente.
+    var nuevaKey = idxOrig === -1
+      ? transposeNote(origRoot, currentSemitones) + (esMenor ? 'm' : '')
+      : nombreTonoBoton(idxOrig + currentSemitones, esMenor);
     currentKey = nuevaKey;
     setActiveKey(nuevaKey);
     localStorage.setItem('yhwh_tono_' + currentSong.id, nuevaKey);
@@ -5452,7 +5501,9 @@ function buildKeySelector(song){
   sel.innerHTML = '';
 
   var tonoActivo = currentKey || orig;
-  var esMenor = tonoActivo.endsWith('m');
+  // Por defecto se ve la fila del tono actual; el botón de abajo solo cambia qué fila
+  // se ve (verFilaMenores), sin tocar la canción hasta que se elija un tono.
+  var esMenor = (typeof verFilaMenores === 'boolean') ? verFilaMenores : tonoActivo.endsWith('m');
 
   // Solo mostrar la fila del tipo activo; botón para cambiar al otro tipo
   var keysAMostrar = KEYS.filter(function(k){
@@ -5465,7 +5516,7 @@ function buildKeySelector(song){
   for(var i = 0; i < keysAMostrar.length; i++){
     var k = keysAMostrar[i];
     var btn = document.createElement('button');
-    btn.className = 'key-btn' + (k === orig ? ' original' : '');
+    btn.className = 'key-btn' + (k === normalizarTono(orig) ? ' original' : '');
     btn.setAttribute('data-key', k);
     btn.textContent = cifradoLatino ? lineToLatino(k) : k;
     btn.onclick = (function(key){ return function(){ selectKey(key); }; })(k);
@@ -5479,17 +5530,13 @@ function buildKeySelector(song){
   btnToggle.style.cssText = 'width:100%;border-color:var(--gold);color:var(--gold);margin-top:4px;';
   btnToggle.textContent = esMenor ? '▶ Ver tonos Mayores' : '▶ Ver tonos Menores';
   btnToggle.onclick = function(){
-    // Cambiar al equivalente relativo sin perder el semitono
-    var nuevoTono = esMenor
-      ? (tonoActivo.replace('m','') || 'C')
-      : (tonoActivo + 'm');
-    if(KEYS.indexOf(nuevoTono) === -1) nuevoTono = esMenor ? 'C' : 'Am';
-    selectKey(nuevoTono);
+    // Solo cambia la fila de botones que se ve; la canción no se toca hasta elegir un tono.
+    verFilaMenores = !esMenor;
     buildKeySelector(song);
   };
   sel.appendChild(btnToggle);
 
-  setActiveKey(tonoActivo);
+  setActiveKey(normalizarTono(tonoActivo));
 }
 
 // Vuelve a disparar la animación de entrada (fade + slide) de un contenedor
@@ -5539,7 +5586,8 @@ function loadSong(id){
   currentSong=song;
   currentSemitones=0;
   var tonoGuardado = localStorage.getItem('yhwh_tono_' + song.id);
-currentKey = tonoGuardado || getOrigKey(song);
+verFilaMenores = null;
+currentKey = tonoGuardado ? normalizarTono(tonoGuardado) : getOrigKey(song);
 currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song)) : 0;
   
   document.getElementById('welcomeMsg').style.display='none';
@@ -6686,8 +6734,6 @@ window.addEventListener('DOMContentLoaded', function() {
   aplicarTemaClaro(modoClaro, false);
 });
 
-function mostrarMenuOpciones() {}
-function volverMenuPrincipal() {}
 function renderMenuPrincipal() {
   renderDashboardResumen();
   actualizarContadorRepertorio();
@@ -6832,33 +6878,6 @@ function loadPDF(pdfName) {
 
 
 
-function exportarRepertorio() {
-  if (setlistDOM.length === 0) {
-    mostrarToast('⚠️ El repertorio está vacío.');
-    return;
-  }
-  var texto = '🎵 Repertorio del ' + getDiaLabel(repertorioFechaActiva) + '\n\n';
-  for (var i = 0; i < setlistDOM.length; i++) {
-    texto += (i + 1) + '. ' + setlistDOM[i].title + ' — ' + (setlistDOM[i].tono || '') + '\n';
-  }
-  // Intenta compartir nativo (móvil), si no, copia al portapapeles
-  if (navigator.share) {
-    navigator.share({ title: 'Repertorio del ' + getDiaLabel(repertorioFechaActiva), text: texto });
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(texto).then(function() {
-      mostrarToast('📋 Lista copiada al portapapeles.');
-    });
-  } else {
-    // Fallback para navegadores muy viejos
-    var ta = document.createElement('textarea');
-    ta.value = texto;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    mostrarToast('📋 Lista copiada al portapapeles.');
-  }
-}
 
 // Copia todas las alabanzas/cadenas del repertorio que se está viendo hacia
 // otra fecha. Si la fecha destino ya tiene contenido, pregunta si se
@@ -6893,7 +6912,7 @@ function copiarRepertorioAOtraFecha() {
         listaDestino.push({
           id: item.id,
           title: item.title,
-          tono: item.tono,
+          tono: item.tono || '',
           fuente: fuente,
           seccion: item.seccion || '',
           minutos: item.minutos,
@@ -6904,11 +6923,13 @@ function copiarRepertorioAOtraFecha() {
         agregadas++;
       });
       repertorios[destino] = listaDestino;
-      guardarRepertorios();
+      var guardado = guardarRepertorios(destino);
       if (destino === repertorioFechaActiva) { setlistDOM = getRepertorioFecha(destino); renderSetlist(); }
       renderCalendarioRepertorio();
       actualizarContadorRepertorio();
-      mostrarToast('✅ ' + agregadas + ' alabanza(s) copiada(s) a ' + getDiaLabel(destino) + '.');
+      guardado.then(function(estado) {
+        if (estado === 'ok') mostrarToast('✅ ' + agregadas + ' alabanza(s) copiada(s) a ' + getDiaLabel(destino) + '.');
+      });
     }
 
     if (listaDestino.length > 0) {
@@ -7026,15 +7047,69 @@ function cargarRepertorios() {
   return inicial;
 }
 
-function guardarRepertorios() {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
+// Espera la respuesta de Firebase antes de dar un guardado por bueno.
+// Devuelve una promesa (que nunca rechaza) con:
+//   'ok'        → la nube confirmó el guardado
+//   'pendiente' → sin confirmación a tiempo (sin señal): Firebase lo reenvía al volver la
+//                 conexión SOLO si la app sigue abierta; se avisa cuando por fin llegue
+//   'error'     → la nube lo rechazó (sesión vencida, datos inválidos, etc.)
+function confirmarGuardadoNube(promesa) {
+  return new Promise(function(resolve) {
+    var vencido = false;
+    var timer = setTimeout(function() {
+      vencido = true;
+      mostrarToast('⏳ Guardado solo en este teléfono. Se enviará a la nube cuando vuelva la conexión: no cierres la app.', 5000);
+      resolve('pendiente');
+    }, navigator.onLine ? 6000 : 300);
+
+    promesa.then(function() {
+      clearTimeout(timer);
+      if (vencido) mostrarToast('☁️ Cambios sincronizados con la nube.');
+      else resolve('ok');
+    }, function(err) {
+      clearTimeout(timer);
+      console.error('Error al guardar en la nube:', err);
+      var sinPermiso = err && (err.code === 'PERMISSION_DENIED' || /permission_denied/i.test(String(err.message || err)));
+      mostrarToast(sinPermiso
+        ? '⚠️ No se pudo guardar: tu sesión de admin venció. Vuelve a iniciar sesión.'
+        : '⚠️ No se pudo guardar en la nube. Revisa tu conexión.', 5000);
+      resolve('error');
+    });
+  });
+}
+
+// Escribe UN dato en la ruta indicada (no todo el nodo) y espera la confirmación.
+// Limpia los campos "undefined" (Firebase rechaza el paquete completo si hay uno).
+function guardarEnNube(ruta, valor) {
+  if (!window.fbDb || !window.fbRef || !window.fbSet) {
+    mostrarToast('⚠️ No se pudo guardar en la nube: Firebase no está disponible. Revisa tu conexión.', 5000);
+    return Promise.resolve('error');
+  }
+  var promesa;
+  try {
+    var limpio = (valor === undefined || valor === null) ? null : JSON.parse(JSON.stringify(valor));
+    promesa = window.fbSet(window.fbRef(window.fbDb, ruta), limpio);
+  } catch (err) {
+    console.error('Error preparando el guardado en la nube:', err);
+    mostrarToast('⚠️ No se pudo guardar: hay un dato inválido.', 5000);
+    return Promise.resolve('error');
+  }
+  return confirmarGuardadoNube(promesa);
+}
+
+// Guarda el repertorio en este teléfono y manda a la nube SOLO la fecha indicada
+// (por defecto, la fecha que se está viendo), no el cuaderno completo.
+// Devuelve la misma promesa de estado que confirmarGuardadoNube.
+function guardarRepertorios(fecha) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return Promise.resolve('error'); }
   localStorage.setItem(REPERTORIOS_KEY, JSON.stringify(repertorios));
   localStorage.setItem('yhwh_repertorio_fecha', repertorioFechaActiva);
   localStorage.setItem('yhwh_repertorio_fecha_guardada_el', hoyISO());
   localStorage.setItem('yhwh_repertorio_mes', repertorioMesActivo);
-  if (window.esAdmin && window.fbDb) {
-    window.fbSet(window.fbRef(window.fbDb, 'repertorio'), repertorios);
-  }
+  var clave = getCalendarioKey(fecha || repertorioFechaActiva);
+  var dia = repertorios[clave];
+  // Un día vacío se manda como null: así se borra también en la nube.
+  return guardarEnNube('repertorio/' + clave, (Array.isArray(dia) && dia.length) ? dia : null);
 }
 
 
@@ -7138,23 +7213,6 @@ function getSugerenciaColorServidor(dia) {
   return 'Por elegir';
 }
 
-function colorServidorEmoji(nombre) {
-  var t = String(nombre || '').toLowerCase();
-  if (t.indexOf('azul eléctrico') !== -1 || t.indexOf('azul electrico') !== -1) return '💙';
-  if (t.indexOf('blanco') !== -1) return '🤍';
-  if (t.indexOf('rojo') !== -1) return '❤️';
-  if (t.indexOf('azul claro') !== -1) return '🩵';
-  if (t.indexOf('negro') !== -1) return '🖤';
-  if (t.indexOf('amarillo') !== -1) return '💛';
-  if (t.indexOf('morado') !== -1 || t.indexOf('púrpura') !== -1 || t.indexOf('purpura') !== -1) return '💜';
-  if (t.indexOf('rosado') !== -1) return '🩷';
-  if (t.indexOf('verde') !== -1) return '💚';
-  if (t.indexOf('vino') !== -1 || t.indexOf('uva') !== -1) return '❤️';
-  if (t.indexOf('azul marino') !== -1) return '💙';
-  if (t.indexOf('por elegir') !== -1) return '❔';
-  if (t.indexOf('libre') !== -1) return '🆓';
-  return '🎨';
-}
 
 function colorServidorEtiqueta(nombre) {
   var limpio = String(nombre || '').trim();
@@ -7401,10 +7459,8 @@ function guardarHorarioCultoDia(dia, valor) {
   window.cultosHorariosDB = _dbH;
   localStorage.setItem('yhwh_cultos_horarios_cache', JSON.stringify(_dbH));
 
-  if (window.fbDb && window.fbRef && window.fbSet) {
-    return window.fbSet(window.fbRef(window.fbDb, 'cultos_horarios'), _dbH);
-  }
-  return Promise.resolve();
+  // Solo se manda ESTE día (null = horario automático), no todos los horarios juntos.
+  return guardarEnNube('cultos_horarios/' + iso, valor || null);
 }
 
 function getHorarioCultoDia(dia) {
@@ -7490,16 +7546,14 @@ function pedirTipoCulto(dia) {
     cerrar();
     renderSetlist();
 
-    if (window.fbDb && window.fbRef && window.fbSet) {
-      Promise.all([
-        window.fbSet(window.fbRef(window.fbDb, 'cultos_nombres'), _dbN),
-        guardarHorarioCultoDia(iso, valorHorario)
-      ]).then(function () { mostrarToast('✅ Culto actualizado.'); })
-        .catch(function () { mostrarToast('❌ Error al guardar en la nube.'); });
-    } else {
-      guardarHorarioCultoDia(iso, valorHorario);
-      mostrarToast('✅ Guardado localmente.');
-    }
+    // Cada guardado avisa por su cuenta si falla (sesión vencida, sin conexión...);
+    // el ✅ solo sale si la nube confirmó los dos.
+    Promise.all([
+      guardarEnNube('cultos_nombres/' + iso, valorNombre || null),
+      guardarHorarioCultoDia(iso, valorHorario)
+    ]).then(function (estados) {
+      if (estados.every(function (e) { return e === 'ok'; })) mostrarToast('✅ Culto actualizado.');
+    });
   };
 
   overlay.style.display = 'flex';
@@ -7688,7 +7742,7 @@ function agregarItemAlRepertorio(item, dia) {
   insertarItemEnRepertorio(lista, {
     id: item.id,
     title: item.title,
-    tono: item.tono,
+    tono: item.tono || '',
     fuente: fuente,
     seccion: item.seccion || '',
     grupoId: item.grupoId || '',
@@ -7699,10 +7753,15 @@ function agregarItemAlRepertorio(item, dia) {
   repertorioMesActivo = dia.slice(0, 7);
   setlistDOM = getRepertorioFecha(repertorioFechaActiva);
   if (servicioVigilia) setServicioVigiliaActivo(dia, servicioVigilia);
-  guardarRepertorios();
+  var guardado = guardarRepertorios(dia);
   window._recienAgregadoSetlist = { id: item.id, fuente: fuente };
 
-  mostrarToast('✅ "' + item.title + '" añadida al repertorio de ' + getDiaLabel(dia) + (servicioVigilia ? (' (' + (servicioVigilia === 'segundo' ? '2do' : '1er') + ' servicio)') : '') + '.');
+  // El ✅ solo sale cuando la nube confirmó; si falla o no hay señal, guardarRepertorios() ya avisó.
+  guardado.then(function(estado) {
+    if (estado === 'ok') {
+      mostrarToast('✅ "' + item.title + '" añadida al repertorio de ' + getDiaLabel(dia) + (servicioVigilia ? (' (' + (servicioVigilia === 'segundo' ? '2do' : '1er') + ' servicio)') : '') + '.');
+    }
+  });
   actualizarContadorRepertorio();
 }
 
@@ -8074,23 +8133,8 @@ function insertarItemEnRepertorio(lista, nuevo, servicio) {
 // A qué sección del culto pertenece un ítem del repertorio: 'inicial'
 // (adoración inicial), 'jubilo' o 'ministracion'. Las alabanzas de
 // adoración sin "seccion" guardada (repertorios viejos) caen en 'inicial'.
-function categoriaItemRepertorio(item) {
-  if (item.fuente === 'cadena_jubilo' || item.fuente === 'jubilo') return 'jubilo';
-  if (item.seccion === 'ministracion') return 'ministracion';
-  return 'inicial';
-}
 
 // Alterna una alabanza de adoración entre Adoración Inicial y Ministración.
-function cambiarSeccionItemRepertorio(index) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
-  var item = setlistDOM[index];
-  if (!item || item.fuente !== 'adoracion') return;
-  var actual = categoriaItemRepertorio(item);
-  item.seccion = actual === 'ministracion' ? 'inicial' : 'ministracion';
-  guardarRepertorios();
-  renderSetlist();
-  mostrarToast(item.seccion === 'ministracion' ? '🙏 Movida a Ministración.' : '🎤 Movida a Adoración Inicial.');
-}
 
 function editarMinutosItemRepertorio(index) {
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
@@ -8564,7 +8608,7 @@ function vaciarRepertorio() {
     window._ultimoRepertorioVaciado = { fecha: fechaActual, items: itemsActuales };
     repertorios[fechaActual] = [];
     setlistDOM = getRepertorioDia(fechaActual);
-    guardarRepertorios();
+    guardarRepertorios(fechaActual);
 
     renderSetlist();
     actualizarContadorRepertorio();
@@ -8585,7 +8629,7 @@ function deshacerVaciarRepertorio() {
   var snap = window._ultimoRepertorioVaciado;
   if (!snap) return;
   repertorios[snap.fecha] = snap.items;
-  guardarRepertorios();
+  guardarRepertorios(snap.fecha);
   if (snap.fecha === repertorioFechaActiva) { setlistDOM = getRepertorioFecha(snap.fecha); renderSetlist(); }
   renderCalendarioRepertorio();
   actualizarContadorRepertorio();
@@ -8882,25 +8926,99 @@ window.buscarActualizaciones = async function() {
 // salir de verdad; si cancelan, se quedan en la app.
 (function() {
   var salidaConfirmada = false;
+  var temporizadorToast = null;
 
-  try {
-    history.pushState({ yhwhAnchor: true }, '');
-  } catch (e) {}
+  function visible(id) {
+    var el = document.getElementById(id);
+    return !!el && window.getComputedStyle(el).display !== 'none';
+  }
+  function conClase(id, clase) {
+    var el = document.getElementById(id);
+    return !!el && el.classList.contains(clase);
+  }
+  function llamar(nombre) {
+    if (typeof window[nombre] === 'function') window[nombre]();
+  }
+
+  // Intenta "retroceder" un paso DENTRO de la app. Devuelve true si hizo algo
+  // (cerró una ventana, salió de una vista o volvió al menú) y false si ya
+  // estamos en el menú principal, que es cuando sí toca preguntar por salir.
+  function retrocederEnLaApp() {
+    // 1) Ventanas abiertas encima de todo (de la de más arriba a la de más abajo)
+    var capas = [
+      [visible('pianoModal'),            'cerrarPiano'],
+      [visible('pianoTeoriaModal'),      'cerrarPianoTeoria'],
+      [visible('melodiaMenuModal'),      'cerrarMenuMelodia'],
+      [visible('exportSetlistModal'),    'cerrarExportarSetlist'],
+      [visible('recomendadorModal'),     'cerrarRecomendador'],
+      [conClase('comparadorOverlay', 'visible'),    'cerrarComparador'],
+      [visible('adminLoginModal'),       'cerrarAdminModal'],
+      [visible('versoModal'),            'cerrarVersoModal'],
+      [visible('tutorialModal'),         'cerrarTutorial'],
+      [conClase('jubiloComposOverlay', 'visible'),  'cerrarVistaGruposJubilo'],
+      [conClase('compositoresOverlay', 'visible'),  'cerrarVistaCompositores']
+    ];
+    for (var i = 0; i < capas.length; i++) {
+      if (capas[i][0]) { llamar(capas[i][1]); return true; }
+    }
+    // La ventana de elegir rol no se cierra con "atrás" si todavía no hay rol.
+    if (visible('rolModal')) return true;
+
+    // 2) Vistas a pantalla completa (cantante / músico)
+    var cls = document.body.classList;
+    if (cls.contains('singer-view'))  { llamar('toggleVistaCantante'); return true; }
+    if (cls.contains('musician-view')) { llamar('toggleVistaMusico');  return true; }
+    if (cls.contains('jubilo-singer-view') || cls.contains('jubilo-musician-view')) {
+      llamar('salirVistasJubilo'); return true;
+    }
+
+    // 3) Pantallas: cualquiera que no sea el menú vuelve al menú
+    var activa = document.querySelector('.app-screen.active');
+    var id = activa ? activa.id : '';
+    if (id === 'screen-menu-more') { showScreen('screen-menu'); return true; }
+    if (id && id !== 'screen-menu') { showScreen(window.ultimoMenuPantalla || 'screen-menu'); return true; }
+
+    return false; // ya estamos en el menú principal
+  }
+
+  function ocultarToastSalida() {
+    var t = document.getElementById('toastSalirApp');
+    if (t) t.classList.remove('visible');
+    if (temporizadorToast) { clearTimeout(temporizadorToast); temporizadorToast = null; }
+  }
+
+  // Deja una entrada extra en el historial para poder "atrapar" el botón atrás.
+  function armarAncla() {
+    try { history.pushState({ yhwhAnchor: true }, ''); } catch (e) {}
+  }
+
+  armarAncla();
 
   window.addEventListener('popstate', function() {
-    if (salidaConfirmada) return; // dejamos que la salida real ocurra
-    try { history.pushState({ yhwhAnchor: true }, ''); } catch (e) {}
+    if (salidaConfirmada) return; // estamos saliendo a propósito
+    armarAncla();
+    if (retrocederEnLaApp()) return;
+    // Menú principal: preguntamos si quiere salir (se oculta sola a los 4 s)
     var t = document.getElementById('toastSalirApp');
     if (t) t.classList.add('visible');
+    if (temporizadorToast) clearTimeout(temporizadorToast);
+    temporizadorToast = setTimeout(ocultarToastSalida, 4000);
   });
 
   window.confirmarSalidaApp = function(salir) {
-    var t = document.getElementById('toastSalirApp');
-    if (t) t.classList.remove('visible');
+    ocultarToastSalida();
     if (!salir) return;
+    // Una página web no puede cerrarse sola (sobre todo una PWA instalada).
+    // Lo que sí podemos hacer es quitar la entrada extra del historial, para
+    // que el SIGUIENTE "atrás" del teléfono salga de verdad de la app.
     salidaConfirmada = true;
-    window.close();
-    setTimeout(function() { history.back(); }, 50);
+    try { history.go(-1); } catch (e) {}
+    mostrarToast('Presiona "atrás" una vez más para salir', 3000);
+    // Si no lo hace en unos segundos, volvemos a proteger la app.
+    setTimeout(function() {
+      salidaConfirmada = false;
+      armarAncla();
+    }, 3500);
   };
 })();
 
@@ -9018,13 +9136,14 @@ function guardarNotas() {
   localStorage.setItem(claveNota(currentSong.id), ta.value);
 
   if (window.esAdmin && window.fbDb) {
-    var notasData = {};
-    SONGS.forEach(function(s) {
-      var nota = localStorage.getItem(claveNota(s.id));
-      if (nota && nota.trim()) notasData[s.id] = nota;
-    });
-    window.fbSet(window.fbRef(window.fbDb, 'notas_director'), notasData);
-    mostrarToast('✅ Nota guardada');  // AGREGA ESTA LÍNEA
+    // Solo se manda ESTA nota (o null si quedó vacía, que la borra en la nube).
+    // Antes se mandaban todas las notas del teléfono y una nota ya borrada por otro
+    // admin reaparecía ("nota zombi").
+    var textoNota = ta.value;
+    guardarEnNube('notas_director/' + currentSong.id, (textoNota && textoNota.trim()) ? textoNota : null)
+      .then(function(estado) {
+        if (estado === 'ok') mostrarToast('✅ Nota guardada');
+      });
   }
 
   if (guardado) {
@@ -9194,20 +9313,6 @@ function aplicarOrdenGuardado() {
   });
 }
 
-function moverCancionLista(id, dir, event) {
-  if (event) event.stopPropagation();
-  var idx = -1;
-  for (var i = 0; i < SONGS.length; i++) {
-    if (String(SONGS[i].id) === String(id)) { idx = i; break; }
-  }
-  if (idx === -1) return;
-  var ni = idx + dir;
-  if (ni < 0 || ni >= SONGS.length) return;
-  var tmp = SONGS[idx]; SONGS[idx] = SONGS[ni]; SONGS[ni] = tmp;
-  localStorage.setItem(SONGS_ORDEN_KEY, JSON.stringify(SONGS.map(function(s){ return s.id; })));
-  filterSongs();
-  mostrarToast('↕ Orden guardado');
-}
 
 
 
@@ -9245,16 +9350,6 @@ function mostrarToast(mensaje, duracion) {
 
 
 
-function moverEnRepertorio(index, direccion) {
-  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
-  var nuevoIndex = index + direccion;
-  if (nuevoIndex < 0 || nuevoIndex >= setlistDOM.length) return;
-  var temp = setlistDOM[index];
-  setlistDOM[index] = setlistDOM[nuevoIndex];
-  setlistDOM[nuevoIndex] = temp;
-  guardarRepertorios();
-  renderSetlist();
-}
 
 
 
@@ -9483,21 +9578,9 @@ function setDificultad(nivel) {
   actualizarBotonesDificultad();
 
   if (window.esAdmin && window.fbDb) {
-
-      // Partimos de la última foto conocida de Firebase (no solo de este dispositivo)
-      // para no borrar dificultades guardadas desde otros celulares/computadoras.
-      var difData = Object.assign({}, window.dificultadDB || {});
-
-      if (nuevoNivel) {
-          difData[currentSong.id] = nuevoNivel;
-      } else {
-          delete difData[currentSong.id];
-      }
-
-      window.fbSet(
-          window.fbRef(window.fbDb, 'dificultad'),
-          difData
-      );
+      // Solo se manda ESTA canción (null = quitar la dificultad). Así no se pisan
+      // los cambios de otros admins ni se reenvían dificultades ya borradas.
+      guardarEnNube('dificultad/' + currentSong.id, nuevoNivel);
   }
 }
 
@@ -9583,10 +9666,33 @@ function guardarAudioDisponibleCache() {
   try { localStorage.setItem(AUDIO_DISPONIBLE_KEY, JSON.stringify(audioDisponibleCache)); } catch (e) {}
 }
 
+// Un "no existe" confirmado se vuelve a revisar cada 24 horas (por si el audio se sube después).
+var AUDIO_REVISADO_KEY = 'yhwh_audio_revisado_v1';
+var AUDIO_REVISAR_CADA_MS = 24 * 60 * 60 * 1000;
+var audioRevisadoEn = {};
+try {
+  audioRevisadoEn = JSON.parse(localStorage.getItem(AUDIO_REVISADO_KEY) || '{}') || {};
+} catch (e) { audioRevisadoEn = {}; }
+
+// true = nunca se comprobó, o se marcó "sin audio" hace más de 24 h (o sin fecha:
+// caché vieja que pudo quedar mal por un error de conexión).
+function audioNecesitaRevision(id) {
+  var v = audioDisponibleCache[id];
+  if (v === undefined) return true;
+  if (v === false) return (Date.now() - (audioRevisadoEn[id] || 0)) > AUDIO_REVISAR_CADA_MS;
+  return false;
+}
+
+// Devuelve true (existe), false (el servidor dijo claramente que NO existe: 404/410)
+// o null (no se pudo saber: sin señal, timeout, error del servidor...).
 function existeArchivo(url) {
   return fetch(url, { method: 'HEAD' })
-    .then(function(res) { return res.ok; })
-    .catch(function() { return false; });
+    .then(function(res) {
+      if (res.ok) return true;
+      if (res.status === 404 || res.status === 410) return false;
+      return null;
+    })
+    .catch(function() { return null; });
 }
 
 function existeArchivoEnCache(url) {
@@ -9596,7 +9702,7 @@ function existeArchivoEnCache(url) {
 
 // Revisa si existe audios/{id}.m4a o audios/{id}.mp3 y guarda el resultado.
 function revisarAudioCancion(song) {
-  if (audioDisponibleCache[song.id] !== undefined) return Promise.resolve();
+  if (!audioNecesitaRevision(song.id)) return Promise.resolve();
   var baseId = String(song.id);
   var urlM4a = 'audios/' + baseId + '.m4a';
   var urlMp3 = 'audios/' + baseId + '.mp3';
@@ -9617,11 +9723,19 @@ function revisarAudioCancion(song) {
     }
 
     return existeArchivo(urlM4a).then(function(existeM4a) {
-      if (existeM4a) return true;
-      return existeArchivo(urlMp3);
+      if (existeM4a === true) return true;
+      return existeArchivo(urlMp3).then(function(existeMp3) {
+        if (existeMp3 === true) return true;
+        // Solo es "no existe" si el servidor lo dijo claramente en los dos formatos.
+        return (existeM4a === false && existeMp3 === false) ? false : null;
+      });
     }).then(function(existe) {
-      audioDisponibleCache[song.id] = !!existe;
+      // Error de conexión: no se guarda nada; se vuelve a preguntar la próxima vez.
+      if (existe === null) return null;
+      audioDisponibleCache[song.id] = existe;
+      audioRevisadoEn[song.id] = Date.now();
       guardarAudioDisponibleCache();
+      try { localStorage.setItem(AUDIO_REVISADO_KEY, JSON.stringify(audioRevisadoEn)); } catch (e) {}
       actualizarBadgeAudioEnLista(song.id);
     });
   }).catch(function() {
@@ -9649,7 +9763,7 @@ function actualizarBadgeAudioEnLista(id) {
 // Revisa en segundo plano, con un máximo de revisiones simultáneas
 // (para no disparar cientos de fetch de golpe con repertorios grandes).
 function revisarAudiosLista(songs) {
-  var pendientes = songs.filter(function(s) { return audioDisponibleCache[s.id] === undefined; });
+  var pendientes = songs.filter(function(s) { return audioNecesitaRevision(s.id); });
   if (!pendientes.length) return;
   var CONCURRENCIA = 4;
   var indice = 0;
@@ -10268,29 +10382,6 @@ function toggleJubiloLatinoGlobal() {
   pianoActualizarSiAbierto();
 }
 
-function toggleJubiloChordsGlobal() {
-  jubiloGlobalChords = !jubiloGlobalChords;
-    localStorage.setItem('yhwh_jubilo_chords', jubiloGlobalChords ? '1' : '0'); // LÍNEA NUEVA
-
-  var btn = document.getElementById('btnJubiloChords');
-  if (btn) btn.textContent = jubiloGlobalChords ? 'Mostrar Acordes 🎹' : 'Solo Letra 🎤';
-
-  Object.keys(jubiloState).forEach(function(key) {
-    var st = jubiloState[key];
-    st.hideChords = jubiloGlobalChords;
-    var partes = key.split('_');
-    var songId = partes[partes.length - 1];
-    var song = getJubiloSong(songId);
-    if (!song) return;
-    var contenido = document.getElementById('jubiloContent_' + key);
-    if (contenido) contenido.innerHTML = renderJubiloContent(song, st);
-  });
-
-  if (Object.keys(jubiloState).length === 0 && jubiloGrupoActivo && jubiloCadenaActiva) {
-    rerenderJubiloActive();
-  }
-  aplicarFuenteJubilo();
-}
 
 function toggleJubiloClaroGlobal() {
   // Reutiliza el MISMO interruptor de tema que Adoración (modoClaro),
@@ -10475,6 +10566,7 @@ function renombrarGrupo(id) {
   });
 }
 function eliminarGrupo(id) {
+  if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
     if (window.jubiloGrupos !== undefined) jubiloGrupos = window.jubiloGrupos; // ← AGREGA
   if (!confirm('¿Eliminar este grupo y todas sus cadenas?')) return;
   jubiloGrupos = jubiloGrupos.filter(function(g){ return g.id !== id; });
@@ -10859,11 +10951,6 @@ function jubiloGuardarMelodias(all){
   try { localStorage.setItem(JUBILO_MELODIA_KEY, JSON.stringify(all || {})); } catch (e) {}
 }
 
-function abrirGrabadorMelodiaJubilo(grupoId, cadenaId){
-  jubiloMelodiaEditor = { grupoId: grupoId, cadenaId: cadenaId };
-  pianoMelodyTarget = 'jubilo:' + cadenaId;
-  jubiloAbrirPianoMelodiaActual(true);
-}
 
 function cerrarGrabadorMelodiaJubilo(){
   cerrarPiano();
@@ -10954,7 +11041,8 @@ function jubiloBorrarUltimaNota(){
 
 function getJubiloCardState(song, key){
   if (!jubiloState[key]) {
-    var savedKey = localStorage.getItem('yhwh_jubilo_tono_' + song.id) || getOrigKey(song);
+    var guardadoJubilo = localStorage.getItem('yhwh_jubilo_tono_' + song.id);
+    var savedKey = guardadoJubilo ? normalizarTono(guardadoJubilo) : getOrigKey(song);
     jubiloState[key] = {
       key: savedKey,
       semitones: getSemitonesTo(savedKey, getOrigKey(song)),
@@ -11016,7 +11104,8 @@ function renderJubiloSongCard(song, index, cadena){
 
 function renderJubiloKeys(song, key){
   var st = getJubiloCardState(song, key);
-  var esMenor = st.key.endsWith('m');
+  // Por defecto se ve la fila del tono actual; el botón de abajo solo cambia qué fila se ve.
+  var esMenor = (typeof st.verMenor === 'boolean') ? st.verMenor : st.key.endsWith('m');
 
   // Solo mostrar la fila que corresponde al tono actual
   var keysAMostrar = KEYS.filter(function(k){
@@ -11045,40 +11134,16 @@ function renderJubiloKeys(song, key){
 function cambiarModoMayorMenorJubilo(key, songId){
   var song = getJubiloSong(songId);
   var st = jubiloState[key];
-  var esMenor = st.key.endsWith('m');
+  // Solo cambia la fila de botones que se ve; la canción (tono y acordes) no se toca
+  // hasta que se elija un tono de esa fila.
+  var verMenor = (typeof st.verMenor === 'boolean') ? st.verMenor : st.key.endsWith('m');
+  st.verMenor = !verMenor;
 
-  // Cambiar al equivalente relativo
-  if (esMenor) {
-    // Pasar a mayor: quitar la m
-    st.key = st.key.replace('m', '');
-  } else {
-    // Pasar a menor: agregar m si no la tiene
-    st.key = st.key + 'm';
-  }
-
-  // Verificar que existe en KEYS
-  if (KEYS.indexOf(st.key) === -1) st.key = esMenor ? 'C' : 'Am';
-  st.semitones = getSemitonesTo(st.key, getOrigKey(song));
-  localStorage.setItem('yhwh_jubilo_tono_' + songId, st.key);
-
-  // Actualizar tarjeta
-  var contenido = document.getElementById('jubiloContent_' + key);
-  if (contenido) contenido.innerHTML = renderJubiloContent(song, st);
-
-  var semDisplay = document.getElementById('jubiloSem_' + key);
-  if (semDisplay) semDisplay.textContent = jubiloSemText(st.semitones);
-
-  var tonoLabel = document.getElementById('jubiloTonoLabel_' + key);
-  if (tonoLabel) tonoLabel.textContent = st.latino ? lineToLatino(st.key) : st.key;
-
-  // Rerenderizar solo el selector de tonos de esta tarjeta
   var card = document.getElementById('jubiloCard_' + key);
   if (card) {
     var selectorDiv = card.querySelector('.jubilo-key-selector');
     if (selectorDiv) selectorDiv.innerHTML = renderJubiloKeys(song, key);
   }
-
-  aplicarFuenteJubilo();
 }
 
 function crearEditorOrdenJubiloOverlay() {
@@ -11506,6 +11571,7 @@ function selectJubiloKey(key, songId, tono){
   var song = getJubiloSong(songId);
   var st = jubiloState[key];
   st.key = tono;
+  delete st.verMenor; // la fila vuelve a seguir al tono elegido
   st.semitones = getSemitonesTo(tono, getOrigKey(song));
   localStorage.setItem('yhwh_jubilo_tono_' + songId, tono);
 
@@ -11530,12 +11596,12 @@ function selectJubiloKey(key, songId, tono){
 
   aplicarFuenteJubilo();
 }
-function keyFromSemitone(orig, sem){ var root=norm(orig.replace('m','')); var idx=CHROMATIC.indexOf(root); if(idx<0) return orig; var next=CHROMATIC[((idx+sem)%12+12)%12]; return next + (orig.indexOf('m')!==-1 ? 'm' : ''); }
+function keyFromSemitone(orig, sem, esMenor){ var idx=CHROMATIC.indexOf(norm(orig.replace(/m$/,''))); if(idx<0) return orig; if(typeof esMenor!=='boolean') esMenor=/m$/.test(orig); return nombreTonoBoton(idx+sem, esMenor); }
 function shiftJubiloSemitone(key, songId, delta){
   var song = getJubiloSong(songId);
   var st = jubiloState[key];
   st.semitones = ((st.semitones + delta) % 12 + 12) % 12;
-  st.key = keyFromSemitone(getOrigKey(song), st.semitones);
+  st.key = keyFromSemitone(getOrigKey(song), st.semitones, st.key.slice(-1) === 'm');
   localStorage.setItem('yhwh_jubilo_tono_' + songId, st.key);
 
   // Actualizar solo el contenido y etiquetas de esta tarjeta sin rerenderizar todo
@@ -11732,13 +11798,6 @@ function aplicarVistaJubilo(tipo) {
 function toggleJubiloVistaCantante() { aplicarVistaJubilo('cantante'); }
 function toggleJubiloVistaMusico() { aplicarVistaJubilo('musico'); }
 
-function moverAlabanzaJubilo(index, dir){
-  var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva); if(!found) return;
-  var arr = found.cadena.alabanzas; var ni = index + dir;
-  if (ni < 0 || ni >= arr.length) return;
-  var tmp = arr[index]; arr[index] = arr[ni]; arr[ni] = tmp;
-  guardarJubiloGrupos(); renderJubiloCadena(jubiloGrupoActivo, jubiloCadenaActiva);
-}
 function quitarAlabanzaJubilo(index){
   if (!window.esAdmin) { mostrarToast('🔒 Debes iniciar sesión como admin.'); return; }
   var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva); if(!found) return;
@@ -11838,15 +11897,6 @@ function restaurarJubilo(songId, key) {
   mostrarToast('↩ Restaurado al original');
 }
 
-function scrollToAlabanza(index) {
-  var found = buscarGrupoCadena(jubiloGrupoActivo, jubiloCadenaActiva);
-  if (!found || index < 0 || index >= (found.cadena.alabanzas||[]).length) return;
-  var id = found.cadena.alabanzas[index];
-  var song = getJubiloSong(id);
-  var key = jubiloStateKey(jubiloCadenaActiva, index, id);
-  var card = document.getElementById('jubiloCard_' + key);
-  if (card) { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); mostrarToast('♪ ' + (song ? song.title : '')); }
-}
 
 
 
@@ -12669,9 +12719,6 @@ function pianoModalReproducirMelodia(){
   pianoModalProgramarMelodiaDesde(0);
 }
 
-function pianoModalToggleMelodia(){
-  pianoModalReproducirMelodia();
-}
 
 // Efecto "onda de sonido": un destello circular breve en la tecla que
 // acaba de sonar, para reforzar visualmente el toque (además del brillo
@@ -12792,12 +12839,6 @@ function pianoLoopProgresoMelodia(){
   }
 }
 
-function pianoPausarReanudarMelodia(){ pianoModalToggleMelodia(); }
-function pianoReproducirMelodiaVista(){ pianoModalToggleMelodia(); }
-function pianoReproducirNotasGuardadas(notas){
-  pianoMelodyViewNotas = Array.isArray(notas) ? notas.slice() : [];
-  pianoModalReproducirMelodia();
-}
 
 function pianoAcomodarVistaMelodia(){
   var isMobile = window.innerWidth && window.innerWidth <= 768;
@@ -12882,9 +12923,6 @@ function pianoActualizarBotonReplay(){
   pianoActualizarControlesMelodia();
 }
 
-function pianoActualizarBotonPlayMelodia(){
-  pianoActualizarBotonReplay();
-}
 
 function esAdminActivo(){
   return !!window.esAdmin;
@@ -13007,9 +13045,6 @@ function abrirMelodiaCancionActual(){
   pianoAcomodarVistaMelodia();
 }
 
-function abrirMelodiaGrabacionActual(){
-  abrirMelodiaCancionActual();
-}
 
 function pianoToggleRecording(){
   if (bloquearMelodiaSiNoAdmin()) return;
@@ -13787,54 +13822,6 @@ function pianoDebugToast(msg){
 // sola vez como "calentamiento" del audio. Es tan corto y suave que no se
 // percibe, pero sí ayuda a que Safari registre una reproducción real.
 var pianoAudioWarmupUrl = null;
-function pianoCrearWarmupAudioUrl(){
-  if (pianoAudioWarmupUrl) return pianoAudioWarmupUrl;
-  try {
-    var sampleRate = 22050;
-    var duration = 0.12;
-    var totalSamples = Math.floor(sampleRate * duration);
-    var audioData = new Uint8Array(44 + totalSamples * 2);
-    function writeStr(offset, str){
-      for (var i = 0; i < str.length; i++) audioData[offset + i] = str.charCodeAt(i);
-    }
-    function write32(offset, value){
-      audioData[offset] = value & 255;
-      audioData[offset + 1] = (value >> 8) & 255;
-      audioData[offset + 2] = (value >> 16) & 255;
-      audioData[offset + 3] = (value >> 24) & 255;
-    }
-    function write16(offset, value){
-      audioData[offset] = value & 255;
-      audioData[offset + 1] = (value >> 8) & 255;
-    }
-    writeStr(0, 'RIFF');
-    write32(4, 36 + totalSamples * 2);
-    writeStr(8, 'WAVE');
-    writeStr(12, 'fmt ');
-    write32(16, 16);
-    write16(20, 1);
-    write16(22, 1);
-    write32(24, sampleRate);
-    write32(28, sampleRate * 2);
-    write16(32, 2);
-    write16(34, 16);
-    writeStr(36, 'data');
-    write32(40, totalSamples * 2);
-    for (var s = 0; s < totalSamples; s++) {
-      var t = s / sampleRate;
-      var envelope = Math.min(1, t / 0.01) * Math.max(0, 1 - (t / duration));
-      var sample = Math.sin(2 * Math.PI * 440 * t) * 0.0025 * envelope;
-      var pcm = Math.max(-1, Math.min(1, sample)) * 32767;
-      var o = 44 + s * 2;
-      write16(o, pcm < 0 ? (pcm + 65536) : pcm);
-    }
-    var blob = new Blob([audioData], { type: 'audio/wav' });
-    pianoAudioWarmupUrl = URL.createObjectURL(blob);
-  } catch (e) {
-    pianoAudioWarmupUrl = null;
-  }
-  return pianoAudioWarmupUrl;
-}
 function pianoDesbloquearAudioSession(){
   // NEUTRALIZADO POR COMPLETO: crear/arrancar el AudioContext de Tone.js
   // (Web Audio API) apenas se toca la pantalla por primera vez, antes de
@@ -13986,9 +13973,6 @@ function pianoObtenerSamplerActivo(){
   return pianoCrearSamplerLocal('piano');
 }
 
-function pianoGetSampler(){
-  return pianoCrearSamplerLocal('piano');
-}
 
 function pianoMidiToFreq(midi){
   return 440 * Math.pow(2, (midi - 69) / 12);
