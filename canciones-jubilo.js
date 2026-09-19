@@ -570,12 +570,13 @@ var SONGS_JUBILO =
     "id": 366
   },
   {
-    "id": 367,
+    "num": null,
     "title": "HUELE A VICTORIA",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Gm",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 1  |  EBENEZER\nMIX 1  |  EBENEZER\n                                               Gm                               F                Gm\nX2    A que huele un guerrero… cuando viene de batalla,\n                          Gm                                                                                                        Gm\n(Huele a victoria, Huele a victoria)    X2    Porque Jehová está con él…\nTROMPETAS    | Gm | F | Gm | F |\n[VERSO 1]:\n                 Gm                                      F                          Gm\n X2     Somos como escudos, tres son los valientes,\n                                               F               Gm [D]\nY con su espíritu venceremos siempre.    X2\n                          Gm                                                    F                Gm [D]\n X4     A que huele un guerrero, cuando viene de la batalla.     X4\n                                                   Gm – F                     Eb [D]\n X2      CORO    Huele a victoria, huele a victoria       X2\n[VERSO 2]:\n          Cm                      Dm    Eb                      F [D]\n X2     Si con Dios peleas esto sabe a gloria…                        X2      Pausa pequeñita…\n                                                           Gm – F                         Eb\n X2      CORO    Esto sabe a gloria, esto sabe a gloria…     X2\n                                                  Gm – F                     Eb [D]\n X2      CORO    Huele a victoria, huele a victoria…              X2\nTROMPETAS"
+    "content": "SE CANTA LENTO:\n                                   Gm                \nX2    A que huele un guerrero… \n                F            Gm\nCuando viene de batalla,\n                Gm          F          Gm\n(Huele a victoria, Huele a victoria)    \nX2    Porque Jehová está con él…\n\n\n\n\n\n\n\n\n\n\n\nTROMPETAS    | Gm | F | Gm | F |\n\n\n[VERSO 1]:\n            Gm                                F                   Gm\n X2     Somos como escudos, tres son los valientes,\n                                     F            Gm         [D]\nY con su espíritu venceremos siempre.    X2\n                     Gm        \n X4     A que huele un guerrero, \n                 F               Gm   [D]\nCuando viene de la batalla.     X4\n\n\n[CORO]:    \n                          Gm    F               Eb\nX2      Huele a victoria, huele a victoria       X2\n[VERSO 2]:\n          Cm                Dm    Eb                 F       [D]\n X2     Si con Dios peleas esto sabe a gloria…   X2    \n[CORO]   \n                             Gm      F                 Eb \nX2   Esto sabe a gloria, esto sabe a gloria…     X2\nX2      Huele a victoria, huele a victoria       X2\n",
+    "id": 367
   },
   {
     "num": null,
