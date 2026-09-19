@@ -1002,12 +1002,13 @@ var SONGS_JUBILO =
     "content": "TROMPETAS     | Bb | F | Bb | F | Gm | C | Dm |\n[CORO]:\n                              Bb                F                           Bb               F                Gm                  C             Dm\nX2    Dando vueltas sin parar, dando vueltas sin parar, celebrando al Dios de Israel.    X2\n                                                                                                                                               Gm                C            Dm\nTROMPETAS        —             CORO        |      X2   celebrando al Dios de Israel.   X2"
   },
   {
-    "id": 419,
+    "num": null,
     "title": "LA MESA",
-    "compositor": "Tradicional",
+    "compositor": "Ebenezer",
     "tono": "Am",
     "album": "Alabanzas de Júbilo",
-    "content": "MIX 22  |  EBENEZER\nMIX 22  |  EBENEZER\nTROMPETAS    | Am | G-Am | E |   —    | F | Am | G | Dm |\n[VERSO 1]:\n           Am                                         C          Dm              G          Am              Bb\nReconocerán que Jesús es Dios, toda lengua lo confesará.\n          Am                            C                             Dm                    G                Am\nNo habrá duda ni argumento, esta sentado a la diestra del Señor.\n[VERSO 2]:\n           F           C      G                                        Am           F                         C      E                         Am\nSe levanta hoy,        el canto de los redimidos,       Jesús es Dios,       Mesías escogido.\n[CORO]:\n                          F                                                             Am         G                Dm\nX2     El preparará mesa delante de mis enemigos, yo cenaré y beberé.  X2\nTROMPETAS"
+    "content": "TROMPETAS      | Am | G-Am | E |   \n                            | F | Am | G | Dm |\n[VERSO 1]:\n        Am                                 C          \nReconocerán que Jesús es Dios, \n Dm             G       Am          Bb              \nToda lengua lo confesará.\n       Am                      C    \nNo habrá duda ni argumento, \n           Dm               G            Am\nEstá sentado a la diestra del Señor.\n[VERSO 2]:\n           F      C    G                                Am             F    \nSe levanta hoy,        el canto de los redimidos,       \n                  C     E                     Am\nJesús es Dios,       Mesías escogido.\n[CORO]:\n                    F                                               Am \nX2     El preparará mesa delante de mis enemigos, \nG                   Dm\nYo cenaré y beberé.  X2\n\n\n\n\nTROMPETAS\n\n\n\n[CORO]:   X2",
+    "id": 419
   },
   {
     "num": null,

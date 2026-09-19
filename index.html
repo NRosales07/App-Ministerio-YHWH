@@ -1029,6 +1029,8 @@ body.light-theme .pdf-list-wrap{
 .song-view.visible{display:block;}
 .song-header{margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);}
 .song-title{font-family:'Inter',Helvetica,serif;font-size:1rem;color:var(--gold2);text-align: center;font-weight:700;margin-bottom:4px;}
+.song-cover{width:130px;height:130px;margin:2px auto 10px;border-radius:14px;overflow:hidden;display:none;box-shadow:0 4px 14px rgba(0,0,0,0.28);}
+.song-cover img{width:100%;height:100%;object-fit:cover;display:block;}
 .song-meta{color:var(--text2);text-align: center;font-size:0.8rem;}
 .song-meta strong{color:var(--text);}
 .media-card{
@@ -3487,8 +3489,9 @@ body.jubilo-singer-view #screen-jubilo .jubilo-content .lb { height: 10px; }
 .jubilo-chain.active{background:color-mix(in srgb, var(--jg-accent) 16%, var(--bg3));color:var(--gold2);border-color:var(--jg-accent);}
 .jubilo-chain .jc-icon{
   flex:0 0 auto;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:color-mix(in srgb, var(--jg-accent) 28%, transparent);font-size:.62rem;
+  background:color-mix(in srgb, var(--jg-accent) 28%, transparent);font-size:.62rem;overflow:hidden;
 }
+.jubilo-chain .jc-icon img{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;}
 .jubilo-chain .jc-name{flex:1;min-width:0;font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .jubilo-chain small{color:var(--text2);font-size:.66rem;white-space:nowrap;flex:0 0 auto;}
 .jubilo-chain-icon-btn{background:none;border:none;color:#999;cursor:pointer;font-size:.76rem;padding:5px 5px;border-radius:5px;transition:background .12s,color .12s;}
@@ -4010,6 +4013,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="song-view" id="songView">
          <div class="song-header" id="viewHeader">
   <div class="song-title" id="viewTitle"></div>
+  <div class="song-cover" id="viewCover"></div>
   <div class="song-meta" id="viewMeta"></div>
   <button id="btnVolverRepertorioAdoracion" class="volver-repertorio-btn" onclick="showScreen('screen-setlist')" style="display:none;">&#128214; Volver al Repertorio</button>
   <button id="btnVolverMinistracionAdoracion" class="volver-repertorio-btn" onclick="showScreen('screen-setlist');setTimeout(function(){mostrarTabRepertorio('cierre');}, 260);" style="display:none;">&#128591; Volver a Ministración</button>
@@ -5541,6 +5545,7 @@ currentSemitones = tonoGuardado ? getSemitonesTo(tonoGuardado, getOrigKey(song))
   document.getElementById('welcomeMsg').style.display='none';
   document.getElementById('songView').classList.add('visible');
   document.getElementById('viewTitle').textContent=song.title;
+  actualizarPortadaCancion(song);
 
   actualizarBotonesDificultad();
   renderEtiquetas();
@@ -5833,7 +5838,7 @@ var GRUPOS_ARTISTAS = [
   { nombre: 'CLAUDIO FREIDZON', tipo: 'artista', ids: [38, 39, 40] },
   { nombre: 'DANILO MONTERO', tipo: 'artista', ids: [41, 42, 43, 44, 45] },
   { nombre: 'DANNY BERRIOS', tipo: 'artista', ids: [46, 47, 48, 49] },
-  { nombre: 'ERICSON MOLANO', tipo: 'artista', ids: [50, 51, 127, 52] },
+  { nombre: 'ERICSON MOLANO', tipo: 'artista', ids: [50, 51, 52] },
   { nombre: 'FELIX FALCÓN', tipo: 'artista', ids: [53, 54] },
   { nombre: 'JAIME MURREL', tipo: 'artista', ids: [55, 56, 57] },
   { nombre: 'JESÚS ADRIÁN ROMERO', tipo: 'artista', ids: [58, 59, 60, 61, 62, 63, 63.1, 64, 65, 65.1] },
@@ -5842,23 +5847,25 @@ var GRUPOS_ARTISTAS = [
   { nombre: 'JULIO MELGAR', tipo: 'artista', ids: [76, 77, 78] },
   { nombre: 'MARCELA GÁNDARA', tipo: 'artista', ids: [79, 80, 81, 81.1] },
   { nombre: 'MARCOS BARRIENTOS', tipo: 'artista', ids: [82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92] },
-  { nombre: 'MARCOS BRUNET', tipo: 'artista', ids: [93, 94, 95, 96, 131] },
+  { nombre: 'MARCOS BRUNET', tipo: 'artista', ids: [93, 94, 95, 96] },
   { nombre: 'MARCOS WITT', tipo: 'artista', ids: [97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 110.1] },
   { nombre: 'RENÁN CARÍAS', tipo: 'artista', ids: [111, 112] },
   { nombre: 'RENÉ GONZÁLEZ', tipo: 'artista', ids: [113, 114] },
   { nombre: 'ROBERTO ORELLANA', tipo: 'artista', ids: [115, 116, 117] },
   { nombre: 'MINISTERIO ADRIEL', tipo: 'artista', ids: [118, 119] },
   { nombre: 'BARAK', tipo: 'grupo', ids: [120, 121, 122, 123, 124] },
-  { nombre: 'CENTRO VIDA', tipo: 'grupo', ids: [125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 201] },
+
+  { nombre: 'CENTRO VIDA', tipo: 'grupo', ids: [125, 126, 127, 128, 129, 130, 131, 132, 133, 134] },
+
   { nombre: 'EBENEZER HN', tipo: 'grupo', ids: [135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 158.1] },
   { nombre: 'EN ESPÍRITU Y EN VERDAD', tipo: 'grupo', ids: [159, 160] },
   { nombre: 'GENERACIÓN 12', tipo: 'grupo', ids: [161, 162, 163, 164] },
-  { nombre: 'INSPIRACIÓN', tipo: 'grupo', ids: [165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 174.1, 175, 176] },
+  { nombre: 'INSPIRACIÓN', tipo: 'grupo', ids: [165, 166, 167, 168, 169, 170, 171, 172, 174, 174.1, 175, 176] },
   { nombre: 'MIEL SAN MARCOS', tipo: 'grupo', ids: [177, 178, 179, 180, 181] },
   { nombre: 'MKADDESH', tipo: 'grupo', ids: [182, 183, 184, 185] },
   { nombre: 'MONTE SANTO', tipo: 'grupo', ids: [186, 187] },
   { nombre: 'NEW WINE', tipo: 'grupo', ids: [188, 189, 190, 191, 192, 193, 194, 195, 196, 207, 197, 198, 199] },
-  { nombre: 'OASIS MINISTRY', tipo: 'grupo', ids: [200, 129, 202, 203] },
+  { nombre: 'OASIS MINISTRY', tipo: 'grupo', ids: [200, 201, 202, 203] },
   { nombre: 'PROYECTO JES', tipo: 'grupo', ids: [204, 205] }
 ];
 
@@ -5870,18 +5877,40 @@ var GRUPOS_ARTISTAS = [
 //   'BARAK': 'imagenes/grupos/barak.png',
 //   'EBENEZER HN': 'imagenes/grupos/ebenezer.jpg',
 var IMAGENES_ICONOS_GRUPOS = {
- 'BARAK': 'BARAK.jpg',
-'CENTRO VIDA': 'VIDA.png',
-'EBENEZER HN': 'Ebnz.png',
-'EN ESPÍRITU Y EN VERDAD': 'GLORIOSO REY.jpg',
-'GENERACIÓN 12': 'G12.jpg',
-'INSPIRACIÓN': '1 VOL.webp',
-'MIEL SAN MARCOS': 'MSM.jpg',
-'MKADDESH': 'MKADDESH.png',
-'MONTE SANTO': 'SANTO.jpg',
-'NEW WINE': 'NEW WINE.jpg',
-'OASIS MINISTRY': 'OASIS.jpg',
-'PROYECTO JES': 'JES.jpg'
+'AVERLY MORILLO': 'img/averly-morillo.jpg',
+'CHRISTINE D\'CLARIO': 'img/Chistine.jpg',
+'CLAUDIO FREIDZON': 'img/REY.jpg',
+'DANILO MONTERO': 'img/DANILO.jpg',
+'DANNY BERRIOS': 'img/DANNY.jpg',
+'ERICSON MOLANO': 'img/ericson.jpg',
+'FELIX FALCÓN': 'img/Felixis.jpg',
+'JAIME MURREL': 'img/JAIME.jpg',
+'JESÚS ADRIÁN ROMERO': 'img/JAR.jpg',
+'JOSÉ LUIS REYES': 'img/JOSE LUIS REYES.jpg',
+'JUAN CARLOS ALVARADO': 'img/JUAN CARLOS.jpg',
+'JULIO MELGAR': 'img/JULIO MELGAR.jpg',
+'MARCELA GÁNDARA': 'img/MARCELA.jpg',
+'MARCOS BARRIENTOS': 'img/marco barrientos.jpg',
+'MARCOS BRUNET': 'img/MARCOS.webp',
+'MARCOS WITT': 'img/WITT.jpg',
+'RENÁN CARÍAS': 'img/CARIAS.jpg',
+'RENÉ GONZÁLEZ': 'img/RENE.jpg',
+'ROBERTO ORELLANA': 'img/ROBERTO ORELLANA.jpg',
+'MINISTERIO ADRIEL': 'img/PERDONAME.jpg',
+
+
+ 'BARAK': 'img/BARAK.jpg',
+'CENTRO VIDA': 'img/VIDA.png',
+'EBENEZER HN': 'img/Ebnz.jpg',
+'EN ESPÍRITU Y EN VERDAD': 'img/GLORIOSO REY.jpg',
+'GENERACIÓN 12': 'img/G12.jpg',
+'INSPIRACIÓN': 'img/1 VOL.webp',
+'MIEL SAN MARCOS': 'img/MSM.jpg',
+'MKADDESH': 'img/MKADDESH.png',
+'MONTE SANTO': 'img/SANTO.jpg',
+'NEW WINE': 'img/NEW WINE.jpg',
+'OASIS MINISTRY': 'img/OASIS.jpg',
+'PROYECTO JES': 'img/JES.jpg'
 };
 
 
@@ -5892,6 +5921,431 @@ function iconoGrupoHtml(nombre, emojiRespaldo) {
   var img = IMAGENES_ICONOS_GRUPOS[nombre];
   if (img) return '<img src="' + escH(img) + '" alt="">';
   return emojiRespaldo;
+}
+
+// === Imágenes de alabanzas individuales (opcional) ===
+// Organizado POR CARPETAS: una carpeta por grupo, y dentro el nombre EXACTO
+// de la alabanza (tal como aparece en su título) apuntando a su imagen.
+// Así, en tu computadora, guardas las imágenes en carpetas como:
+//   imagenes/alabanzas/barak/manda-tu-fuego.jpg
+//   imagenes/alabanzas/ebenezer-hn/rocio-del-cielo.jpg
+// y solo agregas la línea correspondiente aquí abajo. Si una alabanza no
+// tiene imagen propia, se usa automáticamente la del grupo (la del
+// "título"); si el grupo tampoco tiene imagen, se usa el emoji de siempre.
+var IMAGENES_ICONOS_ALABANZAS = {
+ 'ARTISTA INDIVIDUAL': {
+    'NECESITO DE TI': 'img/Alabanzas/1-Individual/NECESITO.jpg',
+'PRECIOSA SANGRE': 'img/Alabanzas/1-Individual/PRECIOSA.jpg',
+'DIOS ESTÁ AQUÍ': 'img/Alabanzas/1-Individual/DIOS.jpg',
+'COMO EL VUELO DE UN ÁGUILA': 'img/Alabanzas/1-Individual/AGUILA.jpg',
+'CADENAS ROMPER': 'img/Alabanzas/1-Individual/CADENAS.jpg',
+'ENTRO AL LUGAR MÁS SANTO': 'img/Alabanzas/1-Individual/COLECCION.jpg',
+'VINE A ADORAR A DIOS': 'img/Alabanzas/1-Individual/ALABANZAS.jpg',
+'HAY MOMENTOS': 'img/Alabanzas/1-Individual/SALMODIANDO.jpg',
+'LEVANTO MIS MANOS': 'img/Alabanzas/1-Individual/LEVANTO.jpg',
+'MÁS ALLÁ DEL HORIZONTE': 'img/Alabanzas/1-Individual/BRITO.jpg',
+'SÓLO DÉJENME ADORARLE': 'img/Alabanzas/1-Individual/DEJENME.jpg',
+'BONDAD DE DIOS': 'img/Alabanzas/1-Individual/BONDAD.jpg',
+'SOBRE ALAS DE PALOMA': 'img/Alabanzas/1-Individual/BRITO.jpg',
+'ALELUYA': 'img/Alabanzas/1-Individual/ENFERMO.jpg',
+'YO NAVEGARÉ': 'img/Alabanzas/1-Individual/NAVE.jpg',
+'NADA ES DIFÍCIL PARA DIOS': 'img/Alabanzas/1-Individual/DIFICIL.jpg',
+'LA GRAN TRIBULACIÓN': 'img/Alabanzas/1-Individual/tribulacion.jpg',
+'AQUÍ ESTÁS': 'img/Alabanzas/1-Individual/MILAGROSO.jpg',
+'REVERDECERÁS': 'img/Alabanzas/1-Individual/REVERDECERAS.jpg',
+'NADA PUEDE DETENERLE': 'img/Alabanzas/1-Individual/NADIE.jpg',
+'SANTO POR SIEMPRE': 'img/Alabanzas/1-Individual/MIRARÉ.jpg',
+'UNCIÓN EN EL AIRE': 'img/Alabanzas/1-Individual/UNCION.jpg',
+'RODEADO': 'img/Alabanzas/1-Individual/RODEADO.jpg',
+'HERMOSO MOMENTO': 'img/Alabanzas/1-Individual/HERMOSO.jpg',
+'LO HARÁS OTRA VEZ': 'img/Alabanzas/1-Individual/HARAZ.jpeg',
+'AMOR SIN CONDICIÓN': 'img/Alabanzas/1-Individual/CONDICION.jpg',
+'JESUCRISTO BASTA': 'img/Alabanzas/1-Individual/UN.jpg',
+'LA NIÑA DE TUS OJOS': 'img/Alabanzas/1-Individual/NIÑA.jpg',
+'MERECES LA GLORIA': 'img/Alabanzas/1-Individual/MERECES.jpg',
+'HAZ LLOVER': 'img/Alabanzas/1-Individual/NUBE.jpg',
+'ALIENTO DE VIDA': 'img/Alabanzas/1-Individual/ALIENTO.jpg',
+'SI ME TOCÁRAS': 'img/Alabanzas/1-Individual/HECTOR.jpg',
+'¿A DÓNDE IRÉ JEHOVÁ SIN TI?': 'img/Alabanzas/1-Individual/SIN.jpg',
+'AL FINAL': 'img/Alabanzas/1-Individual/MIEDO.jpg',
+'NO ME RENDIRÉ': 'img/Alabanzas/1-Individual/RENDIRE.jpg',
+'QUE ME FALTE TODO': 'img/Alabanzas/1-Individual/TODO.jpg',
+'EN PIE DE GUERRA': 'img/Alabanzas/1-Individual/PIE.jpg'
+
+  },
+
+    'AVERLY MORILLO': {
+    '¿QUIÉN PODRÁ?': 'img/Alabanzas/Averly/TU ALTAR.jpg',
+     'ESTOY CONVENCIDO': 'img/Alabanzas/Averly/MESIAS.jpg',
+},
+  
+
+'CHRISTINE D\'CLARIO': {
+    'COMO DIJISTE': 'img/Alabanzas/Christine/DE VUELTA AL JARDIN.avif',
+        'QUE SE ABRA EL CIELO': 'img/Alabanzas/Christine/ETERNO.jpg',
+},
+
+'CLAUDIO FREIDZON': {
+    'ESTE ES MI DESEO': 'img/Alabanzas/Claudio/EXALTEMOS.jpg',
+   
+},
+
+
+    'DANILO MONTERO': {
+    'REVELACIÓN': 'img/Alabanzas/Montero/DEVOCION.jpg',
+    'AL ESTAR AQUÍ': 'img/Alabanzas/Montero/TODOPODEROSSO.jpg',
+    'HAY MOMENTOS': 'img/Alabanzas/Montero/ADMIRRABLE.jpg',
+    'ISAÍAS 40': 'img/Alabanzas/Montero/ENCUENTROS.jpg',
+  'EL SEÑOR ES MI PASTOR': 'img/Alabanzas/Montero/TODOPODEROSSO.jpg',  
+  },
+
+     'DANNY BERRIOS': {
+    'ALABA A DIOS': 'img/Alabanzas/Danny Berrios/DIOS.jpg',
+    'DIOS CUIDA DE MÍ': 'img/Alabanzas/Danny Berrios/DIOS.jpg',
+    'HIMNO DE VICTORIA': 'img/Alabanzas/Danny Berrios/DIOS.jpg',
+    'EL REY TE MANDÓ A LLAMAR': 'img/Alabanzas/Danny Berrios/PROFETIZAR.jpg',
+},
+
+ 'ERICSON MOLANO': {
+    'MANDA LA LLUVIA': 'img/Alabanzas/Ericson/EL VIVE HOY.jpg',
+     'EL AROMA DE VIDA': 'img/Alabanzas/Ericson/CON SU ESPIRITU.jpg',
+      'SANTO, SANTO, SANTO': 'img/Alabanzas/Ericson/LO MEJOR.jpg',
+},
+
+
+'FELIX FALCÓN': {
+    'VASIJA QUEBRANTADA': 'img/Alabanzas/Felixis/VASIJA.jpg',
+        'TE LLEVÉ AL DESIERTO': 'img/Alabanzas/Felixis/DESIERTO.jpg',
+
+},
+
+
+ 'JAIME MURREL': {
+    'YO QUIERO MÁS DE TI': 'img/Alabanzas/Jaime/QUIERO ALABAR.jpg',
+'AQUÍ ESTOY': 'img/Alabanzas/Jaime/CRISTO REINA.jpg',
+'TE PIDO LA PAZ': 'img/Alabanzas/Jaime/TE PIDO LA PAZ.jpg',
+  },
+
+ 'JESÚS ADRIÁN ROMERO': {
+    'SI HUBIERA ESTADO ALLÍ': 'img/Alabanzas/JAR/AYER.jpg',
+    'DESTELLO DE TU GLORIA': 'img/Alabanzas/JAR/PRESENCIA.jpg',
+    'SENTADO EN SU TRONO': 'img/Alabanzas/JAR/UNIDOS.jpg',
+    'CON MANOS VACÍAS': 'img/Alabanzas/JAR/MANOS.jpg',
+    'AL ESTAR ANTE TI': 'img/Alabanzas/JAR/PRESENCIA.jpg',
+    'YO ME RINDO A ÉL': 'img/Alabanzas/JAR/UNIDOS.jpg',
+    'TÚ ESTÁS AQUÍ': 'img/Alabanzas/JAR/PRESENCIA.jpg',
+    '¿QUÉ SERÍA DE MÍ?': 'img/Alabanzas/JAR/DE.jpg',
+    'TAL COMO SOY': 'img/Alabanzas/JAR/DE.jpg',
+    'SUMÉRGEME': 'img/Alabanzas/JAR/UNIDOS.jpg',
+},
+
+ 'JOSÉ LUIS REYES': {
+    'ALGO ESTÁ CAYENDO AQUÍ': 'img/Alabanzas/Reyes/JOSE.jpg',
+    'HAZ LLOVER': 'img/Alabanzas/Reyes/JOSE.jpg',
+},
+
+ 'JUAN CARLOS ALVARADO': {
+    'LLÉVAME A TUS ATRIOS': 'img/Alabanzas/Juan/glorificad.jpg',
+    'SI TAN SOLO': 'img/Alabanzas/Juan/VIVO.jpg',
+    'DIOS EL MÁS GRANDE': 'img/Alabanzas/Juan/FUEGO.jpg',
+    'HAY UNA FUENTE EN MÍ': 'img/Alabanzas/Juan/SANTO.jpg',
+    'SOLO QUIERO ESTAR': 'img/Alabanzas/Juan/SANTO.jpg',
+    'AQUÍ ESTOY': 'img/Alabanzas/Juan/SANTO.jpg',
+    'A TI ATRIBUIMOS': 'img/Alabanzas/Juan/SANTO.jpg',
+    'HAY MOMENTOS': 'img/Alabanzas/Juan/MOMENTOS.jpg',
+    'ENTRA EN LA PRESENCIA': 'img/Alabanzas/Juan/glorificad.jpg',
+    'BENDITO SEA EL SEÑOR': 'img/Alabanzas/Juan/glorificad.jpg',
+},
+
+ 'JULIO MELGAR': {
+    'TUS CUERDAS DE AMOR': 'img/Alabanzas/Julio/CUERDAS DE AMOR.avif',
+     'CREO EN TI': 'img/Alabanzas/Julio/CREO EN TI.jpg',
+      'YA NO SOY UN ESCLAVO': 'img/Alabanzas/Julio/YA NO SOY UN ESCLAVO.jpg',
+},
+
+ 'MARCELA GÁNDARA': {
+    'VINE A ADORARTE': 'img/Alabanzas/Marcela/LLAGAS.avif',
+    'POR LAS LLAGAS DE JESÚS': 'img/Alabanzas/Marcela/LLAGAS.avif',
+    'SUPE QUE ME AMABAS': 'img/Alabanzas/Marcela/SUPE.avif',
+    'DAME TUS OJOS': 'img/Alabanzas/Marcela/SUPE.avif',
+},
+
+ 'MARCOS BARRIENTOS': {
+    'A CADA INSTANTE': 'img/Alabanzas/Barrientos/VENIMOS.jpg',
+     'DIGNO': 'img/Alabanzas/Barrientos/DIGNO.jpg',
+      'DAME DE BEBER': 'img/Alabanzas/Barrientos/BEBER.jpg',
+       'VENIMOS ANTE TI': 'img/Alabanzas/Barrientos/VENIMOS.jpg',
+        'VEN ESPÍRITU VEN': 'img/Alabanzas/Barrientos/NADIE.jpg',
+         'CRISTO HEME AQUÍ': 'img/Alabanzas/Barrientos/VENIMOS.jpg',
+          'TE ENTREGO': 'img/Alabanzas/Barrientos/TE ENTREGO.jpg',
+           'NO HAY NADIE COMO TÚ': 'img/Alabanzas/Barrientos/NADIE.jpg',
+            'DIOS DE LO IMPOSIBLE': 'img/Alabanzas/Barrientos/SANGRE.avif',
+             'PRECIOSA SANGRE': 'img/Alabanzas/Barrientos/SANGRE.avif',
+              'LO ÚNICO QUE QUIERO': 'img/Alabanzas/Barrientos/AMANECE.avif',
+},
+
+ 'MARCOS WITT': {
+    'HE DECIDIDO': 'img/Alabanzas/Witt/HE DECIDIDO.jpg',
+    'RENUÉVAME': 'img/Alabanzas/Witt/FIDELIDAD.jpg',
+    'TU FIDELIDAD': 'img/Alabanzas/Witt/EXALTATE.jpg',
+    'YO TE BUSCO': 'img/Alabanzas/Witt/BUSCO.jpg',
+    'CUÁN BELLO ES EL SEÑOR': 'img/Alabanzas/Witt/BELLO.jpg',
+    'GRACIAS': 'img/Alabanzas/Witt/GRACIAS.jpg',
+    'TEMPRANO YO TE BUSCARÉ': 'img/Alabanzas/Witt/TEMPRANO.jpg',
+    'HERMOSO ERES': 'img/Alabanzas/Witt/EXALTATE.jpg',
+    'ENCIENDE UNA LUZ': 'img/Alabanzas/Witt/ENCIENDE.png',
+    'DIOS DE PACTOS': 'img/Alabanzas/Witt/PACTOS.jpg',
+    'EXÁLTATE': 'img/Alabanzas/Witt/EXALTATE.jpg',
+    'SANA NUESTRA TIERRA': 'img/Alabanzas/Witt/SANA.jpg',
+    'ESCUCHARTE HABLAR': 'img/Alabanzas/Witt/ENCIENDE.png',
+    'QUIERO LEVANTAR MIS MANOS': 'img/Alabanzas/Witt/FIDELIDAD.jpg',
+    'PODEROSO DIOS': 'img/Alabanzas/Witt/SOBRENATURAL.jpg',
+},
+
+ 'RENÁN CARÍAS': {
+    'PAZ EN LA TORMENTA': 'img/Alabanzas/Renan/PAZ EN LA TORMENTA.jpg',
+    'HOMBRES DE VALOR': 'img/Alabanzas/Renan/HOMBRES DE VALOR.jpg',
+
+  },
+
+ 'RENÉ GONZÁLEZ': {
+    'MI IGLESIA': 'img/Alabanzas/Rene/IGLESIA.jpg',
+},
+
+ 'ROBERTO ORELLANA': {
+    'YO TENGO UN NUEVO AMOR': 'img/Alabanzas/Roberto/NUEVO AMOR.jpg',
+        'ESCÓNDEME': 'img/Alabanzas/Roberto/NUEVO AMOR.jpg',
+            'MI VIDA ESTÁ LLENA DE TI': 'img/Alabanzas/Roberto/escondeme.jpg',
+
+},
+
+
+  'MARCOS BRUNET': {
+    'PADRE NUESTRO': 'img/Alabanzas/Brunet/PADRE.jpg',
+    'ERES MI PLENITUD': 'img/Alabanzas/Brunet/PLENITUD.jpg',
+'AL QUE ESTÁ SENTADO': 'img/Alabanzas/Brunet/BESO.jpg',
+'BESO TUS PIES': 'img/Alabanzas/Brunet/BESO.jpg',
+
+   
+  },
+
+ 
+  'BARAK': {
+    'PERDÓNAME': 'img/Alabanzas/Barak/PERDONAME.jpg',
+    'SHEKHINÁ': 'img/Alabanzas/Barak/PERDONAME.jpg',
+    'VEN ESPÍRITU SANTO VEN': 'img/Alabanzas/Barak/ESPIRITU.jpg',
+    'LA TIERRA CANTA': 'img/Alabanzas/Barak/TIERRA.jpg',
+    'VIVO ESTÁS': 'img/Alabanzas/Barak/TIERRA.jpg'
+  },
+
+  'CENTRO VIDA': {
+        'QUIERO LLENAR TU TRONO': 'img/Alabanzas/Centro/VIDA.png',
+'TU FIDELIDAD': 'img/Alabanzas/Centro/VIDA.png',
+'SANTO': 'img/Alabanzas/Centro/VIDA.png',
+'AMANTE DE TU PRESENCIA': 'img/Alabanzas/Centro/VIDA.png',
+'PABLO Y SILAS': 'img/Alabanzas/Centro/VIDA.png',
+'CUÁN GRANDE ES ÉL': 'img/Alabanzas/Centro/VIDA.png',
+'ERES MI PLENITUD': 'img/Alabanzas/Centro/VIDA.png',
+'ALABA A DIOS': 'img/Alabanzas/Centro/VIDA.png',
+'QUIERO CONOCER A JESÚS': 'img/Alabanzas/Centro/VIDA.png',
+'INEXPLICABLE': 'img/Alabanzas/Centro/VIDA.png',
+'QUIERO LLENAR TU TRONO': 'img/Alabanzas/Centro/VIDA.png'
+
+  },  
+  'EBENEZER HN': {
+   'MANDA TU FUEGO': 'img/Alabanzas/Ebenezer/LEGADO.jpg',
+   'ROCÍO DEL CIELO': 'img/Alabanzas/Ebenezer/LEGADO.jpg',
+   'EL BESO': 'img/Alabanzas/Ebenezer/LEGADO.jpg',
+   'ALTO Y SUBLIME': 'img/Alabanzas/Ebenezer/LEGADO.jpg',
+   'LEVÁNTATE OH DÉBORA': 'img/Alabanzas/Ebenezer/LEGADO.jpg',
+   'ALZAD OH PUERTAS': 'img/Alabanzas/Ebenezer/LEGADO.jpg',
+   'COSAS QUE OJO NO VIÓ': 'img/Alabanzas/Ebenezer/CELESTIAL.jpg',
+   'TE AMO MÁS QUE A ESTOS': 'img/Alabanzas/Ebenezer/CELESTIAL.jpg',
+   'MI CORAZÓN ES TUYO': 'img/Alabanzas/Ebenezer/CELESTIAL.jpg',
+   'SE OYEN ÁNGELES': 'img/Alabanzas/Ebenezer/CELESTIAL.jpg',
+   'SI NO HUBIERA INFIERNO': 'img/Alabanzas/Ebenezer/CELESTIAL.jpg',
+   'CON TODO SU AMOR': 'img/Alabanzas/Ebenezer/TODO.jpg',
+   'Y VINO TU PRESENCIA': 'img/Alabanzas/Ebenezer/TODO.jpg',
+   'DEDICACIÓN': 'img/Alabanzas/Ebenezer/TODO.jpg',
+   'TODO ADORABLE': 'img/Alabanzas/Ebenezer/TODO.jpg',
+   'AMADO DE MI ALMA': 'img/Alabanzas/Ebenezer/AMADO.jpg',
+   'UN ADORADOR': 'img/Alabanzas/Ebenezer/ALABANZA.jpg',
+   'MIRA DIOS LO QUE DICEN DE TI': 'img/Alabanzas/Ebenezer/DIOS.jpg',
+   'PUEDO CONFIAR': 'img/Alabanzas/Ebenezer/CONFIAR.jpg',
+   'ERES EL SEÑOR': 'img/Alabanzas/Ebenezer/ALABANZA.jpg',
+   'VIVO PARA AGRADARTE': 'img/Alabanzas/Ebenezer/VIVO.jpg',
+   'DIOS ES REY': 'img/Alabanzas/Ebenezer/ALABANZA.jpg',
+   'SOY UN ALTAR': 'img/Alabanzas/Ebenezer/ALABANZA.jpg',
+   'COMO ZAQUEO': 'img/Alabanzas/Ebenezer/ZAQUEO.jpg',
+   'TENDRÉ QUIETUD': 'img/Alabanzas/Ebenezer/ALABANZA.jpg'
+  },
+
+  'EN ESPÍRITU Y EN VERDAD': {
+   'PERFUME A TUS PIES': 'img/Alabanzas/Espiritu/PERFUME.jpg'
+  },
+  
+ 'GENERACIÓN 12': {
+   'QUIERO CONOCER A JESÚS': 'img/Alabanzas/G12/G12.jpg',
+    'DIOS INCOMPARABLE': 'img/Alabanzas/G12/DIOS.jpg',
+    'HAY PODER': 'img/Alabanzas/G12/PODER.jpg',
+    'DIOS INCOMPARABLE': 'img/Alabanzas/G12/DIOS.jpg'
+  },
+
+   'INSPIRACIÓN': {
+   'MUEVETE EN MÍ': 'img/Alabanzas/Inspiracion/MUEVETE.jpg',
+'CRISTO SOPLA': 'img/Alabanzas/Inspiracion/MUEVETE.jpg',
+'AMÉN': 'img/Alabanzas/Inspiracion/MUEVETE.jpg',
+'QUE TU GLORIA': 'img/Alabanzas/Inspiracion/GLORIA.jpg',
+'CUÁN PRECIOSAS': 'img/Alabanzas/Inspiracion/ALELUYA.jpg',
+'TÚ ERES MI ESCUDO': 'img/Alabanzas/Inspiracion/ALELUYA.jpg',
+'ALELUYA': 'img/Alabanzas/Inspiracion/ALELUYA.jpg'
+  },
+
+   'MIEL SAN MARCOS': {
+   'CRISTO ESTÁ AQUÍ': 'img/Alabanzas/MSM/CRISTO.jpg',
+   'EXÁLTATE': 'img/Alabanzas/MSM/CRISTO.jpg',
+   'A TUS PIES': 'img/Alabanzas/MSM/PIES.jpg',
+   'LA BENDICIÓN': 'img/Alabanzas/MSM/BENDICION.jpg',
+  },
+
+   'MKADDESH': {
+   'PAGASTE UN ALTO PRECIO': 'img/Alabanzas/Mkaddesh/PAGASTE.jpg',
+  'EN TUS MANOS': 'img/Alabanzas/Mkaddesh/MANOS.jpg',
+  'UNA GOTA DE TU SANGRE': 'img/Alabanzas/Mkaddesh/GOTA.jpg',
+  'QUIERO LLORAR EN TUS BRAZOS': 'img/Alabanzas/Mkaddesh/QUIERO.jpg'
+  },
+
+
+   'NEW WINE': {
+   'NECESITO UN ENCUENTRO': 'img/Alabanzas/New/CIELOS.jpg',
+  'CIELOS ABIERTOS': 'img/Alabanzas/New/CIELOS.jpg',
+  'ACEITE FRESCO': 'img/Alabanzas/New/ACEITE.jpg',
+  'A UNA VOZ': 'img/Alabanzas/New/ACEITE.jpg',
+  'INCOMPRENSIBLE AMOR': 'img/Alabanzas/New/VIENTOS.jpg',
+  'QUE LOS CIELOS SE ABRAN HOY': 'img/Alabanzas/New/VIENTOS.jpg',
+  'AMO TU PRESENCIA': 'img/Alabanzas/New/AMO.jpg',
+  'GRACIAS': 'img/Alabanzas/New/GRACIAS.jpg',
+  'VEN Y LLENA ESTA CASA': 'img/Alabanzas/New/CASA.jpg',
+  'HAZ LLOVER': 'img/Alabanzas/New/CASA.jpg',
+  'EN TOTALIDAD A TI': 'img/Alabanzas/New/CASA.jpg',
+'AMOR SOBRENATURAL': 'img/Alabanzas/New/SOBRENATURAL.jpg',
+'CRISTO YO TE AMO': 'img/Alabanzas/New/CRISTO.jpg',
+
+},
+
+   'OASIS MINISTRY': {
+   'PABLO Y SILAS': 'img/Alabanzas/Oasis/HIJOS.jpg',
+      'ALGO ESTÁ PASANDO': 'img/Alabanzas/Oasis/HIJOS.jpg',
+   'SI TU PRESENCIA': 'img/Alabanzas/Oasis/HIJOS.jpg',
+
+  },
+
+
+
+};
+
+// Arma el HTML del ícono (span.jc-icon) de una alabanza individual:
+// 1) si tiene imagen propia en IMAGENES_ICONOS_ALABANZAS, la usa;
+// 2) si no, usa la imagen del grupo (IMAGENES_ICONOS_GRUPOS);
+// 3) si tampoco el grupo tiene imagen, usa el emoji de respaldo.
+function iconoAlabanzaHtml(tituloCancion, nombreGrupo, emojiRespaldo) {
+  var porGrupo = IMAGENES_ICONOS_ALABANZAS[nombreGrupo];
+  var imgPropia = porGrupo && porGrupo[tituloCancion];
+  if (imgPropia) return '<img src="' + escH(imgPropia) + '" alt="">';
+  var imgGrupo = IMAGENES_ICONOS_GRUPOS[nombreGrupo];
+  if (imgGrupo) return '<img src="' + escH(imgGrupo) + '" alt="">';
+  return emojiRespaldo;
+}
+
+// Busca a qué grupo/artista pertenece una canción (recorriendo GRUPOS_ARTISTAS
+// por su id), para poder encontrar su imagen.
+function grupoDeCancion(song) {
+  if (!song) return null;
+  for (var i = 0; i < GRUPOS_ARTISTAS.length; i++) {
+    var g = GRUPOS_ARTISTAS[i];
+    for (var j = 0; j < g.ids.length; j++) {
+      if (g.ids[j] == song.id) return g.nombre;
+    }
+  }
+  return null;
+}
+
+// Devuelve la URL de imagen a mostrar para una canción (propia si existe,
+// si no la de su grupo), o null si no hay ninguna imagen configurada.
+function imagenCancionUrl(song) {
+  if (!song) return null;
+  var grupo = grupoDeCancion(song);
+  if (!grupo) return null;
+  var porGrupo = IMAGENES_ICONOS_ALABANZAS[grupo];
+  var imgPropia = porGrupo && porGrupo[song.title];
+  if (imgPropia) return imgPropia;
+  return IMAGENES_ICONOS_GRUPOS[grupo] || null;
+}
+
+// Muestra (o esconde) el recuadro cuadrado de imagen debajo del título de
+// la canción actual, en la vista principal de Adoración.
+function actualizarPortadaCancion(song) {
+  var cover = document.getElementById('viewCover');
+  if (!cover) return;
+  var url = imagenCancionUrl(song);
+  if (url) {
+    cover.innerHTML = '<img src="' + escH(url) + '" alt="">';
+    cover.style.display = 'block';
+  } else {
+    cover.innerHTML = '';
+    cover.style.display = 'none';
+  }
+}
+
+// === Herramienta de diagnóstico (opcional) ===
+// Ábrela desde la consola del navegador (F12 → pestaña "Console") escribiendo:
+//   diagnosticoImagenesAlabanzas()
+// y presionando Enter. Te dice exactamente qué alabanzas no tienen imagen y
+// por qué: si no están en ningún grupo, o si su id está repetido en más de
+// un grupo (lo que puede hacer que tome el grupo equivocado).
+function diagnosticoImagenesAlabanzas() {
+  if (typeof SONGS === 'undefined' || !Array.isArray(SONGS) || !SONGS.length) {
+    console.log('Las canciones (SONGS) todavía no han cargado. Espera a que abra el repertorio e inténtalo de nuevo.');
+    return;
+  }
+
+  var idsVistos = {}; // id de canción -> lista de grupos donde aparece
+  GRUPOS_ARTISTAS.forEach(function(g) {
+    g.ids.forEach(function(id) {
+      if (!idsVistos[id]) idsVistos[id] = [];
+      idsVistos[id].push(g.nombre);
+    });
+  });
+
+  var sinGrupo = [];
+  var idDuplicado = [];
+  var sinImagen = [];
+
+  SONGS.forEach(function(s) {
+    var grupos = idsVistos[s.id] || [];
+    if (!grupos.length) {
+      sinGrupo.push(s.title + '  (id ' + s.id + ')');
+      return;
+    }
+    if (grupos.length > 1) {
+      idDuplicado.push(s.title + '  (id ' + s.id + ')  está en: ' + grupos.join(' Y '));
+    }
+    var grupoUsado = grupos[0];
+    var tieneImgPropia = IMAGENES_ICONOS_ALABANZAS[grupoUsado] && IMAGENES_ICONOS_ALABANZAS[grupoUsado][s.title];
+    var tieneImgGrupo = IMAGENES_ICONOS_GRUPOS[grupoUsado];
+    if (!tieneImgPropia && !tieneImgGrupo) {
+      sinImagen.push(s.title + '  (grupo: ' + grupoUsado + ', sin imagen propia ni de grupo)');
+    }
+  });
+
+  console.log('%c=== 1) Alabanzas que NO están en ningún grupo (por eso no muestran imagen) ===', 'font-weight:bold;color:#c9a84c;');
+  console.log(sinGrupo.length ? sinGrupo.join('\n') : 'Ninguna 🎉');
+
+  console.log('%c=== 2) IDs duplicados en más de un grupo (pueden mostrar la imagen equivocada) ===', 'font-weight:bold;color:#c9a84c;');
+  console.log(idDuplicado.length ? idDuplicado.join('\n') : 'Ninguno 🎉');
+
+  console.log('%c=== 3) Alabanzas cuyo grupo tampoco tiene imagen configurada ===', 'font-weight:bold;color:#c9a84c;');
+  console.log(sinImagen.length ? sinImagen.join('\n') : 'Ninguna 🎉');
 }
 
 function obtenerCancionPorId(id) {
@@ -5938,7 +6392,9 @@ function renderListaCompositores() {
     var delTipo = GRUPOS_ARTISTAS.filter(function(g) { return (g.tipo || 'grupo') === cat.key; });
     if (!delTipo.length) return;
 
-    html += '<details class="jubilo-group jubilo-cat" style="--jg-accent:' + cat.accent + ';">' +
+    var catAbierta = cat.key === window.compositorCategoriaActiva ? ' open' : '';
+
+    html += '<details class="jubilo-group jubilo-cat" style="--jg-accent:' + cat.accent + ';"' + catAbierta + '>' +
       '<summary>' +
         '<span class="jg-left">' +
           '<span class="jg-icon">' + cat.icon + '</span>' +
@@ -5954,8 +6410,9 @@ function renderListaCompositores() {
     delTipo.forEach(function(grupo, gi) {
       var accent = accentGrupoJubilo(gi);
       var canciones = grupo.ids.map(function(id) { return obtenerCancionPorId(id); }).filter(Boolean);
+      var grupoAbierto = grupo.nombre === window.compositorGrupoActivo ? ' open' : '';
 
-      html += '<details class="jubilo-group jubilo-group-nested" style="--jg-accent:' + accent + ';">' +
+      html += '<details class="jubilo-group jubilo-group-nested" style="--jg-accent:' + accent + ';"' + grupoAbierto + '>' +
         '<summary>' +
           '<span class="jg-left">' +
             '<span class="jg-icon">' + iconoGrupoHtml(grupo.nombre, '🎵') + '</span>' +
@@ -5973,7 +6430,7 @@ function renderListaCompositores() {
       }
       canciones.forEach(function(s) {
         html += '<button class="jubilo-chain" onclick="seleccionarCancionDesdeCompositor(\'' + s.id + '\')">' +
-          '<span class="jc-icon">🎵</span>' +
+          '<span class="jc-icon">' + iconoAlabanzaHtml(s.title, grupo.nombre, '🎵') + '</span>' +
           '<span class="jc-name">' + escH(s.title) + '</span>' +
           '<small>' + (s.tono ? '&#9836; ' + escH(s.tono) : '') + '</small>' +
         '</button>';
@@ -5989,6 +6446,14 @@ function renderListaCompositores() {
 }
 
 function seleccionarCancionDesdeCompositor(id) {
+  // Recordamos qué categoría (Artistas/Grupos) y qué grupo estaban abiertos,
+  // para volver a abrirlos tal cual al regresar a "Grupos y Artistas".
+  var nombreGrupo = grupoDeCancion(obtenerCancionPorId(id));
+  if (nombreGrupo) {
+    window.compositorGrupoActivo = nombreGrupo;
+    var infoGrupo = GRUPOS_ARTISTAS.filter(function(g) { return g.nombre === nombreGrupo; })[0];
+    window.compositorCategoriaActiva = infoGrupo ? (infoGrupo.tipo || 'grupo') : null;
+  }
   cerrarVistaCompositores();
   loadSong(id);
   // Recordamos que esta canción se abrió desde "Grupos y Artistas" para

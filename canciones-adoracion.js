@@ -1791,16 +1791,7 @@ var SONGS =
     "content": "[INTRO]:\n                                                      |B|\n        [VERSO 1]:\n        E                        F#m\n¿Amén, amén, amén, amén, amén\n        B                             E\n¿Las promesas del Señor son siempre Amén,\n        C#m                    F#m\n¿Cuando leo tu palabra canto Amén,\n        B                          E   B\n¿A la órden del Señor respondo Amén.\n        [VERSO 2]: \n        E                        F#m\n¿Amén, amén, amén, amén, amén, (Mi vida)\n        B                     E\n¿Mi vida yo la rindo a tus pies,\n        C#m                F#m\n¿Cuando veo tu gloria y tu poder,\n        B               E\n¿En mi alabanza te canto amén, amén.\n        [VERSO 1]:         |          [CORO]: ",
     "id": 172
   },
-  {
-    "num": 9,
-    "title": "QUIERO LLENAR TU TRONO",
-    "compositor": "Marcos Witt",
-    "tono": "D",
-    "album": "Él es Grande - 1998",
-    "version": "Inspiración",
-    "content": "[INTRO]:\n                                                    |D|A|\n        [VERSO 1]:\n        D               Em7                A                D              A\nX4 Quiero llenar tu trono de alabanza, quiero llenar tu trono de \n\n\nAdoración,\n        Bm7              Em7                           A         D\nQuiero adorar, postrarme en tu presencia y proclamarte Señor. X4",
-    "id": 173
-  },
+  
   {
     "num": 10,
     "title": "QUE TU GLORIA",
